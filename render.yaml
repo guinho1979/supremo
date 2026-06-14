@@ -1,0 +1,36 @@
+# render.yaml — Deploy na Render (servidor pago, sempre no ar)
+# Cria o serviço web (Node) + o banco PostgreSQL + as variáveis de ambiente.
+# IMPORTANTE: mantenha a MESMA região no serviço e no banco.
+
+services:
+  - type: web
+    name: chat-supremo
+    runtime: node
+    plan: starter                 # pago (~US$7/mês): não "dorme", WebSocket estável
+    region: oregon                # escolha: oregon, ohio, virginia, frankfurt, singapore
+    buildCommand: npm install
+    preDeployCommand: npm run db:migrate   # roda as migrações a cada deploy (idempotente)
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: JWT_SECRET
+        generateValue: true       # a Render gera um segredo forte sozinha
+      - key: BOT_SECRET
+        generateValue: true       # segredo para o bot externo buscar a chave
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chat-supremo-db
+          property: connectionString
+      - key: FRONTEND_URL
+        sync: false               # você informa na criação (ex.: https://chat-supremo.onrender.com)
+
+databases:
+  - name: chat-supremo-db
+    plan: basic-256mb             # pago (~US$6/mês): não expira
+    databaseName: chatsupremo
+    user: chatsupremo
+    region: oregon                # << precisa ser a MESMA do serviço acima

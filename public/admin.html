@@ -1,0 +1,3110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+<script>
+(function(){
+  try{
+    const t = localStorage.getItem('tc_token');
+    const r = localStorage.getItem('tc_role');
+    if(!t || !['admin','supervisor','mod','premium'].includes(r)) window.location.replace('login.html');
+  }catch(e){}
+})();
+</script>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chat Supremo — Painel Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#ffffff;--surface:#f5f8ff;--surface2:#edf2ff;--surface3:#dce6ff;--border:#c8d8f5;--border2:#8aaee0;--purple:#2563eb;--purple2:#1d4ed8;--text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;--green:#10b981;--red:#ef4444;--gold:#f59e0b;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+header{padding:10px 18px;background:#0f1f3d;border-bottom:1px solid #5b21b6;display:flex;align-items:center;gap:10px;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,.22)}
+.logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff}
+.admin-badge{font-size:9px;padding:2px 8px;border-radius:8px;background:#064e3b;color:#6ee7b7;font-weight:700;box-shadow:0 0 7px #10b98140}
+.back-btn{margin-left:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;color:#fff;font-size:11px;padding:6px 12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:175px;background:var(--surface);border-right:1px solid var(--border);padding:10px;flex-shrink:0;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:2px;transition:.12s;font-family:'Syne',sans-serif}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--surface3);color:var(--purple2);border-left:3px solid var(--purple)}
+.nav-icon{font-size:13px;width:18px;text-align:center}
+.content{flex:1;overflow-y:auto;padding:18px}
+.content::-webkit-scrollbar{width:3px}
+.content::-webkit-scrollbar-thumb{background:var(--surface3)}
+.page{display:none}.page.active{display:block}
+.page-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);margin-bottom:14px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:2px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.section-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:var(--purple2);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:.5px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-info{font-size:12px;color:var(--text2)}
+.toggle-info small{display:block;font-size:10px;color:var(--text3);margin-top:1px}
+.toggle{width:38px;height:20px;background:var(--border2);border-radius:10px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.toggle.on{background:var(--purple)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on::after{left:20px}
+.tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}
+table{width:100%;border-collapse:collapse}
+th{padding:8px 10px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;background:var(--surface2);border-bottom:1px solid var(--border)}
+td{padding:8px 10px;font-size:11px;border-bottom:.5px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.badge{font-size:8px;padding:2px 6px;border-radius:10px;font-weight:700;font-family:'Syne',sans-serif}
+.b-admin{background:#064e3b;color:#6ee7b7;box-shadow:0 0 6px #10b98130}
+.b-sup{background:#7f1d1d;color:#fca5a5;box-shadow:0 0 6px #ef444430}
+.b-mod{background:#1c1c2e;color:#d1d5db}
+.b-vip{background:#1e3a5f;color:#93c5fd;box-shadow:0 0 6px #3b82f630}
+.b-prem{background:#451a03;color:#fde68a;box-shadow:0 0 6px #f59e0b30}
+.b-dj{background:#0d2a5e;color:#d8b4fe;box-shadow:0 0 6px #a855f730}
+.b-user{background:var(--surface3);color:var(--text2)}
+.b-guest{background:#374151;color:#9ca3af}
+.abtn{padding:3px 7px;border-radius:5px;border:none;font-size:9px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.12s;white-space:nowrap}
+.abtn:hover{filter:brightness(1.15)}
+.abtn-ban{background:#7f1d1d;color:#fca5a5}
+.abtn-kick{background:#451a03;color:#fde68a}
+.abtn-mute{background:#1e3a5f;color:#93c5fd}
+.abtn-shadow{background:#1c1c2e;color:#d1d5db}
+.abtn-role{background:#0d2a5e;color:#d8b4fe}
+.abtn-spy{background:#064e3b;color:#6ee7b7}
+.abtn-edit{background:#152040;color:#60a5fa}
+.abtn-del{background:#7f1d1d;color:#fca5a5}
+.act-wrap{display:flex;gap:3px;flex-wrap:wrap}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:500px){.form-grid{grid-template-columns:1fr}}
+.field label{display:block;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--purple)}
+.field select option{background:var(--surface2)}
+.field textarea{resize:vertical;min-height:70px}
+.btn-primary{padding:8px 16px;border-radius:8px;border:none;background:var(--purple);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s}
+.btn-primary:hover{background:#1d4ed8}
+.btn-danger{padding:8px 16px;border-radius:8px;border:none;background:#7f1d1d;color:#fca5a5;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+.arquivo-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.arquivo-thumb{width:100%;aspect-ratio:1;object-fit:cover;background:#0a1628;display:block;cursor:pointer;transition:.2s}
+.arquivo-thumb:hover{opacity:.85}
+.arquivo-info{padding:8px 10px}
+.arquivo-nick{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:var(--text);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arquivo-meta{font-size:10px;color:var(--text3)}
+.btn-secondary{padding:8px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--purple2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+.ip-tag{font-size:9px;padding:1px 5px;background:var(--surface3);border-radius:4px;color:var(--text3);font-family:monospace}
+.log-entry{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.log-time{color:var(--text3);font-size:9px;margin-bottom:2px}
+.log-text{color:var(--text2);font-size:11px;font-weight:500;line-height:1.5}
+.log-text strong{color:var(--text)}
+.ann-preview{padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;margin-top:8px;display:flex;align-items:center;gap:7px}
+.ann-preview.purple{background:#0d2a5e;border:1px solid #1d4ed8;color:#93c5fd}
+.ann-preview.green{background:#064e3b;border:1px solid #10b981;color:#6ee7b7}
+.ann-preview.amber{background:#451a03;border:1px solid #f59e0b;color:#fde68a}
+.ann-preview.red{background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5}
+.overlay{position:fixed;inset:0;background:rgba(10,8,25,.88);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
+.overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px;width:300px;max-width:95vw;transform:translateY(10px);transition:.2s}
+.overlay.show .modal{transform:translateY(0)}
+.modal-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--purple2);margin-bottom:12px}
+.modal-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px}
+.modal-input:focus{border-color:var(--purple)}
+.modal-btns{display:flex;gap:7px;margin-top:8px}
+.mbtn{flex:1;padding:8px;border-radius:7px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+.mbtn.cancel{background:var(--surface2);color:var(--text2)}
+.mbtn.confirm{background:var(--purple);color:#fff}
+.mbtn.confirm:hover{background:#1d4ed8}
+@media(max-width:600px){
+  header{padding:6px 10px;gap:6px}.logo{font-size:13px}.back-btn{font-size:10px;padding:4px 8px}
+  .layout{flex-direction:column}
+  .sidebar{width:100%;height:auto;border-right:none;border-bottom:1px solid var(--border);padding:6px 8px;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:4px;-webkit-overflow-scrolling:touch}
+  .sidebar::-webkit-scrollbar{height:3px}.sidebar::-webkit-scrollbar-thumb{background:var(--surface3)}
+  .nav-item{flex-shrink:0;padding:5px 8px;border-radius:20px;font-size:10px;gap:4px;margin-bottom:0;white-space:nowrap}
+  .nav-item.active{border-left:none;border-bottom:2px solid var(--purple)}
+  .nav-icon{font-size:11px;width:14px}
+  .content{padding:10px}.page-title{font-size:14px;margin-bottom:10px}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px}
+  .stat{padding:8px}.stat-num{font-size:18px}.stat-lbl{font-size:9px}
+  .section{padding:10px;margin-bottom:8px}.section-title{font-size:11px;margin-bottom:8px}
+  th{padding:6px 8px;font-size:9px}td{padding:6px 8px;font-size:10px}
+  .abtn{padding:3px 6px;font-size:8px}.act-wrap{gap:2px}.form-grid{grid-template-columns:1fr}
+  .modal{width:94vw;padding:14px}.pv-grid{grid-template-columns:1fr}
+  .btn-primary,.btn-danger,.btn-secondary{padding:7px 12px;font-size:11px}
+}
+@media(max-width:380px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .nav-item{padding:5px 7px;border-radius:8px}
+}
+.pv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.pv-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:space-between}
+.pv-role-label{font-size:11px;font-weight:700;color:var(--text2)}
+/* PV Monitor styles */
+.pv-mon-bubble{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 12px;display:flex;flex-direction:column;gap:3px}
+.pv-mon-bubble.mine{background:rgba(29,78,216,.13);border-color:rgba(29,78,216,.3)}
+.pv-mon-meta{font-size:10px;color:var(--text2);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.pv-mon-nick{font-weight:700;color:#a78bfa}
+.pv-mon-nick.mine{color:#60a5fa}
+.pv-mon-conv{font-size:9px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.25);border-radius:4px;padding:1px 5px;color:#a78bfa}
+.pv-mon-text{font-size:12px;color:var(--text);line-height:1.4;word-break:break-word}
+.pv-mon-time{font-size:9px;color:var(--text2);margin-left:auto;white-space:nowrap}
+@keyframes pvPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.limit-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:.5px solid var(--border)}
+.limit-row:last-child{border-bottom:none}
+.limit-room{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px}
+.limit-input{width:60px;background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;text-align:center}
+.limit-input:focus{border-color:var(--purple)}
+
+/* ── LOGIN LOGS TABLE ───────────────────────── */
+/* ── ROLE CARDS ─────────────────────────────────── */
+#guRoleCards { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+@media(max-width:480px){ #guRoleCards{ grid-template-columns:repeat(4,1fr); gap:5px; } }
+@media(max-width:360px){ #guRoleCards{ grid-template-columns:repeat(4,1fr); gap:4px; } }
+#guRoleCards > div:hover { filter:brightness(1.12); }
+/* ── LOGIN LOGS TABLE ───────────────────────── */
+.login-nick-link{color:var(--purple2);font-weight:700;cursor:pointer;text-decoration:underline dotted;font-family:'Syne',sans-serif;font-size:11px}
+.login-nick-link:hover{color:var(--purple)}
+.login-type-registered{background:#064e3b22;color:#10b981;border:1px solid #10b98144}
+.login-type-guest{background:#37415122;color:#9ca3af;border:1px solid #6b728044}
+.login-pagination{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px}
+.pg-btn{padding:5px 12px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.12s}
+.pg-btn:hover{background:var(--surface3)}
+.pg-btn.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+.pg-btn:disabled{opacity:.35;cursor:not-allowed}
+.login-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.filter-btn{padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:10px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.12s}
+.filter-btn.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+.login-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.login-stat{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+.login-stat-num{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
+.login-stat-lbl{font-size:9px;color:var(--text3);margin-top:2px}
+/* ── BOTÃO ESPIAR SALA ───────────────────────── */
+.abtn-espiar{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 10px;font-size:13px;font-weight:700;font-family:'Syne',sans-serif;border-radius:10px;border:1px solid var(--border2);cursor:pointer;transition:.15s;background:var(--surface2);color:var(--purple2);width:100%}
+.abtn-espiar:hover{background:var(--surface3);color:var(--purple)}
+/* spy bubble classes */
+.msg-group{display:flex;gap:8px;align-items:flex-start}
+.msg-group[data-mine="1"]{flex-direction:row-reverse}
+.msg-content{width:100%;min-width:0}
+.msg-bubble{background:#fff;border-radius:0 12px 12px 12px;padding:8px 12px;border:.5px solid #b8d0e8;width:100%}
+.msg-bubble.priv{background:#fffde7;border:1px solid rgba(252,165,165,.33);border-left:3px solid #ef4444}
+.msg-group[data-mine="1"] .msg-bubble{border-radius:12px 0 12px 12px;background:#e8f2ff}
+.msg-head{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.msg-nick{font-size:12px;font-weight:800;font-family:"Syne",sans-serif}
+.msg-text{font-size:16px;font-weight:700;color:#1a2d42;line-height:1.5;word-break:break-word}
+.msg-footer{display:flex;align-items:center;gap:8px;margin-top:3px}
+.msg-time{font-size:10px;color:#6a8aaa}
+</style>
+<script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
+<script src="api.js"></script>
+</head>
+<body>
+<header>
+  <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:42px;object-fit:contain">
+  <span class="admin-badge">PAINEL ADMIN</span>
+  <button class="back-btn" onclick="window.location.href='chat.html'">← Voltar ao Chat</button>
+</header>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav-item active" data-roles="admin,supervisor" onclick="show('dashboard',this)"><span class="nav-icon">📊</span><span>Dashboard</span></div>
+    <div class="nav-item" data-roles="admin,supervisor,mod" onclick="show('logins',this)"><span class="nav-icon">🔑</span><span>Login</span></div>
+    <div class="nav-item" data-roles="admin" onclick="show('gerenciar-usuarios',this)"><span class="nav-icon">🛠</span><span>Gerenciar</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('salas',this)"><span class="nav-icon">💬</span><span>Salas</span></div>
+    <div class="nav-item" data-roles="admin,supervisor,mod,premium" onclick="show('espiar',this)"><span class="nav-icon">👁</span><span>Espiar</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('anuncio',this)"><span class="nav-icon">📢</span><span>Anúncio</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('acesso',this)"><span class="nav-icon">🚪</span><span>Controle</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('seguranca',this)"><span class="nav-icon">🛡</span><span>Segurança</span></div>
+    <div class="nav-item" data-roles="admin,supervisor,mod" onclick="show('moderacao',this)"><span class="nav-icon">⚡</span><span>Moderação</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('dj',this)"><span class="nav-icon">🎧</span><span>DJ</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('contatos',this)"><span class="nav-icon">✉</span><span>Contatos</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('enquete',this)"><span class="nav-icon">📊</span><span>Enquete</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('quiz',this)"><span class="nav-icon">🧠</span><span>Quiz</span></div>
+    <div class="nav-item" data-roles="admin,supervisor,mod" onclick="show('logs',this)"><span class="nav-icon">📋</span><span>Logs</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('smiles',this)"><span class="nav-icon">😁</span><span>Smiles</span></div>
+    <div class="nav-item" data-roles="admin" onclick="show('arquivos',this)"><span class="nav-icon">🖼</span><span>Arquivos</span></div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-num" style="color:#60a5fa">127</div><div class="stat-lbl">Usuários</div></div>
+        <div class="stat"><div class="stat-num" style="color:#10b981">42</div><div class="stat-lbl">Online</div></div>
+        <div class="stat"><div class="stat-num" style="color:#60a5fa">8</div><div class="stat-lbl">Salas ativas</div></div>
+        <div class="stat"><div class="stat-num" style="color:#fbbf24">3</div><div class="stat-lbl">Bans hoje</div></div>
+        <div class="stat"><div class="stat-num" style="color:#f472b6">1.4k</div><div class="stat-lbl">Msgs hoje</div></div>
+        <div class="stat"><div class="stat-num" style="color:#f87171">5</div><div class="stat-lbl">VPNs bloq.</div></div>
+        <div class="stat"><div class="stat-num" style="color:#60a5fa">14</div><div class="stat-lbl">Visitantes</div></div>
+        <div class="stat"><div class="stat-num" style="color:#fbbf24">8</div><div class="stat-lbl">Contatos</div></div>
+      </div>
+      <div class="section" id="secAcoesRapidas">
+        <div class="section-title">⚡ Ações rápidas</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-primary" onclick="show('anuncio',null)">📢 Novo anúncio</button>
+          <button class="btn-primary" onclick="show('acesso',null)">🚪 Controle acesso</button>
+          <button class="btn-primary" onclick="show('moderacao',null)">⚡ Moderar</button>
+          <button class="btn-secondary" onclick="show('dj',null)">🎧 Painel DJ</button>
+        </div>
+      </div>
+      <div class="section" id="secLogoChat">
+        <div class="section-title">🖼 Logo do Chat</div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <div id="logoPreview" style="width:80px;height:80px;background:var(--surface2);border:2px dashed var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--purple2);overflow:hidden;flex-shrink:0">Chat Supremo</div>
+          <div style="flex:1">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:8px">Faça upload do logo que aparecerá em todas as páginas do chat.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label style="background:var(--purple);color:#fff;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">
+                📁 Escolher imagem
+                <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadLogo(this)"/>
+              </label>
+              <button class="btn-secondary" onclick="removeLogo()">✕ Remover logo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══ LOGIN — HISTÓRICO DE ACESSOS ══ -->
+    <div class="page" id="page-logins">
+      <div class="page-title">🔑 Histórico de Logins</div>
+
+      <!-- Mini stats -->
+      <div class="login-stats-row">
+        <div class="login-stat">
+          <div class="login-stat-num" style="color:#10b981" id="loginStatTotal">0</div>
+          <div class="login-stat-lbl">Acessos (24h)</div>
+        </div>
+        <div class="login-stat">
+          <div class="login-stat-num" style="color:#60a5fa" id="loginStatReg">0</div>
+          <div class="login-stat-lbl">Cadastrados</div>
+        </div>
+        <div class="login-stat">
+          <div class="login-stat-num" style="color:#9ca3af" id="loginStatGuest">0</div>
+          <div class="login-stat-lbl">Visitantes</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">🔑 Acessos das últimas 24h</div>
+
+        <!-- Filtros -->
+        <div class="login-filters">
+          <span style="font-size:10px;color:var(--text3);font-weight:600">Filtrar:</span>
+          <button class="filter-btn active" onclick="setLoginFilter('todos',this)">Todos</button>
+          <button class="filter-btn" onclick="setLoginFilter('registered',this)">Cadastrados</button>
+          <button class="filter-btn" onclick="setLoginFilter('guest',this)">Visitantes</button>
+          <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+            <input id="loginSearch" placeholder="🔍 Buscar nick..." oninput="renderLoginTable()"
+              style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--text);font-size:11px;outline:none;width:140px"/>
+            <button onclick="loginClearData()" class="btn-danger" style="padding:5px 10px;font-size:10px;white-space:nowrap">🗑 Limpar</button>
+          </div>
+        </div>
+
+        <!-- Tabela -->
+        <div class="tbl-wrap" style="margin-bottom:0">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nick</th>
+                <th>Data</th>
+                <th>Hora</th>
+                <th>IP</th>
+              </tr>
+            </thead>
+            <tbody id="loginTableBody">
+              <tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-size:11px">Carregando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginação -->
+        <div class="login-pagination" id="loginPagination"></div>
+      </div>
+    </div>
+
+    <!-- ══ GERENCIAR USUÁRIOS ══ -->
+    <div class="page" id="page-gerenciar-usuarios">
+      <div class="page-title">🛠 Gerenciar Usuários</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:14px">Área exclusiva para Admin e Supervisor — trocar cargo e excluir cadastros.</p>
+      <div class="section" style="margin-bottom:12px">
+        <div class="section-title">🔍 Selecionar Usuário</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="guSearchInput" placeholder="🔍 Digite o nick..." autocomplete="off" oninput="guFiltrar(this.value)"
+            style="flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;outline:none"/>
+          <button onclick="guLimpar()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;padding:7px 12px;cursor:pointer;font-family:'DM Sans',sans-serif">✕</button>
+        </div>
+        <div id="guDropdown" style="display:none;background:var(--surface);border:1px solid var(--border2);border-radius:8px;margin-top:4px;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.15)"></div>
+      </div>
+      <div id="guCard" style="display:none">
+        <div class="section">
+          <div class="section-title" id="guCardTitle">👤 Usuário</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px" id="guGrid"></div>
+          <div style="margin-bottom:14px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px" id="guTrocarCargoBox">
+            <div style="font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">🎖 Trocar Cargo</div>
+            <div id="guCargoAtual" style="font-size:10px;color:var(--text3);margin-bottom:12px"></div>
+            <div id="guRoleCards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">
+              <!-- cards gerados pelo JS -->
+            </div>
+            <div id="guRoleConfirmBar" style="display:none;margin-top:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;display:none;align-items:center;gap:10px;flex-wrap:wrap">
+              <span style="font-size:12px;color:var(--text2);flex:1">Confirmar: <strong id="guRoleConfirmLabel" style="color:#a78bfa"></strong>?</span>
+              <button onclick="guConfirmarTroca()" style="padding:6px 14px;border-radius:7px;border:none;background:var(--purple);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">✅ Confirmar</button>
+              <button onclick="guCancelarTroca()" style="padding:6px 12px;border-radius:7px;border:none;background:var(--surface2);color:var(--text2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">✕</button>
+            </div>
+          </div>
+          <div style="padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--purple2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">🗑 Excluir Cadastro</div>
+            <p style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5">Esta ação remove permanentemente o cadastro do usuário.</p>
+            <button class="abtn abtn-ban" style="width:100%;padding:10px;font-size:12px" onclick="guExcluirCadastro()">🗑 Confirmar Exclusão</button>
+          </div>
+        </div>
+      </div>
+      <div class="section" style="margin-top:14px">
+        <div class="section-title">👥 Todos os Usuários Cadastrados</div>
+        <div id="guListaUsuarios" style="display:flex;flex-direction:column;gap:6px;max-height:400px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- ══ SALAS ══ -->
+    <div class="page" id="page-salas">
+      <div class="page-title">Gerenciar Salas</div>
+      <div class="section">
+        <div class="section-title">➕ Criar nova sala</div>
+        <div class="form-grid">
+          <div class="field"><label>Nome</label><input placeholder="ex: Tecnologia" id="newRoomName"/></div>
+          <div class="field"><label>Ícone (emoji)</label><input placeholder="💻" maxlength="2" id="newRoomIcon"/></div>
+          <div class="field"><label>Acesso mínimo</label>
+            <select id="newRoomRole"><option>guest</option><option>user</option><option>vip</option><option>premium</option><option>dj</option><option>mod</option><option>supervisor</option><option>admin</option></select></div>
+          <div class="field"><label>Limite</label><input type="number" min="5" max="500" value="100" id="newRoomLimit"/></div>
+          <div class="field" style="grid-column:1/-1"><label>Descrição</label><input placeholder="Assunto da sala" id="newRoomDesc"/></div>
+        </div>
+        <button class="btn-primary" style="margin-top:10px" onclick="tcCreateRoom()">Criar sala</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Sala</th><th>Ações</th></tr></thead>
+          <tbody id="salasTableBody">
+            <tr><td>💬 Geral</td><td><div class="act-wrap"><button class="abtn abtn-ban" onclick="confirmarExcluirSala(this,'Geral')">🗑 Excluir</button></div></td></tr>
+            <tr><td>🎮 Games</td><td><div class="act-wrap"><button class="abtn abtn-ban" onclick="confirmarExcluirSala(this,'Games')">🗑 Excluir</button></div></td></tr>
+            <tr><td>🎵 Música</td><td><div class="act-wrap"><button class="abtn abtn-ban" onclick="confirmarExcluirSala(this,'Música')">🗑 Excluir</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ══ AÇÕES EM MASSA ══ -->
+      <div class="section" style="margin-top:14px">
+        <div class="section-title">⚡ Ações em Massa</div>
+
+        <!-- Expulsar todos da sala -->
+        <div style="margin-bottom:12px">
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:5px">🚪 Expulsar todos de uma sala</div>
+          <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">Selecione a sala e expulse todos os usuários presentes.</p>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="expulsarSalaSelect" style="flex:1;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;outline:none">
+              <option value="">— Selecione a sala —</option>
+              <option value="geral">💬 Geral</option>
+              <option value="games">🎮 Games</option>
+              <option value="musica">🎵 Música</option>
+              <option value="esportes">⚽ Esportes</option>
+              <option value="vip">⭐ VIP Lounge</option>
+              <option value="premium">👑 Premium</option>
+              <option value="dj">🎧 Sala DJ</option>
+            </select>
+            <button onclick="expulsarSalaSelecionada()" style="white-space:nowrap;background:#ef4444;border:none;color:#fff;font-size:11px;font-weight:700;padding:9px 14px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">🚪 Expulsar todos</button>
+          </div>
+          <button onclick="expulsarTodosChat('TODAS')" style="width:100%;margin-top:8px;background:var(--surface3);border:1px solid var(--border2);color:var(--purple2);font-size:12px;font-weight:700;padding:10px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif">🚨 Expulsar de TODAS as Salas</button>
+          <div id="expulsarMsg" style="margin-top:6px;font-size:11px;display:none;color:#10b981"></div>
+        </div>
+
+        <!-- Excluir mensagens da sala -->
+        <div style="padding-top:12px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:5px">🗑 Excluir mensagens de uma sala</div>
+          <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">Selecione a sala e apague todas as mensagens armazenadas localmente.</p>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="excluirMsgSalaSelect" style="flex:1;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;outline:none">
+              <option value="">— Selecione a sala —</option>
+              <option value="geral">💬 Geral</option>
+              <option value="games">🎮 Games</option>
+              <option value="musica">🎵 Música</option>
+              <option value="esportes">⚽ Esportes</option>
+              <option value="vip">⭐ VIP Lounge</option>
+              <option value="premium">👑 Premium</option>
+              <option value="dj">🎧 Sala DJ</option>
+            </select>
+            <button onclick="excluirMensagensSala()" style="white-space:nowrap;background:#ef4444;border:none;color:#fff;font-size:11px;font-weight:700;padding:9px 14px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">🗑 Excluir mensagens</button>
+          </div>
+          <div id="excluirMsgMsg" style="margin-top:6px;font-size:11px;display:none;color:#10b981"></div>
+        </div>
+
+        <!-- Salas privadas -->
+        <div style="margin-top:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px">
+          <div style="font-size:11px;font-weight:700;color:var(--purple2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">🔒 Salas Privadas</div>
+          <button onclick="excluirTodasSalasPrivadas()" style="width:100%;background:var(--surface3);border:1px solid var(--border2);color:var(--purple2);font-size:12px;font-weight:700;padding:10px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif">🗑 Excluir Todas as Salas Privadas</button>
+          <div id="privMsg" style="margin-top:8px;font-size:11px;display:none;color:#10b981"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══ OVERLAY ESPIÃO PV ══ -->
+    <div class="page" id="page-espiar">
+      <div class="page-title">👁 Espiar Salas</div>
+
+      <!-- SALAS PÚBLICAS -->
+      <div class="section">
+        <div class="section-title">🌐 Salas Públicas</div>
+        <p style="font-size:11px;color:var(--text3);margin-bottom:12px">Você ficará invisível. Apenas leitura.</p>
+        <div id="spyRoomGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="grid-column:1/-1;text-align:center;color:var(--text3);font-size:11px">Carregando salas…</div>
+        </div>
+      </div>
+
+      <!-- SALAS PRIVADAS — só admin e supervisor -->
+      <div class="section" id="espiarSalasPrivadasSection" style="display:none">
+        <div class="section-title">🔒 Salas Privadas</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--text2)">🔒 <span id="spPrivCount">0</span> sala(s)</div>
+          <button onclick="spPrivRecarregar()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--purple2);font-size:11px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif">🔄 Atualizar</button>
+        </div>
+        <div id="spPrivGrid" style="display:flex;flex-direction:column;gap:10px">
+          <div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)"><div style="font-size:32px;margin-bottom:10px">🔒</div>Nenhuma sala privada criada ainda.</div>
+        </div>
+      </div>
+
+      <!-- PRIVADOS (PVs) — só admin e supervisor -->
+      <div class="section" id="espiarPrivadosSection" style="display:none">
+        <div class="section-title">💬 Espiar Privados (PVs)</div>
+
+        <!-- Monitor toggle -->
+        <div class="toggle-row">
+          <div class="toggle-info">Ativar monitoramento<small>Admin e Supervisor receberão cópia dos PVs</small></div>
+          <div class="toggle" id="pvMonitorToggle" onclick="togglePvMonitor(this)"></div>
+        </div>
+
+        <!-- Aviso monitor desativado -->
+        <div id="pvMonitorOffMsg" style="display:none;margin-top:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;font-size:11px;color:var(--text3);text-align:center">
+          <div style="font-size:24px;margin-bottom:6px">🔕</div>
+          <div id="pvOffMsgDesc">Ative o monitoramento para capturar mensagens privadas.</div>
+        </div>
+
+        <!-- Botão selecionar conversa (aparece quando monitor ativo) -->
+        <div id="pvJanelaSection" style="display:none;margin-top:12px">
+          <div id="pvSupervisorNotice" style="display:none"></div>
+          <div id="pvConvFilter" style="display:none"></div>
+          <input id="pvSearchInput" style="display:none"/>
+          <div id="pvMonitorStats" style="display:none"></div>
+          <div id="pvMonitorMsgList" style="display:none"></div>
+          <div id="pvConvCards" style="display:none"></div>
+          <button onclick="abrirModalPvConvs()" style="width:100%;padding:11px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">
+            🔒 <span id="pvSelectBtnLabel">Selecionar Conversa</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BOTTOM SHEET CONVERSAS PV ══ -->
+    <div id="pvConvModal" style="display:none;position:fixed;inset:0;z-index:9997;background:rgba(10,8,25,.7)" onclick="if(event.target===this)fecharModalPvConvs()">
+      <div id="pvConvSheet" style="position:absolute;bottom:0;left:0;right:0;background:var(--surface);border-radius:20px 20px 0 0;display:flex;flex-direction:column;max-height:82vh;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:0 -8px 32px rgba(0,0,0,.35)">
+        <!-- Drag handle -->
+        <div style="display:flex;justify-content:center;padding:10px 0 4px" onclick="fecharModalPvConvs()">
+          <div style="width:36px;height:4px;border-radius:99px;background:var(--border2)"></div>
+        </div>
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 10px;flex-shrink:0">
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text)">Conversas Privadas</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:1px;display:flex;align-items:center;gap:4px">🕐 <span id="pvModalCount">Últimas 24h</span></div>
+          </div>
+          <button onclick="fecharModalPvConvs()" style="width:30px;height:30px;border-radius:50%;border:none;background:var(--surface2);color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
+        </div>
+        <!-- Busca -->
+        <div style="padding:0 12px 10px;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
+            <span style="font-size:13px;color:var(--text3)">🔍</span>
+            <input id="pvSheetSearch" placeholder="Buscar conversa..." oninput="pvSheetFiltrar()" style="flex:1;background:none;border:none;outline:none;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif"/>
+          </div>
+        </div>
+        <!-- Lista -->
+        <div id="pvModalList" style="overflow-y:auto;padding:0 12px 24px;display:flex;flex-direction:column;gap:8px;flex:1">
+          <div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)">🔒 Nenhuma conversa ativa nas últimas 24h.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ OVERLAY ESPIÃO PV ══ -->
+    <!-- ══ OVERLAY ESPIÃO PV — janela privada idêntica ══ -->
+    <div id="pvSpyOverlay" style="display:none;position:fixed;inset:0;z-index:9998;flex-direction:column;font-family:'DM Sans',sans-serif;background:#e8eaf0">
+
+      <!-- ── HEADER azul igual ao PV real ── -->
+      <div id="pvSpyHeader" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(135deg,#1a237e,#283593);flex-shrink:0;min-height:58px">
+        <!-- Botão voltar -->
+        <button onclick="fecharPvSpy()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
+        <!-- Avatar do contato -->
+        <div id="pvSpyContactAvatarInner" style="width:38px;height:38px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:2px solid rgba(255,255,255,.3);overflow:hidden"></div>
+        <!-- Info -->
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px">🔒</span>
+            <div id="pvSpyConvTitle" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">PV: Conversa</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;margin-top:1px">
+            <span style="width:7px;height:7px;border-radius:50%;background:#69f0ae;display:inline-block;flex-shrink:0"></span>
+            <span style="font-size:10px;color:rgba(255,255,255,.75)">online</span>
+            <span style="font-size:9px;color:rgba(239,68,68,.9);font-weight:700;letter-spacing:.4px;margin-left:6px;background:rgba(239,68,68,.15);padding:1px 6px;border-radius:8px;border:1px solid rgba(239,68,68,.4)">👁 ESPIÃO</span>
+          </div>
+        </div>
+        <!-- SELECT conversas -->
+        <select id="pvSpyConvSelect" onchange="pvSpySwitchConv(this.value)" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:10px;font-weight:700;padding:5px 8px;border-radius:8px;outline:none;cursor:pointer;font-family:'Syne',sans-serif;max-width:120px;display:none"></select>
+      </div>
+
+      <!-- ── ÁREA DE MENSAGENS ── -->
+      <div id="pvSpyMsgArea" style="flex:1;overflow-y:auto;padding:12px 10px;background:#e8eaf0;display:flex;flex-direction:column;gap:0">
+      </div>
+
+      <!-- ── INPUT DESABILITADO (visual) ── -->
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid #dde1ea;flex-shrink:0">
+        <button style="width:36px;height:36px;border-radius:50%;background:#f0f2f8;border:none;color:#2563eb;font-size:18px;cursor:default;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</button>
+        <div style="flex:1;background:#f0f2f8;border-radius:22px;padding:10px 16px;font-size:13px;color:#9aa0b0;user-select:none">Mensagem privada...</div>
+        <button style="width:36px;height:36px;border-radius:50%;background:#2563eb;border:none;color:#fff;font-size:16px;cursor:default;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.5">▶</button>
+      </div>
+    </div>
+
+    <!-- ══ ANÚNCIO ══ -->
+    <div class="page" id="page-anuncio">
+      <div class="page-title">📢 Anúncio nas Salas</div>
+      <div class="section">
+        <div class="section-title">Criar anúncio</div>
+        <div class="field" style="margin-bottom:10px"><label>Mensagem</label>
+          <textarea id="annMsg" placeholder="Mensagem para todas as salas..."></textarea></div>
+        <div class="field" style="margin-bottom:10px"><label>Cor</label>
+          <select id="annColor"><option value="purple">🟣 Roxo</option><option value="green">🟢 Verde</option><option value="amber">🟡 Âmbar</option><option value="red">🔴 Vermelho</option></select></div>
+        <div class="ann-preview purple" id="annPreview"><span>📢</span><span id="annPreviewText">Pré-visualização...</span></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn-primary" onclick="publishAnnouncement()">📢 Publicar</button>
+          <button class="btn-danger" onclick="clearAnnouncement()">✕ Remover</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONTROLE DE ACESSO ══ -->
+    <div class="page" id="page-acesso">
+      <div class="section">
+        <div class="section-title">🛡 Moderação de Imagens (salas públicas)</div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            Ativar verificação automática
+            <small>Bloqueia imagens impróprias em salas abertas usando IA local</small>
+          </div>
+          <div class="toggle on" id="nsfwToggle" onclick="nsfwToggleActive(this)"></div>
+        </div>
+        <div style="margin-top:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:12px;font-weight:600;color:var(--text2)">Nível de rigor</span>
+            <span id="nsfwThresholdLabel" style="font-size:12px;font-weight:800;color:var(--purple);font-family:'Syne',sans-serif">50%</span>
+          </div>
+          <input type="range" id="nsfwThreshold" min="10" max="90" step="5" value="50"
+            style="width:100%;accent-color:var(--purple);cursor:pointer"
+            oninput="nsfwUpdateLabel(this.value)" onchange="nsfwSave()"/>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:10px">
+            <div style="background:#064e3b;border:1px solid #10b98155;border-radius:8px;padding:8px 10px;text-align:center">
+              <div style="font-size:10px;font-weight:800;color:#6ee7b7;font-family:'Syne',sans-serif">10% – 30%</div>
+              <div style="font-size:9px;color:#6ee7b7;margin-top:2px;line-height:1.4">🔒 Máximo rigor — bloqueia até imagens com roupas sensuais ou insinuações leves</div>
+            </div>
+            <div style="background:#0d2a5e;border:1px solid #1d4ed855;border-radius:8px;padding:8px 10px;text-align:center">
+              <div style="font-size:10px;font-weight:800;color:#93c5fd;font-family:'Syne',sans-serif">35% – 60%</div>
+              <div style="font-size:9px;color:#93c5fd;margin-top:2px;line-height:1.4">⚖️ Equilibrado — bloqueia nudez e conteúdo sexual claro, permite fotos normais</div>
+            </div>
+            <div style="background:#451a03;border:1px solid #f59e0b55;border-radius:8px;padding:8px 10px;text-align:center">
+              <div style="font-size:10px;font-weight:800;color:#fde68a;font-family:'Syne',sans-serif">65% – 90%</div>
+              <div style="font-size:9px;color:#fde68a;margin-top:2px;line-height:1.4">🔓 Permissivo — só bloqueia conteúdo explícito óbvio com alta certeza da IA</div>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:10px;color:var(--text3);line-height:1.6">
+            ℹ️ A verificação usa o modelo <strong style="color:var(--text2)">NSFWJS</strong> rodando diretamente no navegador do usuário — sem enviar imagens para servidores externos. O modelo analisa a probabilidade de conteúdo adulto (<em>Porn + Sexy + Hentai</em>); se a soma ultrapassar o limiar definido aqui, a imagem é bloqueada automaticamente.
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+            <button class="btn-primary" onclick="nsfwSave()">💾 Salvar</button>
+            <button class="btn-secondary" onclick="nsfwReset()">↩ Padrão (50%)</button>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">💬 Controle do Chat</div>
+        <div class="toggle-row">
+          <div class="toggle-info">Modo lento<small>1 msg a cada 30s</small></div>
+          <div class="toggle" onclick="this.classList.toggle('on');toast('Modo lento '+(this.classList.contains('on')?'ativado':'desativado'))"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">Somente membros<small>Visitantes não podem enviar mensagens</small></div>
+          <div class="toggle" id="membersOnlyAdminToggle" onclick="toggleMembersOnly(this)"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">🎱 Liberar Bingo<small>Permite que usuários acessem a página do Bingo</small></div>
+          <div class="toggle" id="bingoToggle" onclick="toggleBingo(this)"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Fechamento global</div>
+        <div class="toggle-row">
+          <div class="toggle-info">Fechar entrada de visitantes</div>
+          <div class="toggle" id="guestBlock" onclick="toggleBlock('guest',this)"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">Fechar entrada de cadastrados</div>
+          <div class="toggle" id="registeredBlock" onclick="toggleBlock('registered',this)"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">Fechar novos cadastros</div>
+          <div class="toggle" id="registerBlock" onclick="toggleBlock('register',this)"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">Fechar site completamente</div>
+          <div class="toggle" id="siteBlock" onclick="toggleBlock('site',this)"></div>
+        </div>
+      </div>
+
+      <!-- ══ CONTROLE DE AUSÊNCIA ══ -->
+      <div class="section">
+        <div class="section-title">⏱ Controle de Ausência</div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            Desconectar usuário ausente
+            <small>Nick é desconectado automaticamente após inatividade</small>
+          </div>
+          <div class="toggle on" id="toggleAusencia" onclick="this.classList.toggle('on');salvarConfigAusencia()"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            Tempo de ausência para desconexão
+            <small>Minutos sem atividade até o usuário ser desconectado</small>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="limit-input" type="number" id="ausenciaMinutos" min="1" max="1440" value="15" onchange="salvarConfigAusencia()"/>
+            <span style="font-size:10px;color:var(--text3)">min</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button class="btn-primary" onclick="salvarConfigAusencia()">💾 Salvar</button>
+          <button class="btn-secondary" onclick="resetConfigAusencia()">↩ Padrão</button>
+        </div>
+      </div>
+
+      <!-- ══ CONTROLE DE MENSAGENS ══ -->
+      <div class="section">
+        <div class="section-title">💬 Controle de Mensagens</div>
+
+        <!-- Limite global -->
+        <div class="toggle-row">
+          <div class="toggle-info">
+            Limite de mensagens visíveis
+            <small>Aplicado a todas as salas do chat</small>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="limit-input" type="number" id="msgLimitGlobal" min="10" max="500" value="100"/>
+            <span style="font-size:10px;color:var(--text3)">msgs</span>
+          </div>
+        </div>
+
+        <!-- TTL global -->
+        <div class="toggle-row">
+          <div class="toggle-info">
+            Tempo de expiração das mensagens
+            <small>Mensagens serão removidas após este período</small>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="limit-input" type="number" id="msgTTLGlobal" min="1" max="10080" value="60" style="width:60px"/>
+            <select id="msgTTLGlobalUnit" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 7px;color:var(--text);font-size:11px;font-family:'DM Sans',sans-serif;outline:none">
+              <option value="min">minutos</option>
+              <option value="hora">horas</option>
+              <option value="dia">dias</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Toggles -->
+        <div class="toggle-row">
+          <div class="toggle-info">
+            Expiração automática ativa
+            <small>Desligar mantém as mensagens indefinidamente</small>
+          </div>
+          <div class="toggle on" id="toggleMsgExpiracao" onclick="toggleMsgExpiracao(this)"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            Avisar usuário antes de expirar
+            <small>Exibe contador regressivo nas mensagens</small>
+          </div>
+          <div class="toggle" id="toggleMsgAviso" onclick="this.classList.toggle('on');salvarConfigMensagens(false)"></div>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info">
+            Manter mensagens fixadas
+            <small>Pins não expiram mesmo com expiração ativa</small>
+          </div>
+          <div class="toggle on" id="togglePinsManter" onclick="this.classList.toggle('on');salvarConfigMensagens(false)"></div>
+        </div>
+
+        <!-- Preview -->
+        <div id="msgConfigPreview" style="display:none;margin-top:10px;padding:9px 12px;background:#0d2a5e;border:1px solid #1d4ed8;border-radius:8px;font-size:11px;color:#93c5fd;line-height:1.6"></div>
+
+        <!-- Botões -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button class="btn-primary" onclick="salvarConfigMensagens(true)">💾 Salvar</button>
+          <button class="btn-secondary" onclick="resetConfigMensagens()">↩ Padrão</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SEGURANÇA ══ -->
+    <div class="page" id="page-seguranca">
+      <div class="page-title">🛡 Segurança</div>
+      <div class="section">
+        <div class="section-title">Configurações</div>
+        <div class="toggle-row"><div class="toggle-info">Detectar VPN/Proxy</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-info">Anti-flood</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-info">Anti-spam</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div class="section">
+        <div class="section-title">🚫 Blacklist de IPs</div>
+        <div style="display:flex;gap:7px;margin-bottom:10px">
+          <input id="ipInput" placeholder="ex: 192.168.1.100" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-size:11px;outline:none"/>
+          <button class="btn-danger" style="padding:7px 12px" onclick="addIP()">Bloquear</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px" id="ipList">
+          <span class="ip-tag" style="cursor:pointer;padding:3px 8px" onclick="this.remove()">45.33.32.156 ✕</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">🔤 Palavras Bloqueadas</div>
+        <div style="display:flex;gap:7px;margin-bottom:10px">
+          <input id="spamWordInput" placeholder="ex: palavrão..." style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-size:11px;outline:none" onkeydown="if(event.key==='Enter')addSpamWord()"/>
+          <button class="btn-danger" style="padding:7px 12px" onclick="addSpamWord()">+ Adicionar</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px" id="spamWordList"></div>
+        <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:10px;color:#4a4570" id="spamWordCount">0 palavras bloqueadas</span>
+          <button onclick="saveSpamWords()" style="padding:5px 14px;border-radius:7px;border:none;background:#2563eb;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">💾 Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MODERAÇÃO ══ -->
+    <div class="page" id="page-moderacao">
+      <div class="page-title">⚡ Moderação</div>
+
+      <!-- ══ USUÁRIOS (integrado) ══ -->
+      <div class="section" style="margin-bottom:12px">
+        <div class="section-title">👥 Usuários</div>
+        <div style="position:relative" id="userSelectWrap">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div style="flex:1;position:relative">
+              <input id="userSearchInput" placeholder="🔍 Digite o nick para buscar..." autocomplete="off"
+                oninput="filtrarUsuarios(this.value)" onfocus="abrirDropdown()" onblur="setTimeout(fecharDropdown,200)"
+                style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;outline:none"/>
+              <div id="userDropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:50;max-height:220px;overflow-y:auto"></div>
+            </div>
+            <button onclick="limparUserSelect()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;padding:7px 12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">✕ Limpar</button>
+          </div>
+          <div id="userSelectedBadge" style="display:none;margin-top:8px;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 10px">
+            <span id="userSelectedAv" style="font-size:16px"></span>
+            <span id="userSelectedName" style="font-size:12px;font-weight:700;color:var(--text)"></span>
+            <span id="userSelectedBadgeRole" class="badge" style="font-size:8px"></span>
+          </div>
+        </div>
+        <div id="userCard" style="display:none;margin-top:10px">
+          <div class="section-title" id="cardTitle" style="margin-bottom:8px">👤 Dados do Usuário</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px" id="cardGrid"></div>
+          <div class="section-title" style="margin-top:4px;margin-bottom:6px">⚡ Ações</div>
+          <div class="act-wrap" id="cardActions" style="gap:5px;flex-wrap:wrap"></div>
+        </div>
+      </div>
+
+      <div class="section" id="modAcaoManual">
+        <div class="section-title">⚡ Ação manual</div>
+        <div class="form-grid">
+          <div class="field"><label>Nick</label><input id="modNick" placeholder="nick_do_usuario"/></div>
+          <div class="field"><label>Ação</label>
+            <select id="modAction"><option>ban</option><option>kick</option><option>mute</option><option>shadowban</option><option>desbanir</option><option>desmutar</option></select></div>
+          <div class="field"><label>Motivo</label><input id="modReason" placeholder="Motivo"/></div>
+          <div class="field" style="grid-column:1/-1"><label>Duração do ban</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+              <button type="button" onclick="setModDur(1,this)" style="padding:5px 10px;border-radius:6px;border:1px solid #3d35a0;background:var(--surface2);color:#a78bfa;font-size:11px;font-weight:700;cursor:pointer">1h</button>
+              <button type="button" onclick="setModDur(24,this)" style="padding:5px 10px;border-radius:6px;border:1px solid #3d35a0;background:var(--surface2);color:#a78bfa;font-size:11px;font-weight:700;cursor:pointer">24h</button>
+              <button type="button" onclick="setModDur(48,this)" style="padding:5px 10px;border-radius:6px;border:1px solid #3d35a0;background:var(--surface2);color:#a78bfa;font-size:11px;font-weight:700;cursor:pointer">48h</button>
+              <button type="button" onclick="setModDur(0,this)" style="padding:5px 10px;border-radius:6px;border:1px solid #ef4444;background:#7f1d1d;color:#fca5a5;font-size:11px;font-weight:700;cursor:pointer">🔒 Permanente</button>
+            </div>
+            <input type="hidden" id="modDuration" value=""/>
+            <div id="modDurLabel" style="font-size:10px;color:var(--purple);margin-top:5px">Nenhuma duração selecionada</div>
+          </div>
+        </div>
+        <button class="btn-danger" style="margin-top:10px" onclick="doMod()">Aplicar ação</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Nick</th><th>Punição</th><th>Motivo</th><th>Expira</th><th>Ações</th></tr></thead>
+          <tbody id="banidosBody">
+            <tr><td colspan="5" style="opacity:.6">Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ DJ ══ -->
+    <div class="page" id="page-dj">
+      <div class="page-title">🎧 Painel DJ</div>
+
+      <!-- Servidor da Rádio -->
+      <div class="section" id="secRadioServer">
+        <div class="section-title">📡 Servidor da Rádio <span style="font-size:9px;background:#064e3b;color:#6ee7b7;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:700">ADMIN</span></div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+          <button onclick="selectPlayer(1)" id="tabPlayer1" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s">Player 1</button>
+          <button onclick="selectPlayer(2)" id="tabPlayer2" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s">Player 2</button>
+          <button onclick="selectPlayer(3)" id="tabPlayer3" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s">Player 3</button>
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Endereço do stream (URL) — <span id="playerLabel" style="color:#8aafd4;font-weight:700">Player 1 · Chat</span></label>
+          <input id="radioUrl" placeholder="ex: https://stream.minharadio.com:8000/live" style="font-family:monospace"/>
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Nome da rádio</label>
+          <input id="radioName" placeholder="ex: Rádio Chat Supremo FM" value="Rádio Chat Supremo FM"/>
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Formato</label>
+          <select id="radioFormat">
+            <option value="mp3">MP3</option>
+            <option value="aac">AAC</option>
+            <option value="ogg">OGG</option>
+            <option value="hls">HLS (.m3u8)</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-primary" onclick="salvarRadioAdmin()">💾 Salvar Player <span id="savingPlayer">1</span></button>
+          <button class="btn-secondary" onclick="testarRadioAdmin()">▶ Testar</button>
+        </div>
+        <div id="radioTestResult" style="margin-top:8px;font-size:11px;display:none"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Status</div>
+        <div class="toggle-row"><div class="toggle-info">DJ Online</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-info">Radio ao vivo</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+    </div>
+
+    <!-- ══ CONTATOS ══ -->
+    <div class="page" id="page-contatos">
+      <div class="page-title">✉ Contatos / Reclamações</div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+        <button class="btn-danger" style="font-size:11px;padding:6px 14px" onclick="limparContatos()">🗑 Excluir todas as mensagens</button>
+      </div>
+      <div class="tbl-wrap" id="contatosTbl">
+        <table>
+          <thead><tr><th>De</th><th>Tipo</th><th>Mensagem</th><th>Hora</th><th>Ação</th></tr></thead>
+          <tbody id="contatosBody">
+            <tr><td><strong>Mari_s</strong></td><td><span class="badge b-vip">DENÚNCIA</span></td><td>Mensagens ofensivas</td><td>21:08</td><td><div class="act-wrap"><button class="abtn abtn-spy" onclick="toast('Resolvido!')">✓ Resolver</button><button class="abtn abtn-del" onclick="this.closest('tr').remove();toast('Mensagem excluída')">🗑 Excluir</button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ARQUIVOS ══ -->
+    <div class="page" id="page-arquivos">
+      <div class="page-title">🖼 Arquivos Enviados</div>
+      <div id="arquivosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px"></div>
+      <div id="arquivosVazio" style="text-align:center;padding:40px;color:var(--text3);font-size:13px">📂 Nenhum arquivo ainda.</div>
+    </div>
+
+    <!-- ══ LOGS ══ -->
+    <div class="page" id="page-logs">
+      <div class="page-title">📋 Logs do Sistema</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <button id="btnLimparLogs" onclick="limparLogs()" class="btn-danger" style="font-size:11px;padding:5px 12px;margin-left:auto">🗑 Limpar logs</button>
+      </div>
+      <div id="logsList">
+        <div class="log-entry"><div class="log-time">21:09</div><div class="log-text"><strong>KarenAdmin</strong> mutou <strong>Troll99</strong> — 24h</div></div>
+        <div class="log-entry"><div class="log-time">21:05</div><div class="log-text"><strong>Sistema</strong> detectou VPN em <span class="ip-tag">104.21.7.88</span></div></div>
+      </div>
+    </div>
+
+    <!-- ══ ENQUETE ══ -->
+    <div class="page" id="page-enquete">
+      <div class="page-title">📊 Enquete</div>
+      <div class="section">
+        <div class="section-title">📊 Configurar Enquete</div>
+        <div class="field"><label>Pergunta</label><input id="enqPergunta" type="text" placeholder="Ex: Qual é o melhor time?"/></div>
+        <div class="field"><label>Opção 1</label><input type="text" class="enq-opt" placeholder="Opção A"/></div>
+        <div class="field"><label>Opção 2</label><input type="text" class="enq-opt" placeholder="Opção B"/></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <button class="btn-primary" onclick="ativarEnquete()">✅ Ativar</button>
+          <button class="btn-secondary" onclick="encerrarEnquete()">⛔ Encerrar</button>
+          <button class="btn-danger" onclick="zerarEnquete()">🗑 Zerar</button>
+        </div>
+        <div id="enqStatus" style="margin-top:12px;padding:10px;border-radius:8px;font-size:12px;display:none"></div>
+      </div>
+    </div>
+
+    <!-- ══ QUIZ ══ -->
+    <div class="page" id="page-quiz">
+      <div class="page-title">🧠 Quiz</div>
+      <div class="section">
+        <div class="section-title">⚙️ Configurar Quiz</div>
+        <div class="field"><label>Categoria</label>
+          <select id="quizCategoria">
+            <option>🎲 Aleatório</option><option>🌍 Geral</option><option>⚽ Esportes</option><option>💻 Tecnologia</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+          <button class="btn-primary" onclick="ativarQuiz()">✅ Ativar Quiz</button>
+          <button class="btn-secondary" onclick="desativarQuiz()">⛔ Desativar</button>
+          <button class="btn-danger" onclick="zerarPontuacao()">🗑 Zerar Pontuação</button>
+        </div>
+        <div id="quizStatus" style="margin-top:12px;padding:10px;border-radius:8px;font-size:12px;display:none"></div>
+      </div>
+      <div class="section">
+        <div class="section-title">🏆 Ranking</div>
+        <div id="quizRanking">Nenhum ponto registrado.</div>
+      </div>
+    </div>
+
+    <!-- ══ SMILES ══ -->
+    <div class="page" id="page-smiles">
+      <div class="page-title">😁 Smiles</div>
+
+      <!-- CATEGORIAS -->
+      <div class="section">
+        <div class="section-title">📁 Categorias</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+          <input id="smCatName" class="input" placeholder="Nome da categoria..." style="flex:1;min-width:160px"/>
+          <button class="btn-primary" onclick="smAddCategory()">➕ Criar Categoria</button>
+        </div>
+        <div id="smCatList" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+      </div>
+
+      <!-- ADICIONAR SMILE -->
+      <div class="section">
+        <div class="section-title">😁 Adicionar Smile</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Categoria</label>
+            <select id="smSmileCat" style="width:100%"></select>
+          </div>
+          <div class="field">
+            <label>Nome (palavra-chave)</label>
+            <input id="smSmileName" placeholder="ex: joinha, foguete, coração" class="input"/>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px">Usuários digitam <strong>:nome:</strong> no chat para enviar este smile</div>
+          </div>
+          <div class="field">
+            <label>Imagem <span style="color:var(--text3);font-weight:400">— URL ou upload de arquivo</span></label>
+            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+              <input id="smSmileUrl" placeholder="https://..." class="input" style="flex:1;min-width:120px" oninput="smUpdatePreview()"/>
+              <label style="display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:7px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap;flex-shrink:0">
+                📁 Upload
+                <input type="file" id="smSmileFile" accept="image/*,image/gif,image/webp" style="display:none" onchange="smHandleFileUpload(this)"/>
+              </label>
+            </div>
+            <div id="smUploadInfo" style="display:none;font-size:10px;color:var(--green);margin-top:4px;font-weight:700"></div>
+          </div>
+          <div class="field">
+            <label>Emoji fallback <span style="color:var(--text3);font-weight:400">(se não usar URL)</span></label>
+            <input id="smSmileEmoji" placeholder="😁" maxlength="4" class="input" style="max-width:80px"/>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn-primary" onclick="smAddSmile()">✅ Adicionar Smile</button>
+          <div id="smPreviewBox" style="display:none;align-items:center;gap:8px;background:var(--surface2);padding:6px 12px;border-radius:10px;border:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--text2)">Preview:</span>
+            <span id="smPreviewContent" style="font-size:28px"></span>
+            <span id="smPreviewName" style="font-size:11px;font-weight:700;color:var(--purple2)"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LISTA DE SMILES -->
+      <div class="section">
+        <div class="section-title">📋 Smiles Cadastrados</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap" id="smFilterCats"></div>
+        <div id="smSmilesList" style="display:flex;flex-wrap:wrap;gap:8px;min-height:60px"></div>
+        <div id="smSmilesEmpty" style="text-align:center;padding:24px;color:var(--text3);font-size:12px;display:none">Nenhum smile cadastrado ainda.</div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /layout -->
+
+<!-- SPY OVERLAY -->
+<div id="spyOverlay" style="display:none;position:fixed;inset:0;z-index:9999;flex-direction:column;font-family:'DM Sans',sans-serif">
+  <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;background:#0f0e1a;border-bottom:2px solid #ef4444;padding:8px 14px;font-family:'Syne',sans-serif;flex-shrink:0">
+    <span style="font-size:13px;color:#fca5a5">👁</span>
+    <div style="text-align:center">
+      <div style="font-size:9px;font-weight:700;color:#ef4444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:1px">MODO ESPIÃO</div>
+      <div style="font-size:13px;font-weight:800;color:#fff" id="spyModalRoomName">Sala</div>
+    </div>
+    <button onclick="fecharEspiar()" style="background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap">✕ Sair</button>
+  </div>
+  <div id="spyMsgArea" style="flex:1;overflow-y:auto;padding:12px;background:#dce8f5;display:flex;flex-direction:column;gap:5px">
+    <div style="text-align:center;font-size:11px;color:#6a8aaa;padding:5px 12px;background:#1a1735;border-radius:20px;margin:0 auto">👁 Modo espião — invisível</div>
+  </div>
+  <div style="padding:7px 14px;background:#8aafd4;border-top:1px solid #2a3244;text-align:center;font-size:10px;color:#1a1735;font-weight:700;flex-shrink:0">🔒 Somente leitura</div>
+</div>
+
+<!-- EXCLUIR SALA MODAL -->
+<div class="overlay" id="excluirSalaOverlay" onclick="if(event.target===this)closeExcluirSala()">
+  <div class="modal">
+    <div class="modal-title" style="color:#fca5a5">🗑 Excluir Sala</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Excluir a sala <strong id="excluirSalaNome" style="color:#fca5a5"></strong>?</div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeExcluirSala()">Cancelar</button>
+      <button class="mbtn" style="background:#7f1d1d;color:#fca5a5" onclick="confirmarExcluirSalaFinal()">🗑 Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROLE MODAL -->
+<div class="overlay" id="roleOverlay" onclick="if(event.target===this)closeRole()">
+  <div class="modal">
+    <div class="modal-title">Alterar cargo — <span id="roleTargetName"></span></div>
+    <select class="modal-input" id="roleSelect">
+      <option>user</option><option>vip</option><option>premium</option><option>dj</option><option>mod</option><option>supervisor</option><option>admin</option>
+    </select>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeRole()">Cancelar</button>
+      <button class="mbtn confirm" onclick="applyRole()">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- NICK MODAL -->
+<div class="overlay" id="nickOverlay" onclick="if(event.target===this)closeNickChange()">
+  <div class="modal">
+    <div class="modal-title">Trocar nick — <span id="nickTargetName"></span></div>
+    <input class="modal-input" id="newNickInput" placeholder="Novo nick..."/>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="closeNickChange()">Cancelar</button>
+      <button class="mbtn confirm" onclick="applyNickChange()">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SETUP ─────────────────────────────────────────────────────
+(function(){
+  if(!localStorage.getItem('tc_role')||localStorage.getItem('tc_role')==='user'){
+    localStorage.setItem('tc_role','admin');
+    localStorage.setItem('tc_nick',localStorage.getItem('tc_nick')||'Admin');
+  }
+})();
+const LS={get:(k,d='')=>{try{return localStorage.getItem(k)||d;}catch(e){return d;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}},remove:(k)=>{try{localStorage.removeItem(k);}catch(e){}}};
+
+// ══════════════════════════════════════════════════════════════
+// CONTROLE DE AUSÊNCIA
+// ══════════════════════════════════════════════════════════════
+function salvarConfigAusencia(){
+  const ativo = document.getElementById('toggleAusencia')?.classList.contains('on');
+  const min = document.getElementById('ausenciaMinutos')?.value || 15;
+  LS.set('tc_ausencia_ativo', ativo ? '1' : '0');
+  LS.set('tc_ausencia_min', min);
+  toast('Configuração de ausência salva ✅');
+}
+function resetConfigAusencia(){
+  document.getElementById('ausenciaMinutos').value = 15;
+  const t = document.getElementById('toggleAusencia');
+  if(t && !t.classList.contains('on')) t.classList.add('on');
+  salvarConfigAusencia();
+}
+(function initAusencia(){
+  document.addEventListener('DOMContentLoaded',()=>{
+    const ativo = LS.get('tc_ausencia_ativo','1')==='1';
+    const min = LS.get('tc_ausencia_min','15');
+    const t = document.getElementById('toggleAusencia');
+    const i = document.getElementById('ausenciaMinutos');
+    if(t){ if(ativo) t.classList.add('on'); else t.classList.remove('on'); }
+    if(i) i.value = min;
+  });
+})();
+// ══════════════════════════════════════════════════════════════
+const LOGIN_LS_KEY  = 'tc_login_logs';
+const LOGIN_PER_PAGE = 50;
+let loginCurrentPage   = 1;
+let loginCurrentFilter = 'todos';
+
+// Logs de acesso reais vêm do servidor (loadLogins/getLogins).
+function getLoginLogs(){ return window._tcLogins || []; }
+
+function setLoginFilter(f, btn){
+  loginCurrentFilter = f;
+  loginCurrentPage   = 1;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderLoginTable();
+}
+
+function renderLoginTable(){
+  const logs     = getLoginLogs();
+  const search   = (document.getElementById('loginSearch')||{value:''}).value.toLowerCase().trim();
+  let filtered   = logs.filter(l=>{
+    if(loginCurrentFilter !== 'todos' && l.tipo !== loginCurrentFilter) return false;
+    if(search && !l.nick.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  // Stats
+  const all24 = logs;
+  document.getElementById('loginStatTotal').textContent = all24.length;
+  document.getElementById('loginStatReg').textContent   = all24.filter(l=>l.tipo==='registered').length;
+  document.getElementById('loginStatGuest').textContent = all24.filter(l=>l.tipo==='guest').length;
+
+  const total     = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / LOGIN_PER_PAGE));
+  if(loginCurrentPage > totalPages) loginCurrentPage = totalPages;
+
+  const start = (loginCurrentPage - 1) * LOGIN_PER_PAGE;
+  const page  = filtered.slice(start, start + LOGIN_PER_PAGE);
+
+  const tbody = document.getElementById('loginTableBody');
+  if(!page.length){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-size:11px">Nenhum acesso encontrado.</td></tr>';
+  } else {
+    tbody.innerHTML = page.map((l, i) => {
+      const num  = start + i + 1;
+      const isReg = l.tipo === 'registered';
+      const typeBadge = isReg
+        ? `<span class="badge login-type-registered" style="font-size:8px">👤 CADASTRADO</span>`
+        : `<span class="badge login-type-guest" style="font-size:8px">👁 VISITANTE</span>`;
+      // Nick clicável apenas para cadastrados
+      const nickCell = isReg
+        ? `<span class="login-nick-link" onclick="irParaUsuario('${l.nick}')">${l.nick}</span>`
+        : `<span style="font-size:11px;color:var(--text3)">${l.nick}</span>`;
+      return `<tr>
+        <td style="color:var(--text3);font-size:10px">${num}</td>
+        <td>${nickCell}</td>
+        <td style="font-size:10px;color:var(--text3);white-space:nowrap">${l.data}</td>
+        <td style="font-size:10px;color:var(--text3);white-space:nowrap;font-family:monospace">${l.hora}</td>
+        <td><span class="ip-tag">${l.ip}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Paginação
+  const pgEl = document.getElementById('loginPagination');
+  if(totalPages <= 1){ pgEl.innerHTML=''; return; }
+
+  let pgHtml = `<button class="pg-btn" onclick="loginGoPage(${loginCurrentPage-1})" ${loginCurrentPage===1?'disabled':''}>← Anterior</button>`;
+  for(let p=1;p<=totalPages;p++){
+    pgHtml += `<button class="pg-btn ${p===loginCurrentPage?'active':''}" onclick="loginGoPage(${p})">${p}</button>`;
+  }
+  pgHtml += `<button class="pg-btn" onclick="loginGoPage(${loginCurrentPage+1})" ${loginCurrentPage===totalPages?'disabled':''}>Próxima →</button>`;
+  pgHtml += `<span style="font-size:10px;color:var(--text3);margin-left:8px">${total} registro${total!==1?'s':''}</span>`;
+  pgEl.innerHTML = pgHtml;
+}
+
+function loginGoPage(p){
+  const logs = getLoginLogs();
+  const totalPages = Math.max(1, Math.ceil(logs.length / LOGIN_PER_PAGE));
+  if(p < 1 || p > totalPages) return;
+  loginCurrentPage = p;
+  renderLoginTable();
+  document.getElementById('page-logins').scrollTop = 0;
+}
+
+// Redireciona para a página de Usuários com o nick selecionado
+function irParaUsuario(nick){
+  const navEl = document.querySelector('.nav-item[onclick*="usuarios"]');
+  show('usuarios', navEl);
+  setTimeout(()=>{
+    document.getElementById('userSearchInput').value = nick;
+    selecionarUsuario(nick);
+  }, 100);
+}
+
+function loginClearData(){
+  if(!confirm('Limpar todo o histórico de logins?')) return;
+  localStorage.removeItem(LOGIN_LS_KEY);
+  loginCurrentPage = 1;
+  renderLoginTable();
+  toast('Histórico de logins limpo ✅');
+}
+
+// Registra novo login (chamado pelo sistema de auth)
+function registrarLogin(nick, tipo, ip){
+  let logs = [];
+  try{ logs = JSON.parse(localStorage.getItem(LOGIN_LS_KEY)||'[]'); }catch(e){}
+  const agora = new Date();
+  const badge = tipo === 'guest' ? 'b-guest' : 'b-user';
+  logs.unshift({
+    nick, tipo, badge, ip: ip || '—',
+    data: agora.toLocaleDateString('pt-BR'),
+    hora: agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+    ts: Date.now()
+  });
+  // Mantém no máx. 500 registros no storage
+  if(logs.length > 500) logs = logs.slice(0, 500);
+  localStorage.setItem(LOGIN_LS_KEY, JSON.stringify(logs));
+}
+
+// Expõe globalmente para ser chamado pelo login.html / api.js
+window.registrarLogin = registrarLogin;
+
+// ══ SHOW ════════════════════════════════════════════════════
+function show(id, el){
+  document.querySelectorAll('.page').forEach(p=>{p.classList.remove('active');p.style.display='';});
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg = document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  if(id==='logins'){ loginCurrentPage=1; renderLoginTable(); }
+  if(id==='gerenciar-usuarios'){ if(typeof GU_USUARIOS!=='undefined') GU_USUARIOS=Object.entries(USERS_DATA).map(([nick,d])=>({...d,nick})); if(typeof guRenderLista==='function') guRenderLista(); }
+  if(id==='espiar'){
+    const role = localStorage.getItem('tc_role')||'';
+    const isPriv = ['admin','supervisor'].includes(role);
+    const secSP = document.getElementById('espiarSalasPrivadasSection');
+    const secPV = document.getElementById('espiarPrivadosSection');
+    if(secSP) secSP.style.display = isPriv ? '' : 'none';
+    if(secPV) secPV.style.display = isPriv ? '' : 'none';
+    if(isPriv && typeof spPrivRecarregar==='function') spPrivRecarregar();
+    if(isPriv && typeof pvEspiarRenderGrid==='function') pvEspiarRenderGrid();
+  }
+}
+
+function toast(msg,type='ok'){
+  let t=document.getElementById('_t');
+  if(!t){t=document.createElement('div');t.id='_t';t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:18px;font-size:12px;font-weight:700;z-index:9999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap';document.body.appendChild(t);}
+  t.textContent=msg;t.style.background=type==='err'?'#7f1d1d':'#064e3b';t.style.color=type==='err'?'#fca5a5':'#6ee7b7';
+  t.style.opacity='1';clearTimeout(t._x);t._x=setTimeout(()=>t.style.opacity='0',2800);
+}
+
+// ── LOGO ──────────────────────────────────────────────────────
+function uploadLogo(inp){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>1*1024*1024){toast('Logo muito grande (máx 1MB)','err');return;}
+  const r=new FileReader();
+  r.onload=e=>{
+    const url=e.target.result;LS.set('tc_logo',url);
+    document.getElementById('logoPreview').innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:contain"/>`;
+    API.admin.setSystem('logo_url',url).then(()=>toast('Logo atualizado ✅')).catch(e=>toast(e.message||'Erro ao salvar logo','err'));
+  };r.readAsDataURL(f);
+}
+function removeLogo(){LS.remove('tc_logo');document.getElementById('logoPreview').textContent='Chat Supremo';API.admin.setSystem('logo_url','').catch(()=>{});toast('Logo removido');}
+(function(){const url=LS.get('tc_logo');if(url){const p=document.getElementById('logoPreview');if(p)p.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:contain"/>`;} })();
+
+// ── USUÁRIOS ──────────────────────────────────────────────────
+function parseDevice(ua){
+  if(!ua) return {icon:'🖥',label:'Desconhecido',ua:'—'};
+  const u = ua;
+
+  // ── Tablets ──────────────────────────────────────────────────
+  if(/iPad/i.test(u)){
+    const m=u.match(/CPU OS ([\d_]+)/i);
+    const ios=m?'iOS '+m[1].replace(/_/g,'.'):'';
+    return {icon:'📱',label:`Apple iPad ${ios}`.trim(),ua};
+  }
+  if(/SM-T|Samsung.*Tab|Galaxy Tab/i.test(u)){
+    const m=u.match(/SM-T[\w]+/i)||u.match(/Galaxy Tab[\w\s]+/i);
+    return {icon:'📱',label:`Samsung Galaxy Tab ${m?m[0]:''} (Android)`.trim(),ua};
+  }
+
+  // ── Samsung Galaxy ────────────────────────────────────────────
+  const samsungMap={
+    'SM-S918':'Galaxy S23 Ultra','SM-S916':'Galaxy S23+','SM-S911':'Galaxy S23',
+    'SM-S928':'Galaxy S24 Ultra','SM-S926':'Galaxy S24+','SM-S921':'Galaxy S24',
+    'SM-S938':'Galaxy S25 Ultra','SM-S936':'Galaxy S25+','SM-S931':'Galaxy S25',
+    'SM-G998':'Galaxy S21 Ultra','SM-G996':'Galaxy S21+','SM-G991':'Galaxy S21',
+    'SM-N986':'Galaxy Note 20 Ultra','SM-N981':'Galaxy Note 20',
+    'SM-F946':'Galaxy Z Fold5','SM-F936':'Galaxy Z Fold4',
+    'SM-F731':'Galaxy Z Flip5','SM-F721':'Galaxy Z Flip4',
+    'SM-A546':'Galaxy A54','SM-A536':'Galaxy A53','SM-A525':'Galaxy A52',
+    'SM-A346':'Galaxy A34','SM-A336':'Galaxy A33','SM-A235':'Galaxy A23',
+    'SM-A156':'Galaxy A15','SM-A135':'Galaxy A13','SM-A057':'Galaxy A05s',
+  };
+  for(const [code,name] of Object.entries(samsungMap)){
+    if(u.toUpperCase().includes(code.toUpperCase())){
+      const av=u.match(/Android ([\d.]+)/i);
+      return {icon:'📱',label:`Samsung ${name}${av?' · Android '+av[1]:''}`,ua};
+    }
+  }
+  if(/Samsung|SM-/i.test(u)){
+    const m=u.match(/SM-[\w]+/i);
+    const av=u.match(/Android ([\d.]+)/i);
+    return {icon:'📱',label:`Samsung ${m?m[0]:'Galaxy'}${av?' · Android '+av[1]:''}`,ua};
+  }
+
+  // ── iPhone ────────────────────────────────────────────────────
+  if(/iPhone/i.test(u)){
+    const ios=u.match(/OS ([\d_]+)/i);
+    const ver=ios?parseFloat(ios[1].replace(/_/g,'.')):0;
+    const iPhoneModel=ver>=17.4?'iPhone 15':ver>=16.6?'iPhone 14':ver>=15.6?'iPhone 13':ver>=14.8?'iPhone 12':ver>=13.7?'iPhone 11':'iPhone';
+    return {icon:'📱',label:`Apple ${iPhoneModel} · iOS ${ios?ios[1].replace(/_/g,'.'):''}`};
+  }
+
+  // ── Xiaomi / Redmi / POCO ──────────────────────────────────────
+  if(/Xiaomi|Redmi|POCO|MI\s/i.test(u)){
+    const m=u.match(/(?:Xiaomi|Redmi|POCO)\s[\w\s]+/i)||u.match(/MI\s[\w]+/i);
+    const av=u.match(/Android ([\d.]+)/i);
+    return {icon:'📱',label:`${m?m[0].trim():'Xiaomi'}${av?' · Android '+av[1]:''}`,ua};
+  }
+
+  // ── Motorola ───────────────────────────────────────────────────
+  if(/Motorola|moto\s|XT\d{4}/i.test(u)){
+    const m=u.match(/(?:moto\s[\w\s]+|XT\d{4}[\w]*)/i);
+    const av=u.match(/Android ([\d.]+)/i);
+    return {icon:'📱',label:`Motorola ${m?m[0].trim():''}${av?' · Android '+av[1]:''}`,ua};
+  }
+
+  // ── Huawei ────────────────────────────────────────────────────
+  if(/Huawei|HUAWEI|HMA-|ELE-|VOG-/i.test(u)){
+    const m=u.match(/(?:HUAWEI|Huawei)\s[\w-]+/i)||u.match(/(?:HMA|ELE|VOG)-[\w]+/i);
+    return {icon:'📱',label:`Huawei ${m?m[0]:''}`,ua};
+  }
+
+  // ── OnePlus ───────────────────────────────────────────────────
+  if(/OnePlus|IN2/i.test(u)){
+    const m=u.match(/OnePlus[\w\s]+/i)||u.match(/IN2[\w]+/i);
+    return {icon:'📱',label:`OnePlus ${m?m[0]:''}`,ua};
+  }
+
+  // ── Generic Android Mobile ────────────────────────────────────
+  if(/Android/i.test(u)&&/Mobile/i.test(u)){
+    const av=u.match(/Android ([\d.]+)/i);
+    const br=/UCBrowser/i.test(u)?'UCBrowser':/SamsungBrowser/i.test(u)?'Samsung Browser':/Chrome/i.test(u)?'Chrome':/Firefox/i.test(u)?'Firefox':'Browser';
+    return {icon:'📱',label:`Android ${av?av[1]:''} · ${br} (Mobile)`,ua};
+  }
+
+  // ── Generic Android Tablet ────────────────────────────────────
+  if(/Android/i.test(u)){
+    const av=u.match(/Android ([\d.]+)/i);
+    return {icon:'📱',label:`Tablet Android ${av?av[1]:''}`,ua};
+  }
+
+  // ── Desktop ───────────────────────────────────────────────────
+  const os=/Windows NT 10/i.test(u)?'Windows 10':/Windows NT 11/i.test(u)?'Windows 11':/Macintosh/i.test(u)?'macOS':/Linux/i.test(u)?'Linux':'Desktop';
+  const br=/Edg\//i.test(u)?'Edge':/OPR\//i.test(u)?'Opera':/Chrome/i.test(u)?'Chrome':/Firefox/i.test(u)?'Firefox':/Safari/i.test(u)?'Safari':'Browser';
+  const icon=/Macintosh/i.test(u)?'💻':'🖥';
+  return {icon,label:`${os} · ${br}`,ua};
+}
+
+// Detecta o dispositivo do admin atual (quem está acessando)
+const MY_DEVICE = parseDevice(navigator.userAgent);
+
+let USERS_DATA = {};
+const ACOES_MAP={
+  mutar:(u)=>`<button class="abtn abtn-mute" onclick="tcMuteUser('${u}')">🔇 Mutar</button>`,
+  kick:(u)=>`<button class="abtn abtn-kick" onclick="tcKickUser('${u}')">👢 Kick</button>`,
+  ban:(u)=>`<button class="abtn abtn-ban" onclick="banirUsuarioPainel('${u}')">🔨 Banir</button>`,
+  shadow:()=>{const role=LS.get('tc_role','admin');return['admin','supervisor'].includes(role)?`<button class="abtn abtn-shadow" onclick="tcShadowUser('${u}')">👻 Shadow</button>`:'';},
+  cargo:(u)=>{const role=LS.get('tc_role','admin');return['admin','supervisor'].includes(role)?`<button class="abtn abtn-role" onclick="openRole('${u}','${USERS_DATA[u]?.role}')">🎖 Cargo</button>`:'';},
+  nick:(u)=>{const role=LS.get('tc_role','admin');return['admin','supervisor'].includes(role)?`<button class="abtn abtn-edit" onclick="openNickChange('${u}')">✏️ Nick</button>`:'';},
+};
+let USERS_LIST = [];
+function _mkUser(u){
+  return { nick:u.nick, av:u.avatar||'👤', role:u.role, badge:'b-'+u.role, color:'#9ca3af',
+    id:u.id, banned:!!u.is_banned,
+    ip:'—', asn:'—', local:'—', device:(typeof parseDevice==='function'?parseDevice(''):'—'),
+    login:'—', status:(u.is_banned?'🚫 Banido':'—'), msgs:'—', registrado:'—',
+    acoes:(u.role==='guest'?['kick','ban']:['mutar','kick','ban','shadow','cargo','nick']) };
+}
+async function loadAdminUsers(){
+  try{
+    const d = await API.admin.getUsers('');
+    USERS_DATA = {};
+    (d.users||[]).forEach(u=>{ USERS_DATA[u.nick] = _mkUser(u); });
+    USERS_LIST = Object.values(USERS_DATA).map(u=>({nick:u.nick,av:u.av,role:String(u.role).toUpperCase(),badge:u.badge}));
+    if(typeof GU_USUARIOS!=='undefined') GU_USUARIOS = Object.entries(USERS_DATA).map(([nick,dd])=>({...dd,nick}));
+    if(typeof guRenderLista==='function') guRenderLista();
+  }catch(e){ if(typeof toast==='function') toast('Erro ao carregar usuários: '+(e.message||''),'err'); }
+}
+setTimeout(loadAdminUsers, 0);
+
+function renderDropdown(list){
+  const dd=document.getElementById('userDropdown');
+  dd.innerHTML=list.length?list.map(u=>`<div onclick="selecionarUsuario('${u.nick}')" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''"><span style="font-size:16px">${u.av}</span><span style="font-size:12px;font-weight:700;flex:1">${u.nick}</span><span class="badge ${u.badge}">${u.role}</span></div>`).join('')
+  :'<div style="padding:10px 12px;font-size:11px;color:var(--text3);text-align:center">Nenhum usuário encontrado</div>';
+  dd.style.display='block';
+}
+function filtrarUsuarios(q){renderDropdown(q.trim()===''?USERS_LIST:USERS_LIST.filter(u=>u.nick.toLowerCase().includes(q.toLowerCase())));}
+function abrirDropdown(){filtrarUsuarios(document.getElementById('userSearchInput').value);}
+function fecharDropdown(){document.getElementById('userDropdown').style.display='none';}
+function limparUserSelect(){document.getElementById('userSearchInput').value='';document.getElementById('userDropdown').style.display='none';document.getElementById('userCard').style.display='none';document.getElementById('userSelectedBadge').style.display='none';}
+function selecionarUsuario(nick){
+  const card=document.getElementById('userCard');
+  document.getElementById('userDropdown').style.display='none';
+  if(!nick){card.style.display='none';return;}
+  const u=USERS_DATA[nick];
+  if(!u){card.style.display='none';return;}
+  document.getElementById('userSearchInput').value=nick;
+  const sel=document.getElementById('userSelectedBadge');
+  document.getElementById('userSelectedAv').textContent=u.av;
+  document.getElementById('userSelectedName').textContent=u.nick;
+  const re=document.getElementById('userSelectedBadgeRole');
+  re.className='badge '+u.badge;re.textContent=u.role.toUpperCase();
+  sel.style.display='flex';
+  document.getElementById('cardTitle').innerHTML=
+    `<span style="font-size:18px">${u.av}</span>`+
+    `<span style="color:${u.color}">${u.nick}</span>`+
+    `<span class="badge ${u.badge}">${u.role.toUpperCase()}</span>`+
+    `<button onclick="usarNickMod('${u.nick}')" title="Enviar para Ação Manual" `+
+    `style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;border:none;`+
+    `background:#1e3a5f;color:#93c5fd;font-size:10px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;`+
+    `transition:.15s;white-space:nowrap" `+
+    `onmouseover="this.style.background='#2563eb';this.style.color='#fff'" `+
+    `onmouseout="this.style.background='#1e3a5f';this.style.color='#93c5fd'">⚡ Moderar</button>`;
+  const fields=[['📍 Localização',u.local],['🖥 Dispositivo',`<span style="font-size:10px;font-family:monospace;word-break:break-all;color:var(--text2)">${u.device.icon} ${u.device.label}</span><br><span style="font-size:9px;font-family:monospace;color:var(--text3);word-break:break-all">${u.device.ua}</span>`],['🌐 IP',`<span class="ip-tag">${u.ip}</span>`],['📡 ASN',`<span class="ip-tag">${u.asn}</span>`],['💬 Status',u.status],['🕒 Último login',u.login],['📨 Mensagens',u.msgs],['📅 Cadastro',u.registrado]];
+  document.getElementById('cardGrid').innerHTML=fields.map(([l,v])=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 10px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:3px">${l}</div><div style="font-size:11px;font-weight:600">${v}</div></div>`).join('');
+  document.getElementById('cardActions').innerHTML=u.acoes.map(a=>ACOES_MAP[a]?ACOES_MAP[a](nick):'').join('');
+  card.style.display='block';
+}
+
+function usarNickMod(nick){
+  const inp=document.getElementById('modNick');
+  if(!inp) return;
+  inp.value=nick;
+  // highlight visual no campo
+  inp.style.transition='border-color .2s,box-shadow .2s';
+  inp.style.borderColor='#2563eb';
+  inp.style.boxShadow='0 0 0 3px #2563eb44';
+  setTimeout(()=>{inp.style.borderColor='';inp.style.boxShadow='';},1400);
+  // scroll suave até a seção de ação manual
+  const modSec=document.getElementById('modAcaoManual');
+  if(modSec) modSec.scrollIntoView({behavior:'smooth',block:'start'});
+  inp.focus();
+  toast('⚡ Nick "'+nick+'" enviado para Ação Manual');
+}
+
+// ── GERENCIAR USUÁRIOS ─────────────────────────────────────────
+let GU_SELECTED=null;
+let GU_USUARIOS=Object.entries(USERS_DATA).map(([nick,d])=>({...d,nick}));
+function guFiltrar(q){
+  const dd=document.getElementById('guDropdown');
+  const m=GU_USUARIOS.filter(u=>u.nick.toLowerCase().includes(q.toLowerCase()));
+  if(!q||!m.length){dd.style.display='none';return;}
+  dd.style.display='block';
+  dd.innerHTML=m.map(u=>`<div onclick="guSelecionar('${u.nick}')" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''"><span style="font-size:18px">${u.av||'👤'}</span><span style="font-size:12px;font-weight:700;flex:1">${u.nick}</span><span class="badge b-${u.role||'user'}">${u.role||'user'}</span></div>`).join('');
+}
+// ── ROLE CARDS CONFIG ──────────────────────────────────────────
+const GU_ROLES = [
+  {id:'guest',    icon:'👤', label:'Guest',      bg:'#37415122', border:'#6b728044', color:'#9ca3af'},
+  {id:'user',     icon:'💬', label:'Usuário',    bg:'var(--surface3)', border:'var(--border2)', color:'var(--text2)'},
+  {id:'vip',      icon:'⭐', label:'VIP',        bg:'#1e3a5f', border:'#3b82f6', color:'#93c5fd'},
+  {id:'premium',  icon:'👑', label:'Premium',    bg:'#451a03', border:'#f59e0b', color:'#fde68a'},
+  {id:'dj',       icon:'🎧', label:'DJ',         bg:'#0d2a5e', border:'#a855f7', color:'#d8b4fe'},
+  {id:'mod',      icon:'🛡', label:'Mod',        bg:'#1c1c2e', border:'#6b7280', color:'#d1d5db'},
+  {id:'supervisor',icon:'⚡',label:'Supervisor', bg:'#7f1d1d', border:'#ef4444', color:'#fca5a5'},
+  {id:'admin',    icon:'🔑', label:'Admin',      bg:'#064e3b', border:'#10b981', color:'#6ee7b7'},
+];
+let GU_ROLE_PENDING = null;
+
+function guRenderRoleCards(currentRole){
+  const wrap = document.getElementById('guRoleCards');
+  if(!wrap) return;
+  wrap.innerHTML = GU_ROLES.map(r => {
+    const isActive = r.id === currentRole;
+    return `<div onclick="guSelectRoleCard('${r.id}')" id="guRoleCard_${r.id}"
+      style="cursor:pointer;border-radius:9px;padding:10px 6px;text-align:center;border:2px solid ${isActive ? r.border : 'transparent'};
+      background:${isActive ? r.bg : 'var(--surface)'};transition:.15s;outline:none;
+      box-shadow:${isActive ? '0 0 8px '+r.border+'55' : 'none'}"
+      title="${r.label}">
+      <div style="font-size:18px;margin-bottom:3px">${r.icon}</div>
+      <div style="font-size:9px;font-weight:700;color:${isActive ? r.color : 'var(--text3)'};font-family:'Syne',sans-serif;text-transform:uppercase;letter-spacing:.3px;line-height:1.2">${r.label}</div>
+      ${isActive ? '<div style="margin-top:4px;width:6px;height:6px;border-radius:50%;background:'+r.border+';margin-inline:auto"></div>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function guSelectRoleCard(roleId){
+  if(!GU_SELECTED){toast('Selecione um usuário primeiro','err');return;}
+  const u = GU_USUARIOS.find(x=>x.nick===GU_SELECTED);
+  if(!u) return;
+  if(roleId === u.role){ toast('Usuário já possui este cargo','err'); return; }
+  GU_ROLE_PENDING = roleId;
+  const r = GU_ROLES.find(x=>x.id===roleId);
+  // Highlight selected card
+  document.querySelectorAll('[id^="guRoleCard_"]').forEach(c=>{
+    const rid = c.id.replace('guRoleCard_','');
+    const cfg = GU_ROLES.find(x=>x.id===rid);
+    if(!cfg) return;
+    const isPending = rid === roleId;
+    const isCurrent = rid === u.role;
+    c.style.border = isPending ? `2px dashed ${cfg.border}` : isCurrent ? `2px solid ${cfg.border}` : '2px solid transparent';
+    c.style.background = isPending ? cfg.bg : isCurrent ? cfg.bg : 'var(--surface)';
+    c.style.boxShadow = isPending ? `0 0 10px ${cfg.border}66` : isCurrent ? `0 0 6px ${cfg.border}33` : 'none';
+    c.querySelector('div:nth-child(2)').style.color = (isPending||isCurrent) ? cfg.color : 'var(--text3)';
+  });
+  // Show confirm bar
+  const bar = document.getElementById('guRoleConfirmBar');
+  const lbl = document.getElementById('guRoleConfirmLabel');
+  if(bar){ bar.style.display='flex'; }
+  if(lbl && r){ lbl.textContent = r.icon+' '+r.label; }
+}
+
+async function guConfirmarTroca(){
+  if(!GU_SELECTED||!GU_ROLE_PENDING){return;}
+  const u=USERS_DATA[GU_SELECTED];
+  if(!u||!u.id){ toast('Usuário inválido','err'); return; }
+  try{
+    await API.admin.setRole(u.id, GU_ROLE_PENDING);
+    u.role=GU_ROLE_PENDING;
+    const g=GU_USUARIOS.find(x=>x.nick===GU_SELECTED); if(g) g.role=GU_ROLE_PENDING;
+    toast(`✅ Cargo de ${GU_SELECTED} → ${GU_ROLE_PENDING}`);
+    GU_ROLE_PENDING=null; guSelecionar(GU_SELECTED); guRenderLista();
+  }catch(e){ toast(e.message||'Erro ao trocar cargo','err'); }
+}
+
+function guCancelarTroca(){
+  GU_ROLE_PENDING=null;
+  const bar=document.getElementById('guRoleConfirmBar');
+  if(bar) bar.style.display='none';
+  const u=GU_USUARIOS.find(x=>x.nick===GU_SELECTED);
+  if(u) guRenderRoleCards(u.role);
+}
+
+function guSelecionar(nick){
+  GU_SELECTED=nick;const u=GU_USUARIOS.find(x=>x.nick===nick);
+  document.getElementById('guDropdown').style.display='none';document.getElementById('guSearchInput').value=nick;
+  if(!u)return;document.getElementById('guCard').style.display='block';
+  document.getElementById('guCardTitle').innerHTML=`${u.av||'👤'} ${u.nick} <span class="badge b-${u.role}">${u.role}</span>`;
+  document.getElementById('guGrid').innerHTML=`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:2px">Cargo atual</div><div style="font-size:12px;font-weight:700">${u.role||'user'}</div></div><div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:2px">Cadastrado</div><div style="font-size:12px;font-weight:700">${u.registrado||'—'}</div></div>`;
+  const cur=u.role||'user';
+  const cfg=GU_ROLES.find(x=>x.id===cur);
+  document.getElementById('guCargoAtual').innerHTML=`Cargo atual: <span style="font-weight:700;color:${cfg?cfg.color:'var(--text2)'}">${cfg?cfg.icon+' '+cfg.label:cur}</span>`;
+  GU_ROLE_PENDING=null;
+  const bar=document.getElementById('guRoleConfirmBar');
+  if(bar) bar.style.display='none';
+  guRenderRoleCards(cur);
+}
+function guLimpar(){GU_SELECTED=null;GU_ROLE_PENDING=null;document.getElementById('guSearchInput').value='';document.getElementById('guCard').style.display='none';document.getElementById('guDropdown').style.display='none';}
+function guSetRole(r){if(!GU_SELECTED){toast('Selecione um usuário','err');return;}const u=GU_USUARIOS.find(x=>x.nick===GU_SELECTED);if(!u)return;u.role=r;if(USERS_DATA[GU_SELECTED])USERS_DATA[GU_SELECTED].role=r;toast(`✅ Cargo de ${GU_SELECTED} → ${r}`);guSelecionar(GU_SELECTED);guRenderLista();}
+function guExcluirCadastro(){if(!GU_SELECTED){toast('Selecione um usuário','err');return;}if(GU_SELECTED==='admin'){toast('❌ Não é possível excluir o admin!','err');return;}if(!confirm(`EXCLUIR PERMANENTEMENTE o cadastro de "${GU_SELECTED}"?`))return;GU_USUARIOS=GU_USUARIOS.filter(u=>u.nick!==GU_SELECTED);delete USERS_DATA[GU_SELECTED];toast(`✅ Cadastro de ${GU_SELECTED} excluído!`);guLimpar();guRenderLista();}
+function guRenderLista(){const el=document.getElementById('guListaUsuarios');if(!el)return;if(!GU_USUARIOS.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:12px">Nenhum usuário.</div>';return;}el.innerHTML=GU_USUARIOS.map(u=>`<div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px"><span style="font-size:18px">${u.av||'👤'}</span><span style="font-size:12px;font-weight:700;flex:1">${u.nick}</span><span class="badge b-${u.role||'user'}">${u.role||'user'}</span><button class="abtn abtn-role" style="padding:4px 8px;font-size:10px" onclick="guSelecionar('${u.nick}')">✏️</button></div>`).join('');}
+
+// ── MONITOR DE PV (JANELA PV) ─────────────────────────────────
+const PV_MON_KEY = 'tc_pv_monitor_msgs';
+const PV_MON_ACTIVE_KEY = 'tc_pv_monitor_active';
+var _pvMonitorInterval = null;
+
+function _getPvViewerRole() { return LS.get('tc_role', 'admin'); }
+function _pvViewerIsAdmin() { return _getPvViewerRole() === 'admin'; }
+
+function togglePvMonitor(toggleEl) {
+  // Only admin can toggle the monitor
+  if (!_pvViewerIsAdmin()) { toast('❌ Apenas Admin pode ativar/desativar o monitor', 'err'); return; }
+  toggleEl.classList.toggle('on');
+  const isOn = toggleEl.classList.contains('on');
+  LS.set(PV_MON_ACTIVE_KEY, isOn ? '1' : '0');
+  const section = document.getElementById('pvJanelaSection');
+  const offMsg = document.getElementById('pvMonitorOffMsg');
+  if (isOn) {
+    if (section) section.style.display = '';
+    if (offMsg) offMsg.style.display = 'none';
+    renderPvMonitorMsgs();
+    startPvMonitorPolling();
+    if(typeof pvEspiarRenderGrid==='function') pvEspiarRenderGrid();
+    pvAtualizarBtnLabel();
+    toast('🔓 Monitor de PV ativado');
+  } else {
+    if (section) section.style.display = 'none';
+    if (offMsg) offMsg.style.display = '';
+    stopPvMonitorPolling();
+    toast('🔕 Monitor de PV desativado');
+  }
+}
+
+function startPvMonitorPolling() {
+  stopPvMonitorPolling();
+  _pvMonitorInterval = setInterval(renderPvMonitorMsgs, 2500);
+  window.addEventListener('storage', _onPvMonitorStorage);
+}
+
+function stopPvMonitorPolling() {
+  if (_pvMonitorInterval) { clearInterval(_pvMonitorInterval); _pvMonitorInterval = null; }
+  window.removeEventListener('storage', _onPvMonitorStorage);
+}
+
+function _onPvMonitorStorage(e) {
+  if (e.key === PV_MON_KEY) renderPvMonitorMsgs();
+}
+
+function getPvMonitorMsgs() {
+  try {
+    var all = JSON.parse(localStorage.getItem(PV_MON_KEY) || '[]');
+    var cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    return all.filter(function(m){ return !m.ts || m.ts >= cutoff; });
+  } catch(e) { return []; }
+}
+
+function clearPvMonitorMsgs() {
+  if (!_pvViewerIsAdmin()) { toast('❌ Apenas Admin pode limpar o histórico', 'err'); return; }
+  if (!confirm('Limpar todo o histórico de PVs monitorados?')) return;
+  localStorage.removeItem(PV_MON_KEY);
+  renderPvMonitorMsgs();
+  toast('🗑 Histórico de PVs limpo');
+}
+
+var _pvSheetAllConvs = [];
+
+function _pvBuildConvItem(conv, lastMsgMap) {
+  var last = lastMsgMap[conv];
+  var lastText = last ? escHtml((last.text||'').substring(0,45)+((last.text||'').length>45?'\u2026':'')) : '';
+  var lastFrom = last ? escHtml(last.from||'?') : '';
+  var d = last && last.ts ? new Date(last.ts) : null;
+  var timeStr = d ? d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0') : '';
+  var parts = conv.split('\u2194').map(function(p){return p.trim();});
+  var a1 = (parts[0]||'?')[0].toUpperCase();
+  var a2 = (parts[1]||'?')[0].toUpperCase();
+  var colors = ['#1d4ed8','#7c3aed','#0f766e','#b45309','#be123c'];
+  var c1 = colors[a1.charCodeAt(0)%colors.length];
+  var c2 = colors[a2.charCodeAt(0)%colors.length];
+  var safe = conv.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  return '<div onclick="fecharModalPvConvs();abrirPvSpyJanela(\'' + safe + '\')" style="display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer">' +
+    '<div style="position:relative;width:40px;height:40px;flex-shrink:0">' +
+      '<div style="position:absolute;top:0;left:0;width:28px;height:28px;border-radius:50%;background:'+c1+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;border:2px solid var(--surface)">'+a1+'</div>' +
+      '<div style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:'+c2+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;border:2px solid var(--surface)">'+a2+'</div>' +
+    '</div>' +
+    '<div style="flex:1;min-width:0">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px">' +
+        '<span style="font-size:12px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(parts[0]||conv)+' \u2194 '+escHtml(parts[1]||'')+'</span>' +
+        '<span style="font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0">'+timeStr+'</span>' +
+      '</div>' +
+      (lastFrom ? '<div style="font-size:11px;color:var(--text3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="color:var(--text2);font-weight:600">'+lastFrom+':</span> '+lastText+'</div>' : '<div style="font-size:11px;color:var(--text3);margin-top:3px">Sem mensagens</div>') +
+    '</div>' +
+    '<span style="font-size:18px;color:var(--border2);flex-shrink:0">&#8250;</span>' +
+  '</div>';
+}
+
+function pvSheetFiltrar() {
+  var q = ((document.getElementById('pvSheetSearch')||{}).value||'').toLowerCase();
+  var list = document.getElementById('pvModalList');
+  if (!list) return;
+  var msgs = getPvMonitorMsgs();
+  var lastMsgMap = {};
+  msgs.forEach(function(m){ if(m.conv) lastMsgMap[m.conv] = m; });
+  var filtered = q ? _pvSheetAllConvs.filter(function(c){ return c.toLowerCase().indexOf(q) !== -1; }) : _pvSheetAllConvs;
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)">Nenhuma conversa encontrada.</div>';
+  } else {
+    list.innerHTML = filtered.map(function(c){ return _pvBuildConvItem(c, lastMsgMap); }).join('');
+  }
+}
+
+function abrirModalPvConvs() {
+  var modal = document.getElementById('pvConvModal');
+  var sheet = document.getElementById('pvConvSheet');
+  if (!modal || !sheet) return;
+  var msgs = getPvMonitorMsgs();
+  var convMap = {};
+  msgs.forEach(function(m){ if(m.conv) convMap[m.conv] = m; });
+  _pvSheetAllConvs = Object.keys(convMap).sort(function(a,b){
+    var ta = convMap[a] && convMap[a].ts ? convMap[a].ts : 0;
+    var tb = convMap[b] && convMap[b].ts ? convMap[b].ts : 0;
+    return tb - ta;
+  });
+  var countEl = document.getElementById('pvModalCount');
+  if (countEl) countEl.textContent = _pvSheetAllConvs.length + ' conversa(s) \u2014 \xfaltimas 24h';
+  var search = document.getElementById('pvSheetSearch');
+  if (search) search.value = '';
+  var list = document.getElementById('pvModalList');
+  if (!_pvSheetAllConvs.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px 16px;font-size:12px;color:var(--text3)"><div style="font-size:32px;margin-bottom:10px">\ud83d\udd12</div>Nenhuma conversa ativa nas \xfaltimas 24h.</div>';
+  } else {
+    list.innerHTML = _pvSheetAllConvs.map(function(c){ return _pvBuildConvItem(c, convMap); }).join('');
+  }
+  modal.style.display = 'block';
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ sheet.style.transform = 'translateY(0)'; });
+  });
+}
+
+function fecharModalPvConvs() {
+  var modal = document.getElementById('pvConvModal');
+  var sheet = document.getElementById('pvConvSheet');
+  if (sheet) sheet.style.transform = 'translateY(100%)';
+  setTimeout(function(){ if(modal) modal.style.display = 'none'; }, 280);
+}
+
+// Atualiza o label do botão com contagem de conversas ativas
+function pvAtualizarBtnLabel() {
+  var msgs = getPvMonitorMsgs();
+  var convSet = {};
+  msgs.forEach(function(m){ if(m.conv) convSet[m.conv] = true; });
+  var n = Object.keys(convSet).length;
+  var el = document.getElementById('pvSelectBtnLabel');
+  if (el) el.textContent = n ? n + ' Conversa(s) Ativa(s)' : 'Selecionar Conversa';
+}
+
+function pvRenderConvCards(msgs, convKeys) {
+  var cards = document.getElementById('pvConvCards');
+  if (!cards) return;
+  if (!convKeys || !convKeys.length) {
+    cards.innerHTML = '';
+    return;
+  }
+  // Group last message per conversation
+  var lastMsg = {};
+  msgs.forEach(function(m){ if(m.conv) lastMsg[m.conv] = m; });
+
+  cards.innerHTML = convKeys.map(function(conv) {
+    var last = lastMsg[conv];
+    var lastText = last ? escHtml((last.text||'').substring(0,50) + ((last.text||'').length>50?'…':'')) : '';
+    var lastFrom = last ? escHtml(last.from||'?') : '';
+    var d = last && last.ts ? new Date(last.ts) : null;
+    var timeStr = d ? d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0') : '';
+    var parts = conv.split('↔').map(function(p){return p.trim();});
+    var a1 = (parts[0]||'?')[0].toUpperCase();
+    var a2 = (parts[1]||'?')[0].toUpperCase();
+    return [
+      '<div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer" onclick="abrirPvSpyJanela(\''+conv.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\')" >',
+        // Avatares sobrepostos
+        '<div style="position:relative;width:36px;height:36px;flex-shrink:0">',
+          '<div style="position:absolute;top:0;left:0;width:26px;height:26px;border-radius:50%;background:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;border:2px solid var(--surface2)">'+a1+'</div>',
+          '<div style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;border:2px solid var(--surface2)">'+a2+'</div>',
+        '</div>',
+        // Info
+        '<div style="flex:1;min-width:0">',
+          '<div style="font-size:12px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px">',
+            '<span>🔒 '+escHtml(conv)+'</span>',
+            '<span style="font-size:9px;color:var(--text3);margin-left:auto;white-space:nowrap">'+timeStr+'</span>',
+          '</div>',
+          '<div style="font-size:10px;color:var(--text3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><strong style="color:var(--text2)">'+lastFrom+':</strong> '+lastText+'</div>',
+        '</div>',
+        // Botão
+        '<button onclick="event.stopPropagation();abrirPvSpyJanela(\''+conv.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')+'\')" style="padding:5px 12px;border-radius:20px;border:1px solid #ef4444;background:#7f1d1d;color:#fca5a5;font-size:9px;font-weight:700;cursor:pointer;font-family:\'Syne\',sans-serif;white-space:nowrap;flex-shrink:0">👁 Espiar</button>',
+      '</div>'
+    ].join('');
+  }).join('');
+  pvAtualizarBtnLabel();
+}
+
+
+// ── Media icon helpers (admin spy) ──────────────────────────────────────────
+var _SPYICO = {
+  image: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><circle cx="8.5" cy="9.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>',
+  video: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="3"/><polygon points="22,8 16,12 22,16"/></svg>',
+  audio: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 18,12 10,16" fill="#34d399" stroke="none"/></svg>',
+  yt:    '<svg width="22" height="22" viewBox="0 0 24 24"><path fill="#ef4444" d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.2 5 12 5 12 5s-4.2 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.3.9C6.8 19 12 19 12 19s4.2 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6C22 9.6 21.8 8 21.8 8z"/><polygon fill="white" points="10,8.5 10,15.5 16,12"/></svg>',
+  tiktok:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff0050"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z"/></svg>',
+  instagram:'<svg width="22" height="22" viewBox="0 0 24 24"><defs><linearGradient id="spig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="5" fill="url(#spig)"/><rect x="6" y="6" width="12" height="12" rx="3" fill="none" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="none" stroke="white" stroke-width="1.5"/><circle cx="17" cy="7" r="1" fill="white"/></svg>'
+};
+function spyOpenMedia(id) {
+  if (!window._spyMediaStore) return;
+  var url = window._spyMediaStore[id];
+  if (!url) return;
+  // If it's a data: URL, convert to Blob first (browsers block opening data: in new tab)
+  if (url.startsWith('data:')) {
+    try {
+      var parts = url.split(',');
+      var mime = parts[0].match(/:(.*?);/)[1];
+      var raw = atob(parts[1]);
+      var arr = new Uint8Array(raw.length);
+      for (var i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i);
+      var blob = new Blob([arr], {type: mime});
+      var blobUrl = URL.createObjectURL(blob);
+      var win = window.open(blobUrl, '_blank');
+      // Revoke after a delay to free memory
+      setTimeout(function(){ URL.revokeObjectURL(blobUrl); }, 30000);
+      if (!win) {
+        // Popup blocked — fallback: show inline
+        spyShowInline(url, mime);
+      }
+    } catch(e) {
+      toast('Erro ao abrir arquivo: ' + e.message, 'err');
+    }
+  } else {
+    window.open(url, '_blank');
+  }
+}
+
+function spyShowInline(url, mime) {
+  // Fallback viewer inside admin panel
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px';
+  var close = document.createElement('button');
+  close.textContent = '✕ Fechar';
+  close.style.cssText = 'position:absolute;top:16px;right:16px;background:#ef4444;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;font-size:13px';
+  close.onclick = function(){ overlay.remove(); };
+  overlay.appendChild(close);
+  var el;
+  if (mime.startsWith('image')) {
+    el = document.createElement('img');
+    el.src = url;
+    el.style.cssText = 'max-width:90vw;max-height:80vh;border-radius:12px;object-fit:contain';
+  } else if (mime.startsWith('video')) {
+    el = document.createElement('video');
+    el.src = url; el.controls = true;
+    el.style.cssText = 'max-width:90vw;max-height:80vh;border-radius:12px';
+  } else if (mime.startsWith('audio')) {
+    el = document.createElement('audio');
+    el.src = url; el.controls = true;
+    el.style.cssText = 'width:320px';
+  } else {
+    el = document.createElement('a');
+    el.href = url; el.download = 'arquivo';
+    el.textContent = '⬇ Baixar arquivo';
+    el.style.cssText = 'color:#60a5fa;font-size:16px;font-weight:700';
+  }
+  overlay.appendChild(el);
+  document.body.appendChild(overlay);
+}
+
+function spyMediaHtml(m) {
+  var murl = m.mediaUrl||m.fileUrl||m.imgUrl||m.audioBlobUrl||'';
+  var mtype = m.mediaType||'';
+  if (!mtype && murl) {
+    if (/\.(jpg|jpeg|png|gif|webp)$/i.test(murl)||murl.startsWith('data:image')) mtype='image';
+    else if (/\.(mp4|webm|mov)$/i.test(murl)||murl.startsWith('data:video')) mtype='video';
+    else if (/\.(mp3|ogg|wav|m4a)$/i.test(murl)||murl.startsWith('data:audio')) mtype='audio';
+  }
+  if (!murl && !mtype) return '';
+  var ico = _SPYICO[mtype] || _SPYICO.audio;
+  var btnStyle = 'display:inline-flex;align-items:center;justify-content:center;background:#1a1d24;border:1px solid #2a3244;border-radius:10px;padding:6px;width:40px;height:40px;margin-top:4px;text-decoration:none;vertical-align:middle;cursor:pointer';
+  if (!murl) return '<span style="'+btnStyle+';opacity:.5;cursor:default">'+ico+'</span>';
+  // Use onclick to handle base64 data URLs safely (browsers block data: in new tab)
+  var safeUrl = escHtml(murl);
+  var onclick = 'spyOpenMedia(this,\''+safeUrl.substring(0,80)+'...\')';
+  // Store full URL in data attribute to avoid inline size issues
+  var id = 'spy_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  // We'll store it globally and reference by id
+  if (!window._spyMediaStore) window._spyMediaStore = {};
+  window._spyMediaStore[id] = murl;
+  return '<button onclick="spyOpenMedia(\''+id+'\')" style="'+btnStyle+';border:1px solid #2a3244;background:#1a1d24">'+ico+'</button>';
+}
+
+function renderPvMonitorMsgs() {
+  var allMsgs = getPvMonitorMsgs();
+  var viewerRole = _getPvViewerRole();
+  var isSupervisor = viewerRole === 'supervisor';
+
+  // Supervisor: filter out any message where fromRole or toRole is 'admin'
+  var msgs = isSupervisor
+    ? allMsgs.filter(function(m) {
+        return m.fromRole !== 'admin' && m.toRole !== 'admin';
+      })
+    : allMsgs;
+
+  var container = document.getElementById('pvMonitorMsgList');
+  var filterEl = document.getElementById('pvConvFilter');
+  var searchEl = document.getElementById('pvSearchInput');
+  var statsEl = document.getElementById('pvMonitorStats');
+  var noticeEl = document.getElementById('pvSupervisorNotice');
+  var clearBtn = document.querySelector('[onclick="clearPvMonitorMsgs()"]');
+  if (!container) return;
+
+  // Show/hide supervisor notice and clear button
+  if (noticeEl) noticeEl.style.display = isSupervisor ? 'flex' : 'none';
+  if (clearBtn) clearBtn.style.display = isSupervisor ? 'none' : '';
+
+  var filterVal = filterEl ? filterEl.value : '';
+  var searchVal = searchEl ? searchEl.value.toLowerCase().trim() : '';
+
+  // Update conversation filter options
+  var convs = {};
+  msgs.forEach(function(m) { if (m.conv) convs[m.conv] = true; });
+  var convKeys = Object.keys(convs).sort();
+
+  // Render conversation cards (botões de abrir janela por conversa)
+  pvRenderConvCards(msgs, convKeys);
+  if (filterEl) {
+    var prev = filterEl.value;
+    filterEl.innerHTML = '<option value="">Todas as conversas (' + msgs.length + ')</option>';
+    convKeys.forEach(function(c) {
+      var opt = document.createElement('option');
+      opt.value = c; opt.textContent = '🔒 ' + c;
+      if (c === prev) opt.selected = true;
+      filterEl.appendChild(opt);
+    });
+    if (prev && convs[prev]) filterVal = prev;
+  }
+
+  // Filter messages
+  var filtered = msgs.filter(function(m) {
+    if (filterVal && m.conv !== filterVal) return false;
+    if (searchVal && !(m.text || '').toLowerCase().includes(searchVal) &&
+        !(m.from || '').toLowerCase().includes(searchVal)) return false;
+    return true;
+  });
+
+  if (!filtered.length) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text2);font-size:11px;padding:20px">' +
+      (allMsgs.length && isSupervisor && allMsgs.length > msgs.length
+        ? '🛡 Mensagens de Admin estão ocultas para Supervisores.'
+        : msgs.length
+        ? '🔍 Nenhuma mensagem com esse filtro.'
+        : '🔕 Nenhuma mensagem privada monitorada ainda.') +
+      '</div>';
+    if (statsEl) statsEl.innerHTML = '';
+    return;
+  }
+
+  // Build HTML — spy mode style
+  var html = '';
+  // Group by conversation for "Abrir Janela" button
+  var convGroups = {};
+  filtered.forEach(function(m) {
+    var key = m.conv || '?';
+    if (!convGroups[key]) convGroups[key] = [];
+    convGroups[key].push(m);
+  });
+
+  // If all conversations shown, render with spy bubble style + abrir janela btn
+  if (!filterVal) {
+    Object.keys(convGroups).forEach(function(conv) {
+      var msgs2 = convGroups[conv];
+      html += '<div style="background:#0f0e1a;border:1px solid #a78bfa44;border-radius:10px;overflow:hidden;margin-bottom:8px">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:#180f30;border-bottom:1px solid #a78bfa33">' +
+          '<span style="font-size:11px;font-weight:700;color:#a78bfa;display:flex;align-items:center;gap:5px"><span style="font-size:9px;font-weight:700;color:#ef4444;letter-spacing:.5px;text-transform:uppercase">ESPIÃO PV</span> 🔒 ' + escHtml(conv) + '</span>' +
+          '<button onclick="abrirPvSpyJanela(\'' + escHtml(conv).replace(/'/g,"\\'") + '\')" style="padding:3px 10px;border-radius:20px;border:1px solid #a78bfa;background:#2d1b4e;color:#d8b4fe;font-size:9px;font-weight:700;cursor:pointer;font-family:\'Syne\',sans-serif">👁 Abrir Janela</button>' +
+        '</div>' +
+        '<div style="padding:8px;display:flex;flex-direction:column;gap:4px">';
+      msgs2.forEach(function(m) {
+        var d = m.ts ? new Date(m.ts) : new Date();
+        var timeStr = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+        var isMine = m.isMine;
+        var mediaIcon = spyMediaHtml(m);
+        html += '<div style="display:flex;flex-direction:column;gap:2px;align-items:' + (isMine ? 'flex-end' : 'flex-start') + '">' +
+          '<span style="font-size:9px;color:#a78bfa;font-weight:700">👤 ' + escHtml(m.from || '?') + ' <span style="color:#6b5a8a">' + timeStr + '</span></span>' +
+          '<div style="max-width:85%;background:' + (isMine ? 'rgba(29,78,216,.25)' : 'rgba(167,139,250,.1)') + ';border:1px solid ' + (isMine ? 'rgba(29,78,216,.4)' : 'rgba(167,139,250,.25)') + ';border-radius:10px;padding:6px 10px;font-size:12px;color:#e2d9f3;line-height:1.4;word-break:break-word">' + escHtml(m.text || '') + (mediaIcon ? '<div>'+mediaIcon+'</div>' : '') + '</div>' +
+        '</div>';
+      });
+      html += '</div></div>';
+    });
+  } else {
+    // Single conversation: render in spy window style
+    filtered.forEach(function(m) {
+      var d = m.ts ? new Date(m.ts) : new Date();
+      var timeStr = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+      var dateStr = d.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'});
+      var isMine = m.isMine;
+      var mediaIcon = spyMediaHtml(m);
+      html += '<div style="display:flex;flex-direction:column;gap:2px;align-items:' + (isMine ? 'flex-end' : 'flex-start') + '">' +
+        '<span style="font-size:9px;color:#a78bfa;font-weight:700">👤 ' + escHtml(m.from || '?') + ' <span style="color:#6b5a8a">' + dateStr + ' ' + timeStr + '</span></span>' +
+        '<div style="max-width:85%;background:' + (isMine ? 'rgba(29,78,216,.25)' : 'rgba(167,139,250,.1)') + ';border:1px solid ' + (isMine ? 'rgba(29,78,216,.4)' : 'rgba(167,139,250,.25)') + ';border-radius:10px;padding:6px 10px;font-size:12px;color:#e2d9f3;line-height:1.4;word-break:break-word">' + escHtml(m.text || '') + (mediaIcon ? '<div>'+mediaIcon+'</div>' : '') + '</div>' +
+      '</div>';
+    });
+    if (filtered.length) {
+      html = '<div style="display:flex;flex-direction:column;gap:6px;background:#0f0e1a;border-radius:10px;padding:10px">' +
+        '<div style="display:flex;justify-content:flex-end;margin-bottom:4px"><button onclick="abrirPvSpyJanela(\'' + escHtml(filterVal).replace(/'/g,"\\'") + '\')" style="padding:4px 12px;border-radius:20px;border:1px solid #a78bfa;background:#2d1b4e;color:#d8b4fe;font-size:10px;font-weight:700;cursor:pointer;font-family:\'Syne\',sans-serif">👁 Abrir Janela Espião</button></div>' +
+        html + '</div>';
+    }
+  }
+  container.innerHTML = html;
+  container.scrollTop = container.scrollHeight;
+
+  // Stats
+  if (statsEl) {
+    var uniqueConvs = Object.keys(convs).length;
+    var uniqueUsers = {};
+    msgs.forEach(function(m) { if (m.from) uniqueUsers[m.from] = true; });
+    var hiddenNote = (isSupervisor && allMsgs.length > msgs.length)
+      ? ' <span style="color:#fbbf24">(' + (allMsgs.length - msgs.length) + ' oculta(s) — Admin)</span>' : '';
+    statsEl.innerHTML =
+      '<span>📨 ' + msgs.length + ' msgs visíveis' + hiddenNote + '</span>' +
+      '<span>🔒 ' + uniqueConvs + ' conversa(s)</span>' +
+      '<span>👥 ' + Object.keys(uniqueUsers).length + ' usuário(s)</span>';
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Cores por role ───────────────────────────────────────────────────────────
+var PV_ROLE_COLORS = {
+  admin:'#10b981', supervisor:'#ef4444', mod:'#9ca3af',
+  vip:'#60a5fa', premium:'#fbbf24', dj:'#a855f7',
+  user:'#4f6ef7', guest:'#6b7280'
+};
+// Nick color por role (igual ao chat real)
+var PV_NICK_COLORS = {
+  admin:'#10b981', supervisor:'#ef4444', mod:'#9ca3af',
+  vip:'#3b82f6', premium:'#f59e0b', dj:'#a855f7',
+  user:'#1a237e', guest:'#6b7280'
+};
+
+// Cor de borda do avatar por role
+function pvAvatarBorderColor(role) {
+  return PV_ROLE_COLORS[role] || '#4f6ef7';
+}
+
+// Busca foto de perfil do localStorage
+function pvGetPhoto(nick) {
+  if (!nick) return null;
+  var keys = ['tc_photo_'+nick,'tc_avatar_'+nick,'tc_profile_'+nick,'chat_photo_'+nick,'user_photo_'+nick];
+  for (var i=0;i<keys.length;i++){var v=localStorage.getItem(keys[i]);if(v&&v.length>10)return v;}
+  try{
+    var u=JSON.parse(localStorage.getItem('tc_users')||localStorage.getItem('tc_users_data')||'{}');
+    if(u[nick]&&(u[nick].photo||u[nick].avatar||u[nick].photoUrl))return u[nick].photo||u[nick].avatar||u[nick].photoUrl;
+  }catch(e){}
+  return null;
+}
+
+// Emoji/avatar do USERS_DATA local
+function pvGetEmoji(nick) {
+  if (typeof USERS_DATA !== 'undefined' && USERS_DATA[nick] && USERS_DATA[nick].av)
+    return USERS_DATA[nick].av;
+  return null;
+}
+
+// Cor fallback por nick
+function pvNickBgColor(nick) {
+  var C=['#1d4ed8','#7c3aed','#0d9488','#b45309','#be185d','#1e40af','#6d28d9','#065f46'];
+  var n=0; for(var i=0;i<(nick||'').length;i++) n+=nick.charCodeAt(i);
+  return C[n%C.length];
+}
+
+// Avatar HTML — foto, emoji, ou inicial
+function pvAvatarEl(nick, role, size) {
+  size = size || 40;
+  var photo   = pvGetPhoto(nick);
+  var emoji   = pvGetEmoji(nick);
+  var border  = pvAvatarBorderColor(role);
+  var bg      = pvNickBgColor(nick);
+  var st = 'width:'+size+'px;height:'+size+'px;border-radius:50%;flex-shrink:0;border:2px solid '+border+';overflow:hidden;display:flex;align-items:center;justify-content:center;';
+  if (photo) {
+    return '<div style="'+st+'background:'+bg+'"><img src="'+escHtml(photo)+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'"/></div>';
+  }
+  if (emoji) {
+    return '<div style="'+st+'background:'+bg+';font-size:'+(size*0.5)+'px">'+emoji+'</div>';
+  }
+  // inicial
+  var init = (nick||'?')[0].toUpperCase();
+  return '<div style="'+st+'background:'+bg+';font-family:\'Syne\',sans-serif;font-size:'+(size*0.38)+'px;font-weight:800;color:#fff">'+init+'</div>';
+}
+
+// Popula select de conversas
+function pvSpyPopulateSelect(convKeys, currentConv) {
+  var sel = document.getElementById('pvSpyConvSelect');
+  if (!sel) return;
+  if (convKeys.length <= 1) { sel.style.display='none'; return; }
+  sel.style.display='';
+  sel.innerHTML = convKeys.map(function(c){
+    return '<option value="'+escHtml(c)+'"'+(c===currentConv?' selected':'')+'>🔒 '+escHtml(c)+'</option>';
+  }).join('');
+}
+
+function pvSpySwitchConv(conv) { pvSpyRenderConv(conv); }
+
+function pvEspiarAbrir() {
+  // Compatibilidade: abre a janela com a conversa selecionada no select (se ainda existir)
+  var sel = document.getElementById('pvEspiarSelect');
+  var conv = sel ? sel.value : '';
+  if (!conv) { toast('Selecione uma conversa', 'err'); return; }
+  abrirPvSpyJanela(conv);
+}
+
+function abrirPvSpyJanela(conv) {
+  var overlay = document.getElementById('pvSpyOverlay');
+  if (overlay) overlay.style.display='flex';
+  pvSpyRenderConv(conv);
+}
+
+// ── Renderiza conversa — idêntica ao screenshot ───────────────────────────────
+function pvSpyRenderConv(conv) {
+  var area       = document.getElementById('pvSpyMsgArea');
+  var titleEl    = document.getElementById('pvSpyConvTitle');
+  var avatarEl   = document.getElementById('pvSpyContactAvatarInner');
+  var allMsgs    = getPvMonitorMsgs();
+
+  // Select de conversas
+  var convSet = {};
+  allMsgs.forEach(function(m){ if(m.conv) convSet[m.conv]=true; });
+  pvSpyPopulateSelect(Object.keys(convSet), conv);
+
+  // Mensagens desta conversa
+  var msgs = conv ? allMsgs.filter(function(m){ return (m.conv||'?')===conv; }) : allMsgs;
+
+  // Participantes
+  var parts  = (conv||'').split('↔').map(function(p){return p.trim();});
+  var partA  = parts[0]||'';
+  var partB  = parts[1]||'';
+
+  // "mine" = quem tem isMine=true → lado DIREITO (balão branco)
+  var mineNick='';
+  var fm = msgs.find(function(m){return m.isMine;});
+  if(fm) mineNick=fm.from||''; else mineNick=partA;
+  var otherNick = (mineNick===partA)?partB:partA;
+
+  // Role do outro
+  var otherRole='';
+  msgs.forEach(function(m){ if(m.from===otherNick&&m.fromRole) otherRole=m.fromRole; });
+
+  // ── Header: avatar + título ───────────────────────────────────────────────
+  if (avatarEl) {
+    var photo  = pvGetPhoto(otherNick);
+    var emoji  = pvGetEmoji(otherNick);
+    var border = pvAvatarBorderColor(otherRole);
+    avatarEl.style.borderColor = border;
+    if (photo) {
+      avatarEl.innerHTML = '<img src="'+escHtml(photo)+'" style="width:100%;height:100%;object-fit:cover" onerror="this.textContent=\''+escHtml((otherNick||'?')[0].toUpperCase())+'\'"/>';
+    } else if (emoji) {
+      avatarEl.textContent = emoji;
+      avatarEl.style.background = pvNickBgColor(otherNick);
+    } else {
+      avatarEl.textContent = (otherNick||'?')[0].toUpperCase();
+      avatarEl.style.background = pvNickBgColor(otherNick);
+    }
+  }
+  if (titleEl) titleEl.textContent = 'PV: '+(otherNick||conv||'Conversa');
+
+  if (!area) return;
+
+  // ── Renderiza mensagens ───────────────────────────────────────────────────
+  if (!msgs.length) {
+    area.innerHTML = '<div style="text-align:center;color:#8a9ab0;font-size:12px;padding:40px 20px;display:flex;flex-direction:column;align-items:center;gap:8px"><div style="font-size:32px">🔒</div>Nenhuma mensagem nesta conversa.</div>';
+    return;
+  }
+
+  var html = '';
+  var prevDate = null;
+
+  var frag = document.createDocumentFragment();
+
+  msgs.forEach(function(m) {
+    var d       = m.ts ? new Date(m.ts) : new Date();
+    var timeStr = d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+    var dateStr = d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+    var isRight = !!(m.isMine || m.from===mineNick);
+    var nick    = m.from||'?';
+    var role    = m.fromRole||'';
+    var nickColor = PV_NICK_COLORS[role]||(isRight?'#1d4ed8':'#7c3aed');
+
+    if (dateStr !== prevDate) {
+      prevDate = dateStr;
+      var sep = document.createElement('div');
+      sep.style.cssText = 'text-align:center;margin:10px 0 8px';
+      sep.innerHTML = '<span style="font-size:10px;color:#6b7280;background:#d4d8e4;padding:3px 12px;border-radius:10px">'+dateStr+'</span>';
+      frag.appendChild(sep);
+    }
+
+    var row = document.createElement('div');
+    row.className = 'msg-group';
+    if (isRight) row.dataset.mine = '1';
+    row.style.marginBottom = '10px';
+
+    var col = document.createElement('div');
+    col.className = 'msg-content';
+
+    var bubble = document.createElement('div');
+    bubble.className = 'msg-bubble priv';
+
+    var head = document.createElement('div');
+    head.className = 'msg-head';
+    var nickEl = document.createElement('span');
+    nickEl.className = 'msg-nick';
+    nickEl.style.color = nickColor;
+    nickEl.textContent = nick;
+    head.appendChild(nickEl);
+    bubble.appendChild(head);
+
+    if (m.text && m.text.trim()) {
+      var textEl = document.createElement('div');
+      textEl.className = 'msg-text';
+      textEl.textContent = m.text;
+      bubble.appendChild(textEl);
+    }
+
+    var mHtml = spyMediaHtml(m);
+    if (mHtml) {
+      var mWrap = document.createElement('div');
+      mWrap.innerHTML = mHtml;
+      bubble.appendChild(mWrap);
+    }
+
+    var footer = document.createElement('div');
+    footer.className = 'msg-footer';
+    var timeEl = document.createElement('span');
+    timeEl.className = 'msg-time';
+    timeEl.textContent = timeStr;
+    footer.appendChild(timeEl);
+    bubble.appendChild(footer);
+
+    col.appendChild(bubble);
+    row.appendChild(col);
+    frag.appendChild(row);
+  });
+
+  area.innerHTML = '';
+  area.appendChild(frag);
+  area.scrollTop = area.scrollHeight;
+}
+
+
+function fecharPvSpy() {
+  var overlay = document.getElementById('pvSpyOverlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+function pvEspiarRenderGrid() {
+  var grid = document.getElementById('pvEspiarGrid');
+  if (!grid) return;
+  var msgs = [];
+  try { msgs = JSON.parse(localStorage.getItem(PV_MON_KEY) || '[]'); } catch(e) {}
+  var convSet = {};
+  msgs.forEach(function(m){ if(m.conv) convSet[m.conv] = m; });
+  var convKeys = Object.keys(convSet);
+  if (!convKeys.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;font-size:12px;color:var(--text3)"><div style="font-size:28px;margin-bottom:8px">\uD83D\uDD12</div>Nenhuma conversa privada ativa no momento.</div>';
+    return;
+  }
+  grid.innerHTML = convKeys.map(function(conv) {
+    var safe = conv.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<button class="abtn-espiar" onclick="abrirPvSpyJanela(\''+safe+'\')">\uD83D\uDD12 '+escHtml(conv)+'</button>';
+  }).join('');
+}
+
+
+function limparContatos() {
+  var body = document.getElementById('contatosBody');
+  if (body) { body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-size:11px">Nenhuma mensagem.</td></tr>'; }
+  toast('Todas as mensagens foram excluídas ✅');
+}
+
+// Init monitor state on page load
+(function initPvMonitor() {
+  const viewerRole = _getPvViewerRole();
+  const canAccess = ['admin', 'supervisor'].includes(viewerRole);
+  if (!canAccess) return;
+
+  const isActive = LS.get(PV_MON_ACTIVE_KEY, '0') === '1';
+  const toggleEl = document.getElementById('pvMonitorToggle');
+  const section = document.getElementById('pvJanelaSection');
+  const offMsg = document.getElementById('pvMonitorOffMsg');
+  const offDesc = document.getElementById('pvOffMsgDesc');
+
+  // Supervisor: disable the toggle (read-only, admin controls it)
+  if (viewerRole === 'supervisor') {
+    if (toggleEl) {
+      toggleEl.style.opacity = '.45';
+      toggleEl.style.pointerEvents = 'none';
+      toggleEl.title = 'Apenas Admin pode ativar/desativar o monitor';
+    }
+    if (offDesc) offDesc.textContent = 'O Monitor de PV precisa ser ativado pelo Admin. Aguarde a ativação.';
+  }
+
+  if (isActive) {
+    if (toggleEl) toggleEl.classList.add('on');
+    if (section) section.style.display = '';
+    if (offMsg) offMsg.style.display = 'none';
+    renderPvMonitorMsgs();
+    startPvMonitorPolling();
+  } else {
+    if (toggleEl) toggleEl.classList.remove('on');
+    if (section) section.style.display = 'none';
+    if (offMsg) offMsg.style.display = '';
+  }
+})();
+
+// ── SALAS PRIVADAS ─────────────────────────────────────────────
+function spPrivGetSalas(){try{return JSON.parse(localStorage.getItem('tc_private_rooms')||'[]');}catch(e){return[];}}
+function spPrivRecarregar(){
+  const list=spPrivGetSalas();const el=document.getElementById('spPrivCount');if(el)el.textContent=list.length;
+  const grid=document.getElementById('spPrivGrid');
+  if(!list.length){grid.innerHTML='<div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)"><div style="font-size:32px;margin-bottom:10px">🔒</div>Nenhuma sala privada.</div>';return;}
+  grid.innerHTML=list.map(s=>`<div style="background:var(--surface);border:1.5px solid ${s.cor||'#7c3aed'}55;border-radius:12px;padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="font-size:22px">${s.icon||'🔒'}</div><div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800">${s.name}</div><div style="font-size:10px;color:var(--text3)">por ${s.owner}</div></div></div><div style="display:flex;gap:8px"><button onclick="spPrivEspiar('${s.id}','${(s.name||'').replace(/'/g,"\\'")}','${s.icon||'🔒'}','${s.cor||'#7c3aed'}')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">👁 Espiar</button></div></div>`).join('');
+}
+function spPrivDeletar(id,nome){if(!confirm('Excluir "'+nome+'"?'))return;const list=spPrivGetSalas().filter(s=>s.id!==id);localStorage.setItem('tc_private_rooms',JSON.stringify(list));toast('🗑 Sala excluída.');spPrivRecarregar();}
+function spPrivEspiar(id,nome,icon){document.getElementById('spyModalRoomName').textContent=nome;document.getElementById('spyOverlay').style.display='flex';}
+function fecharEspiar(){document.getElementById('spyOverlay').style.display='none';}
+
+// ── ESPIAR SALAS PÚBLICAS ──────────────────────────────────────
+function espiarSala(roomId,roomName){
+  document.getElementById('spyModalRoomName').textContent=roomName;
+  document.getElementById('spyOverlay').style.display='flex';
+}
+
+// ── MODERAÇÃO ──────────────────────────────────────────────────
+function banirUsuarioPainel(nick){const nav=document.querySelector('.nav-item[onclick*="moderacao"]');show('moderacao',nav);setTimeout(()=>{document.getElementById('modNick').value=nick;document.getElementById('modAction').value='ban';toast('Selecione a duração do ban para '+nick);},100);}
+function setModDur(h,btn){document.getElementById('modDuration').value=h;document.querySelectorAll('[onclick^="setModDur"]').forEach(b=>{b.style.background='var(--surface2)';b.style.borderColor='#3d35a0';b.style.color='#a78bfa';});btn.style.background=h===0?'#7f1d1d':'#7c3aed';btn.style.borderColor=h===0?'#ef4444':'#7c3aed';btn.style.color=h===0?'#fca5a5':'#fff';document.getElementById('modDurLabel').textContent=h===0?'🔒 Ban permanente':'⏱ Ban de '+h+'h';}
+async function doMod(){
+  const n=document.getElementById('modNick').value.trim();
+  const a=document.getElementById('modAction').value;
+  const dur=document.getElementById('modDuration').value;
+  if(!n){toast('Preencha o nick','err');return;}
+  try{
+    if(a==='ban'){
+      if(dur===''){toast('Selecione a duração do ban','err');return;}
+      const ban_type = dur==='0' ? 'permanent' : 'temporary';
+      const expires_at = (dur && dur!=='0') ? new Date(Date.now()+parseInt(dur)*3600*1000).toISOString() : null;
+      await API.admin.banUser(n, 'Painel admin', ban_type, expires_at);
+      toast(`✅ ${n} banido ${dur==='0'?'permanentemente':'por '+dur+'h'}`);
+    } else if(a==='desbanir'){
+      await API.admin.unbanUser(n);
+      toast(`✅ ${n} desbanido`);
+    } else {
+      toast('Ação "'+a+'" ainda não está disponível no servidor.','err'); return;
+    }
+    loadAdminUsers();
+  }catch(e){ toast(e.message||'Erro na ação','err'); }
+}
+
+// ── SALAS ──────────────────────────────────────────────────────
+let salaToDelete=null,salaRowToDelete=null;
+function confirmarExcluirSala(btn,nome){salaToDelete=nome;salaRowToDelete=btn.closest('tr');document.getElementById('excluirSalaNome').textContent=nome;document.getElementById('excluirSalaOverlay').classList.add('show');}
+function closeExcluirSala(){document.getElementById('excluirSalaOverlay').classList.remove('show');salaToDelete=null;salaRowToDelete=null;}
+function confirmarExcluirSalaFinal(){if(salaRowToDelete){salaRowToDelete.style.opacity='0';salaRowToDelete.style.transition='opacity .3s';setTimeout(()=>salaRowToDelete.remove(),300);toast('Sala "'+salaToDelete+'" excluída!');}closeExcluirSala();}
+
+// ── ROLE / NICK MODALS ─────────────────────────────────────────
+let roleTarget=null;
+function openRole(nick,cur){roleTarget=nick;document.getElementById('roleTargetName').textContent=nick;document.getElementById('roleSelect').value=cur;document.getElementById('roleOverlay').classList.add('show');}
+function closeRole(){document.getElementById('roleOverlay').classList.remove('show');}
+async function applyRole(){
+  const val=document.getElementById('roleSelect').value; const u=USERS_DATA[roleTarget];
+  if(!u||!u.id){ toast('Usuário inválido','err'); return; }
+  try{ await API.admin.setRole(u.id, val); USERS_DATA[roleTarget].role=val; toast('Cargo de '+roleTarget+' → '+val); closeRole(); loadAdminUsers(); }
+  catch(e){ toast(e.message||'Erro','err'); }
+}
+let nickTarget=null;
+function openNickChange(nick){nickTarget=nick;document.getElementById('nickTargetName').textContent=nick;document.getElementById('newNickInput').value='';document.getElementById('nickOverlay').classList.add('show');}
+function closeNickChange(){document.getElementById('nickOverlay').classList.remove('show');}
+async function applyNickChange(){
+  const n=document.getElementById('newNickInput').value.trim();
+  if(!n){toast('Digite o novo nick','err');return;}
+  const u=USERS_DATA[nickTarget];
+  if(!u||!u.id){ toast('Usuário inválido','err'); return; }
+  try{ await API.admin.setNick(u.id, n); toast('Nick de '+nickTarget+' → '+n); closeNickChange(); loadAdminUsers(); }
+  catch(e){ toast(e.message||'Erro','err'); }
+}
+
+// ── LOGS ───────────────────────────────────────────────────────
+function limparLogs(){if(!confirm('Limpar logs?'))return;const el=document.getElementById('logsList');if(el)el.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">📋 Nenhum log.</div>';toast('Logs limpos ✅');}
+
+// ── IP / SPAM ──────────────────────────────────────────────────
+function addIP(){const v=document.getElementById('ipInput').value.trim();if(!v)return;const s=document.createElement('span');s.className='ip-tag';s.style.cssText='cursor:pointer;padding:3px 8px';s.textContent=v+' ✕';s.onclick=()=>s.remove();document.getElementById('ipList').appendChild(s);document.getElementById('ipInput').value='';toast('IP bloqueado');}
+function addSpamWord(){const inp=document.getElementById('spamWordInput');const v=inp.value.trim().toLowerCase();if(!v){toast('Digite uma palavra','err');return;}const s=document.createElement('span');s.style.cssText='background:#312e81;color:#c4b5fd;font-size:10px;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:\'Syne\',sans-serif;font-weight:700;display:inline-block';s.textContent=v+' ✕';s.onclick=()=>{s.remove();updateSpamCount();};document.getElementById('spamWordList').appendChild(s);inp.value='';updateSpamCount();}
+function updateSpamCount(){const el=document.getElementById('spamWordCount');if(el)el.textContent=document.querySelectorAll('#spamWordList span').length+' palavras bloqueadas';}
+async function saveSpamWords(){
+  const words=[...document.querySelectorAll('#spamWordList span')].map(x=>x.textContent.replace(/\s*✕\s*$/,'').trim()).filter(Boolean);
+  try{ await API.admin.setSpamWords(words); toast('Lista anti-spam salva ✅'); }
+  catch(e){ toast(e.message||'Erro ao salvar','err'); }
+}
+async function loadSpamWords(){
+  try{
+    const d=await API.admin.getSpamWords(); const list=document.getElementById('spamWordList'); if(!list) return;
+    list.innerHTML='';
+    (d.words||[]).forEach(w=>{ const s=document.createElement('span'); s.style.cssText="background:#312e81;color:#c4b5fd;font-size:10px;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;display:inline-block"; s.textContent=w+' ✕'; s.onclick=()=>{s.remove();updateSpamCount();}; list.appendChild(s); });
+    updateSpamCount();
+  }catch(e){}
+}
+setTimeout(loadSpamWords,0);
+
+// ── MODERAÇÃO DE IMAGENS (NSFW) ─────────────────────────────────
+const NSFW_CFG_KEY = 'tc_nsfw_config';
+
+function nsfwUpdateLabel(val){
+  const lbl = document.getElementById('nsfwThresholdLabel');
+  if(lbl) lbl.textContent = val + '%';
+}
+function nsfwSave(){
+  const threshold = parseInt(document.getElementById('nsfwThreshold').value) || 50;
+  const active = document.getElementById('nsfwToggle').classList.contains('on');
+  localStorage.setItem(NSFW_CFG_KEY, JSON.stringify({threshold, active}));
+  toast('Configuração de moderação salva ✅');
+}
+function nsfwReset(){
+  document.getElementById('nsfwThreshold').value = 50;
+  nsfwUpdateLabel(50);
+  const el = document.getElementById('nsfwToggle');
+  if(el) el.classList.add('on');
+  localStorage.setItem(NSFW_CFG_KEY, JSON.stringify({threshold:50, active:true}));
+  toast('Configuração restaurada para o padrão');
+}
+function nsfwToggleActive(el){
+  el.classList.toggle('on');
+  nsfwSave();
+}
+// Inicializar painel com valores salvos
+(function(){
+  const cfg = JSON.parse(localStorage.getItem(NSFW_CFG_KEY)||'null') || {threshold:50, active:true};
+  const sldr = document.getElementById('nsfwThreshold');
+  if(sldr){ sldr.value = cfg.threshold; nsfwUpdateLabel(cfg.threshold); }
+  const tog = document.getElementById('nsfwToggle');
+  if(tog) tog.classList.toggle('on', cfg.active !== false);
+})();
+
+// ── CONTROLE DE ACESSO ──────────────────────────────────────────
+function toggleBlock(type,el){el.classList.toggle('on');toast((el.classList.contains('on')?'Bloqueio ativado':'Bloqueio removido')+': '+type);}
+function toggleMembersOnly(el){el.classList.toggle('on');toast('Somente membros '+(el.classList.contains('on')?'ativado':'desativado'));}
+function toggleBingo(el){
+  el.classList.toggle('on');
+  const ativo = el.classList.contains('on');
+  localStorage.setItem('tc_bingo_ativo', ativo ? '1' : '0');
+  toast('🎱 Bingo ' + (ativo ? 'liberado para usuários' : 'bloqueado'), ativo ? 'ok' : 'err');
+}
+// Init estado do toggle bingo
+(function(){
+  const el = document.getElementById('bingoToggle');
+  if(el && localStorage.getItem('tc_bingo_ativo') === '1') el.classList.add('on');
+})();
+
+// ── ANÚNCIO ───────────────────────────────────────────────────
+document.getElementById('annMsg').addEventListener('input',function(){document.getElementById('annPreviewText').textContent=this.value||'Pré-visualização...';});
+document.getElementById('annColor').addEventListener('change',function(){document.getElementById('annPreview').className='ann-preview '+this.value;});
+function publishAnnouncement(){const msg=document.getElementById('annMsg').value.trim();if(!msg){toast('Escreva a mensagem','err');return;}toast('Anúncio publicado 📢');}
+function clearAnnouncement(){document.getElementById('annMsg').value='';document.getElementById('annPreviewText').textContent='Pré-visualização...';toast('Anúncio removido');}
+
+// ── MASSA ─────────────────────────────────────────────────────
+function expulsarTodosChat(sala){if(!confirm('Expulsar de '+sala+'?'))return;const msg=document.getElementById('expulsarMsg');if(msg){msg.style.display='block';msg.textContent='✅ Expulsos de '+sala+'!';msg.style.color='#10b981';setTimeout(()=>msg.style.display='none',4000);}toast('Expulsos de '+sala);}
+
+function expulsarSalaSelecionada(){
+  const sel=document.getElementById('expulsarSalaSelect');
+  const sala=sel&&sel.value;
+  if(!sala){toast('Selecione uma sala primeiro','w');return;}
+  const label=sel.options[sel.selectedIndex].text;
+  if(!confirm('Expulsar todos os usuários de "'+label+'"?'))return;
+  const msg=document.getElementById('expulsarMsg');
+  if(msg){msg.style.display='block';msg.textContent='✅ Todos expulsos de '+label+'!';msg.style.color='#10b981';setTimeout(()=>msg.style.display='none',4000);}
+  // Sinaliza para o chat.html via localStorage
+  try{localStorage.setItem('tc_kick_room',sala);localStorage.setItem('tc_kick_room_ts',Date.now());}catch(e){}
+  toast('Expulsos de '+label);
+}
+
+function excluirMensagensSala(){
+  const sel=document.getElementById('excluirMsgSalaSelect');
+  const sala=sel&&sel.value;
+  if(!sala){toast('Selecione uma sala primeiro','w');return;}
+  const label=sel.options[sel.selectedIndex].text;
+  if(!confirm('Excluir TODAS as mensagens de "'+label+'"? Esta ação não pode ser desfeita.'))return;
+  // Chaves usadas pelo chat para armazenar mensagens por sala
+  const keys=['tc_msgs_'+sala,'tc_messages_'+sala,'chatMessages_'+sala,'msgs_'+sala];
+  let removed=0;
+  keys.forEach(k=>{if(localStorage.getItem(k)!==null){localStorage.removeItem(k);removed++;}});
+  // Sinaliza para o chat.html limpar sala ativa via localStorage
+  try{localStorage.setItem('tc_clear_room',sala);localStorage.setItem('tc_clear_room_ts',Date.now());}catch(e){}
+  const msg=document.getElementById('excluirMsgMsg');
+  if(msg){msg.style.display='block';msg.textContent='✅ Mensagens de '+label+' excluídas!';msg.style.color='#10b981';setTimeout(()=>msg.style.display='none',4000);}
+  toast('Mensagens de '+label+' excluídas');
+}
+function excluirTodasSalasPrivadas(){if(!confirm('Excluir TODAS as salas privadas?'))return;localStorage.removeItem('tc_private_rooms');const msg=document.getElementById('privMsg');if(msg){msg.style.display='block';msg.textContent='✅ Todas as salas privadas excluídas!';msg.style.color='#10b981';setTimeout(()=>msg.style.display='none',4000);}toast('Salas privadas excluídas');}
+
+// ── ENQUETE ───────────────────────────────────────────────────
+function ativarEnquete(){const p=document.getElementById('enqPergunta').value.trim();if(!p){toast('Digite a pergunta','err');return;}const el=document.getElementById('enqStatus');el.style.display='block';el.style.background='#10b98122';el.style.color='#10b981';el.textContent='✅ Enquete ativada!';}
+function encerrarEnquete(){const el=document.getElementById('enqStatus');el.style.display='block';el.style.background='#ef444422';el.style.color='#ef4444';el.textContent='⛔ Enquete encerrada.';}
+function zerarEnquete(){const el=document.getElementById('enqStatus');el.style.display='block';el.style.background='#37415122';el.style.color='#9ca3af';el.textContent='🗑 Enquete zerada.';}
+
+// ── QUIZ ──────────────────────────────────────────────────────
+function ativarQuiz(){const el=document.getElementById('quizStatus');el.style.display='block';el.style.background='#7c3aed22';el.style.color='#a78bfa';el.textContent='✅ Quiz ativado!';}
+function desativarQuiz(){const el=document.getElementById('quizStatus');el.style.display='block';el.style.background='#ef444422';el.style.color='#ef4444';el.textContent='⛔ Quiz desativado.';}
+function zerarPontuacao(){document.getElementById('quizRanking').textContent='Nenhum ponto registrado.';toast('Pontuação zerada');}
+
+// ── CONTROLE DE MENSAGENS ────────────────────────────────────
+const MSG_CFG_KEY = 'tc_msg_config';
+const MSG_DEFAULTS = { limit:100, ttl:60, ttlUnit:'min', expiracao:true, aviso:false, manterPins:true };
+
+function carregarConfigMensagens(){
+  const d = Object.assign({}, MSG_DEFAULTS, JSON.parse(localStorage.getItem(MSG_CFG_KEY)||'null'));
+  const setEl = (id,v) => { const e=document.getElementById(id); if(e) e.value=v; };
+  const setOn = (id,v) => { const e=document.getElementById(id); if(e) e.classList.toggle('on',!!v); };
+  setEl('msgLimitGlobal', d.limit);
+  setEl('msgTTLGlobal', d.ttl);
+  setEl('msgTTLGlobalUnit', d.ttlUnit);
+  setOn('toggleMsgExpiracao', d.expiracao);
+  setOn('toggleMsgAviso', d.aviso);
+  setOn('togglePinsManter', d.manterPins);
+  const ttlEl = document.getElementById('msgTTLGlobal');
+  const ttlUEl = document.getElementById('msgTTLGlobalUnit');
+  if(ttlEl) { ttlEl.disabled = !d.expiracao; ttlEl.style.opacity = d.expiracao?'1':'.4'; }
+  if(ttlUEl) { ttlUEl.disabled = !d.expiracao; ttlUEl.style.opacity = d.expiracao?'1':'.4'; }
+}
+
+function salvarConfigMensagens(showToast){
+  const gV = id => { const e=document.getElementById(id); return e?e.value:null; };
+  const isOn = id => { const e=document.getElementById(id); return e?e.classList.contains('on'):false; };
+  const cfg = {
+    limit: parseInt(gV('msgLimitGlobal'))||100,
+    ttl: parseInt(gV('msgTTLGlobal'))||60,
+    ttlUnit: gV('msgTTLGlobalUnit')||'min',
+    expiracao: isOn('toggleMsgExpiracao'),
+    aviso: isOn('toggleMsgAviso'),
+    manterPins: isOn('togglePinsManter')
+  };
+  localStorage.setItem(MSG_CFG_KEY, JSON.stringify(cfg));
+  const labels = {min:'minutos',hora:'horas',dia:'dias'};
+  const preview = document.getElementById('msgConfigPreview');
+  if(preview){
+    const expTxt = cfg.expiracao ? `Expiração: <strong>${cfg.ttl} ${labels[cfg.ttlUnit]}</strong>` : 'Expiração: <strong>desativada</strong>';
+    preview.innerHTML = `✅ Limite: <strong>${cfg.limit} mensagens</strong> por sala &nbsp;·&nbsp; ${expTxt}`;
+    preview.style.display = 'block';
+  }
+  if(showToast) toast('Configurações de mensagens salvas ✅');
+}
+
+function resetConfigMensagens(){
+  if(!confirm('Restaurar configurações padrão?')) return;
+  localStorage.removeItem(MSG_CFG_KEY);
+  carregarConfigMensagens();
+  const preview = document.getElementById('msgConfigPreview');
+  if(preview) preview.style.display = 'none';
+  toast('Configurações restauradas');
+}
+
+function toggleMsgExpiracao(el){
+  el.classList.toggle('on');
+  const on = el.classList.contains('on');
+  ['msgTTLGlobal','msgTTLGlobalUnit'].forEach(id=>{
+    const f=document.getElementById(id); if(f){ f.disabled=!on; f.style.opacity=on?'1':'.4'; }
+  });
+  salvarConfigMensagens(false);
+}
+
+// ── PERMISSÕES ────────────────────────────────────────────────
+(function applyRolePermissions(){
+  const role=LS.get('tc_role','admin');
+  if(role!=='admin'){
+    document.querySelectorAll('.nav-item[data-roles]').forEach(nav=>{
+      const allowed=nav.dataset.roles.split(',');
+      if(!allowed.includes(role))nav.style.display='none';
+    });
+  }
+  if(!['admin','supervisor'].includes(role)){
+    const s1=document.getElementById('secAcoesRapidas');if(s1)s1.style.display='none';
+    const s2=document.getElementById('secLogoChat');if(s2)s2.style.display='none';
+  }
+  if(!['admin','supervisor'].includes(role)){
+    const mt=document.getElementById('membersOnlyAdminToggle');
+    if(mt){mt.style.opacity='.35';mt.style.pointerEvents='none';}
+    const guTc=document.getElementById('guTrocarCargoBox');if(guTc)guTc.style.display='none';
+    const bl=document.getElementById('btnLimparLogs');if(bl)bl.style.display='none';
+  }
+  // Premium e Mod: abrir direto na página Espiar — só salas públicas
+  if(['premium','mod'].includes(role)){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    const pg=document.getElementById('page-espiar');
+    if(pg) pg.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const navEspiar=document.querySelector('.nav-item[onclick*="espiar"]');
+    if(navEspiar) navEspiar.classList.add('active');
+    const secSP=document.getElementById('espiarSalasPrivadasSection');
+    const secPV=document.getElementById('espiarPrivadosSection');
+    if(secSP) secSP.style.display='none';
+    if(secPV) secPV.style.display='none';
+  }
+})();
+
+// ── RADIO ADMIN PLAYERS ──────────────────────────────────────
+let _currentPlayer = 1;
+const _playerLabels = {1:'Player 1 · Chat', 2:'Player 2 · Chat Privado', 3:'Player 3 · Global'};
+const _playerKeys = {1:'tc_radio_config', 2:'tc_radio_config_priv', 3:'tc_radio_config_global'};
+
+function selectPlayer(n){
+  _currentPlayer = n;
+  document.getElementById('playerLabel').textContent = _playerLabels[n];
+  document.getElementById('savingPlayer').textContent = n;
+  [1,2,3].forEach(i=>{
+    const t=document.getElementById('tabPlayer'+i);
+    if(i===n){t.style.borderColor='var(--purple)';t.style.background='var(--surface3)';t.style.color='var(--purple)';}
+    else{t.style.borderColor='var(--border2)';t.style.background='var(--surface2)';t.style.color='var(--purple2)';}
+  });
+  const saved = JSON.parse(localStorage.getItem(_playerKeys[n])||'{}');
+  document.getElementById('radioUrl').value = saved.url||'';
+  document.getElementById('radioName').value = saved.name||'Rádio Chat Supremo FM';
+  document.getElementById('radioFormat').value = saved.format||'mp3';
+}
+
+function salvarRadioAdmin(){
+  const url=document.getElementById('radioUrl').value.trim();
+  const name=document.getElementById('radioName').value.trim();
+  const format=document.getElementById('radioFormat').value;
+  if(!url){alert('Informe o endereço do stream');return;}
+  localStorage.setItem(_playerKeys[_currentPlayer], JSON.stringify({url,name,format}));
+  toast('✅ Player '+_currentPlayer+' salvo!');
+}
+
+function testarRadioAdmin(){
+  const url=document.getElementById('radioUrl').value.trim();
+  const res=document.getElementById('radioTestResult');
+  if(!url){alert('Informe o endereço do stream');return;}
+  res.style.display='';res.style.color='#f59e0b';res.textContent='⏳ Testando conexão...';
+  setTimeout(()=>{
+    if(url.startsWith('http')){res.style.color='#10b981';res.textContent='✅ Servidor acessível! Stream pronto.';}
+    else{res.style.color='#ef4444';res.textContent='❌ URL inválida. Use http:// ou https://';}
+  },1500);
+}
+
+// Init first player on load
+document.addEventListener('DOMContentLoaded',function(){
+  selectPlayer(1);
+  renderLoginTable();
+  carregarConfigMensagens();
+});
+</script>
+
+<style>
+.sm-cat-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text2);font-family:'Syne',sans-serif}
+.sm-cat-chip .sm-del{background:none;border:none;color:#ef4444;cursor:pointer;font-size:12px;padding:0;line-height:1}
+.sm-smile-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);position:relative;min-width:80px;max-width:96px}
+.sm-smile-card img{width:42px;height:42px;object-fit:contain;border-radius:6px}
+.sm-smile-card .sm-name{font-size:9px;font-weight:700;color:var(--text2);text-align:center;font-family:'Syne',sans-serif;word-break:break-word;line-height:1.2}
+.sm-smile-card .sm-keyword{font-size:8px;color:var(--purple2);text-align:center;font-family:monospace}
+.sm-smile-card .sm-del-smile{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#ef4444;border:2px solid var(--surface);color:#fff;font-size:10px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.sm-filter-tab{padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-family:'Syne',sans-serif;transition:.15s}
+.sm-filter-tab.active,.sm-filter-tab:hover{background:var(--purple);border-color:var(--purple);color:#fff}
+</style>
+
+<script>
+// ── SMILES ADMIN ──────────────────────────────────────────────
+const SMILES_KEY = 'tc_smiles_data';
+let smCurrentFilter = 'all';
+
+function getSmilesData(){
+  try{ return JSON.parse(localStorage.getItem(SMILES_KEY)||'{"categories":[],"smiles":[]}'); }
+  catch(e){ return {categories:[],smiles:[]}; }
+}
+function saveSmilesData(d){ localStorage.setItem(SMILES_KEY, JSON.stringify(d)); }
+
+function smAddCategory(){
+  const name = document.getElementById('smCatName').value.trim();
+  if(!name){ toast('Digite o nome da categoria','err'); return; }
+  const d = getSmilesData();
+  if(d.categories.find(c=>c.name.toLowerCase()===name.toLowerCase())){
+    toast('Categoria já existe','err'); return;
+  }
+  const id = 'cat_'+Date.now();
+  d.categories.push({id,name});
+  saveSmilesData(d);
+  document.getElementById('smCatName').value='';
+  smRenderCatList();
+  smRenderCatSelect();
+  smRenderFilterTabs();
+  smRenderSmiles(smCurrentFilter);
+  toast('Categoria criada ✅');
+}
+
+function smDeleteCategory(id){
+  if(!confirm('Excluir categoria e todos os smiles dela?')) return;
+  const d = getSmilesData();
+  d.categories = d.categories.filter(c=>c.id!==id);
+  d.smiles = d.smiles.filter(s=>s.catId!==id);
+  saveSmilesData(d);
+  smRenderAll();
+  toast('Categoria excluída');
+}
+
+function smRenderCatList(){
+  const d = getSmilesData();
+  const el = document.getElementById('smCatList');
+  if(!el) return;
+  if(!d.categories.length){ el.innerHTML='<span style="color:var(--text3);font-size:11px">Nenhuma categoria criada.</span>'; return; }
+  el.innerHTML = d.categories.map(c=>`
+    <span class="sm-cat-chip">
+      📁 ${c.name}
+      <button class="sm-del" onclick="smDeleteCategory('${c.id}')" title="Excluir">✕</button>
+    </span>`).join('');
+}
+
+function smRenderCatSelect(){
+  const d = getSmilesData();
+  const sel = document.getElementById('smSmileCat');
+  if(!sel) return;
+  sel.innerHTML = d.categories.length
+    ? d.categories.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')
+    : '<option value="">— Crie uma categoria primeiro —</option>';
+}
+
+function smHandleFileUpload(inp){
+  const f = inp.files[0];
+  if(!f) return;
+  if(f.size > 2*1024*1024){ toast('Imagem muito grande (máx 2MB)','err'); inp.value=''; return; }
+  const allowed = ['image/png','image/jpeg','image/gif','image/webp','image/svg+xml'];
+  if(!allowed.includes(f.type)){ toast('Formato inválido. Use PNG, JPG, GIF ou WEBP','err'); inp.value=''; return; }
+  const r = new FileReader();
+  r.onload = e => {
+    document.getElementById('smSmileUrl').value = e.target.result;
+    const info = document.getElementById('smUploadInfo');
+    info.style.display = 'block';
+    info.textContent = `✅ ${f.name} (${(f.size/1024).toFixed(0)} KB) carregado`;
+    smUpdatePreview();
+  };
+  r.readAsDataURL(f);
+}
+
+function smAddSmile(){
+  const catId = document.getElementById('smSmileCat').value;
+  const name = document.getElementById('smSmileName').value.trim().replace(/\s+/g,'_').replace(/:/g,'');
+  const url = document.getElementById('smSmileUrl').value.trim();
+  const emoji = document.getElementById('smSmileEmoji').value.trim();
+  if(!catId){ toast('Selecione uma categoria','err'); return; }
+  if(!name){ toast('Digite o nome do smile','err'); return; }
+  if(!url && !emoji){ toast('Informe uma URL ou emoji','err'); return; }
+  const d = getSmilesData();
+  if(d.smiles.find(s=>s.name.toLowerCase()===name.toLowerCase())){
+    toast('Já existe um smile com esse nome','err'); return;
+  }
+  d.smiles.push({id:'sm_'+Date.now(), catId, name, url, emoji});
+  saveSmilesData(d);
+  document.getElementById('smSmileName').value='';
+  document.getElementById('smSmileUrl').value='';
+  document.getElementById('smSmileEmoji').value='';
+  const fi = document.getElementById('smSmileFile'); if(fi) fi.value='';
+  const ui = document.getElementById('smUploadInfo'); if(ui){ ui.style.display='none'; ui.textContent=''; }
+  document.getElementById('smPreviewBox').style.display='none';
+  smRenderSmiles(smCurrentFilter);
+  toast('Smile adicionado ✅');
+}
+
+function smDeleteSmile(id){
+  const d = getSmilesData();
+  d.smiles = d.smiles.filter(s=>s.id!==id);
+  saveSmilesData(d);
+  smRenderSmiles(smCurrentFilter);
+  toast('Smile removido');
+}
+
+function smRenderFilterTabs(){
+  const d = getSmilesData();
+  const el = document.getElementById('smFilterCats');
+  if(!el) return;
+  el.innerHTML = `<button class="sm-filter-tab ${smCurrentFilter==='all'?'active':''}" onclick="smSetFilter('all')">Todos</button>` +
+    d.categories.map(c=>`<button class="sm-filter-tab ${smCurrentFilter===c.id?'active':''}" onclick="smSetFilter('${c.id}')">${c.name}</button>`).join('');
+}
+
+function smSetFilter(catId){
+  smCurrentFilter = catId;
+  smRenderFilterTabs();
+  smRenderSmiles(catId);
+}
+
+function smRenderSmiles(filter){
+  const d = getSmilesData();
+  const list = document.getElementById('smSmilesList');
+  const empty = document.getElementById('smSmilesEmpty');
+  if(!list) return;
+  let items = filter==='all' ? d.smiles : d.smiles.filter(s=>s.catId===filter);
+  if(!items.length){
+    list.innerHTML=''; empty.style.display='block'; list.style.display='none'; return;
+  }
+  empty.style.display='none'; list.style.display='flex';
+  list.innerHTML = items.map(sm=>{
+    const cat = d.categories.find(c=>c.id===sm.catId);
+    const img = sm.url
+      ? `<img src="${sm.url}" alt="${sm.name}" onerror="this.style.display='none'"/>`
+      : `<span style="font-size:36px">${sm.emoji||'😁'}</span>`;
+    return `<div class="sm-smile-card">
+      <button class="sm-del-smile" onclick="smDeleteSmile('${sm.id}')" title="Excluir">✕</button>
+      ${img}
+      <span class="sm-name">${sm.name}</span>
+      <span class="sm-keyword">:${sm.name}:</span>
+      <span style="font-size:8px;color:var(--text3)">${cat?cat.name:''}</span>
+    </div>`;
+  }).join('');
+}
+
+function smRenderAll(){
+  smRenderCatList();
+  smRenderCatSelect();
+  smRenderFilterTabs();
+  smRenderSmiles(smCurrentFilter);
+}
+
+// Preview on input
+function smUpdatePreview(){
+  const url = document.getElementById('smSmileUrl')?.value.trim();
+  const emoji = document.getElementById('smSmileEmoji')?.value.trim();
+  const name = document.getElementById('smSmileName')?.value.trim();
+  const box = document.getElementById('smPreviewBox');
+  const cont = document.getElementById('smPreviewContent');
+  const nm = document.getElementById('smPreviewName');
+  if(!box) return;
+  if(url||emoji||name){
+    box.style.display='flex';
+    cont.innerHTML = url ? `<img src="${url}" style="width:36px;height:36px;object-fit:contain;border-radius:6px">` : (emoji||'😁');
+    nm.textContent = name ? ':'+name+':' : '';
+  } else { box.style.display='none'; }
+}
+
+// Attach preview listeners after DOM ready
+document.addEventListener('DOMContentLoaded', ()=>{
+  ['smSmileName','smSmileUrl','smSmileEmoji'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('input', smUpdatePreview);
+  });
+  smRenderAll();
+});
+
+// Also re-render when navigating to smiles page
+const _origShow = show;
+window.show = function(id, el){
+  _origShow(id, el);
+  if(id==='smiles') smRenderAll();
+};
+</script>
+<script>
+/* === Painel de espião (WebSocket) === */
+(function(){
+  if(typeof API==='undefined' || !window.tcSocket) return;
+  var spyRoom=null, bound=false;
+  function panel(){ return document.getElementById('spyMsgArea'); }
+  function esc(x){return String(x==null?'':x).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  function row(m){
+    var p=panel(); if(!p) return;
+    var d=document.createElement('div');
+    d.style.cssText='background:#fff;border-radius:8px;padding:6px 10px;font-size:13px;color:#0f1f3d';
+    var media=m.media_url?(' <a href="'+esc(m.media_url)+'" target="_blank" style="color:#2563eb">[mídia]</a>'):'';
+    d.innerHTML='<b style="color:#7c3aed">'+esc(m.nick)+'</b>: '+esc(m.content||'')+media;
+    p.appendChild(d); p.scrollTop=p.scrollHeight;
+  }
+  function bind(){
+    if(bound) return; bound=true;
+    tcSocket.on('spy_history', function(d){ if(d.room_slug!==spyRoom) return; var p=panel(); if(p) p.innerHTML=''; (d.messages||[]).forEach(row); if(!(d.messages||[]).length && p) p.innerHTML='<div style="text-align:center;color:#7a90b0;font-size:12px;padding:10px">Sem mensagens recentes. Aguardando atividade…</div>'; });
+    tcSocket.on('spy_message', function(d){ if(d.room_slug!==spyRoom) return; var p=panel(); if(p && p.querySelector('div[style*="text-align"]')) p.innerHTML=''; row(d); });
+    tcSocket.on('error', function(d){ if(typeof toast==='function' && d && d.message) toast(d.message,'err'); });
+  }
+  window.espiarSala=function(roomId, roomName){
+    document.getElementById('spyModalRoomName').textContent=roomName||roomId;
+    var p=panel(); if(p) p.innerHTML='<div style="text-align:center;color:#7a90b0;font-size:12px;padding:10px">Conectando ao monitor…</div>';
+    document.getElementById('spyOverlay').style.display='flex';
+    bind(); spyRoom=roomId;
+    if(tcSocket.connected){ tcSocket.spyJoin(roomId); }
+    else { tcSocket.on('connected', function(){ if(spyRoom) tcSocket.spyJoin(spyRoom); }); tcSocket.connect(); }
+  };
+  window.spPrivEspiar=function(id, nome){ var slug=(String(id).indexOf('priv_')===0)?String(id):('priv_'+id); window.espiarSala(slug, nome||'Sala privada'); };
+  window.fecharEspiar=function(){ try{ tcSocket.spyLeave(); }catch(e){} spyRoom=null; document.getElementById('spyOverlay').style.display='none'; };
+})();
+</script>
+<script>
+/* === Salas públicas (criar/listar/excluir) + NSFW no servidor === */
+(function(){
+  if(typeof API==='undefined') return;
+  function esc(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  // ----- form de criar sala (injetado acima da tabela) -----
+  function injectForm(){
+    var tb=document.getElementById('salasTableBody'); if(!tb) return;
+    var table=tb.closest('table'); if(!table || document.getElementById('tcNewRoomForm')) return;
+    var html='<div id="tcNewRoomForm" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px">'
+      +'<input id="tcRoomIcon" maxlength="4" placeholder="💬" style="width:54px;text-align:center;padding:8px;border-radius:8px;border:1px solid #3d35a0;background:var(--surface2);color:var(--text);font-size:16px"/>'
+      +'<input id="tcRoomName" placeholder="Nome da sala" style="flex:1;min-width:140px;padding:8px 10px;border-radius:8px;border:1px solid #3d35a0;background:var(--surface2);color:var(--text)"/>'
+      +'<button class="btn-primary" onclick="tcCreateRoom()">➕ Criar sala</button></div>';
+    table.insertAdjacentHTML('beforebegin', html);
+  }
+  window.loadPublicRooms=function(){
+    var tb=document.getElementById('salasTableBody'); if(!tb) return;
+    API.getRooms().then(function(d){
+      var rooms=(d&&d.rooms)||d||[];
+      if(!rooms.length){ tb.innerHTML='<tr><td colspan="2" style="opacity:.6">Nenhuma sala.</td></tr>'; return; }
+      tb.innerHTML=rooms.map(function(r){
+        return '<tr><td>'+esc(r.icon||'💬')+' '+esc(r.name)+' <span style="opacity:.5;font-size:11px">('+esc(r.slug)+')</span></td>'
+          +'<td><div class="act-wrap"><button class="abtn abtn-ban" onclick="tcDeleteRoom(\''+esc(r.slug)+'\',\''+esc(r.name)+'\')">🗑 Excluir</button></div></td></tr>';
+      }).join('');
+    }).catch(function(){});
+  };
+  window.tcCreateRoom=function(){
+    var g=function(id){ var el=document.getElementById(id); return el?(el.value||''):''; };
+    var name=g('newRoomName').trim();
+    var icon=g('newRoomIcon').trim()||'💬';
+    var min_role=g('newRoomRole')||'guest';
+    var max_users=parseInt(g('newRoomLimit'),10)||100;
+    var description=g('newRoomDesc').trim();
+    if(!name){ toast('Digite o nome da sala','err'); return; }
+    API.admin.createRoom({name:name, icon:icon, min_role:min_role, max_users:max_users, description:description}).then(function(){
+      ['newRoomName','newRoomIcon','newRoomDesc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      toast('Sala criada ✅'); loadPublicRooms();
+    }).catch(function(e){ toast(e.message||'Erro ao criar','err'); });
+  };
+  window.tcDeleteRoom=function(slug,name){
+    if(!confirm('Excluir a sala "'+name+'" permanentemente?')) return;
+    API.admin.deleteRoom(slug).then(function(){ toast('Sala excluída'); loadPublicRooms(); }).catch(function(e){ toast(e.message||'Erro','err'); });
+  };
+  setTimeout(function(){ loadPublicRooms(); }, 0);
+
+  // ----- NSFW: persistir no servidor -----
+  var _ns=window.nsfwSave;
+  window.nsfwSave=function(){
+    try{ _ns&&_ns(); }catch(e){}
+    try{ var cfg={threshold:parseInt(document.getElementById('nsfwThreshold').value)||50, active:document.getElementById('nsfwToggle').classList.contains('on')};
+      API.admin.setSystem('nsfw_config', JSON.stringify(cfg)).catch(function(){}); }catch(e){}
+  };
+  setTimeout(function(){
+    API.getSystemConfig().then(function(d){
+      var c=(d&&d.config)||d||{}; var raw=c.nsfw_config; if(!raw) return;
+      var cfg; try{ cfg=(typeof raw==='string')?JSON.parse(raw):raw; }catch(e){ return; }
+      var sldr=document.getElementById('nsfwThreshold'); if(sldr && cfg.threshold){ sldr.value=cfg.threshold; if(typeof nsfwUpdateLabel==='function') nsfwUpdateLabel(cfg.threshold); }
+      var tog=document.getElementById('nsfwToggle'); if(tog) tog.classList.toggle('on', cfg.active!==false);
+    }).catch(function(){});
+  }, 0);
+})();
+</script>
+<script>
+/* === Logs de acesso (IP) do servidor === */
+(function(){
+  if(typeof API==='undefined') return;
+  window.getLoginLogs=function(){ return window._tcLogins || []; };
+  window.loadLogins=function(){
+    return API.admin.getLogins().then(function(d){
+      window._tcLogins=(d.logins||[]).map(function(l){
+        var dt=new Date(l.created_at);
+        return { ts:dt.getTime(), tipo:(l.kind==='guest'?'guest':'registered'), nick:l.nick,
+          data:dt.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'}), hora:dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+          ip:(l.ip||'—'), device:(typeof parseDevice==='function'?parseDevice(l.user_agent||''):'—'), asn:'—', local:'—' };
+      });
+      if(typeof renderLoginTable==='function') renderLoginTable();
+    }).catch(function(){});
+  };
+  // recarrega ao abrir a aba de controle/acesso e no load
+  var _show=window.show;
+  if(typeof _show==='function'){ window.show=function(p,el){ _show(p,el); if(p==='acesso') loadLogins(); }; }
+  setTimeout(loadLogins,0);
+})();
+</script>
+<script>
+/* === Smiles: persistir no servidor === */
+(function(){
+  if(typeof API==='undefined') return;
+  var _ss=window.saveSmilesData;
+  if(typeof _ss==='function'){
+    window.saveSmilesData=function(d){ try{ _ss(d); }catch(e){} try{ API.admin.setSystem('smiles_data', JSON.stringify(d)); }catch(e){} };
+  }
+  setTimeout(function(){
+    API.getSystemConfig().then(function(d){
+      var raw=d&&d.config&&d.config.smiles_data; if(!raw) return;
+      try{ localStorage.setItem('tc_smiles_data',(typeof raw==='string')?raw:JSON.stringify(raw)); }catch(e){}
+      if(typeof smRenderCatList==='function') smRenderCatList();
+      if(typeof smRenderCatSelect==='function') smRenderCatSelect();
+      if(typeof smRenderSmiles==='function') smRenderSmiles(typeof smCurrentFilter!=='undefined'?smCurrentFilter:'all');
+    }).catch(function(){});
+  },0);
+})();
+</script>
+<script>
+/* === Ações em massa (expulsar todos / limpar mensagens) === */
+(function(){
+  if(typeof API==='undefined' || !window.tcSocket) return;
+  window.expulsarSalaSelecionada=function(){
+    var sel=document.getElementById('expulsarSalaSelect'); var sala=sel&&sel.value;
+    if(!sala){ toast('Selecione uma sala primeiro','w'); return; }
+    var label=sel.options[sel.selectedIndex].text;
+    if(!confirm('Expulsar todos os usuários de "'+label+'"?')) return;
+    function go(){ tcSocket.kickRoom(sala); var m=document.getElementById('expulsarMsg'); if(m){m.style.display='block';m.textContent='✅ Todos expulsos de '+label+'!';m.style.color='#10b981';setTimeout(function(){m.style.display='none';},4000);} toast('Expulsos de '+label); }
+    if(tcSocket.connected) go(); else { tcSocket.on('connected',go); tcSocket.connect(); }
+  };
+  window.excluirMensagensSala=function(){
+    var sel=document.getElementById('excluirMsgSalaSelect'); var sala=sel&&sel.value;
+    if(!sala){ toast('Selecione uma sala primeiro','w'); return; }
+    var label=sel.options[sel.selectedIndex].text;
+    if(!confirm('Excluir TODAS as mensagens de "'+label+'"? Esta ação não pode ser desfeita.')) return;
+    API.admin.clearRoomMessages(sala).then(function(){ var m=document.getElementById('excluirMsgMsg'); if(m){m.style.display='block';m.textContent='✅ Mensagens de '+label+' excluídas!';m.style.color='#10b981';setTimeout(function(){m.style.display='none';},4000);} toast('Mensagens de '+label+' excluídas'); }).catch(function(e){ toast(e.message||'Erro','err'); });
+  };
+})();
+</script>
+<script>
+/* === Chave do Bot (admin) === */
+(function(){
+  if(typeof API==='undefined') return;
+  function mask(k){ if(!k) return '(nenhuma chave definida)'; if(k.length<=8) return '••••'; return k.slice(0,4)+'••••••••'+k.slice(-4); }
+  function build(){
+    var page=document.getElementById('page-dashboard'); if(!page || document.getElementById('botKeyCard')) return;
+    var card=document.createElement('div'); card.id='botKeyCard'; card.className='card';
+    card.style.cssText='margin-top:14px';
+    card.innerHTML=
+      '<div class="section-title">🤖 Chave do Bot</div>'+
+      '<div style="font-size:12px;color:var(--text2,#7a90b0);margin-bottom:10px">Atualize aqui quando a chave atual expirar. A chave fica guardada de forma privada (não aparece no site).</div>'+
+      '<div style="font-size:12px;color:var(--text2,#7a90b0);margin-bottom:8px">Atual: <span id="botKeyCurrent" style="font-family:monospace;color:var(--text,#0f1f3d)">…</span> '+
+      '<button id="botKeyReveal" style="margin-left:6px;font-size:11px;padding:2px 8px;border-radius:6px;border:1px solid #c8d8f5;background:#f0f6fc;color:#2563eb;cursor:pointer">👁 ver</button></div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+
+      '<input id="botKeyInput" type="password" placeholder="Cole a nova chave" autocomplete="off" style="flex:1;min-width:200px;padding:9px 12px;border-radius:8px;border:1px solid #3d35a0;background:var(--surface2,#1a1438);color:var(--text,#fff);font-family:monospace"/>'+
+      '<button class="btn-primary" id="botKeySave">💾 Salvar chave</button></div>'+
+      '<div id="botKeyMsg" style="font-size:12px;margin-top:8px;display:none"></div>';
+    page.appendChild(card);
+
+    var fullKey='';
+    function refresh(){
+      API.admin.getBotKey().then(function(d){ fullKey=d.key||''; document.getElementById('botKeyCurrent').textContent=mask(fullKey); document.getElementById('botKeyCurrent').dataset.full=fullKey; })
+        .catch(function(e){ document.getElementById('botKeyCurrent').textContent='(erro ao carregar)'; });
+    }
+    refresh();
+    var revealed=false;
+    document.getElementById('botKeyReveal').onclick=function(){
+      revealed=!revealed; var el=document.getElementById('botKeyCurrent');
+      el.textContent = revealed ? (fullKey||'(nenhuma)') : mask(fullKey);
+      this.textContent = revealed ? '🙈 ocultar' : '👁 ver';
+    };
+    document.getElementById('botKeySave').onclick=function(){
+      var v=document.getElementById('botKeyInput').value.trim();
+      if(!v){ if(typeof toast==='function') toast('Cole a nova chave primeiro','err'); return; }
+      API.admin.setBotKey(v).then(function(){
+        document.getElementById('botKeyInput').value='';
+        var m=document.getElementById('botKeyMsg'); m.style.display='block'; m.style.color='#10b981'; m.textContent='✅ Chave atualizada!'; setTimeout(function(){m.style.display='none';},4000);
+        refresh();
+        if(typeof toast==='function') toast('Chave do bot atualizada');
+      }).catch(function(e){ if(typeof toast==='function') toast(e.message||'Erro ao salvar','err'); });
+    };
+  }
+  setTimeout(build, 0);
+})();
+</script>
+<script>
+/* === Moderação real: kick, mute, shadow, banidos, denúncias === */
+(function(){
+  if(typeof API==='undefined') return;
+  var E=(typeof esc==='function')?esc:function(x){return String(x==null?'':x);};
+  var T=(typeof toast==='function')?toast:function(m){alert(m);};
+
+  window.tcKickUser=function(nick){
+    if(!confirm('Expulsar '+nick+' do chat?')) return;
+    function go(){ tcSocket.kick(nick); T('👢 '+nick+' expulso'); }
+    if(window.tcSocket && tcSocket.connected) go();
+    else if(window.tcSocket){ tcSocket.on('connected',go); tcSocket.connect(); }
+    else T('Conexão indisponível','err');
+  };
+  window.tcMuteUser=function(nick){
+    var m=prompt('Silenciar '+nick+' por quantos minutos?','10'); if(m===null) return;
+    var min=parseInt(m,10)||10;
+    API.admin.mute(nick,min).then(function(){ T('🔇 '+nick+' silenciado por '+min+' min'); }).catch(function(e){ T(e.message||'Erro','err'); });
+  };
+  window.tcShadowUser=function(nick){
+    var v=prompt('Shadowban em '+nick+':\n1 = aplicar (mensagens dele só aparecem pra ele)\n0 = remover','1');
+    if(v===null) return;
+    API.admin.shadow(nick, v.trim()==='1').then(function(r){ T(r.on?('👻 Shadowban aplicado em '+nick):('Shadowban removido de '+nick)); }).catch(function(e){ T(e.message||'Erro','err'); });
+  };
+
+  window.loadBanned=function(){
+    var tb=document.getElementById('banidosBody'); if(!tb) return;
+    API.admin.getBanned().then(function(d){
+      var b=d.banned||[];
+      if(!b.length){ tb.innerHTML='<tr><td colspan="5" style="opacity:.6">Ninguém banido.</td></tr>'; return; }
+      tb.innerHTML=b.map(function(u){
+        var exp=u.ban_expires?new Date(u.ban_expires).toLocaleString('pt-BR'):'Permanente';
+        return '<tr><td>'+E(u.nick)+'</td><td><span class="badge b-admin" style="background:#7f1d1d;color:#fca5a5">BANIDO</span></td><td>'+E(u.ban_reason||'—')+'</td><td>'+E(exp)+'</td><td><button class="abtn abtn-spy" onclick="tcUnban(\''+E(u.nick)+'\')">Desbanir</button></td></tr>';
+      }).join('');
+    }).catch(function(){ tb.innerHTML='<tr><td colspan="5" style="opacity:.6">Erro ao carregar.</td></tr>'; });
+  };
+  window.tcUnban=function(nick){
+    if(!confirm('Desbanir '+nick+'?')) return;
+    API.admin.unbanUser(nick).then(function(){ T('✅ '+nick+' desbanido'); loadBanned(); if(typeof loadAdminUsers==='function') loadAdminUsers(); }).catch(function(e){ T(e.message||'Erro','err'); });
+  };
+
+  window.loadReports=function(){
+    var tb=document.getElementById('contatosBody'); if(!tb) return;
+    API.admin.getReports().then(function(d){
+      var r=d.reports||[];
+      if(!r.length){ tb.innerHTML='<tr><td colspan="5" style="opacity:.6">Nenhuma denúncia.</td></tr>'; return; }
+      tb.innerHTML=r.map(function(x){
+        var h=x.created_at?new Date(x.created_at).toLocaleString('pt-BR'):'';
+        return '<tr><td><strong>'+E(x.target_nick)+'</strong><br><span style="font-size:10px;opacity:.6">por '+E(x.reporter_nick||'?')+'</span></td><td><span class="badge b-vip">DENÚNCIA</span></td><td>'+E(x.reason||'—')+'</td><td>'+E(h)+'</td><td><div class="act-wrap"><button class="abtn abtn-spy" onclick="tcResolveReport('+x.id+',this)">✓ Resolver</button></div></td></tr>';
+      }).join('');
+    }).catch(function(){});
+  };
+  window.tcResolveReport=function(id,btn){
+    API.admin.resolveReport(id).then(function(){ T('Denúncia resolvida'); var tr=btn.closest('tr'); if(tr) tr.remove(); }).catch(function(e){ T(e.message||'Erro','err'); });
+  };
+
+  window.loadSpyRooms=function(){
+    var g=document.getElementById('spyRoomGrid'); if(!g) return;
+    API.getRooms().then(function(d){
+      var rooms=(d&&d.rooms)||d||[];
+      if(!rooms.length){ g.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text3);font-size:11px">Nenhuma sala pública.</div>'; return; }
+      g.innerHTML=rooms.map(function(r){
+        var nm=String(r.name||r.slug).replace(/['"\\]/g,'');
+        var label=(r.icon||'💬')+' '+nm;
+        return '<button class="abtn-espiar" onclick="espiarSala(\''+E(r.slug)+'\',\''+E(label)+'\')">'+E(label)+'</button>';
+      }).join('');
+    }).catch(function(){ g.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text3);font-size:11px">Erro ao carregar salas.</div>'; });
+  };
+
+  setTimeout(function(){ loadBanned(); loadReports(); loadSpyRooms(); }, 0);
+  // recarrega ao navegar (se houver função show)
+  if(typeof window.show==='function'){
+    var _show=window.show;
+    window.show=function(p,el){ _show(p,el); try{ loadBanned(); loadReports(); loadSpyRooms(); }catch(e){} };
+  }
+})();
+</script>
+</body>
+</html>

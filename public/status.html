@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+<script>
+(function(){
+  try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
+})();
+</script>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chat Supremo — Status Premium</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#dce8f5;
+  --surface:#fff;
+  --surface2:#e8f2ff;
+  --border:#b8d0e8;
+  --purple:#7c3aed;
+  --purple2:#6d28d9;
+  --purple3:#a78bfa;
+  --blue:#2563eb;
+  --blue2:#1d4ed8;
+  --text:#0f1f3d;
+  --text2:#374d6e;
+  --text3:#7a90b0;
+  --gold:#f59e0b;
+  --gold2:#fde68a;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100dvh;color:var(--text);display:flex;flex-direction:column}
+
+/* MAIN */
+main{position:relative;z-index:1;max-width:680px;margin:0 auto;width:100%;padding:28px 16px 48px}
+
+/* HERO */
+.hero{text-align:center;margin-bottom:32px;animation:fadeUp .6s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.hero-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);color:var(--purple);font-family:'Syne',sans-serif;font-size:10px;font-weight:800;padding:5px 14px;border-radius:20px;letter-spacing:.5px;margin-bottom:14px}
+.hero-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:10px}
+.hero-title span{background:linear-gradient(90deg,var(--purple),var(--blue),var(--purple3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:13px;color:var(--text2);line-height:1.6;max-width:460px;margin:0 auto}
+
+/* CARDS GRID */
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px}
+@media(max-width:500px){.cards-grid{grid-template-columns:1fr}}
+
+/* STATUS CARD */
+.status-card{border-radius:var(--radius);padding:22px 18px;position:relative;overflow:hidden;animation:fadeUp .7s ease both}
+.status-card.premium{background:var(--surface);border:1.5px solid #92400e55;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+
+.status-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+.status-card.premium::before{background:linear-gradient(90deg,#f59e0b,#ef4444,#f59e0b)}
+
+/* Card header */
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.card-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.premium .card-icon{background:#fef3c7;border:1px solid #f59e0b44}
+.card-label{font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px}
+.card-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800}
+.premium .card-label{color:#92400e}
+.premium .card-name{color:var(--text)}
+
+/* Badge preview */
+.badge-preview{display:inline-flex;align-items:center;gap:5px;font-size:9px;padding:2px 8px;border-radius:20px;font-weight:700;margin-bottom:16px;font-family:'Syne',sans-serif}
+.b-prem-prev{background:#f59e0b;color:#fff;border:1px solid #d97706}
+
+/* Perks list */
+.perks{display:flex;flex-direction:column;gap:9px}
+.perk{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--text2);line-height:1.4}
+.perk-icon{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px}
+.premium .perk-icon{background:#fef3c7;border:1px solid #f59e0b44}
+.perk strong{font-weight:700;color:var(--text);font-size:12px}
+
+/* Nick preview section */
+.nick-demos{display:flex;flex-direction:column;gap:7px;margin-top:14px;padding-top:14px;border-top:1px solid}
+.premium .nick-demos{border-color:var(--border)}
+.nick-demo-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.premium .nick-demo-label{color:var(--text2)}
+.nick-demo-row{display:flex;align-items:center;gap:6px}
+.nick-prem-bright{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#b45309;text-shadow:none;animation:none}
+
+/* Colors section */
+.section-divider{margin-top:14px;padding-top:12px;border-top:1px solid var(--border)}
+.section-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text2);margin-bottom:8px}
+.color-swatches{display:flex;flex-wrap:wrap;gap:5px}
+.color-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);cursor:default;transition:.15s}
+.color-dot:hover{transform:scale(1.2);border-color:rgba(0,0,0,0.3)}
+
+/* Effects section */
+.effects-grid{display:flex;flex-direction:column;gap:6px}
+.effect-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:8px;background:var(--surface2);border:1px solid var(--border)}
+.effect-emoji{font-size:14px;flex-shrink:0;width:20px;text-align:center}
+.effect-nick{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;flex:1}
+
+/* Actual fx animations from chat.html */
+@keyframes fx-fire{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes fx-galaxy{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes fx-gold{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes vipRainbowNick{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+@keyframes fx-matrix{0%,100%{color:#00ff41;text-shadow:0 0 6px #00ff41,0 0 14px #00cc3380}50%{color:#39ff14;text-shadow:0 0 12px #39ff14,0 0 24px #00ff4180}}
+
+.fx-rainbow{background:linear-gradient(90deg,#ff0080,#ff8c00,#ffe400,#00ff88,#00cfff,#7b2fff,#ff0080);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:vipRainbowNick 3s linear infinite}
+.fx-fire{background:linear-gradient(90deg,#ff4500,#ff8c00,#ffdd00,#ff4500);background-size:200% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fx-fire 2s linear infinite}
+.fx-galaxy{background:linear-gradient(90deg,#a855f7,#ec4899,#6366f1,#a855f7);background-size:200% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fx-galaxy 2s ease-in-out infinite}
+.fx-gold{background:linear-gradient(90deg,#f59e0b,#fbbf24,#d97706,#fde68a,#f59e0b);background-size:200% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fx-gold 2s ease-in-out infinite}
+.fx-matrix{font-weight:800;animation:fx-matrix 1.5s ease-in-out infinite}
+
+/* CONTACT SECTION */
+.contact-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:22px 20px;text-align:center;animation:fadeUp .9s ease both;position:relative;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+.contact-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--blue),var(--purple));background-size:200% 100%;animation:borderFlow 3s linear infinite}
+@keyframes borderFlow{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+.contact-icon{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--purple2),var(--purple));border:2px solid rgba(124,58,237,.25);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;box-shadow:0 4px 16px rgba(124,58,237,.3)}
+.contact-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px}
+.contact-sub{font-size:12px;color:var(--text2);line-height:1.6}
+
+/* delay animations */
+.status-card.premium{animation-delay:.1s}
+.contact-card{animation-delay:.35s}
+</style>
+</head>
+<body>
+
+<div style="background:#0f1f3d;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.22)">
+  <button onclick="history.back()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.18)'">‹</button>
+  <span style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff">Status Premium</span>
+  <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:32px;object-fit:contain;margin-left:auto">
+</div>
+
+<main>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">✨ Planos Exclusivos</div>
+    <h1 class="hero-title">Eleve sua experiência</h1>
+    <div style="margin:10px 0 18px;display:flex;justify-content:center">
+      <img src="chat-supremo-logo.png" alt="Chat Supremo" style="max-width:200px;width:100%;height:auto;"/>
+    </div>
+    <p class="hero-sub">Desbloqueie recursos exclusivos, destaque seu perfil e aproveite o chat ao máximo com o plano Premium.</p>
+  </div>
+
+  <!-- CARDS -->
+  <div style="margin-bottom:24px">
+
+    <!-- PREMIUM -->
+    <div class="status-card premium" style="max-width:400px;margin:0 auto">
+      <div class="card-head">
+        <div class="card-icon">👑</div>
+        <div>
+          <div class="card-label">Plano</div>
+          <div class="card-name">Premium</div>
+        </div>
+      </div>
+
+      <div>
+        <span class="badge-preview b-prem-prev">👑 PREMIUM</span>
+      </div>
+
+      <div class="perks">
+        <div class="perk">
+          <div class="perk-icon">👁</div>
+          <div><strong>Espiar salas invisível</strong> — entre em qualquer sala sem ser visto por ninguém</div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">🚪</div>
+          <div><strong>Entrar em sala lotada</strong> — sem limite de vagas, acesso garantido sempre</div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">👑</div>
+          <div><strong>Nick destacado</strong> com botão badge Premium exclusivo</div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">🔒</div>
+          <div><strong>Criar sala privada</strong> e convidar usuários selecionados</div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">🛡</div>
+          <div><strong>Imunidade a bloqueios</strong> — não pode ser bloqueado por outros usuários</div>
+        </div>
+      </div>
+
+      <div class="nick-demos">
+        <div class="nick-demo-label">Prévia do Nick</div>
+        <div class="nick-demo-row">
+          <span class="nick-prem-bright">SeuNick</span>
+          <span class="badge-preview b-prem-prev" style="margin-bottom:0">👑 PREMIUM</span>
+        </div>
+
+        <!-- EFEITOS DISPONÍVEIS -->
+        <div class="section-divider">
+          <div class="section-title">✨ Efeitos de nick (Premium)</div>
+          <div class="effects-grid">
+            <div class="effect-row">
+              <span class="effect-emoji">🌈</span>
+              <span class="effect-nick fx-rainbow">SeuNick Aqui</span>
+              <span style="font-size:8px;color:#475569;font-weight:600">Rainbow RGB</span>
+            </div>
+            <div class="effect-row">
+              <span class="effect-emoji">🔥</span>
+              <span class="effect-nick fx-fire">SeuNick Aqui</span>
+              <span style="font-size:8px;color:#475569;font-weight:600">Fogo</span>
+            </div>
+            <div class="effect-row">
+              <span class="effect-emoji">🌌</span>
+              <span class="effect-nick fx-galaxy">SeuNick Aqui</span>
+              <span style="font-size:8px;color:#475569;font-weight:600">Galáxia</span>
+            </div>
+            <div class="effect-row">
+              <span class="effect-emoji">✨</span>
+              <span class="effect-nick fx-gold">SeuNick Aqui</span>
+              <span style="font-size:8px;color:#475569;font-weight:600">Ouro</span>
+            </div>
+            <div class="effect-row">
+              <span class="effect-emoji">💻</span>
+              <span class="effect-nick fx-matrix">SeuNick Aqui</span>
+              <span style="font-size:8px;color:#475569;font-weight:600">Matrix</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CONTACT -->
+  <div class="contact-card">
+    <div class="contact-icon">💬</div>
+    <div class="contact-title">Quer se tornar Premium?</div>
+    <p class="contact-sub">Se interessou?<br>Entre em contato com o <strong style="color:var(--purple)">Admin do chat</strong>, para adquirir seu plano.<br>É rápido, fácil e você já começa a aproveitar na hora!</p>
+  </div>
+
+</main>
+
+<script>
+function procurarAdmin() {
+  // Redireciona para o chat procurando o admin
+  const nick = localStorage.getItem('tc_nick') || '';
+  window.location.href = 'salas.html';
+}
+</script>
+</body>
+</html>

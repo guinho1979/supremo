@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+<script>
+(function(){
+  try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
+})();
+</script>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chat Supremo — Salas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f0f6fc;--surface:#ffffff;--border:#c8d8f5;--border2:#8aaee0;--text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;--radius:14px;--blue:#2563eb;--purple:#7c3aed;--gold:#f59e0b;--green:#10b981}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+header{padding:8px 16px;background:#0f1f3d;border-bottom:1px solid #5b21b6;color:#fff;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.22)}
+.user-chip{display:flex;align-items:center;gap:6px}
+.badge-chip{font-size:8px;padding:2px 7px;border-radius:20px;font-weight:700}
+.b-admin{background:#064e3b;color:#6ee7b7}.b-sup{background:#7f1d1d;color:#fca5a5}
+.b-mod{background:#1c1c2e;color:#d1d5db}
+.b-vip{background:linear-gradient(90deg,#ff0080,#ff8c00,#ffe400,#00ff88,#00cfff,#7b2fff,#ff0080);background-size:300% 100%;color:#fff;animation:vipRainbowBadge 3s linear infinite}
+@keyframes vipRainbowBadge{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+.b-prem{background:#451a03;color:#fde68a}.b-dj{background:#2e1065;color:#d8b4fe}
+.b-user{background:#e5e7eb;color:#374151}.b-guest{background:#f3f4f6;color:#6b7280}
+main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
+.page-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.page-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
+.rooms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:14px}
+.feat-card{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:.2s;margin-bottom:10px}
+.feat-card:hover{transform:translateY(-1px)}
+.feat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.feat-body{flex:1;min-width:0}
+.feat-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#0f1f3d;margin-bottom:2px}
+.feat-sub{font-size:11px;color:var(--text3)}
+.feat-arrow{font-size:18px;flex-shrink:0}
+.overlay{display:none;position:fixed;inset:0;z-index:500;background:#00000088;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:14px;padding:22px;max-width:340px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.modal-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:12px}
+.btn-cancel{flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:#f0f6fc;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+.spy-overlay{display:none;position:fixed;inset:0;z-index:600;flex-direction:column}
+.spy-av{width:32px;height:32px;border-radius:50%;background:#1a1735;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;border:2px solid transparent}
+.spy-bubble{background:#fff;border:.5px solid #b8d0e8;border-radius:0 12px 12px 12px;padding:8px 12px;flex:1}
+.spy-nick{font-size:12px;font-weight:800;font-family:'Syne',sans-serif}
+.spy-text{font-size:14px;font-weight:700;color:#1a1735;margin-top:2px}
+.spy-time{font-size:10px;color:#8aafd4;margin-top:3px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+<script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
+<script src="api.js"></script>
+</head>
+<body>
+<header>
+  <div style="display:flex;align-items:center;justify-content:center">
+    <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:40px;object-fit:contain">
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="user-chip">
+      <span id="headerAv" style="font-size:16px">😊</span>
+      <span id="headerNick" style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff"></span>
+      <span id="headerBadge" class="badge-chip"></span>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+      <!-- Painel Admin: admin, supervisor, mod, premium -->
+      <a id="adminPainelBtn" href="admin.html" style="display:none;background:#064e3b;border:1px solid #10b98155;color:#6ee7b7;font-size:16px;font-weight:700;padding:5px 10px;border-radius:8px;text-decoration:none;font-family:'Syne',sans-serif" title="Painel Admin">🛡</a>
+      <button id="btnSair" onclick="logout()" style="background:#ef4444;border:none;color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif">⏻ Sair</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-title">Salas de Chat</div>
+  <p class="page-sub">Escolha uma sala ou explore os recursos da comunidade</p>
+
+  <div class="rooms-grid" id="roomsGrid"></div>
+
+  <!-- MURAL -->
+  <div class="feat-card" onclick="abrirMural()" style="border-color:#2563eb"
+    onmouseover="this.style.borderColor='#1d4ed8';this.style.background='#dbeafe'"
+    onmouseout="this.style.borderColor='#2563eb';this.style.background='#fff'">
+    <div class="feat-icon" style="background:linear-gradient(135deg,#2563eb,#7c3aed)">📌</div>
+    <div class="feat-body">
+      <div class="feat-name">Mural de Recados</div>
+      <div class="feat-sub">Compartilhe textos, imagens, vídeos e áudios com a comunidade</div>
+    </div>
+    <div class="feat-arrow" style="color:#2563eb">→</div>
+  </div>
+
+  <!-- BINGO — só aparece quando admin/supervisor ativar -->
+  <div class="feat-card" id="bingoCard" style="display:none;border-color:#f59e0b"
+    onclick="abrirBingo()"
+    onmouseover="this.style.borderColor='#d97706';this.style.background='#fef3c7'"
+    onmouseout="this.style.borderColor='#f59e0b';this.style.background='#fff'">
+    <div class="feat-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🎱</div>
+    <div class="feat-body">
+      <div class="feat-name">Bingo Top</div>
+      <div class="feat-sub">Jogue bingo com a comunidade e concorra a prêmios!</div>
+    </div>
+    <div class="feat-arrow" style="color:#f59e0b">→</div>
+  </div>
+
+  <!-- SALAS PRIVADAS -->
+  <div class="feat-card" onclick="abrirSalasPrivadas()" style="border-color:#7c3aed"
+    onmouseover="this.style.borderColor='#6d28d9';this.style.background='#f5f3ff'"
+    onmouseout="this.style.borderColor='#7c3aed';this.style.background='#fff'">
+    <div class="feat-icon" style="background:linear-gradient(135deg,#7c3aed,#2563eb)">🔒</div>
+    <div class="feat-body">
+      <div class="feat-name">Salas Privadas <span style="font-size:8px;padding:2px 7px;border-radius:20px;font-weight:700;background:#451a03;color:#fde68a;margin-left:6px">PREMIUM</span></div>
+      <div class="feat-sub">Salas exclusivas criadas pela comunidade premium</div>
+    </div>
+    <div class="feat-arrow" style="color:#7c3aed">→</div>
+  </div>
+</main>
+
+<!-- ESPIAR MODAL -->
+<div id="espiarModal" style="display:none;position:fixed;inset:0;z-index:500;background:#00000088;align-items:center;justify-content:center">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-title">👁 Espiar Salas</div>
+    <p style="font-size:11px;color:var(--text3);margin-bottom:12px">Selecione uma sala para entrar em modo invisível.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="espiarModalGrid"></div>
+    <button onclick="fecharEspiarModal()" class="btn-cancel" style="width:100%;margin-top:12px">Fechar</button>
+  </div>
+</div>
+
+<!-- SPY OVERLAY -->
+<div class="spy-overlay" id="spyOverlay" style="display:none">
+  <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;background:#0f0e1a;border-bottom:2px solid #ef4444;padding:8px 14px;font-family:'Syne',sans-serif;flex-shrink:0">
+    <span style="font-size:13px;color:#fca5a5">👁</span>
+    <div style="text-align:center">
+      <div style="font-size:9px;font-weight:700;color:#ef4444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:1px">MODO ESPIÃO</div>
+      <div style="font-size:13px;font-weight:800;color:#fff" id="spyRoomName">Sala</div>
+    </div>
+    <button onclick="fecharSpy()" style="background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;font-family:'Syne',sans-serif">✕ Sair</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px;background:#f0f6fc;display:flex;flex-direction:column;gap:10px" id="spyMsgs">
+    <div style="text-align:center;font-size:11px;color:#6a8aaa;padding:5px 12px;background:#1a1735;border-radius:20px;margin:0 auto">👁 Modo espião — invisível</div>
+  </div>
+  <div style="padding:7px 14px;background:#8aafd4;border-top:1px solid #2a3244;text-align:center;font-size:10px;color:#1a1735;font-weight:700;flex-shrink:0">🔒 Somente leitura</div>
+</div>
+
+<!-- MODAL UPGRADE -->
+<div class="overlay" id="upgradeModal" style="display:none;align-items:center;justify-content:center">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:36px;margin-bottom:10px">⭐</div>
+    <div class="modal-title" style="color:#f59e0b;justify-content:center;display:flex">Área Premium</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">Esta área é exclusiva para membros <strong>Premium</strong>, Moderadores e superiores.</p>
+    <div style="display:flex;gap:8px">
+      <button onclick="fecharUpgrade()" class="btn-cancel">Fechar</button>
+      <button onclick="window.location.href='login.html'" style="flex:1;padding:9px;border-radius:8px;border:none;background:#f59e0b;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">⭐ Fazer Upgrade</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGIN REQUIRED -->
+<div class="overlay" id="loginRequiredModal" style="display:none;align-items:center;justify-content:center">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:36px;margin-bottom:10px">🔐</div>
+    <div class="modal-title" style="justify-content:center;display:flex">Acesso Restrito</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6">Esta página é exclusiva para <strong>usuários cadastrados</strong>.</p>
+    <div style="display:flex;gap:8px">
+      <button onclick="fecharLoginRequired()" class="btn-cancel">Fechar</button>
+      <button onclick="window.location.href='login.html'" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--blue);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Entrar / Cadastrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONVIDAR -->
+<div id="convidarModal" style="display:none;position:fixed;inset:0;z-index:600;background:#00000088;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:16px;width:100%;max-width:400px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+    <div style="padding:16px 18px;border-bottom:1px solid #e8f0fa;display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <span style="font-size:20px">📨</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#0f1f3d">Convidar para sala</div>
+        <div id="convidarSalaNomeTitle" style="font-size:11px;color:#7a90b0;margin-top:1px"></div>
+      </div>
+      <button onclick="fecharConvidarModal()" style="background:none;border:none;font-size:18px;color:#7a90b0;cursor:pointer;padding:4px">✕</button>
+    </div>
+    <div id="stepSalas" style="flex:1;overflow-y:auto;padding:14px">
+      <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:#7a90b0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Escolha uma sala</div>
+      <div id="convidarSalasList" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+    <div id="stepUsuarios" style="display:none;flex:1;overflow-y:auto;padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <button onclick="voltarParaSalas()" style="background:#f0f6fc;border:1px solid #c8d8f5;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:#2563eb;cursor:pointer;font-family:'DM Sans',sans-serif">← Voltar</button>
+        <div id="stepSalaNome" style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#0f1f3d"></div>
+      </div>
+      <div id="convidarUsersList"></div>
+    </div>
+    <div style="padding:12px 18px;border-top:1px solid #e8f0fa;flex-shrink:0">
+      <button onclick="fecharConvidarModal()" style="width:100%;padding:9px;border-radius:8px;border:1.5px solid #c8d8f5;background:#f7faff;color:#7a90b0;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LS={get:(k,d='')=>{try{return localStorage.getItem(k)||d;}catch(e){return d;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}}};
+const TOKEN=LS.get('tc_token','');
+const ME={nick:LS.get('tc_nick',''),role:LS.get('tc_role','guest'),av:LS.get('tc_avatar','😊')};
+const IS_LOGGED=!!TOKEN;
+const ROLE_LVL={guest:0,user:1,vip:2,premium:3,dj:4,mod:5,supervisor:6,admin:7};
+const BADGE_MAP={admin:'b-admin',supervisor:'b-sup',mod:'b-mod',premium:'b-prem',dj:'b-dj',vip:'b-vip',user:'b-user',guest:'b-guest'};
+const BADGE_LBL={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MOD',premium:'PREMIUM',dj:'DJ',vip:'VIP',user:'USER',guest:'VISITANTE'};
+
+const DEMO_MSGS=[
+  {nick:'KarenAdmin',role:'admin',av:'🌟',color:'#16a34a',text:'Boa noite! Bem-vindos 🎉',time:'21:09'},
+  {nick:'PauloXX',role:'premium',av:'👑',color:'#d97706',text:'Oi galera! Tudo bem?',time:'21:08'},
+  {nick:'Mari_s',role:'user',av:'🌸',color:'#db2777',text:'Boa noite 😊',time:'21:07'},
+  {nick:'DJMaster',role:'dj',av:'🎧',color:'#7c3aed',text:'Playlist nova no ar 🎵',time:'21:06'},
+  {nick:'alexvip',role:'vip',av:'⚡',color:'#2563eb',text:'Que salinha boa!',time:'21:05'},
+];
+const DEMO_ONLINE=[
+  {nick:'KarenAdmin',av:'🌟',color:'#16a34a',bc:'#10b981',s:'🟢'},
+  {nick:'DJMaster',av:'🎧',color:'#7c3aed',bc:'#a855f7',s:'🟢'},
+  {nick:'PauloXX',av:'👑',color:'#d97706',bc:'#f59e0b',s:'🟡'},
+  {nick:'alexvip',av:'⚡',color:'#2563eb',bc:'#3b82f6',s:'🟢'},
+  {nick:'Mari_s',av:'🌸',color:'#db2777',bc:'',s:'🟢'},
+];
+
+// ── HEADER ────────────────────────────────────────────────────
+document.getElementById('headerAv').textContent=ME.av||'😊';
+document.getElementById('headerNick').textContent=IS_LOGGED?ME.nick:'Visitante';
+const bg=document.getElementById('headerBadge');
+bg.className='badge-chip '+(BADGE_MAP[ME.role]||'b-guest');
+bg.textContent=BADGE_LBL[ME.role]||'VISITANTE';
+
+// Painel Admin — admin, supervisor, mod, premium
+if(['admin','supervisor','mod','premium'].includes(ME.role)){
+  document.getElementById('adminPainelBtn').style.display='';
+}
+
+// Sair → Entrar para não logados
+if(!IS_LOGGED){
+  const b=document.getElementById('btnSair');
+  b.textContent='🔑 Entrar';b.style.background='#2563eb';
+  b.onclick=()=>window.location.href='login.html';
+}
+
+// ── BINGO — visível somente quando admin/supervisor ativar ─────
+(function(){
+  if(LS.get('tc_bingo_ativo','0')==='1'){
+    document.getElementById('bingoCard').style.display='flex';
+  }
+})();
+
+// ── SALAS GRID ────────────────────────────────────────────────
+var SALAS=[]; // preenchido pelo backend
+const myLvl=ROLE_LVL[ME.role]||0;
+function renderSalas(){ document.getElementById('roomsGrid').innerHTML=SALAS.map(s=>{
+  const locked=myLvl<(ROLE_LVL[s.min]||0);
+  return `
+  <div style="background:#fff;border:2px solid ${s.color}33;border-radius:14px;padding:18px 18px 14px;transition:.2s"
+    ${!locked?`onmouseover="this.style.borderColor='${s.color}';this.style.boxShadow='0 4px 16px ${s.color}22'" onmouseout="this.style.borderColor='${s.color}33';this.style.boxShadow='none'"`:''}>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,${s.color},${s.color}99);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${s.icon}</div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#0f1f3d">${s.name}</div>
+        <div style="font-size:11px;color:#7a90b0;margin-top:2px">${s.desc}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:10px;color:#10b981;font-weight:600">🟢 Sala aberta</span>
+      ${!locked
+        ?`<button onclick="entrarSala('${s.id}','${s.name}')" style="padding:7px 20px;border-radius:8px;font-weight:700;border:none;cursor:pointer;background:${s.color};color:#fff;font-family:'Syne',sans-serif;font-size:12px">Entrar →</button>`
+        :`<span style="font-size:9px;padding:3px 8px;border-radius:20px;background:#ef444422;color:#ef4444;font-weight:700">🔒 Restrito</span>`
+      }
+    </div>
+  </div>`;
+}).join(''); }
+(async function loadSalas(){
+  try{
+    var r = await API.getRooms();
+    var P=['#2563eb','#ec4899','#7c3aed','#10b981','#f59e0b','#06b6d4','#ef4444','#8b5cf6'];
+    SALAS=(r.rooms||[]).map(function(rm,i){return {id:rm.slug,name:rm.name,icon:rm.icon||'💬',desc:rm.description||'',color:P[i%P.length],min:rm.min_role||'guest'};});
+    renderSalas();
+  }catch(e){ document.getElementById('roomsGrid').innerHTML='<div style="padding:20px;color:#7a90b0;grid-column:1/-1">Não foi possível carregar as salas: '+(e.message||'erro')+'</div>'; }
+})();
+
+// ── ESPIAR ────────────────────────────────────────────────────
+const canSeePriva=['admin','supervisor','mod','premium','dj'].includes(ME.role);
+function getPrivRooms(){try{return JSON.parse(localStorage.getItem('tc_private_rooms')||'[]');}catch(e){return[];}}
+
+const SALAS_SPY=[
+  {id:'geral',name:'💬 Geral'},{id:'amizade',name:'❤️ Amizade'},{id:'games',name:'🎮 Games'},
+  {id:'musica',name:'🎵 Música'},{id:'esportes',name:'⚽ Esportes'},
+  {id:'premium',name:'👑 Premium'},{id:'dj',name:'🎧 DJ'},
+  {id:'vip',name:'⭐ VIP'},{id:'admin',name:'🛡 Admin'},
+];
+
+function abrirModalEspiar(){
+  if(!canSpy){toast('Sem permissão para espiar','err');return;}
+  const privs=['admin','supervisor'].includes(ME.role)?getPrivRooms():[];
+  let grid=SALAS_SPY.map(s=>`
+    <button onclick="espiarSala('${s.id}','${s.name}')"
+      style="padding:12px 8px;border-radius:10px;border:1px solid #c8d8f5;background:#e8f2ff;color:#0f1f3d;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:6px;justify-content:center;transition:.15s" onmouseover="this.style.background='#d0e6ff'" onmouseout="this.style.background='#e8f2ff'">
+      ${s.name}
+    </button>`).join('');
+  if(privs.length){
+    grid+=`<div style="grid-column:1/-1;margin-top:8px;font-size:10px;font-weight:700;color:#7c3aed;font-family:'Syne',sans-serif">🔒 SALAS PRIVADAS</div>`;
+    grid+=privs.map(p=>`
+      <button onclick="espiarSala('${p.id}','${p.icon||'🔒'} ${p.name}')"
+        style="padding:12px 8px;border-radius:10px;border:1px solid #c8d8f5;background:#e8f2ff;color:#0f1f3d;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:6px;justify-content:center">
+        ${p.icon||'🔒'} ${p.name}
+      </button>`).join('');
+  }
+  document.getElementById('espiarModalGrid').innerHTML=grid;
+  document.getElementById('espiarModal').style.display='flex';
+}
+
+function fecharEspiarModal(){document.getElementById('espiarModal').style.display='none';}
+
+function espiarSala(roomId,roomName){
+  fecharEspiarModal();
+  document.getElementById('spyRoomName').textContent=roomName;
+  const area=document.getElementById('spyMsgs');
+  const BC={admin:'#10b981',supervisor:'#ef4444',mod:'#6b7280',vip:'#3b82f6',premium:'#f59e0b',dj:'#a855f7',user:''};
+  area.innerHTML=DEMO_MSGS.map(m=>`
+    <div style="display:flex;gap:8px;align-items:flex-start">
+      <div class="spy-av" style="border-color:${BC[m.role]||'#3a5068'}"><span>${m.av}</span></div>
+      <div class="spy-bubble">
+        <div class="spy-nick" style="color:${m.color}">${m.nick}</div>
+        <div class="spy-text">${m.text}</div>
+        <div class="spy-time">${m.time}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('spyOverlay').style.display='flex';
+}
+
+function fecharSpy(){document.getElementById('spyOverlay').style.display='none';}
+
+// ── NAVEGAÇÃO ─────────────────────────────────────────────────
+function entrarSala(id,name){
+  LS.set('tc_room',id);LS.set('tc_room_name',name||id);LS.set('tc_spy_mode','0');
+  window.location.href='chat.html';
+}
+function abrirMural(){
+  if(!IS_LOGGED){abrirLoginRequired();return;}
+  window.location.href='recados.html';
+}
+function abrirBingo(){
+  if(!IS_LOGGED){abrirLoginRequired();return;}
+  window.location.href='bingo.html';
+}
+function abrirSalasPrivadas(){
+  if(!IS_LOGGED){abrirLoginRequired();return;}
+  if(!canSeePriva){abrirUpgrade();return;}
+  window.location.href='salas-privadas.html';
+}
+
+// ── MODAIS ────────────────────────────────────────────────────
+function abrirUpgrade(){document.getElementById('upgradeModal').style.display='flex';}
+function fecharUpgrade(){document.getElementById('upgradeModal').style.display='none';}
+function abrirLoginRequired(){document.getElementById('loginRequiredModal').style.display='flex';}
+function fecharLoginRequired(){document.getElementById('loginRequiredModal').style.display='none';}
+
+async function logout(){ if(window.API){try{await API.logout();}catch(e){}}
+  ['tc_token','tc_role','tc_nick','tc_avatar','tc_photo','tc_room','tc_spy_mode','tc_spy_room'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});
+  window.location.href='login.html';
+}
+
+// ── CONVIDAR ──────────────────────────────────────────────────
+const SALAS_TODAS=[
+  {id:'geral',name:'💬 Geral'},{id:'amizade',name:'❤️ Amizade Top'},{id:'games',name:'🎮 Games'},
+  {id:'musica',name:'🎵 Música'},{id:'esportes',name:'⚽ Esportes'},
+  {id:'vip',name:'⭐ VIP Lounge'},{id:'premium',name:'👑 Premium'},{id:'dj',name:'🎧 Sala DJ'},
+];
+const USERS_POR_SALA={
+  geral:[{nick:'KarenAdmin',av:'🌟',role:'admin'},{nick:'PauloXX',av:'👑',role:'premium'},{nick:'Mari_s',av:'🌸',role:'user'}],
+  games:[{nick:'GameKing',av:'🎮',role:'user'},{nick:'PixelBoy',av:'🕹',role:'premium'}],
+  musica:[{nick:'RafaBeats',av:'🎵',role:'dj'},{nick:'SoniaLima',av:'🎤',role:'user'}],
+};
+const ROLE_COLORS={admin:'#16a34a',supervisor:'#dc2626',mod:'#6366f1',premium:'#d97706',dj:'#7c3aed',vip:'#2563eb',user:'#374151',guest:'#9ca3af'};
+let _convSala=null;
+
+function abrirConvidarModal(id,name,icon){
+  _convSala={id,name,icon};
+  document.getElementById('convidarSalaNomeTitle').textContent=icon+' '+name;
+  document.getElementById('convidarSalasList').innerHTML=SALAS_TODAS.map(s=>`
+    <button onclick="selecionarSalaConvidar('${s.id}')" style="display:flex;align-items:center;gap:8px;width:100%;background:#f7faff;border:1.5px solid #c8d8f5;border-radius:8px;padding:9px 12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:#0f1f3d;text-align:left" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#c8d8f5'">
+      <span style="font-size:16px">${s.name.split(' ')[0]}</span>
+      <span>${s.name.replace(/^[\S]+ /,'')}</span>
+      <span style="margin-left:auto;font-size:10px;color:#7c3aed;font-weight:700">Ver →</span>
+    </button>`).join('');
+  document.getElementById('stepSalas').style.display='';
+  document.getElementById('stepUsuarios').style.display='none';
+  document.getElementById('convidarModal').style.display='flex';
+}
+
+function selecionarSalaConvidar(salaId){
+  const sala=SALAS_TODAS.find(s=>s.id===salaId);if(!sala)return;
+  const users=USERS_POR_SALA[salaId]||[];
+  document.getElementById('stepSalaNome').textContent=sala.name;
+  document.getElementById('convidarUsersList').innerHTML=users.length
+    ?users.map(u=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:#f7faff;border:1px solid #e8f0fa;margin-bottom:6px">
+        <span style="font-size:18px">${u.av}</span>
+        <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:${ROLE_COLORS[u.role]||'#0f1f3d'}">${u.nick}</div></div>
+        <button onclick="enviarConviteParaUser('${u.nick}')" id="btn_conv_${u.nick}" style="height:28px;padding:0 12px;border-radius:6px;background:#7c3aed;border:none;color:#fff;font-size:11px;font-weight:700;cursor:pointer">📨 Convidar</button>
+      </div>`).join('')
+    :'<div style="text-align:center;padding:20px;font-size:12px;color:#7a90b0">Nenhum usuário online.</div>';
+  document.getElementById('stepSalas').style.display='none';
+  document.getElementById('stepUsuarios').style.display='';
+}
+
+function voltarParaSalas(){document.getElementById('stepSalas').style.display='';document.getElementById('stepUsuarios').style.display='none';}
+
+function enviarConviteParaUser(nick){
+  if(!_convSala)return;
+  try{localStorage.setItem('tc_convite_'+nick,JSON.stringify({de:ME.nick,deAv:ME.av||'😊',salaPrivId:_convSala.id,salaNome:_convSala.name,salaIcon:_convSala.icon,ts:Date.now()}));}catch(e){}
+  const btn=document.getElementById('btn_conv_'+nick);
+  if(btn){btn.textContent='✅ Enviado';btn.style.background='#10b981';btn.disabled=true;}
+}
+
+function fecharConvidarModal(){document.getElementById('convidarModal').style.display='none';_convSala=null;}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg,type='ok'){
+  let t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';t.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:18px;font-size:12px;font-weight:700;z-index:9999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;font-family:DM Sans,sans-serif';document.body.appendChild(t);}
+  t.textContent=msg;t.style.background=type==='err'?'#7f1d1d':'#064e3b';t.style.color=type==='err'?'#fca5a5':'#6ee7b7';
+  t.style.opacity='1';clearTimeout(t._x);t._x=setTimeout(()=>t.style.opacity='0',2800);
+}
+</script>
+<script>
+/* === Conserto demo: espião com mensagens reais === */
+(function(){
+  if(typeof API==='undefined') return;
+  var _orig = window.espiarSala;
+  if(typeof _orig!=='function') return;
+  window.espiarSala = function(roomId, roomName){
+    API.getMessages(roomId).then(function(d){
+      var ms=(d.messages||d.msgs||[]).slice(-40).map(function(m){ return {nick:m.nick, av:(m.avatar||'😊'), text:m.content||m.text||'', role:m.role||'user', color:m.nick_color||'#cbd5e1'}; });
+      try{ if(typeof DEMO_MSGS!=='undefined'){ DEMO_MSGS.length=0; ms.forEach(function(x){ DEMO_MSGS.push(x); }); } }catch(e){}
+    }).catch(function(){}).then(function(){ _orig(roomId, roomName); });
+  };
+})();
+</script>
+<script>
+/* === Logo do chat: aplica o logo enviado no painel (lido do servidor) === */
+(function(){
+  if(typeof API==='undefined') return;
+  API.getSystemConfig().then(function(d){
+    var url=d&&d.config&&d.config.logo_url; if(!url) return;
+    try{ localStorage.setItem('tc_logo', url); }catch(e){}
+    if(typeof applyLogo==='function'){ try{ applyLogo(); }catch(e){} }
+    document.querySelectorAll('.tc-logo').forEach(function(el){ el.innerHTML='<img src="'+url+'" alt="logo" style="height:32px;max-width:170px;object-fit:contain;display:block">'; });
+    var lt=document.querySelector('.logo-text');
+    if(lt){ lt.innerHTML='<img src="'+url+'" alt="logo" style="height:44px;max-width:240px;object-fit:contain">'; }
+    if(!document.querySelector('.tc-logo')){
+      var lg=document.querySelector('.logo');
+      if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
+    }
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+<script>
+(function(){
+  try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
+})();
+</script>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chat Supremo — Perfil</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#dce8f5;--surface:#fff;--surface2:#e8f2ff;
+  --border:#b8d0e8;--purple:#7c3aed;--purple2:#6d28d9;--purple3:#a78bfa;
+  --blue:#2563eb;--blue2:#1d4ed8;
+  --text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;
+  --green:#10b981;--red:#ef4444;
+  --radius:14px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+
+/* HEADER */
+.page-header{background:#0f1f3d;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.22)}
+.back-btn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
+.back-btn:hover{background:rgba(255,255,255,.28)}
+.page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;flex:1}
+
+/* AVATAR HERO */
+.av-section{
+  background:linear-gradient(135deg,#0f1f3d 0%,#1d4ed8 100%);
+  padding:28px 16px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;overflow:hidden;
+}
+.av-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 75% 10%,rgba(99,148,246,.22) 0%,transparent 55%),radial-gradient(ellipse at 15% 90%,rgba(30,78,200,.18) 0%,transparent 50%);pointer-events:none}
+.av-ring{width:112px;height:112px;border-radius:12px;background:rgba(255,255,255,.12);border:2.5px solid rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden;cursor:pointer;transition:.2s;position:relative;z-index:1;box-shadow:0 4px 20px rgba(99,148,255,.18)}
+.av-ring:hover{border-color:#fff;transform:scale(1.04);box-shadow:0 6px 24px rgba(99,148,255,.28)}
+.av-ring img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.av-pip{position:absolute;bottom:4px;right:4px;width:22px;height:22px;border-radius:50%;background:var(--blue);border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff}
+.av-nick{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff;text-align:center;position:relative;z-index:1}
+.av-badge{font-size:9px;padding:3px 12px;border-radius:20px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.4px}
+.b-admin{background:#10b981;color:#fff}.b-vip{background:#2563eb;color:#93c5fd}.b-premium{background:#f59e0b;color:#fff}.b-mod{background:#6b7280;color:#fff}.b-dj{background:#a855f7;color:#fff}.b-user{background:rgba(255,255,255,.18);color:rgba(255,255,255,.85)}.b-guest{background:#9ca3af;color:#fff}
+.av-btns{display:flex;gap:8px;position:relative;z-index:1}
+.av-btn{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.28);border-radius:20px;color:#e8f0ff;font-size:11px;font-weight:700;padding:7px 16px;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s;backdrop-filter:blur(4px)}
+.av-btn:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.5)}
+
+/* CONTENT */
+.content{padding:16px;display:flex;flex-direction:column;gap:14px;max-width:480px;margin:0 auto;width:100%}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+.card-header{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:7px}
+.card-header .icon{font-size:14px}
+.card-body{padding:16px;display:flex;flex-direction:column;gap:8px}
+
+/* INPUTS */
+.field-label{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.field-wrap{display:flex;flex-direction:column;gap:2px}
+.tc-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:.2s;font-weight:500}
+.tc-input:focus{border-color:var(--purple);background:#fff;box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.tc-input::placeholder{color:var(--text3);font-weight:400}
+.tc-select{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:.2s;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a90b0'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.tc-select:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.tc-select option{background:#fff}
+.char-count{font-size:10px;color:var(--text3);text-align:right;margin-top:2px}
+.input-hint{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.4}
+
+/* PASSWORD */
+.pw-input-wrap{position:relative}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0}
+.pw-bar{height:4px;border-radius:2px;background:var(--border);overflow:hidden;margin-bottom:3px}
+.pw-fill{height:100%;width:0%;border-radius:2px;transition:.3s;background:var(--red)}
+.pw-lbl{font-size:10px;color:var(--text3)}
+
+/* SAVE BTN */
+.save-btn{width:100%;padding:12px;border-radius:var(--radius-sm);background:var(--purple);border:none;color:#fff;font-size:13px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;letter-spacing:.3px}
+.save-btn:hover{background:var(--purple2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,.35)}
+.save-btn.blue{background:var(--blue)}.save-btn.blue:hover{background:var(--blue2)}
+.save-btn:active{transform:translateY(0)}
+
+/* ═══════════════════════════════════════════
+   MODERN AUDIO PLAYER
+═══════════════════════════════════════════ */
+.ap-card{
+  background:linear-gradient(150deg,#0d0b18 0%,#130f2a 45%,#1a1050 100%);
+  border:1px solid #3d35a055;border-radius:var(--radius);overflow:hidden;position:relative;
+}
+.ap-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 0%,rgba(167,139,250,.16) 0%,transparent 55%),radial-gradient(ellipse at 5% 100%,rgba(59,130,246,.1) 0%,transparent 48%);pointer-events:none}
+
+/* --- VIZ --- */
+.ap-viz{position:relative;height:88px;overflow:hidden;cursor:pointer;background:rgba(0,0,0,.28)}
+.ap-viz canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* CSS bar fallback */
+.ap-bars{display:flex;align-items:flex-end;gap:2.5px;height:56px;padding:0 16px;position:absolute;bottom:16px;left:0;right:0;justify-content:center}
+.ap-bar{width:3px;border-radius:3px 3px 0 0;background:linear-gradient(0deg,#7c3aed,#c084fc);opacity:.7}
+@keyframes barUp{0%,100%{transform:scaleY(.2)}50%{transform:scaleY(1)}}
+
+/* play hint overlay */
+.ap-play-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.0);z-index:4;pointer-events:none;transition:.2s}
+.ap-viz:hover .ap-play-hint{background:rgba(0,0,0,.22)}
+.ap-play-hint-icon{width:42px;height:42px;border-radius:50%;background:rgba(124,58,237,.85);display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;box-shadow:0 2px 12px rgba(124,58,237,.6);transform:scale(.85);opacity:0;transition:.2s}
+.ap-viz:hover .ap-play-hint-icon{transform:scale(1);opacity:1}
+
+/* --- BODY --- */
+.ap-body{padding:16px 18px 18px;position:relative;z-index:1}
+
+/* track info */
+.ap-track-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.ap-disc{
+  width:46px;height:46px;border-radius:50%;flex-shrink:0;
+  background:conic-gradient(from 0deg,#7c3aed,#a855f7,#ec4899,#7c3aed);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;position:relative;
+  box-shadow:0 4px 14px rgba(124,58,237,.45);
+  transition:.3s;
+}
+.ap-disc::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#0d0b18;box-shadow:inset 0 0 4px rgba(0,0,0,.6)}
+.ap-disc.spin{animation:spinDisc 3s linear infinite}
+@keyframes spinDisc{to{transform:rotate(360deg)}}
+.ap-track-info{flex:1;overflow:hidden}
+.ap-track-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#e2e0f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.ap-track-name.empty{color:#4a3f7a;font-style:italic;font-weight:400}
+.ap-track-size{font-size:10px;color:#5a4a8a}
+
+/* EQ bars */
+.ap-eq{display:flex;align-items:flex-end;gap:2px;height:20px;flex-shrink:0}
+.ap-eq span{width:3px;border-radius:2px;background:linear-gradient(0deg,#7c3aed,#c084fc);min-height:3px;transition:.1s}
+.ap-eq.playing span:nth-child(1){animation:eq1 .55s ease-in-out infinite}
+.ap-eq.playing span:nth-child(2){animation:eq2 .7s ease-in-out infinite .08s}
+.ap-eq.playing span:nth-child(3){animation:eq3 .45s ease-in-out infinite .04s}
+.ap-eq.playing span:nth-child(4){animation:eq2 .8s ease-in-out infinite .12s}
+.ap-eq.playing span:nth-child(5){animation:eq1 .6s ease-in-out infinite .06s}
+@keyframes eq1{0%,100%{height:4px}50%{height:18px}}
+@keyframes eq2{0%,100%{height:9px}50%{height:15px}}
+@keyframes eq3{0%,100%{height:15px}50%{height:5px}}
+
+/* progress */
+.ap-prog-wrap{margin-bottom:12px}
+.ap-prog{height:5px;background:rgba(255,255,255,.08);border-radius:3px;cursor:pointer;position:relative;overflow:visible}
+.ap-prog-fill{height:100%;border-radius:3px;width:0%;background:linear-gradient(90deg,#7c3aed,#a855f7,#ec4899);position:relative;transition:.1s linear}
+.ap-prog-fill::after{content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 0 8px rgba(167,139,250,.9);opacity:0;transition:opacity .15s}
+.ap-prog:hover .ap-prog-fill::after{opacity:1}
+.ap-times{display:flex;justify-content:space-between;font-size:10px;color:#5a4a8a;margin-top:5px;font-variant-numeric:tabular-nums;letter-spacing:.3px}
+
+/* controls */
+.ap-controls{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px}
+.ap-ctrl{width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:.15s;flex-shrink:0;background:rgba(255,255,255,.06);color:#8a7ac0;font-family:'DM Sans',sans-serif;font-weight:700}
+.ap-ctrl:hover{background:rgba(255,255,255,.13);color:#c4b5fd}
+.ap-ctrl:active{transform:scale(.9)}
+.ap-play{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 18px rgba(124,58,237,.55);transition:.2s;flex-shrink:0}
+.ap-play:hover{transform:scale(1.1);box-shadow:0 7px 24px rgba(124,58,237,.7)}
+.ap-play:active{transform:scale(.95)}
+.ap-play.playing{animation:playPulse 2.5s ease-in-out infinite}
+@keyframes playPulse{0%,100%{box-shadow:0 5px 18px rgba(124,58,237,.55)}50%{box-shadow:0 5px 28px rgba(168,85,247,.8)}}
+
+/* volume */
+.ap-vol-row{display:flex;align-items:center;gap:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
+.ap-vol-ico{font-size:14px;color:#5a4a8a;cursor:pointer;flex-shrink:0;transition:.15s;user-select:none}
+.ap-vol-ico:hover{color:#a78bfa}
+.ap-vol-range{
+  flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
+  background:rgba(255,255,255,.08);outline:none;cursor:pointer;
+}
+.ap-vol-range::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a855f7);cursor:pointer;box-shadow:0 0 5px rgba(124,58,237,.55);transition:.1s}
+.ap-vol-range::-moz-range-thumb{width:13px;height:13px;border-radius:50%;border:none;background:linear-gradient(135deg,#7c3aed,#a855f7)}
+.ap-vol-pct{font-size:10px;color:#4a3f7a;width:30px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* ── Nick Emoji Picker ── */
+#nickEmojiOverlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);align-items:flex-end;justify-content:center}
+#nickEmojiOverlay.open{display:flex}
+#nickEmojiPanel{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:14px 14px 28px;box-shadow:0 -8px 32px rgba(0,0,0,.2);animation:slideUp .22s ease}
+#nickEmojiPanel .ne-handle{width:36px;height:4px;background:#e2e8f0;border-radius:2px;margin:0 auto 12px}
+#nickEmojiPanel .ne-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#1a202c;text-align:center;margin-bottom:10px}
+#nickEmojiPanel .ne-current{text-align:center;margin-bottom:10px;font-size:28px;min-height:36px}
+#nickEmojiPanel .ne-clear{display:block;width:100%;margin-bottom:10px;padding:7px;border-radius:8px;border:1px solid #e2e8f0;background:#f7fafc;color:#718096;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+#nickEmojiPanel .ne-cats{display:flex;gap:4px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px}
+#nickEmojiPanel .ne-cats::-webkit-scrollbar{display:none}
+#nickEmojiPanel .ne-cat-btn{flex-shrink:0;padding:4px 10px;border-radius:16px;border:none;background:#f1f5f9;font-size:16px;cursor:pointer;transition:.15s}
+#nickEmojiPanel .ne-cat-btn.active{background:#1d4ed8;box-shadow:0 0 8px #1d4ed855}
+#nickEmojiPanel .ne-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-height:220px;overflow-y:auto;padding:2px}
+#nickEmojiPanel .ne-grid::-webkit-scrollbar{width:3px}
+#nickEmojiPanel .ne-grid::-webkit-scrollbar-thumb{background:#93c5fd;border-radius:4px}
+#nickEmojiPanel .ne-item{font-size:22px;border-radius:8px;border:none;background:transparent;cursor:pointer;padding:4px;transition:.12s;text-align:center}
+#nickEmojiPanel .ne-item:hover{background:#f1f5f9;transform:scale(1.15)}
+#nickEmojiPanel .ne-item.selected{background:#dbeafe;outline:2px solid #1d4ed8}
+
+/* upload zone */
+.ap-upload{
+  margin-top:14px;border:2px dashed rgba(124,58,237,.4);border-radius:10px;
+  padding:16px;text-align:center;cursor:pointer;transition:.2s;
+  background:rgba(124,58,237,.04);
+}
+.ap-upload:hover,.ap-upload.drag{border-color:#7c3aed;background:rgba(124,58,237,.12);transform:scale(1.01)}
+.ap-upload-ico{font-size:26px;margin-bottom:5px}
+.ap-upload-lbl{font-size:12px;font-weight:700;color:#8a7ac0}
+.ap-upload-sub{font-size:10px;color:#4a3f7a;margin-top:3px}
+.ap-remove{margin-top:10px;width:100%;padding:8px;border-radius:20px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f87171;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s;display:none}
+.ap-remove:hover{background:rgba(239,68,68,.22);border-color:#ef4444}
+
+/* AVATAR MODAL */
+.av-img-item{border-radius:50%;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:.2s;aspect-ratio:1;display:flex;align-items:center;justify-content:center;width:72px;height:72px}
+.av-img-item:hover{transform:scale(1.08)}
+.av-img-item.selected{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.2)}
+.av-img-item img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.overlay{position:fixed;inset:0;background:rgba(15,31,61,.5);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.2s}
+.overlay.show{opacity:1;pointer-events:all}
+.modal{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;width:370px;max-width:96vw;transform:translateY(10px);transition:.2s;box-shadow:0 16px 40px rgba(15,31,61,.18)}
+.overlay.show .modal{transform:translateY(0)}
+.modal-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.modal-close{margin-left:auto;background:var(--surface2);border:1px solid var(--border);color:var(--text3);cursor:pointer;font-size:14px;padding:0;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.av-tabs{display:flex;gap:3px;background:var(--surface2);border-radius:20px;padding:3px;margin-bottom:12px;border:1px solid var(--border)}
+.av-tab{flex:1;padding:7px;border-radius:16px;font-size:10px;font-weight:700;cursor:pointer;text-align:center;color:var(--text3);border:none;background:transparent;font-family:'Syne',sans-serif;transition:.15s}
+.av-tab.active{background:#fff;color:var(--blue);border:1px solid var(--border);box-shadow:0 1px 4px rgba(15,31,61,.08)}
+.av-panel{display:none}.av-panel.active{display:block}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;max-height:200px;overflow-y:auto;padding:2px}
+.emoji-grid::-webkit-scrollbar{width:3px}
+.emoji-grid::-webkit-scrollbar-thumb{background:#242830;border-radius:4px}
+.eg-item{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;transition:.1s;border:2px solid transparent}
+.eg-item:hover{background:#1a1d24;transform:scale(1.15)}
+.eg-item.selected{border-color:#a020f0;background:#242830}
+.photo-drop{border:2px dashed var(--border);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:.15s;margin-bottom:8px}
+.photo-drop:hover{border-color:var(--blue);background:var(--surface2)}
+.photo-preview-img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #8aafd4;display:block;margin:0 auto 6px}
+.mbtn{padding:10px 18px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Syne',sans-serif;transition:.2s}
+.mbtn.confirm{background:var(--blue);color:#fff}.mbtn.confirm:hover{background:var(--blue2)}
+.mbtn.cancel{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}
+.emoji-cats{display:flex;gap:4px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px}
+.emoji-cats::-webkit-scrollbar{display:none}
+.ecat{padding:4px 9px;border-radius:14px;font-size:11px;cursor:pointer;background:#1a1d24;border:1px solid #2a3244;color:#4a6080;white-space:nowrap;font-weight:600;transition:.12s}
+.ecat.active{background:#242830;border-color:#3a6fa8;color:#8aafd4}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+.toast.s{background:#064e3b;color:#6ee7b7}
+.toast.e{background:#7f1d1d;color:#fca5a5}
+.toast.i{background:#0d2a5e;color:#bfdbfe}
+</style>
+<script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
+<script src="api.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <button class="back-btn" onclick="history.back()">‹</button>
+  <span class="page-title">👤 Meu Perfil</span>
+</div>
+
+<!-- AVATAR HERO -->
+<div class="av-section">
+  <div class="av-ring" id="avRing" onclick="openAvatarModal()">
+    <span id="avDisplay">😊</span>
+    <div class="av-pip">✏</div>
+  </div>
+  <div class="av-nick" id="avNick">–</div>
+  <div class="av-badge b-user" id="avBadge">USER</div>
+  <div class="av-btns">
+    <button class="av-btn" onclick="openAvatarModal()">🖼 Escolher imagem</button>
+    <button class="av-btn" id="nickEmojiBtn" onclick="openNickEmojiPicker()">😀 Emoji do nick</button>
+  </div>
+  <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)"/>
+</div>
+
+<div class="content">
+
+  <!-- NICK -->
+  <div class="card">
+    <div class="card-header"><span class="icon">✏</span> Nick</div>
+    <div class="card-body">
+      <div class="field-wrap">
+        <div class="field-label">Seu nick no chat</div>
+        <input class="tc-input" id="nickInput" placeholder="Trocar nick..." maxlength="20" oninput="updateNickCount()"/>
+        <div class="char-count"><span id="nickCount">0</span>/20</div>
+        <div class="input-hint">O nick é como os outros usuários vão te ver no chat.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIO -->
+  <div class="card">
+    <div class="card-header"><span class="icon">📝</span> Bio</div>
+    <div class="card-body">
+      <div class="field-wrap">
+        <div class="field-label">Sobre você</div>
+        <input class="tc-input" id="bioInput" placeholder="Escreva algo sobre você..." maxlength="100" oninput="updateBioCount()"/>
+        <div class="char-count"><span id="bioCount">0</span>/100</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFIL OPCIONAL -->
+  <div class="card">
+    <div class="card-header"><span class="icon">📋</span> Perfil opcional</div>
+    <div class="card-body">
+      <div class="field-wrap">
+        <div class="field-label">Idade</div>
+        <input class="tc-input" id="ageInput" type="number" placeholder="Sua idade" min="13" max="99"/>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">Cidade</div>
+        <input class="tc-input" id="cityInput" placeholder="Onde você mora"/>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">Gênero</div>
+        <select class="tc-select" id="genderInput">
+          <option value="">Prefiro não informar</option>
+          <option value="M">Masculino</option>
+          <option value="F">Feminino</option>
+          <option value="N">Prefiro não dizer</option>
+        </select>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">Ocupação</div>
+        <input class="tc-input" id="jobInput" placeholder="Ex: Estudante, Programador..."/>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">Interesses</div>
+        <input class="tc-input" id="interestsInput" placeholder="Ex: Música, games, viagens..."/>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALVAR PERFIL -->
+  <button class="save-btn blue" onclick="saveProfile()">💾 Salvar perfil</button>
+
+  <!-- ═══════════════════════════════════════
+       ÁUDIO DO PERFIL — só upload
+  ═══════════════════════════════════════ -->
+  <div class="card">
+    <div class="card-header"><span class="icon">🎵</span> Áudio do Perfil</div>
+    <div class="card-body">
+      <div class="field-label">Adicione um MP3 que tocará no seu perfil</div>
+      <div class="ap-upload" id="apUpload"
+           onclick="document.getElementById('apFileInput').click()"
+           ondragover="apDragOver(event)"
+           ondragleave="apDragLeave(event)"
+           ondrop="apDrop(event)">
+        <div class="ap-upload-ico">🎧</div>
+        <div class="ap-upload-lbl" id="apTrackName">Clique ou arraste um arquivo MP3</div>
+        <div class="ap-upload-sub" id="apTrackSize">Apenas MP3 — máx. 7 MB</div>
+      </div>
+      <input type="file" id="apFileInput" accept="audio/mp3,audio/mpeg,.mp3" style="display:none" onchange="apLoadFile(this)"/>
+      <button class="ap-remove" id="apRemove" onclick="apRemoveAudio()">🗑 Remover áudio do perfil</button>
+    </div>
+  </div>
+
+  <!-- TROCAR SENHA -->
+  <div class="card">
+    <div class="card-header"><span class="icon">🔑</span> Alterar Senha</div>
+    <div class="card-body">
+      <div class="field-wrap">
+        <div class="field-label">Senha atual</div>
+        <div class="pw-input-wrap">
+          <input class="tc-input" id="pwAtual" type="password" placeholder="Senha atual..." style="padding-right:40px" autocomplete="current-password"/>
+          <button class="pw-toggle" onclick="togglePw('pwAtual',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">Nova senha</div>
+        <div class="pw-input-wrap">
+          <input class="tc-input" id="pwNova" type="password" placeholder="Nova senha..." style="padding-right:40px" autocomplete="new-password" oninput="checkPwStrength()"/>
+          <button class="pw-toggle" onclick="togglePw('pwNova',this)" tabindex="-1">👁</button>
+        </div>
+        <div id="pwStrWrap" style="display:none;margin-top:4px">
+          <div class="pw-bar"><div class="pw-fill" id="pwFill"></div></div>
+          <div class="pw-lbl" id="pwLbl">Fraca</div>
+        </div>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label">Confirmar nova senha</div>
+        <div class="pw-input-wrap">
+          <input class="tc-input" id="pwConf" type="password" placeholder="Confirmar nova senha..." style="padding-right:40px" autocomplete="new-password"/>
+          <button class="pw-toggle" onclick="togglePw('pwConf',this)" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <button class="save-btn blue" onclick="changePassword()" style="margin-top:4px">🔑 Alterar Senha</button>
+    </div>
+  </div>
+
+  <div style="height:10px"></div>
+</div>
+
+<!-- AVATAR MODAL -->
+<div class="overlay" id="avOverlay">
+  <div class="modal">
+    <div class="modal-title">
+      🖼 Alterar avatar
+      <button class="modal-close" onclick="closeAvatarModal()">✕</button>
+    </div>
+    <div class="av-tabs">
+      <button class="av-tab active" onclick="switchAvTab('Avatar',this)">🧑 Avatares</button>
+      <button class="av-tab" onclick="switchAvTab('Photo',this)">📷 Minha foto</button>
+    </div>
+    <div class="av-panel active" id="avPanelAvatar">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:4px" id="avatarImgGrid"></div>
+      
+    </div>
+    <div class="av-panel" id="avPanelPhoto">
+      <div class="photo-drop" onclick="document.getElementById('photoInput').click()">
+        <div id="photoPreview" style="font-size:36px;margin-bottom:8px">📷</div>
+        <div style="font-size:12px;color:#8aafd4;font-weight:700">Clique para selecionar uma foto</div>
+        <div style="font-size:10px;color:#4a6080;margin-top:4px">JPG, PNG ou GIF</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="mbtn cancel" onclick="closeAvatarModal()" style="flex:1">Cancelar</button>
+      <button class="mbtn confirm" onclick="applyAvatar()" style="flex:1">✅ Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── Storage ─────────────────────────────────────────── */
+const LS={
+  get:(k,d='')=>{try{return localStorage.getItem(k)??d}catch(e){return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,String(v))}catch(e){}}
+};
+
+/* ── Profile init ────────────────────────────────────── */
+let avSelected=null, photoDataUrl=null;
+const ROLE_LABELS={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MOD',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USER',guest:'VISITANTE'};
+const ROLE_CLASSES={admin:'b-admin',supervisor:'b-admin',mod:'b-mod',vip:'b-vip',premium:'b-premium',dj:'b-dj',user:'b-user',guest:'b-guest'};
+
+(function initProfile(){
+  const nick=LS.get('tc_nick','SeuNick');
+  const av=LS.get('tc_avatar','😊');
+  const photo=LS.get('tc_photo','');
+  const role=LS.get('tc_role','user');
+  const avEl=document.getElementById('avDisplay');
+  if(photo){avEl.innerHTML=`<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="av"/>`;photoDataUrl=photo;}
+  else{avEl.textContent=av;}
+  avSelected=av;
+  const nickEmoji = LS.get('tc_nick_emoji','');
+  document.getElementById('avNick').textContent = (nickEmoji ? nickEmoji + ' ' : '') + nick;
+  const _eb = document.getElementById('nickEmojiBtn');
+  if(_eb) _eb.textContent = (nickEmoji || '😀') + ' Emoji do nick';
+  const b=document.getElementById('avBadge');
+  b.textContent=ROLE_LABELS[role]||role.toUpperCase();
+  b.className='av-badge '+(ROLE_CLASSES[role]||'b-user');
+  const ni=document.getElementById('nickInput');
+  ni.value=nick; updateNickCount();
+  document.getElementById('bioInput').value=LS.get('tc_bio',''); updateBioCount();
+  document.getElementById('ageInput').value=LS.get('tc_age','');
+  document.getElementById('cityInput').value=LS.get('tc_city','');
+  document.getElementById('genderInput').value=LS.get('tc_gender','');
+  document.getElementById('jobInput').value=LS.get('tc_job','');
+  document.getElementById('interestsInput').value=LS.get('tc_interests','');
+  // Auto-carregar áudio salvo
+  const savedAudio=localStorage.getItem('tc_profile_audio_b64');
+  const savedAudioName=localStorage.getItem('tc_profile_audio_name')||'audio.mp3';
+  const savedAudioSize=localStorage.getItem('tc_profile_audio_size')||'';
+  if(savedAudio){apShowLoaded(savedAudioName,savedAudioSize);}
+})();
+
+async function loadProfileFromServer(){
+  try{
+    const resp = await API.me(); const user = resp && resp.user; if(!user) return;
+    const setLS=(k,v)=>{ if(v!==undefined&&v!==null) LS.set(k,v); };
+    setLS('tc_nick',user.nick); setLS('tc_role',user.role);
+    setLS('tc_avatar',user.avatar||''); setLS('tc_photo',user.photo_url||'');
+    setLS('tc_nick_color',user.nick_color||''); setLS('tc_msg_color',user.msg_color||'');
+    setLS('tc_status',user.status||'online'); setLS('tc_nick_emoji',user.nick_emoji||'');
+    setLS('tc_bio',user.bio||''); setLS('tc_city',user.city||''); setLS('tc_age',user.age||'');
+    setLS('tc_gender',user.gender||''); setLS('tc_job',user.job||''); setLS('tc_interests',user.interests||'');
+    if(user.profile_audio){ try{ localStorage.setItem('tc_profile_audio_b64',user.profile_audio); localStorage.setItem('tc_profile_audio_name',user.profile_audio_name||'audio.mp3'); }catch(e){} }
+    document.getElementById('nickInput').value=user.nick||''; updateNickCount();
+    document.getElementById('bioInput').value=user.bio||''; updateBioCount();
+    document.getElementById('ageInput').value=user.age||'';
+    document.getElementById('cityInput').value=user.city||'';
+    document.getElementById('genderInput').value=user.gender||'';
+    document.getElementById('jobInput').value=user.job||'';
+    document.getElementById('interestsInput').value=user.interests||'';
+    const avEl=document.getElementById('avDisplay');
+    if(user.photo_url){ avEl.innerHTML='<img src="'+user.photo_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="av"/>'; avSelected=null; photoDataUrl=user.photo_url; }
+    else if(user.avatar){ avEl.textContent=user.avatar; avSelected=user.avatar; }
+    const ne=user.nick_emoji||'';
+    document.getElementById('avNick').textContent=(ne?ne+' ':'')+(user.nick||'');
+    const eb=document.getElementById('nickEmojiBtn'); if(eb) eb.textContent=(ne||'\u{1F600}')+' Emoji do nick';
+    const bd=document.getElementById('avBadge'); if(bd){ bd.textContent=ROLE_LABELS[user.role]||(user.role||'').toUpperCase(); bd.className='av-badge '+(ROLE_CLASSES[user.role]||'b-user'); }
+    if(user.profile_audio){ apShowLoaded(user.profile_audio_name||'audio.mp3',''); }
+  }catch(e){}
+}
+loadProfileFromServer();
+
+function updateNickCount(){document.getElementById('nickCount').textContent=document.getElementById('nickInput').value.length;}
+
+/* ── Nick Emoji Picker ─────────────────────────────── */
+const NE_CATS=[
+  {icon:'😀',label:'Rostos',emojis:['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🤩','🥳','😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡','🤬','🤯','😳','🥵','🥶','😱','😨','😰','😥','😓','🤗','🤔','🤭','🤫','🤥','😶','😐','😑','😬','🙄','😯','😦','😧','😮','😲','🥱','😴','🤤','😪','😵','🤐','🥴','🤢','🤮','🤧','😷','🤒','🤕','🤑','🤠','😈','👿','👹','👺','🤡','💩','👻','💀','☠️','👽','👾','🤖','🎃']},
+  {icon:'👋',label:'Gestos',emojis:['👋','🤚','🖐','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🦷','🦴','👀','👁','👅','👄','💋']},
+  {icon:'❤️',label:'Corações',emojis:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','❤️‍🔥','❤️‍🩹','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉','☸️','✡️','🔯','🕎','☯️','☦️','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓']},
+  {icon:'🌟',label:'Estrelas',emojis:['⭐','🌟','✨','💫','⚡','🔥','🌈','☄️','🌙','🌛','🌜','🌝','🌞','🪐','💥','🌊','🌀','🌤','⛅','🌥','☁️','🌦','🌧','⛈','🌩','🌨','❄️','☃️','⛄','🌬','💨','💧','💦','🫧','☔','⛱','⚡','🌪','🌫','🌈','☀️','🌡']},
+  {icon:'🏆',label:'Prêmios',emojis:['🏆','🥇','🥈','🥉','🏅','🎖','🎗','🎫','🎟','🎪','🤹','🎭','🩰','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🎲','♟','🎯','🎳','🎮','🕹','🧩','🪀','🪁','🎣','🤿','🎽','🎿','🛷','🥌','🪃','🏹','🛡','🪤']},
+  {icon:'🐶',label:'Animais',emojis:['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🦣','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🦬','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐈','🐓','🦃','🦤','🦚','🦜','🦢','🦩','🕊','🐇','🦝','🦨','🦡','🦫','🦦','🦥','🐁','🐀','🐿','🦔']},
+  {icon:'🌸',label:'Plantas',emojis:['🌸','🌺','🌻','🌹','🥀','🌷','🌱','🌲','🌳','🌴','🌵','🎋','🎍','☘️','🍀','🎄','🌾','🌿','🍃','🍂','🍁','🍄','🐚','🪸','💐','🪴','🪨','🪵']},
+  {icon:'🍕',label:'Comida',emojis:['🍕','🍔','🍟','🌭','🌮','🌯','🥙','🧆','🥚','🍳','🥘','🍲','🥣','🥗','🍿','🧂','🥫','🍱','🍘','🍙','🍚','🍛','🍜','🍝','🍠','🍢','🍣','🍤','🍥','🥮','🍡','🥟','🥠','🥡','🦪','🍦','🍧','🍨','🍩','🍪','🎂','🍰','🧁','🥧','🍫','🍬','🍭','🍮','🍯','🍼','🥛','☕','🍵','🧃','🥤','🧋','🍶','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧉','🍾']},
+  {icon:'⚽',label:'Esportes',emojis:['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🎽','🎿','🛷','🥌','🪂','🏋️','🤸','🤼','🤺','🤾','⛹️','🏌️','🏇','🧘','🏊','🤽','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉']},
+  {icon:'🚀',label:'Viagens',emojis:['🚀','✈️','🛸','🚁','🛺','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚝','🚞','🚋','🚌','🚍','🚎','🚐','🚑','🚒','🚓','🚔','🚕','🚖','🚗','🚘','🚙','🛻','🚚','🛵','🏍','🚲','🛴','🛹','🛼','🚏','🛣','🛤','⛽','🚦','🚥','🚧','⚓','🛟','⛵','🚤','🛥','🛳','⛴','🚢','🛶']},
+  {icon:'💎',label:'Objetos',emojis:['💎','💍','👑','🏺','🪬','🧿','💈','⚗️','🔭','🔬','🩺','🩻','🩹','💊','💉','🩸','🧬','🦠','🧫','🧪','🌡','🧲','🔋','🔌','💡','🔦','🕯','🪔','🧯','🛢','💰','💴','💵','💶','💷','💸','💳','🪙','💹','📈','📉','📊','📜','📃','📑','🗒','🗓','📆','📅','🗑','📁','📂','🗂','🗃','🗄','📋','📊','📝']},
+  {icon:'🎉',label:'Celebração',emojis:['🎉','🎊','🎈','🎁','🎀','🎗','🎟','🎫','🎖','🏆','🥇','🎪','🤹','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🎷','🎺','🎸','🎻','🎲','🃏','🀄','🎴','🎯','🎳','🎮','🕹','🧸','🪆','🪅','🎠','🎡','🎢','🎰','🎑','🎆','🎇','🧨','✨','🎋','🎍','🎎','🎐','🧧','🎏']},
+];
+let _neSelected='';
+function openNickEmojiPicker(){
+  _neSelected=LS.get('tc_nick_emoji','');
+  _neBuildCats();_neShowCat(0);_neUpdateCurrent();
+  document.getElementById('nickEmojiOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeNickEmojiPicker(){
+  document.getElementById('nickEmojiOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function clearNickEmoji(){_neSelected='';_neApply();}
+function _neUpdateCurrent(){
+  const el=document.getElementById('neCurrent');
+  el.textContent=_neSelected||'(nenhum)';
+}
+function _neBuildCats(){
+  const c=document.getElementById('neCats');c.innerHTML='';
+  NE_CATS.forEach((cat,i)=>{
+    const b=document.createElement('button');b.className='ne-cat-btn';b.title=cat.label;b.textContent=cat.icon;
+    b.onclick=()=>{document.querySelectorAll('.ne-cat-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');_neShowCat(i);};
+    c.appendChild(b);
+  });
+  c.children[0]&&c.children[0].classList.add('active');
+}
+function _neShowCat(idx){
+  const g=document.getElementById('neGrid');g.innerHTML='';
+  NE_CATS[idx].emojis.forEach(e=>{
+    const b=document.createElement('button');
+    b.className='ne-item'+(_neSelected===e?' selected':'');
+    b.textContent=e;
+    b.onclick=()=>{_neSelected=e;_neUpdateCurrent();_neApply();};
+    g.appendChild(b);
+  });
+}
+function _neApply(){
+  LS.set('tc_nick_emoji',_neSelected);
+  const nick=LS.get('tc_nick','SeuNick');
+  document.getElementById('avNick').textContent=(_neSelected?_neSelected+' ':'')+nick;
+  const eb=document.getElementById('nickEmojiBtn');
+  if(eb) eb.textContent=(_neSelected||'😀')+' Emoji do nick';
+  closeNickEmojiPicker();
+}
+function updateBioCount(){document.getElementById('bioCount').textContent=document.getElementById('bioInput').value.length;}
+
+async function saveProfile(){
+  const nick=document.getElementById('nickInput').value.trim();
+  if(nick&&nick.length<2){showToast('Nick muito curto (mín. 2 caracteres)','e');return;}
+  const patch={
+    bio:document.getElementById('bioInput').value.trim(),
+    age:document.getElementById('ageInput').value.trim(),
+    city:document.getElementById('cityInput').value.trim(),
+    gender:document.getElementById('genderInput').value,
+    job:document.getElementById('jobInput').value.trim(),
+    interests:document.getElementById('interestsInput').value.trim(),
+    nick_emoji:LS.get('tc_nick_emoji','')
+  };
+  if(nick) patch.nick=nick;
+  try{
+    await API.updateProfile(patch);
+    if(nick) LS.set('tc_nick',nick);
+    LS.set('tc_bio',patch.bio);LS.set('tc_age',patch.age);LS.set('tc_city',patch.city);
+    LS.set('tc_gender',patch.gender);LS.set('tc_job',patch.job);LS.set('tc_interests',patch.interests);
+    const ne=LS.get('tc_nick_emoji','');
+    document.getElementById('avNick').textContent=(ne?ne+' ':'')+(nick||LS.get('tc_nick',''));
+    showToast('✅ Perfil salvo com sucesso!','s');
+  }catch(e){ showToast(e.message||'Erro ao salvar','e'); }
+}
+
+/* ── Password ────────────────────────────────────────── */
+function togglePw(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.textContent=i.type==='password'?'👁':'🙈';}
+function checkPwStrength(){
+  const v=document.getElementById('pwNova').value;
+  const w=document.getElementById('pwStrWrap');w.style.display=v.length?'block':'none';
+  let s=0;if(v.length>=6)s++;if(v.length>=10)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  const f=document.getElementById('pwFill'),l=document.getElementById('pwLbl');
+  f.style.width=Math.round(s/5*100)+'%';
+  if(s<=1){f.style.background='#ef4444';l.textContent='Fraca';l.style.color='#ef4444';}
+  else if(s<=3){f.style.background='#f59e0b';l.textContent='Moderada';l.style.color='#f59e0b';}
+  else{f.style.background='#10b981';l.textContent='Forte';l.style.color='#10b981';}
+}
+async function changePassword(){
+  const a=document.getElementById('pwAtual').value;
+  const n=document.getElementById('pwNova').value;
+  const c=document.getElementById('pwConf').value;
+  if(!a){showToast('Digite sua senha atual','e');return;}
+  if(!n||n.length<6){showToast('Nova senha: mínimo 6 caracteres','e');return;}
+  if(n!==c){showToast('As senhas não coincidem','e');return;}
+  try{
+    await API.changePassword(a,n);
+    document.getElementById('pwAtual').value='';
+    document.getElementById('pwNova').value='';
+    document.getElementById('pwConf').value='';
+    document.getElementById('pwStrWrap').style.display='none';
+    showToast('✅ Senha alterada com sucesso!','s');
+  }catch(e){ showToast(e.message||'Erro ao alterar senha','e'); }
+}
+
+/* ── Avatar modal ────────────────────────────────────── */
+const EMOJI_CATS=[
+  {l:'😊 Rostos',e:['😊','😂','😎','🤩','😍','🥳','😈','👻','😡','😴','🤔','😏','🥺','😤','😱','🤗','😜','🤪','😋','🤓']},
+  {l:'🦊 Animais',e:['🦊','🐱','🐶','🦁','🐺','🦅','🦋','🐝','🦈','🐉','🦄','🦀','🐬','🦚','🦜','🦉','🐸','🐧','🦏','🐼']},
+  {l:'⚡ Símbolos',e:['⚡','🔥','❄️','💧','🌊','🌸','🌟','💎','🏆','💪','👑','🚀','💫','⭐','🎯','🎲','🎭','🎵','🎮','🌈']},
+  {l:'🤖 Outros',e:['🤖','👽','🧙','🧛','🥷','🦸','🧝','🧟','💀','🎃','🤡','👾','🎅','🧜','🧚','🧞','🦹','🕵️','👮','🧑‍💻']},
+];
+let avCatIdx=0;
+function openAvatarModal(){
+  // Default to Avatar tab
+  document.querySelectorAll('.av-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.av-panel').forEach(p=>p.classList.remove('active'));
+  const tabAvatar=document.querySelector('.av-tab[onclick*="Avatar"]');
+  if(tabAvatar)tabAvatar.classList.add('active');
+  const panelAvatar=document.getElementById('avPanelAvatar');
+  if(panelAvatar)panelAvatar.classList.add('active');
+  buildAvatarImgGrid();
+  document.getElementById('avOverlay').classList.add('show');
+}
+function closeAvatarModal(){document.getElementById('avOverlay').classList.remove('show');}
+function switchAvTab(tab,btn){
+  document.querySelectorAll('.av-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
+  document.querySelectorAll('.av-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('avPanel'+tab).classList.add('active');
+  if(tab==='Avatar') buildAvatarImgGrid();
+}
+function buildAvModal(){
+  const cats=document.getElementById('avEmojiCats');
+  cats.innerHTML=EMOJI_CATS.map((c,i)=>`<div class="ecat${i===avCatIdx?' active':''}" onclick="avLoadCat(${i},this)">${c.l.split(' ')[0]}</div>`).join('');
+  avLoadGrid(avCatIdx);
+}
+function avLoadCat(i,btn){avCatIdx=i;document.querySelectorAll('.ecat').forEach(b=>b.classList.remove('active'));btn.classList.add('active');avLoadGrid(i);}
+function avLoadGrid(i){
+  const cur=avSelected||LS.get('tc_avatar','😊');
+  document.getElementById('avEmojiGrid').innerHTML=EMOJI_CATS[i].e.map(e=>`<div class="eg-item${e===cur?' selected':''}" onclick="selEmoji('${e}')">${e}</div>`).join('');
+}
+function selEmoji(e){avSelected=e;photoDataUrl=null;document.querySelectorAll('.eg-item').forEach(el=>el.classList.toggle('selected',el.textContent===e));}
+function handlePhotoUpload(inp){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>10*1024*1024){showToast('Imagem muito grande (máx. 10 MB)','e');inp.value='';return;}
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=new Image();
+    img.onload=function(){
+      const size=256;
+      const canvas=document.createElement('canvas');
+      canvas.width=size;canvas.height=size;
+      const ctx=canvas.getContext('2d');
+      // Cortar centro da imagem (object-fit:cover)
+      const scale=Math.max(size/img.width,size/img.height);
+      const sw=size/scale,sh=size/scale;
+      const sx=(img.width-sw)/2,sy=(img.height-sh)/2;
+      ctx.beginPath();ctx.arc(size/2,size/2,size/2,0,Math.PI*2);ctx.clip();
+      ctx.drawImage(img,sx,sy,sw,sh,0,0,size,size);
+      photoDataUrl=canvas.toDataURL('image/jpeg',0.88);
+      avSelected=null;
+      document.getElementById('photoPreview').innerHTML=`<img class="photo-preview-img" src="${photoDataUrl}" alt="preview"/>`;
+      document.querySelectorAll('.av-tab').forEach((t,i)=>t.classList.toggle('active',i===1));
+      document.querySelectorAll('.av-panel').forEach((p,i)=>p.classList.toggle('active',i===1));
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(f);
+}
+// ── Avatar images from folder ──────────────────────────
+// Nomes dos arquivos na pasta avatar/
+const AVATAR_FILES = [
+  '1.svg','2.svg','3.svg','4.svg','5.svg',
+  '6.svg','7.svg','8.svg','9.svg','10.svg',
+  '11.svg','12.svg','13.svg','14.svg','15.svg',
+  '16.svg','17.svg','18.svg','19.svg','20.svg'
+];
+let avImgSelected = null; // URL da imagem selecionada
+
+function buildAvatarImgGrid(){
+  const grid = document.getElementById('avatarImgGrid');
+  if(!grid) return;
+  const curPhoto = LS.get('tc_photo','');
+  grid.innerHTML = AVATAR_FILES.map((f,i) => {
+    const url = 'avatar/' + f;
+    const isSel = curPhoto === url;
+    return `<div class="av-img-item${isSel?' selected':''}" id="avimg-${i}" onclick="selAvatarImg('${url}',${i})">
+      <img src="${url}" alt="avatar ${i+1}" onerror="this.parentElement.style.display='none'"/>
+    </div>`;
+  }).join('');
+}
+
+function selAvatarImg(url, idx){
+  avImgSelected = url;
+  avSelected = null;
+  photoDataUrl = null;
+  document.querySelectorAll('.av-img-item').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('avimg-'+idx)?.classList.add('selected');
+}
+
+async function applyAvatar(){
+  const avEl=document.getElementById('avDisplay');
+  let patch=null;
+  if(avImgSelected){
+    LS.set('tc_photo',avImgSelected);LS.set('tc_avatar','📷');
+    avEl.innerHTML='<img src="'+avImgSelected+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="av"/>';
+    patch={photo_url:avImgSelected,avatar:'📷'}; avImgSelected=null;
+  } else if(photoDataUrl){
+    LS.set('tc_photo',photoDataUrl);LS.set('tc_avatar','📷');
+    avEl.innerHTML='<img src="'+photoDataUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="av"/>';
+    patch={photo_url:photoDataUrl,avatar:'📷'};
+  } else if(avSelected){
+    LS.set('tc_avatar',avSelected);LS.set('tc_photo','');
+    avEl.textContent=avSelected;
+    patch={avatar:avSelected,photo_url:''};
+  }
+  closeAvatarModal();
+  if(patch){ try{ await API.updateProfile(patch); showToast('✅ Avatar atualizado!','s'); }catch(e){ showToast(e.message||'Erro','e'); } }
+}
+document.getElementById('avOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('avOverlay'))closeAvatarModal();});
+
+/* ════════════════════════════════════════════════════════
+   AUDIO PLAYER ENGINE
+════════════════════════════════════════════════════════ */
+/* ── Áudio do Perfil — apenas upload ─────────────────── */
+function apFmtSize(b){if(b<1024*1024)return(b/1024).toFixed(0)+' KB';return(b/(1024*1024)).toFixed(1)+' MB';}
+
+function apLoadFile(inp){
+  const f=inp.files[0];if(!f)return;
+  const isMP3=f.type==='audio/mpeg'||f.type==='audio/mp3'||f.name.toLowerCase().endsWith('.mp3');
+  if(!isMP3){showToast('Apenas arquivos MP3 são aceitos','e');inp.value='';return;}
+  if(f.size>7*1024*1024){showToast('Arquivo muito grande (máx. 7 MB)','e');inp.value='';return;}
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const base64=ev.target.result;
+    try{
+      localStorage.setItem('tc_profile_audio_b64',base64);
+      localStorage.setItem('tc_profile_audio_name',f.name);
+      localStorage.setItem('tc_profile_audio_size',apFmtSize(f.size));
+    }catch(err){showToast('Não foi possível salvar (arquivo grande demais)','i');return;}
+    apShowLoaded(f.name,apFmtSize(f.size));
+    API.updateProfile({profile_audio:base64, profile_audio_name:f.name}).then(function(){ showToast('🎵 Áudio salvo no perfil!','i'); }).catch(function(e){ showToast(e.message||'Erro ao salvar áudio','e'); });
+  };
+  reader.readAsDataURL(f);
+  inp.value='';
+}
+
+function apDragOver(e){e.preventDefault();document.getElementById('apUpload').classList.add('drag');}
+function apDragLeave(){document.getElementById('apUpload').classList.remove('drag');}
+function apDrop(e){
+  e.preventDefault();document.getElementById('apUpload').classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  const isMP3=f&&(f.type==='audio/mpeg'||f.type==='audio/mp3'||f.name.toLowerCase().endsWith('.mp3'));
+  if(!isMP3){showToast('Apenas arquivos MP3 são aceitos','e');return;}
+  if(f.size>7*1024*1024){showToast('Arquivo muito grande (máx. 7 MB)','e');return;}
+  const inp=document.getElementById('apFileInput');
+  const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;
+  apLoadFile(inp);
+}
+
+function apShowLoaded(name,size){
+  document.getElementById('apTrackName').textContent='🎵 '+name.replace(/\.[^.]+$/,'');
+  document.getElementById('apTrackSize').textContent=size+' · MP3';
+  document.getElementById('apRemove').style.display='block';
+}
+
+function apRemoveAudio(){
+  try{localStorage.removeItem('tc_profile_audio_b64');localStorage.removeItem('tc_profile_audio_name');localStorage.removeItem('tc_profile_audio_size');}catch(e){}
+  document.getElementById('apTrackName').textContent='Clique ou arraste um arquivo MP3';
+  document.getElementById('apTrackSize').textContent='Apenas MP3 — máx. 7 MB';
+  document.getElementById('apRemove').style.display='none';
+  showToast('Áudio removido','i');
+}
+
+
+
+/* ── Toast ───────────────────────────────────────────── */
+function showToast(msg,type='i'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type;t.style.opacity='1';
+  clearTimeout(t._x);t._x=setTimeout(()=>t.style.opacity='0',2800);
+}
+</script>
+<!-- NICK EMOJI PICKER -->
+<div id="nickEmojiOverlay" onclick="if(event.target===this)closeNickEmojiPicker()">
+  <div id="nickEmojiPanel">
+    <div class="ne-handle"></div>
+    <div class="ne-title">😀 Escolha o emoji do seu nick</div>
+    <div class="ne-current" id="neCurrent"></div>
+    <button class="ne-clear" onclick="clearNickEmoji()">✖ Remover emoji</button>
+    <div class="ne-cats" id="neCats"></div>
+    <div class="ne-grid" id="neGrid"></div>
+  </div>
+</div>
+
+<script>
+/* === Logo do chat: aplica o logo enviado no painel (lido do servidor) === */
+(function(){
+  if(typeof API==='undefined') return;
+  API.getSystemConfig().then(function(d){
+    var url=d&&d.config&&d.config.logo_url; if(!url) return;
+    try{ localStorage.setItem('tc_logo', url); }catch(e){}
+    if(typeof applyLogo==='function'){ try{ applyLogo(); }catch(e){} }
+    document.querySelectorAll('.tc-logo').forEach(function(el){ el.innerHTML='<img src="'+url+'" alt="logo" style="height:32px;max-width:170px;object-fit:contain;display:block">'; });
+    var lt=document.querySelector('.logo-text');
+    if(lt){ lt.innerHTML='<img src="'+url+'" alt="logo" style="height:44px;max-width:240px;object-fit:contain">'; }
+    if(!document.querySelector('.tc-logo')){
+      var lg=document.querySelector('.logo');
+      if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
+    }
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>

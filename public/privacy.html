@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chat Supremo — Política de Privacidade</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#dce8f5;--surface:#fff;--surface2:#e8f2ff;
+  --border:#b8d0e8;--purple:#7c3aed;--purple2:#6d28d9;--purple3:#a78bfa;
+  --blue:#2563eb;--blue2:#1d4ed8;
+  --text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;
+  --green:#10b981;--red:#ef4444;
+  --radius:14px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px 48px}
+
+.back-btn{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.18);border:none;color:#fff;
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:.15s;flex-shrink:0;text-decoration:none;
+}
+.back-btn:hover{background:rgba(255,255,255,.28)}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:30px 28px;margin-bottom:16px;
+  box-shadow:0 2px 8px rgba(37,99,235,.06);
+}
+
+h1{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--purple);margin-bottom:6px}
+.updated{font-size:11px;color:var(--text3);margin-bottom:24px}
+
+h2{
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);
+  margin:22px 0 8px;padding-left:10px;
+  border-left:3px solid var(--purple);text-transform:uppercase;letter-spacing:.4px;
+}
+
+p{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:10px}
+ul{font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:10px;padding-left:20px}
+ul li{margin-bottom:5px}
+
+.highlight{
+  background:var(--surface2);border-left:3px solid var(--purple3);
+  padding:10px 14px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  font-size:12px;color:var(--text2);margin:12px 0;
+}
+.highlight.red{border-left-color:var(--red);color:#b91c1c;background:#fef2f2}
+.highlight.green{border-left-color:var(--green);color:#065f46;background:#ecfdf5}
+
+footer{
+  text-align:center;font-size:11px;color:var(--text3);
+  margin-top:24px;padding-top:16px;border-top:1px solid var(--border);
+}
+footer a{color:var(--purple);text-decoration:none}
+footer a:hover{color:var(--purple2)}
+</style>
+</head>
+<body>
+<div style="background:#0f1f3d;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.22)">
+  <button onclick="history.back()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0" onmouseover="this.style.background='rgba(255,255,255,.28)'" onmouseout="this.style.background='rgba(255,255,255,.18)'">‹</button>
+  <span style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff">Política de Privacidade</span>
+  <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:32px;object-fit:contain;margin-left:auto">
+</div>
+
+<div class="wrap" style="padding-top:30px">
+
+  <div class="card">
+    <h1>🔒 Política de Privacidade</h1>
+    <div class="updated">Última atualização: <span id="lastUpdate"></span></div>
+
+    <p>Esta Política de Privacidade descreve como o <strong>Chat Supremo</strong> coleta, utiliza, armazena e protege as informações dos usuários. Ao utilizar a plataforma, você concorda com os termos aqui descritos.</p>
+
+    <h2>1. Dados Coletados</h2>
+    <p>Coletamos as seguintes informações ao criar sua conta ou utilizar a plataforma:</p>
+    <ul>
+      <li>Nick (nome de usuário) e senha (armazenada de forma criptografada);</li>
+      <li>Data de aniversário (opcional, fornecida no cadastro);</li>
+      <li>Endereço IP e dados de conexão (para segurança e moderação);</li>
+      <li>ASN (Autonomous System Number) e informações de localização aproximada;</li>
+      <li>Tipo de dispositivo e navegador utilizado;</li>
+      <li>Arquivos, imagens, áudios e vídeos enviados na plataforma.</li>
+    </ul>
+
+    <h2>2. Como Utilizamos os Dados</h2>
+    <p>As informações coletadas são utilizadas para:</p>
+    <ul>
+      <li>Autenticação e manutenção da conta do usuário;</li>
+      <li>Moderação e segurança da plataforma;</li>
+      <li>Detecção e prevenção de atividades ilícitas ou suspeitas;</li>
+      <li>Bloqueio de acessos via VPN, proxies e conexões suspeitas;</li>
+      <li>Cumprimento de obrigações legais e atendimento a autoridades competentes.</li>
+    </ul>
+
+    <h2>3. Armazenamento e Segurança</h2>
+    <p>Adotamos medidas técnicas para proteger seus dados:</p>
+    <ul>
+      <li>Senhas criptografadas com bcrypt;</li>
+      <li>Comunicação via WebSocket seguro;</li>
+      <li>Mensagens públicas são excluídas automaticamente após 10 minutos.</li>
+    </ul>
+    <div class="highlight green">✅ Seus dados são armazenados de forma segura e não são vendidos a terceiros.</div>
+
+    <h2>4. Compartilhamento de Dados</h2>
+    <p>Não vendemos, alugamos ou compartilhamos seus dados com terceiros, exceto:</p>
+    <ul>
+      <li>Quando exigido por lei ou ordem judicial;</li>
+      <li>Para cumprimento de denúncias às autoridades competentes em casos de violação grave dos Termos de Uso;</li>
+      <li>Para proteção dos direitos, propriedade ou segurança da plataforma e seus usuários.</li>
+    </ul>
+
+    <h2>5. Monitoramento de Mensagens</h2>
+    <p>A equipe de administração e supervisão pode monitorar mensagens públicas e privadas para fins de moderação e segurança. Ao utilizar a plataforma, o usuário declara ciência e concordância com este monitoramento.</p>
+    <div class="highlight red">🚨 Mensagens com conteúdo ilegal, especialmente envolvendo menores, serão registradas e reportadas às autoridades competentes.</div>
+
+    <h2>6. Cookies e Armazenamento Local</h2>
+    <p>A plataforma utiliza <strong>localStorage</strong> do navegador para armazenar dados de sessão, preferências e configurações do usuário. Não utilizamos cookies de rastreamento ou publicidade.</p>
+
+    <h2>7. Direitos do Usuário</h2>
+    <p>O usuário tem direito a:</p>
+    <ul>
+      <li>Solicitar exclusão da sua conta e dados associados;</li>
+      <li>Acessar informações sobre quais dados foram coletados;</li>
+      <li>Corrigir dados incorretos no perfil.</li>
+    </ul>
+    <div class="highlight">📩 Para exercer estes direitos, entre em contato com a administração através do chat.</div>
+
+    <h2>8. Menores de Idade</h2>
+    <p>A plataforma é destinada exclusivamente a maiores de 18 anos. Não coletamos intencionalmente dados de menores. Caso identifiquemos o cadastro de um menor, a conta será imediatamente removida e os dados excluídos.</p>
+
+    <h2>9. Alterações desta Política</h2>
+    <p>Esta Política de Privacidade pode ser atualizada a qualquer momento. O uso contínuo da plataforma após alterações implica em aceitação automática da nova versão.</p>
+
+    <h2>10. Contato</h2>
+    <p>Dúvidas sobre esta Política de Privacidade podem ser enviadas diretamente à administração através da opção <strong>Contato / Reclamação</strong> disponível no chat.</p>
+
+  </div>
+
+  <footer>
+    Chat Supremo © <span id="year"></span> — Todos os direitos reservados. &nbsp;|&nbsp;
+    <a href="terms.html">Termos de Uso</a> &nbsp;|&nbsp;
+    <a href="login.html">Voltar ao Login</a>
+  </footer>
+</div>
+<script>
+document.getElementById('lastUpdate').textContent = new Date().toLocaleDateString('pt-BR');
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+<script src="logo.js"></script>
+<script>
+  window.TC_API_URL = "https://SEU-BACKEND.up.railway.app/api";
+  window.TC_WS_URL  = "wss://SEU-BACKEND.up.railway.app/ws";
+</script>
+<script src="api.js"></script>
+</body>
+</html>

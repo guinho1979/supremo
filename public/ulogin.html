@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+<script>
+(function(){
+  try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
+})();
+</script>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chat Supremo — Últimos Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#dce8f5;--surface:#fff;--surface2:#e8f2ff;
+  --border:#b8d0e8;--purple:#7c3aed;--purple2:#6d28d9;--purple3:#a78bfa;
+  --blue:#2563eb;--blue2:#1d4ed8;
+  --text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;
+  --green:#10b981;--red:#ef4444;
+  --radius:14px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+
+/* HEADER — igual ao perfil.html */
+.page-header{background:#0f1f3d;border-bottom:1px solid #5b21b6;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.22)}
+.back-btn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
+.back-btn:hover{background:rgba(255,255,255,.28)}
+.page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;flex:1}
+.header-count{font-size:11px;color:rgba(255,255,255,.75);font-family:'Syne',sans-serif;font-weight:700}
+
+/* CONTENT */
+.content{padding:16px;display:flex;flex-direction:column;gap:14px;max-width:480px;margin:0 auto;width:100%}
+
+/* CARD — igual ao perfil.html */
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+.card-header{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:7px}
+.card-header .icon{font-size:14px}
+
+/* LISTA DE LOGINS */
+.login-list{display:flex;flex-direction:column}
+.login-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 16px;
+  border-bottom:.5px solid var(--border);
+  transition:.15s;
+}
+.login-item:last-child{border-bottom:none}
+.login-item:hover{background:var(--surface2)}
+
+.login-rank{
+  width:22px;text-align:center;
+  font-size:10px;font-weight:700;color:var(--text3);
+  font-family:'Syne',sans-serif;flex-shrink:0;
+}
+
+.login-av{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--surface2);border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;overflow:hidden;flex-shrink:0;
+}
+.login-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+
+.login-info{flex:1;min-width:0}
+.login-nick{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:800;
+  color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:2px;
+}
+.login-badge{
+  display:inline-block;font-size:8px;padding:2px 8px;border-radius:20px;
+  font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.3px;
+  vertical-align:middle;margin-left:5px;
+}
+.b-admin{background:#10b981;color:#fff}
+.b-vip{background:#2563eb;color:#93c5fd}
+.b-premium{background:#f59e0b;color:#fff}
+.b-mod{background:#6b7280;color:#fff}
+.b-dj{background:#a855f7;color:#fff}
+.b-user{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+.b-guest{background:#9ca3af;color:#fff}
+
+.login-time{
+  font-size:13px;color:var(--text2);font-weight:700;
+  white-space:nowrap;flex-shrink:0;text-align:right;
+  font-family:'DM Sans',sans-serif;
+}
+
+/* Dot online */
+.online-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  flex-shrink:0;
+  animation:blink 1.5s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Separador de seção */
+.section-sep{
+  padding:8px 16px 6px;
+  font-size:9px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.6px;
+  background:var(--surface2);
+  border-bottom:.5px solid var(--border);
+  font-family:'Syne',sans-serif;
+}
+
+/* INFO BANNER */
+.info-banner{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 14px;
+  font-size:11px;color:var(--text2);
+}
+.info-banner .info-icon{font-size:16px;flex-shrink:0}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;
+  z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;
+  background:#0d2a5e;color:#bfdbfe;
+}
+</style>
+<script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
+<script src="api.js"></script>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <button class="back-btn" onclick="history.back()" title="Voltar">‹</button>
+  <span class="page-title">🕐 Últimos Online</span>
+  <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:36px;object-fit:contain;flex-shrink:0"/>
+</div>
+
+<div class="content">
+
+  <!-- INFO -->
+  <div class="info-banner">
+    <span class="info-icon">ℹ️</span>
+    <span>Exibe os últimos <strong>30 usuários</strong> que fizeram login no chat, com o tempo decorrido desde o acesso.</span>
+  </div>
+
+  <!-- LISTA -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">👥</span> Logins recentes
+    </div>
+    <div class="login-list" id="loginList">
+      <!-- preenchido via JS -->
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Storage helper ──────────────────────────────────────────────
+const LS = {
+  get:(k,d='')=>{ try{return localStorage.getItem(k)??d}catch(e){return d} },
+  set:(k,v)=>{ try{localStorage.setItem(k,String(v))}catch(e){} }
+};
+
+// ── Dados demo de últimos logins (fallback) ─────────────────────
+// Cada item: { nick, av, avBg, color, role, tsAgo } (tsAgo = minutos atrás)
+const DEMO_LOGINS = [
+  {nick:'KarenAdmin', av:'🌟', role:'admin',   color:'#7c3aed', avBg:'#ede9fe', tsAgo:1},
+  {nick:'DJMaster',   av:'🎧', role:'dj',      color:'#a855f7', avBg:'#f3e8ff', tsAgo:2},
+  {nick:'alexvip',    av:'⚡', role:'vip',     color:'#2563eb', avBg:'#dbeafe', tsAgo:4},
+  {nick:'PauloXX',    av:'👑', role:'premium', color:'#f59e0b', avBg:'#fef3c7', tsAgo:6},
+  {nick:'Mari_s',     av:'🌸', role:'user',    color:'#ec4899', avBg:'#fce7f3', tsAgo:9},
+  {nick:'Zé_games',  av:'🎮', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:12},
+  {nick:'Carol99',    av:'🦋', role:'vip',     color:'#2563eb', avBg:'#dbeafe', tsAgo:14},
+  {nick:'RafaMod',    av:'🛡', role:'mod',     color:'#6b7280', avBg:'#e8f2ff', tsAgo:17},
+  {nick:'Lucas_pr',   av:'💎', role:'premium', color:'#f59e0b', avBg:'#fef3c7', tsAgo:19},
+  {nick:'Ana_top',    av:'🌺', role:'user',    color:'#ec4899', avBg:'#fce7f3', tsAgo:22},
+  {nick:'Bruno_dj',   av:'🎵', role:'dj',      color:'#a855f7', avBg:'#f3e8ff', tsAgo:25},
+  {nick:'Fernanda_r', av:'🦄', role:'vip',     color:'#2563eb', avBg:'#dbeafe', tsAgo:28},
+  {nick:'TiagoX',     av:'🔥', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:31},
+  {nick:'CristinaVip',av:'💅', role:'vip',     color:'#2563eb', avBg:'#dbeafe', tsAgo:35},
+  {nick:'Marcos_23',  av:'🏆', role:'premium', color:'#f59e0b', avBg:'#fef3c7', tsAgo:38},
+  {nick:'JuliaPR',    av:'🌙', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:41},
+  {nick:'RodrigoM',   av:'⚽', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:44},
+  {nick:'LarissaTop', av:'🌷', role:'vip',     color:'#2563eb', avBg:'#dbeafe', tsAgo:48},
+  {nick:'Eduardo_g',  av:'🎯', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:52},
+  {nick:'Patricia_v', av:'🧁', role:'premium', color:'#f59e0b', avBg:'#fef3c7', tsAgo:55},
+  {nick:'Felipe_dj',  av:'🎸', role:'dj',      color:'#a855f7', avBg:'#f3e8ff', tsAgo:60},
+  {nick:'Vitoria_s',  av:'🦋', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:65},
+  {nick:'Gustavo_r',  av:'🚀', role:'vip',     color:'#2563eb', avBg:'#dbeafe', tsAgo:70},
+  {nick:'Camila_99',  av:'🌻', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:76},
+  {nick:'Henrique_x', av:'⚡', role:'premium', color:'#f59e0b', avBg:'#fef3c7', tsAgo:83},
+  {nick:'Rebeca_top', av:'🎀', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:90},
+  {nick:'Daniel_m',   av:'🏄', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:98},
+  {nick:'Aline_vip',  av:'🌺', role:'vip',     color:'#2563eb', avBg:'#dbeafe', tsAgo:107},
+  {nick:'Leonardo_f', av:'🦅', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:118},
+  {nick:'Bianca_s',   av:'🌸', role:'user',    color:'#7a90b0', avBg:'#e8f2ff', tsAgo:130},
+];
+
+// ── Rótulo de badge por role ────────────────────────────────────
+function badgeHtml(role){
+  const map={
+    admin:  ['ADMIN',   'b-admin'],
+    mod:    ['MOD',     'b-mod'],
+    dj:     ['DJ',      'b-dj'],
+    vip:    ['VIP',     'b-vip'],
+    premium:['PREMIUM', 'b-premium'],
+    guest:  ['VISIT.',  'b-guest'],
+    user:   ['',        'b-user'],
+  };
+  const [label, cls] = map[role] || ['', 'b-user'];
+  if(!label) return '';
+  return `<span class="login-badge ${cls}">${label}</span>`;
+}
+
+// ── Formata tempo ───────────────────────────────────────────────
+function fmtTime(min){
+  if(min === 0) return 'agora';
+  if(min < 60)  return min + 'min';
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if(h < 24)    return m > 0 ? h + 'hr ' + m + 'min' : h + 'hr';
+  const d = Math.floor(h / 24);
+  return d + 'd';
+}
+
+// ── Seção separator de tempo ────────────────────────────────────
+function sectionLabel(min){
+  if(min <  30) return 'Agora pouco (menos de 30 min)';
+  if(min <  60) return 'Última meia hora';
+  if(min < 180) return 'Últimas 3 horas';
+  if(min < 720) return 'Últimas 12 horas';
+  return 'Mais de 12 horas atrás';
+}
+
+// ── Renderizar lista ────────────────────────────────────────────
+function render(logins){
+  const list = document.getElementById('loginList');
+  list.innerHTML = '';
+  
+
+  let lastSec = null;
+
+  logins.forEach((u, i) => {
+    const sec = sectionLabel(u.tsAgo);
+
+    // Separador de seção
+    if(sec !== lastSec){
+      const sep = document.createElement('div');
+      sep.className = 'section-sep';
+      sep.textContent = sec;
+      list.appendChild(sep);
+      lastSec = sec;
+    }
+
+    const t = fmtTime(u.tsAgo);
+    const isOnline = u.tsAgo < 5;
+    const avHtml = u.photo
+      ? `<img src="${u.photo}" alt="${u.nick}"/>`
+      : (u.av || u.nick.slice(0,2).toUpperCase());
+
+    const item = document.createElement('div');
+    item.className = 'login-item';
+    item.innerHTML = `
+      
+      <div class="login-av" style="background:${u.avBg||'#e8f2ff'};border-color:${u.color||'#b8d0e8'}">${avHtml}</div>
+      <div class="login-info">
+        <div class="login-nick">
+          ${u.nickEmoji?`<span style="font-size:15px;margin-right:3px">${u.nickEmoji}</span>`:''}${u.nick}${badgeHtml(u.role)}
+        </div>
+        <div style="font-size:10px;color:var(--text3);font-weight:500">
+          ${isOnline ? '🟢 Online agora' : '⏱ Último acesso'}
+        </div>
+      </div>
+      <div class="login-time" style="${isOnline ? 'color:var(--green)' : ''}">
+        ${isOnline ? '<span class="online-dot" style="display:inline-block;flex-shrink:0;margin-bottom:2px"></span><br>' + t : t}
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ── Init ────────────────────────────────────────────────────────
+(function init(){
+  // Tenta ler logins reais do localStorage (chave tc_login_history)
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem('tc_login_history') || 'null');
+  } catch(e){}
+
+  const logins = (saved && Array.isArray(saved) && saved.length > 0)
+    ? saved.slice(0, 30)
+    : DEMO_LOGINS;
+
+  // Inject nickEmoji from localStorage for the current user (first entry)
+  try {
+    const curNick = localStorage.getItem('tc_nick') || '';
+    const curEmoji = localStorage.getItem('tc_nick_emoji') || '';
+    if(curNick && logins.length > 0){
+      const me = logins.find(u => u.nick === curNick);
+      if(me && curEmoji) me.nickEmoji = curEmoji;
+    }
+  } catch(e){}
+
+  render(logins);
+})();
+</script>
+<script>
+/* === Últimos online reais === */
+(function(){
+  if(typeof API==='undefined' || typeof render!=='function') return;
+  var RC={admin:'#7c3aed',supervisor:'#ef4444',dj:'#a855f7',vip:'#2563eb',premium:'#f59e0b',mod:'#6b7280',user:'#7a90b0',guest:'#7a90b0'};
+  var BG={admin:'#ede9fe',supervisor:'#fee2e2',dj:'#f3e8ff',vip:'#dbeafe',premium:'#fef3c7',mod:'#e8f2ff',user:'#e8f2ff',guest:'#e8f2ff'};
+  API.getRecentOnline().then(function(d){
+    var now=Date.now();
+    var logins=(d.users||[]).map(function(u){
+      var mins=u.last_seen?Math.max(0,Math.round((now-Date.parse(u.last_seen))/60000)):0;
+      return { nick:u.nick, av:(u.nick_emoji||u.avatar||'😊'), role:u.role||'user', color:RC[u.role]||'#7a90b0', avBg:BG[u.role]||'#e8f2ff', tsAgo:mins };
+    });
+    render(logins); // sobrescreve o conteúdo demo com dados reais
+  }).catch(function(){});
+})();
+</script>
+<script>
+/* === Logo do chat: aplica o logo enviado no painel (lido do servidor) === */
+(function(){
+  if(typeof API==='undefined') return;
+  API.getSystemConfig().then(function(d){
+    var url=d&&d.config&&d.config.logo_url; if(!url) return;
+    try{ localStorage.setItem('tc_logo', url); }catch(e){}
+    if(typeof applyLogo==='function'){ try{ applyLogo(); }catch(e){} }
+    document.querySelectorAll('.tc-logo').forEach(function(el){ el.innerHTML='<img src="'+url+'" alt="logo" style="height:32px;max-width:170px;object-fit:contain;display:block">'; });
+    var lt=document.querySelector('.logo-text');
+    if(lt){ lt.innerHTML='<img src="'+url+'" alt="logo" style="height:44px;max-width:240px;object-fit:contain">'; }
+    if(!document.querySelector('.tc-logo')){
+      var lg=document.querySelector('.logo');
+      if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
+    }
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>

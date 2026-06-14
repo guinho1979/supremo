@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+<script>
+(function(){
+  try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
+})();
+</script>
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chat Supremo — Cor do Nick</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#dce8f5;--surface:#ffffff;--surface2:#e8f2ff;--surface3:#c8d8f5;
+  --border:#b8d0e8;--border2:#3a5068;
+  --purple:#7c3aed;--purple2:#6d28d9;--purple3:#a78bfa;
+  --blue:#2563eb;--blue2:#1d4ed8;
+  --text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;
+  --green:#10b981;--red:#ef4444;--gold:#f59e0b;
+  --dark:#1a1735;--dark2:#221f42;--dark3:#2a2560;
+  --radius:14px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+
+/* ── HEADER ── */
+.page-header{
+  background:#0f1f3d;
+  padding:14px 16px;
+  display:flex;align-items:center;gap:10px;
+  position:sticky;top:0;z-index:10;
+  box-shadow:0 2px 12px rgba(0,0,0,.2);
+}
+.back-btn{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.18);border:none;
+  color:#fff;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.15s;flex-shrink:0;
+}
+.back-btn:hover{background:rgba(255,255,255,.28)}
+.page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#fff;flex:1}
+.header-preview{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:800;
+  padding:4px 12px;border-radius:20px;
+  background:#ffffff;
+  color:#fff;white-space:nowrap;overflow:hidden;max-width:120px;
+  text-overflow:ellipsis;
+}
+
+/* ── SECTIONS ── */
+.content{padding:16px;display:flex;flex-direction:column;gap:14px;max-width:480px;margin:0 auto;width:100%}
+.card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden}
+.card-header{
+  padding:12px 16px;
+  background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:800;
+  color:var(--text2);text-transform:uppercase;letter-spacing:.5px;
+  display:flex;align-items:center;gap:7px;
+}
+.card-header .icon{font-size:14px}
+.card-body{padding:16px}
+
+/* ── PREVIEW BOX ── */
+.preview-box{
+  background:#dce8f5;
+  border:1px solid #b8d0e8;
+  border-radius:10px;padding:14px;
+  text-align:center;margin-bottom:16px;
+  position:relative;
+}
+.preview-label{font-size:9px;color:#000000;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.preview-nick{
+  font-family:'Syne',sans-serif;font-size:20px;font-weight:800;
+  display:inline-block;line-height:1.3;
+}
+.preview-bubble{
+  background:#ffffff;border-radius:0 10px 10px 10px;
+  padding:8px 12px;margin-top:10px;
+  border:0.5px solid #b8d0e8;text-align:left;
+}
+.preview-msg-text{font-size:13px;font-weight:700;color:#1a2d42}
+
+/* ── COLOR SWATCHES ── */
+.color-section-label{
+  font-size:10px;color:var(--text3);font-weight:700;
+  text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;
+  display:flex;align-items:center;gap:5px;
+}
+.color-section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.color-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.cswatch{
+  width:28px;height:28px;border-radius:50%;cursor:pointer;
+  border:2.5px solid transparent;transition:.12s;flex-shrink:0;
+  position:relative;
+}
+.cswatch:hover,.cswatch.active{border-color:#1a2d42;transform:scale(1.2);box-shadow:0 0 0 2px rgba(0,0,0,.15)}
+.cswatch.active::after{
+  content:'✓';position:absolute;inset:0;display:flex;
+  align-items:center;justify-content:center;
+  color:#fff;font-size:12px;font-weight:900;
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+}
+
+/* ── GRADIENT SECTION ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:.5px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:12px;color:var(--text2);font-weight:500}
+.toggle{width:38px;height:20px;background:#c8d8f5;border-radius:10px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0;border:2px solid var(--border)}
+.toggle.on{background:var(--purple)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.2s}
+.toggle.on::after{left:20px}
+
+.grad-pickers{display:flex;gap:8px;margin:10px 0 8px}
+.grad-picker-col{flex:1;position:relative}
+.grad-picker-label{font-size:9px;color:#000000;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.grad-picker-btn{
+  display:flex;align-items:center;gap:6px;
+  background:#dce8f5;border:1px solid #b8d0e8;
+  border-radius:8px;padding:8px 10px;cursor:pointer;
+  transition:.15s;
+}
+.grad-picker-btn:hover{border-color:#3a5068}
+.grad-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0}
+.grad-picker-btn span{font-size:11px;color:#000000;flex:1}
+.grad-picker-btn .arr{font-size:10px;color:#000000}
+.grad-color-row{display:flex;flex-wrap:wrap;gap:8px}
+
+/* ── GRAD MODAL ── */
+.grad-modal-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(3px);
+  align-items:flex-end;justify-content:center;
+}
+.grad-modal-overlay.open{display:flex}
+.grad-modal{
+  background:#fff;border-radius:20px 20px 0 0;
+  width:100%;max-width:480px;padding:20px 20px 32px;
+  box-shadow:0 -8px 32px rgba(0,0,0,.2);
+  animation:slideUp .25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.grad-modal-handle{width:36px;height:4px;border-radius:2px;background:#e2e8f0;margin:0 auto 16px}
+.grad-modal-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text);margin-bottom:14px;text-align:center}
+.grad-modal-colors{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+
+/* ── EFFECTS CAROUSEL ── */
+.fx-wrap{background:#ffffff;border:1px solid #b8d0e8;border-radius:10px;overflow:hidden}
+.fx-slide-area{position:relative;overflow:hidden}
+.fx-track{display:flex;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.fx-slide{min-width:100%;padding:16px 14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.fx-slide-label{font-size:9px;font-weight:700;color:#000000;text-transform:uppercase;letter-spacing:.8px;font-family:'Syne',sans-serif}
+.fx-preview{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;line-height:1.4;display:inline-block}
+.fx-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#dce8f5;border-top:1px solid #b8d0e8}
+.fx-nav-btn{background:#7c3aed;border:1px solid #6d28d9;color:#ffffff;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.fx-nav-btn:hover{background:#6d28d9}
+.fx-dots{display:flex;gap:5px}
+.fx-dot{width:6px;height:6px;border-radius:50%;background:#b8d0e8;cursor:pointer;transition:.15s}
+.fx-dot.active{background:#000000;width:14px;border-radius:3px}
+.fx-apply-btn{
+  padding:6px 18px;border-radius:20px;border:none;
+  background:linear-gradient(90deg,#7c3aed,#a855f7);
+  color:#fff;font-size:10px;font-weight:800;
+  cursor:pointer;font-family:'Syne',sans-serif;
+  letter-spacing:.3px;transition:.2s;
+}
+.fx-apply-btn:hover{transform:scale(1.05)}
+.fx-apply-btn.active-fx{background:linear-gradient(90deg,#059669,#10b981);box-shadow:0 0 10px #10b98155}
+.premium-badge{
+  font-size:8px;padding:2px 7px;border-radius:20px;font-weight:700;
+  background:#451a03;color:#fde68a;
+  font-family:'Syne',sans-serif;
+}
+.fx-locked-msg{
+  font-size:11px;color:#000000;
+  background:#dce8f5;border:1px solid #b8d0e8;
+  border-radius:8px;padding:8px 12px;text-align:center;
+}
+
+/* ── Nick Effects CSS ── */
+@keyframes vipGlow{0%,100%{text-shadow:0 0 8px #ff0080,0 0 16px #ff008080}25%{text-shadow:0 0 8px #00cfff,0 0 16px #00cfff80}50%{text-shadow:0 0 8px #00ff88,0 0 16px #00ff8880}75%{text-shadow:0 0 8px #ffe400,0 0 16px #ffe40080}}
+@keyframes fx-fire{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes fx-galaxy{0%,100%{text-shadow:0 0 6px #a855f7,0 0 14px #7c3aed80}50%{text-shadow:0 0 12px #e879f9,0 0 24px #a855f7aa}}
+@keyframes fx-gold{0%,100%{text-shadow:0 0 6px #f59e0b,0 0 14px #d9770680}50%{text-shadow:0 0 12px #fbbf24,0 0 24px #f59e0baa}}
+@keyframes fx-matrix{0%,100%{color:#00ff41;text-shadow:0 0 6px #00ff41,0 0 14px #00cc3380}50%{color:#39ff14;text-shadow:0 0 12px #39ff14,0 0 24px #00ff4180}}
+.nick-fx-rainbow{background:linear-gradient(90deg,#ff0080,#ff8c00,#ffe400,#00ff88,#00cfff,#7b2fff,#ff0080)!important;background-size:300% 100%!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;background-clip:text!important;animation:fx-fire 3s linear infinite,vipGlow 3s ease-in-out infinite!important;font-weight:800!important}
+.nick-fx-fire{background:linear-gradient(90deg,#ff4500,#ff8c00,#ffdd00,#ff4500)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;background-clip:text!important;animation:fx-fire 2s linear infinite!important;font-weight:800!important}
+.nick-fx-galaxy{background:linear-gradient(90deg,#a855f7,#ec4899,#6366f1,#a855f7)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;background-clip:text!important;font-weight:800!important;animation:fx-galaxy 2s ease-in-out infinite!important}
+.nick-fx-gold{background:linear-gradient(90deg,#f59e0b,#fbbf24,#d97706,#fde68a,#f59e0b)!important;background-size:200% 100%!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;background-clip:text!important;font-weight:800!important;animation:fx-gold 2s ease-in-out infinite!important}
+.nick-fx-matrix{font-weight:800!important;animation:fx-matrix 1.5s ease-in-out infinite!important}
+
+/* ── SAVE BUTTON ── */
+.save-btn{
+  width:100%;padding:12px;border-radius:var(--radius-sm);
+  background:var(--purple);border:none;color:#fff;
+  font-size:13px;font-weight:800;font-family:'Syne',sans-serif;
+  cursor:pointer;transition:.2s;letter-spacing:.3px;
+}
+.save-btn:hover{background:var(--purple2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,.35)}
+.save-btn:active{transform:translateY(0)}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;
+  z-index:999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;
+  background:#0d2a5e;color:#bfdbfe;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="page-header">
+  <button class="back-btn" onclick="history.back()" title="Voltar">‹</button>
+  <span class="page-title">🎨 Cor do Nick</span>
+  <div class="header-preview" id="headerPreview">Seu Nick</div>
+</div>
+
+<div class="content">
+
+  <!-- PREVIEW -->
+  <div class="card">
+    <div class="card-header"><span class="icon">👁</span> Pré-visualização</div>
+    <div class="card-body">
+      <div class="preview-box">
+        <div class="preview-label">Como ficará no chat</div>
+        <div class="preview-nick" id="previewNick">SeuNick</div>
+        <div class="preview-bubble">
+          <div class="preview-msg-text" id="previewMsg">Olá! Esta é uma mensagem de exemplo 👋</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRADIENTE 2 CORES -->
+  <div class="card">
+    <div class="card-header"><span class="icon">🌈</span> Nick com gradiente 2 cores</div>
+    <div class="card-body">
+      <div class="toggle-row">
+        <span class="toggle-label">Ativar gradiente no nick</span>
+        <div class="toggle" id="gradToggle" onclick="toggleGradient(this)"></div>
+      </div>
+      <div id="gradSection" style="display:none">
+        <div class="grad-pickers">
+          <div class="grad-picker-col">
+            <div class="grad-picker-label">Cor 1</div>
+            <div class="grad-picker-btn" onclick="openColorModal('grad1')">
+              <div class="grad-dot" id="gradDot1" style="background:#16a34a"></div>
+              <span>Selecionar</span>
+              <span class="arr">▼</span>
+            </div>
+          </div>
+          <div class="grad-picker-col">
+            <div class="grad-picker-label">Cor 2</div>
+            <div class="grad-picker-btn" onclick="openColorModal('grad2')">
+              <div class="grad-dot" id="gradDot2" style="background:#2563eb"></div>
+              <span>Selecionar</span>
+              <span class="arr">▼</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COR SÓLIDA DO NICK -->
+  <div class="card">
+    <div class="card-header"><span class="icon">🎨</span> Cor sólida do nick</div>
+    <div class="card-body">
+      <div class="grad-pickers">
+        <div class="grad-picker-col">
+          <div class="grad-picker-btn" id="nickPickerBtn" onclick="openColorModal('nick')">
+            <div class="grad-dot" id="nickDot" style="background:#2563eb"></div>
+            <span id="nickColorLabel">Selecionar cor</span>
+            <span class="arr">▼</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COR DA MENSAGEM -->
+  <div class="card">
+    <div class="card-header"><span class="icon">💬</span> Cor da mensagem</div>
+    <div class="card-body">
+      <div class="grad-pickers">
+        <div class="grad-picker-col">
+          <div class="grad-picker-btn" id="msgPickerBtn" onclick="openColorModal('msg')">
+            <div class="grad-dot" id="msgDot" style="background:#1a2d42"></div>
+            <span id="msgColorLabel">Selecionar cor</span>
+            <span class="arr">▼</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EFEITOS PREMIUM -->
+  <div class="card">
+    <div class="card-header">
+      <span class="icon">✨</span> Efeitos de Nick
+      <span class="premium-badge">PREMIUM</span>
+      <button id="fxRemoveBtn" onclick="clearEffect()" style="display:none;margin-left:auto;font-size:9px;padding:2px 8px;border-radius:20px;background:#064e3b;color:#6ee7b7;border:1px solid #059669;cursor:pointer;font-weight:700;font-family:'Syne',sans-serif">✕ Remover</button>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div class="fx-wrap">
+        <div class="fx-slide-area">
+          <div class="fx-track" id="fxTrack"></div>
+        </div>
+        <div class="fx-nav">
+          <button class="fx-nav-btn" onclick="fxPrev()">‹</button>
+          <div class="fx-dots" id="fxDots"></div>
+          <button class="fx-nav-btn" onclick="fxNext()">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALVAR -->
+  <button class="save-btn" onclick="saveColors()">💾 Salvar configurações</button>
+
+</div>
+
+<!-- GRAD COLOR MODAL -->
+<div class="grad-modal-overlay" id="gradModalOverlay">
+  <div class="grad-modal" id="gradModalBox">
+    <div class="grad-modal-handle"></div>
+    <div class="grad-modal-title" id="gradModalTitle">Selecionar cor</div>
+    <div class="grad-modal-colors" id="gradModalColors"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Storage helper ──────────────────────────────────────────────
+const LS = {
+  get:(k,d='')=>{ try{return localStorage.getItem(k)??d}catch(e){return d} },
+  set:(k,v)=>{ try{localStorage.setItem(k,String(v))}catch(e){} }
+};
+
+// ── Nick / colors state ────────────────────────────────────────
+const myNick = LS.get('tc_nick','SeuNick');
+let state = {
+  nickColor: LS.get('tc_nick_color','#2563eb'),
+  msgColor:  LS.get('tc_msg_color','#1a2d42'),
+  gradOn:    LS.get('tc_nick_grad_on','0')==='1',
+  gradC1:    LS.get('tc_nick_grad_c1','#16a34a'),
+  gradC2:    LS.get('tc_nick_grad_c2','#2563eb'),
+  fxId:      LS.get('tc_nick_fx','none'),
+};
+
+// ── Color palettes (same as offcanvas) ──────────────────────────
+const NICK_COLORS = [
+  '#ef4444','#f97316','#eab308','#84cc16','#22c55e','#10b981',
+  '#14b8a6','#06b6d4','#3b82f6','#6366f1','#a855f7','#d946ef',
+  '#ec4899','#f43f5e','#dc2626','#c2410c',
+  '#b45309','#4d7c0f','#065f46','#0e7490','#1d4ed8','#7c3aed',
+  '#9f1239','#0f4c75','#b5179e','#007200',
+  '#ff6b35','#00b4d8','#e040fb','#00e676','#ff1744',
+  '#ffd600','#18ffff','#76ff03','#ff6d00',
+];
+const MSG_COLORS = [
+  '#000000','#7f1d1d','#134e4a','#4c1d95','#1d4ed8','#065f46',
+  '#d946ef','#ef4444','#f97316','#f59e0b','#10b981',
+  '#3b82f6','#7c3aed','#ec4899','#14b8a6',
+  '#b91c1c','#0e7490','#15803d','#92400e',
+  '#831843','#1e3a5f',
+];
+
+// ── Nick Effects ────────────────────────────────────────────────
+const NICK_EFFECTS = [
+  {id:'none',    label:'Sem efeito',  preview:'SeuNick',           cls:''},
+  {id:'rainbow', label:'🌈 Rainbow',  preview:'SeuNick',           cls:'nick-fx-rainbow'},
+  {id:'fire',    label:'🔥 Fogo',     preview:'SeuNick',           cls:'nick-fx-fire'},
+  {id:'galaxy',  label:'🔮 Galaxy',   preview:'SeuNick',           cls:'nick-fx-galaxy'},
+  {id:'gold',    label:'⭐ Gold',     preview:'SeuNick',           cls:'nick-fx-gold'},
+  {id:'matrix',  label:'💚 Matrix',   preview:'SeuNick',           cls:'nick-fx-matrix'},
+];
+const userRole = LS.get('tc_role','user');
+const isPremium = ['premium','vip','admin','supervisor'].includes(userRole);
+
+let fxIdx = 0;
+
+// ── INIT ────────────────────────────────────────────────────────
+(function init(){
+  document.getElementById('previewNick').textContent = myNick;
+  document.getElementById('headerPreview').textContent = myNick;
+  applyPreview();
+  buildColorGrids();
+  buildFxCarousel();
+  if(state.gradOn){
+    document.getElementById('gradToggle').classList.add('on');
+    document.getElementById('gradSection').style.display='block';
+    document.getElementById('gradDot1').style.background=state.gradC1;
+    document.getElementById('gradDot2').style.background=state.gradC2;
+  }
+})();
+
+// ── PREVIEW ─────────────────────────────────────────────────────
+function applyPreview(){
+  const nick = document.getElementById('previewNick');
+  const hdr  = document.getElementById('headerPreview');
+  const msg  = document.getElementById('previewMsg');
+
+  // Sempre atualiza a cor da mensagem, independente do estado do nick
+  if(msg) msg.style.color = state.msgColor;
+
+  // Clear all fx classes
+  NICK_EFFECTS.forEach(f=>{ if(f.cls) nick.classList.remove(f.cls); });
+  nick.style.background=''; nick.style.webkitTextFillColor=''; nick.style.backgroundClip='';
+  hdr.style.background='';  hdr.style.webkitTextFillColor='';  hdr.style.backgroundClip='';
+
+  if(state.fxId && state.fxId !== 'none' && isPremium){
+    const fx = NICK_EFFECTS.find(f=>f.id===state.fxId);
+    if(fx && fx.cls){
+      nick.classList.add(fx.cls);
+      hdr.className = 'header-preview '+fx.cls;
+      return;
+    }
+  }
+  if(state.gradOn){
+    const grad = `linear-gradient(90deg,${state.gradC1},${state.gradC2})`;
+    nick.style.background=grad; nick.style.webkitBackgroundClip='text'; nick.style.webkitTextFillColor='transparent'; nick.style.backgroundClip='text';
+    hdr.style.background=grad;  hdr.style.webkitBackgroundClip='text';  hdr.style.webkitTextFillColor='transparent';  hdr.style.backgroundClip='text';
+    return;
+  }
+  nick.style.color = state.nickColor;
+  hdr.style.color  = state.nickColor;
+}
+
+// ── COLOR GRIDS (init dots) ──────────────────────────────────────
+function buildColorGrids(){
+  document.getElementById('nickDot').style.background = state.nickColor;
+  document.getElementById('msgDot').style.background  = state.msgColor;
+}
+
+// ── UNIFIED COLOR MODAL ──────────────────────────────────────────
+let colorModalTarget = 'nick';
+
+function openColorModal(target){
+  colorModalTarget = target;
+  const overlay = document.getElementById('gradModalOverlay');
+  const title   = document.getElementById('gradModalTitle');
+  const colors  = document.getElementById('gradModalColors');
+
+  const titles = {
+    nick:  '🎨 Cor do Nick',
+    msg:   '💬 Cor da Mensagem',
+    grad1: '🌈 Gradiente — Cor 1',
+    grad2: '🌈 Gradiente — Cor 2',
+  };
+  title.textContent = titles[target];
+
+  const palette = (target === 'msg') ? MSG_COLORS : NICK_COLORS;
+  const current = target==='nick'  ? state.nickColor
+                : target==='msg'   ? state.msgColor
+                : target==='grad1' ? state.gradC1
+                :                    state.gradC2;
+
+  // Cor bloqueada para gradiente (não pode escolher a mesma do outro lado)
+  const blocked = target==='grad1' ? state.gradC2
+                : target==='grad2' ? state.gradC1
+                : null;
+
+  colors.innerHTML = '';
+  palette.forEach(c=>{
+    const isSelected = c === current;
+    const isBlocked  = blocked !== null && c === blocked;
+    const s = document.createElement('div');
+    s.style.cssText = `width:36px;height:36px;border-radius:50%;background:${c};
+      cursor:${isBlocked?'not-allowed':'pointer'};
+      border:${isSelected ? '3px solid #7c3aed' : '2.5px solid ' + (c==='#ffffff'?'#b8d0e8':'transparent')};
+      transition:.12s;flex-shrink:0;position:relative;opacity:${isBlocked?'0.28':'1'};
+      box-shadow:${isSelected ? '0 0 0 2px #a78bfa' : ''};`;
+    if(isSelected){
+      s.innerHTML='<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900;text-shadow:0 1px 3px rgba(0,0,0,.6)">✓</span>';
+    }
+    if(isBlocked){
+      s.title='Escolha uma cor diferente da outra';
+      s.innerHTML='<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px">🚫</span>';
+    }
+    if(!isBlocked){
+      s.onmouseover=()=>s.style.transform='scale(1.15)';
+      s.onmouseout=()=>s.style.transform='';
+      s.onclick=()=>{
+        if(target==='nick'){
+          state.nickColor=c;
+          document.getElementById('nickDot').style.background=c;
+          state.fxId='none'; state.gradOn=false;
+          document.getElementById('gradToggle').classList.remove('on');
+          document.getElementById('gradSection').style.display='none';
+          fxIdx=0; buildFxCarousel();
+        } else if(target==='msg'){
+          state.msgColor=c;
+          document.getElementById('msgDot').style.background=c;
+        } else if(target==='grad1'){
+          state.gradC1=c;
+          document.getElementById('gradDot1').style.background=c;
+        } else {
+          state.gradC2=c;
+          document.getElementById('gradDot2').style.background=c;
+        }
+        closeColorModal();
+        applyPreview();
+      };
+    }
+    colors.appendChild(s);
+  });
+
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeColorModal(e){
+  if(e && e.target !== document.getElementById('gradModalOverlay')) return;
+  document.getElementById('gradModalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('gradModalOverlay').addEventListener('click', closeColorModal);
+
+// ── GRADIENT ────────────────────────────────────────────────────
+function toggleGradient(el){
+  el.classList.toggle('on');
+  state.gradOn = el.classList.contains('on');
+  const sec = document.getElementById('gradSection');
+  sec.style.display = state.gradOn ? 'block' : 'none';
+  state.fxId='none';
+  fxIdx=0; buildFxCarousel();
+  applyPreview();
+}
+
+// ── EFFECTS CAROUSEL ────────────────────────────────────────────
+function buildFxCarousel(){
+  const track = document.getElementById('fxTrack');
+  const dots  = document.getElementById('fxDots');
+  track.innerHTML=''; dots.innerHTML='';
+  NICK_EFFECTS.forEach((fx,i)=>{
+    const slide = document.createElement('div');
+    slide.className='fx-slide';
+    const isActive = state.fxId===fx.id;
+    const locked = !isPremium && fx.id!=='none';
+    slide.innerHTML=`
+      <div class="fx-slide-label">${fx.label}</div>
+      ${locked
+        ? `<div class="fx-preview" style="color:#4a4570">🔒 ${fx.preview}</div>
+           <div class="fx-locked-msg">Disponível para membros <strong style="color:#000000">Premium</strong></div>`
+        : `<div class="fx-preview ${fx.cls}" style="${!fx.cls?'color:'+state.nickColor:''}">${myNick}</div>
+           <button class="fx-apply-btn${isActive?' active-fx':''}" onclick="applyEffect('${fx.id}')">
+             ${isActive?'✅ Aplicado':'Aplicar'}
+           </button>`
+      }`;
+    track.appendChild(slide);
+
+    const dot=document.createElement('div');
+    dot.className='fx-dot'+(i===fxIdx?' active':'');
+    dot.onclick=()=>goFx(i);
+    dots.appendChild(dot);
+  });
+  // Show remove button if effect active
+  const removeBtn=document.getElementById('fxRemoveBtn');
+  removeBtn.style.display = (state.fxId && state.fxId!=='none') ? 'inline-block':'none';
+  goFx(fxIdx, false);
+}
+function goFx(i, animate=true){
+  fxIdx=i;
+  const track=document.getElementById('fxTrack');
+  track.style.transition = animate?'transform .35s cubic-bezier(.4,0,.2,1)':'none';
+  track.style.transform=`translateX(-${i*100}%)`;
+  document.querySelectorAll('.fx-dot').forEach((d,j)=>{
+    d.classList.toggle('active',j===i);
+  });
+}
+function fxNext(){ goFx((fxIdx+1)%NICK_EFFECTS.length); }
+function fxPrev(){ goFx((fxIdx-1+NICK_EFFECTS.length)%NICK_EFFECTS.length); }
+function applyEffect(id){
+  state.fxId=id;
+  state.gradOn=false;
+  document.getElementById('gradToggle').classList.remove('on');
+  document.getElementById('gradSection').style.display='none';
+  buildFxCarousel();
+  applyPreview();
+}
+function clearEffect(){
+  state.fxId='none';
+  fxIdx=0;
+  buildFxCarousel();
+  applyPreview();
+}
+
+// ── SAVE ────────────────────────────────────────────────────────
+function saveColors(){
+  LS.set('tc_nick_color', state.nickColor);
+  LS.set('tc_msg_color',  state.msgColor);
+  LS.set('tc_nick_grad_on', state.gradOn?'1':'0');
+  LS.set('tc_nick_grad_c1', state.gradC1);
+  LS.set('tc_nick_grad_c2', state.gradC2);
+  LS.set('tc_nick_fx', state.fxId||'none');
+  showToast('✅ Cores salvas com sucesso!');
+  setTimeout(()=>{ if(document.referrer) history.back(); }, 900);
+}
+
+// ── TOAST ────────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._x); t._x=setTimeout(()=>t.style.opacity='0',2500);
+}
+</script>
+</body>
+</html>

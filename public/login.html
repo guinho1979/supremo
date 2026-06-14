@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chat Supremo — Entrar</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#dce8f5;--surface:#fff;--surface2:#e8f2ff;
+  --border:#b8d0e8;--purple:#7c3aed;--purple2:#6d28d9;--purple3:#a78bfa;
+  --blue:#2563eb;--blue2:#1d4ed8;
+  --text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;
+  --green:#10b981;--red:#ef4444;
+  --radius:14px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;color:var(--text)}
+.bg-glow{position:fixed;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.12) 0%,rgba(37,99,235,.08) 50%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;animation:glowPulse 4s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.8}50%{transform:translate(-50%,-50%) scale(1.15);opacity:1}}
+.wrap{width:100%;max-width:420px;position:relative;z-index:1}
+.logo{text-align:center;margin-bottom:22px}
+.logo-text{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;background:linear-gradient(135deg,var(--purple),var(--purple3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:13px;color:var(--text3);margin-top:3px}
+.sys-notice{border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;margin-bottom:12px;display:none;align-items:center;gap:8px}
+.sys-notice.show{display:flex}
+.sys-notice.warn{background:#fef3c740;border:1px solid #f59e0b55;color:#92400e}
+.sys-notice.danger{background:#fee2e240;border:1px solid #ef444455;color:#991b1b}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px;margin-bottom:16px;box-shadow:0 2px 16px rgba(124,58,237,.07)}
+.tabs{display:flex;background:var(--surface2);border-radius:22px;padding:3px;margin-bottom:18px;border:1px solid var(--border);gap:2px}
+.tab{flex:1;padding:8px 4px;border-radius:18px;font-size:12px;font-weight:700;cursor:pointer;text-align:center;color:var(--text3);border:none;background:transparent;font-family:'Syne',sans-serif;transition:.2s}
+.tab.active{background:var(--surface);color:var(--purple);border:1px solid var(--border);box-shadow:0 1px 6px rgba(124,58,237,.12)}
+.form{display:none;flex-direction:column;gap:10px}
+.form.active{display:flex}
+.field label{display:block;font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.field input,.field select{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;color:var(--text);font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;outline:none;transition:.2s}
+.field input::placeholder{color:var(--text3);font-weight:400}
+.field input:focus,.field select:focus{border-color:var(--purple);background:#fff;box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.btn-main{width:100%;padding:13px;border-radius:var(--radius-sm);background:var(--purple);border:none;color:#fff;font-size:14px;font-weight:800;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;letter-spacing:.3px}
+.btn-main:hover{background:var(--purple2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,58,237,.35)}
+.btn-main:active{transform:translateY(0)}
+.err{background:#fee2e222;border:1px solid #ef444455;border-radius:8px;padding:8px 12px;font-size:12px;color:#991b1b;display:none}
+.err.show{display:block}
+.guest-box{background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--text2);line-height:1.65;border-left:3px solid var(--purple3)}
+.divider{text-align:center;font-size:11px;color:var(--text3);position:relative;padding:2px 0}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:.5px;background:var(--border)}
+.divider::before{left:0}.divider::after{right:0}
+.last-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:0 2px 16px rgba(124,58,237,.07)}
+.last-title{font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
+.last-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.last-user{display:flex;align-items:center;justify-content:center;width:44px;height:44px}
+.last-av{width:44px;height:44px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;flex-shrink:0}
+.last-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.faceid-row{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;cursor:pointer;transition:.2s;user-select:none}
+.faceid-row:hover{border-color:var(--purple);background:#fff}
+.faceid-row.active{border-color:var(--purple);background:#f5f0ff;box-shadow:0 0 0 3px rgba(124,58,237,.10)}
+.faceid-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;font-size:11px}
+.faceid-row.active .faceid-check{background:var(--purple);border-color:var(--purple);color:#fff}
+.faceid-label{flex:1;font-size:12px;font-weight:700;color:var(--text2)}
+.faceid-label small{display:block;font-size:10px;font-weight:400;color:var(--text3);margin-top:1px}
+.faceid-icon{font-size:22px;flex-shrink:0}
+
+</style>
+<script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
+<script src="api.js"></script>
+</head>
+<body>
+<div class="bg-glow"></div>
+<!-- Admin badge top right -->
+<a href="admin.html" id="adminLoginLink" style="display:none;position:fixed;top:12px;right:14px;background:#d1fae5;border:1px solid #10b98155;color:#065f46;font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;text-decoration:none;font-family:'Syne',sans-serif;z-index:10;box-shadow:0 0 8px #10b98130">⚙ Painel Admin</a>
+<div class="wrap">
+
+  <div class="logo">
+    <div style="display:flex;justify-content:center;margin-bottom:6px">
+      <img src="chat-supremo-logo.png" alt="Chat Supremo" style="width:180px;height:180px;object-fit:contain;"/>
+    </div>
+  </div>
+
+  <!-- System notices injected by admin -->
+  <div class="sys-notice warn" id="noticeWarn"></div>
+  <div class="sys-notice danger" id="noticeDanger"></div>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('login',this)">Entrar</button>
+      <button class="tab" id="tabRegister" onclick="setTab('register',this)">Cadastrar</button>
+      <button class="tab" id="tabGuest" onclick="setTab('guest',this)">Visitante</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="form active" id="formLogin">
+      <div class="field"><label>Nick</label><input id="loginNick" type="text" placeholder="seu_nick" autocomplete="username"/></div>
+      <div class="field"><label>Senha</label><input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="err" id="loginErr"></div>
+      <button class="btn-main" onclick="doLogin()">Entrar →</button>
+      <div class="divider" style="margin:4px 0">ou</div>
+      <button class="btn-main" id="btnFaceLogin" onclick="doFaceIdLogin()" style="background:#f5f0ff;color:var(--purple);border:1.5px solid var(--purple);font-size:13px">🪪 Entrar com Face ID</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="form" id="formRegister">
+      <div class="field"><label>Nick</label><input id="regNick" type="text" placeholder="letras, números e _" maxlength="20"/></div>
+      <div class="field"><label>Senha</label><input id="regPass" type="password" placeholder="Mínimo 6 caracteres"/></div>
+      <div class="field"><label>Confirmar senha</label><input id="regPass2" type="password" placeholder="Repita a senha"/></div>
+      <div class="field">
+        <label>Data de aniversário</label>
+        <div style="display:grid;grid-template-columns:1fr 2fr 1.4fr;gap:6px">
+          <select id="regBirthDay" style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 8px;color:var(--text);font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;outline:none;transition:.2s;cursor:pointer;appearance:none;text-align:center">
+            <option value="">Dia</option>
+          </select>
+          <select id="regBirthMonth" style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 8px;color:var(--text);font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;outline:none;transition:.2s;cursor:pointer;appearance:none;text-align:center">
+            <option value="">Mês</option>
+            <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+            <option value="03">Março</option><option value="04">Abril</option>
+            <option value="05">Maio</option><option value="06">Junho</option>
+            <option value="07">Julho</option><option value="08">Agosto</option>
+            <option value="09">Setembro</option><option value="10">Outubro</option>
+            <option value="11">Novembro</option><option value="12">Dezembro</option>
+          </select>
+          <select id="regBirthYear" style="width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 8px;color:var(--text);font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;outline:none;transition:.2s;cursor:pointer;appearance:none;text-align:center">
+            <option value="">Ano</option>
+          </select>
+        </div>
+      </div>
+      <div class="err" id="regErr"></div>
+      <button class="btn-main" id="btnCriarConta" onclick="doRegister()">Continuar →</button>
+      <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:8px">
+        Ao criar conta você concorda com os <a href="terms.html" target="_blank" style="color:var(--purple);text-decoration:none;font-weight:600">Termos de Uso</a>
+      </div>
+    </div>
+
+    <!-- PASSO 2: CONFIRMAR FACE ID -->
+    <div class="form" id="formFaceId" style="text-align:center">
+      <div style="font-size:56px;margin-bottom:4px">🪪</div>
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px">Quase lá!</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Para finalizar o cadastro, confirme sua identidade biométrica.</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:18px;background:var(--surface2);border-radius:8px;padding:8px 12px;border:1px solid var(--border)">
+        Seu dispositivo irá solicitar <strong>Face ID</strong> ou <strong>impressão digital</strong>
+      </div>
+      <div class="err" id="faceIdErr"></div>
+      <button class="btn-main" id="btnConfirmarFaceId" onclick="confirmarFaceId()" style="font-size:15px;padding:16px;letter-spacing:.5px">
+        🪪 Confirmar com Face ID
+      </button>
+      <button onclick="voltarCadastro()" style="margin-top:10px;width:100%;padding:10px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:transparent;color:var(--text3);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">← Voltar</button>
+    </div>
+
+    <!-- GUEST -->
+    <div class="form" id="formGuest">
+      <div class="guest-box">👋 Nick temporário — ao sair da sala seu nick some automaticamente e fica disponível para outros. Visitantes não podem enviar fotos, vídeos ou áudios.</div>
+      <div class="field"><label>Nick temporário</label><input id="guestNick" type="text" placeholder="escolha um nick" maxlength="20" onkeydown="if(event.key==='Enter')doGuest()"/></div>
+      <div class="err" id="guestErr"></div>
+      <button class="btn-main" onclick="doGuest()">Entrar como visitante →</button>
+    </div>
+  </div>
+
+  <!-- Online counter -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;margin-bottom:12px;box-shadow:0 2px 12px rgba(124,58,237,.06)">
+    <div style="width:9px;height:9px;border-radius:50%;background:#10b981;animation:blink 1.5s infinite;flex-shrink:0"></div>
+    <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text)"><span id="onlineCount">247</span> usuários online agora</span>
+    <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text2)">em <span id="onlineRooms">8</span> salas</span>
+  </div>
+
+  <!-- Last 10 logins -->
+  <div class="last-card" id="lastCard">
+    <div class="last-title"><a href="ulogin.html" style="color:var(--text3);text-decoration:none;transition:.15s" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--text3)'">Últimos online →</a></div>
+    <div class="last-grid" id="lastGrid"></div>
+  </div>
+  <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text3)">
+    <a href="terms.html" target="_blank" style="color:var(--text3);text-decoration:none">📄 Termos de Uso</a>
+    &nbsp;·&nbsp;
+    <a href="privacy.html" target="_blank" style="color:var(--text3);text-decoration:none">🔒 Privacidade</a>
+  </div>
+</div>
+
+<script>
+// Contador real de usuários online
+(function(){
+  var el=document.getElementById('onlineCount');
+  function upd(){ if(!el) return; API.getOnline().then(function(r){ el.textContent=r.count; }).catch(function(){}); }
+  upd(); setInterval(upd, 15000);
+})();
+// Show admin badge if admin session is active
+(function(){
+  const role=localStorage.getItem('tc_role');
+  const token=localStorage.getItem('tc_token');
+  if(token&&['admin','supervisor','mod'].includes(role)){
+    const el=document.getElementById('adminLoginLink');
+    if(el)el.style.display='block';
+  }
+})();
+var SYSTEM = {};
+(async function initConfig(){
+  try{
+    var r = await API.getSystemConfig(); var c = r.config || {};
+    SYSTEM = { noticeWarn:c.notice_warn, noticeDanger:c.notice_danger,
+      registerBlocked:c.register_blocked==='true', guestBlocked:c.guest_blocked==='true',
+      maintenance:c.maintenance==='true' };
+    if(SYSTEM.noticeWarn){var w=document.getElementById('noticeWarn');w.textContent='\u26A0 '+SYSTEM.noticeWarn;w.classList.add('show');}
+    if(SYSTEM.noticeDanger){var d=document.getElementById('noticeDanger');d.textContent='\uD83D\uDEAB '+SYSTEM.noticeDanger;d.classList.add('show');}
+    if(SYSTEM.registerBlocked){var tr=document.getElementById('tabRegister');if(tr){tr.style.opacity='.4';tr.style.pointerEvents='none';}}
+    if(SYSTEM.guestBlocked){var tg=document.getElementById('tabGuest');if(tg){tg.style.opacity='.4';tg.style.pointerEvents='none';}}
+  }catch(e){}
+})();
+(async function loadLast(){
+  try{
+    var r = await API.getLastOnline(); var users = r.users || [];
+    var grid = document.getElementById('lastGrid'); if(!grid) return;
+    grid.innerHTML = (users||[]).slice(0,5).map(function(u){
+      var av = u.photo_url ? ('<img src="'+u.photo_url+'" alt=""/>') : (u.avatar || (u.nick||'').slice(0,2).toUpperCase());
+      return '<div class="last-user"><div class="last-av">'+av+'</div></div>';
+    }).join('');
+  }catch(e){}
+})();
+
+// ── Birthday selects init ──────────────────────────────────
+(function initBirthday(){
+  const dayEl   = document.getElementById('regBirthDay');
+  const monthEl = document.getElementById('regBirthMonth');
+  const yearEl  = document.getElementById('regBirthYear');
+  const curYear = new Date().getFullYear();
+  for(let y = curYear - 5; y >= curYear - 100; y--){
+    const o = document.createElement('option');
+    o.value = y; o.textContent = y;
+    yearEl.appendChild(o);
+  }
+  function updateDays(){
+    const m = parseInt(monthEl.value) || 0;
+    const y = parseInt(yearEl.value)  || 2000;
+    const max = m ? new Date(y, m, 0).getDate() : 31;
+    const cur = parseInt(dayEl.value) || 0;
+    dayEl.innerHTML = '<option value="">Dia</option>';
+    for(let d = 1; d <= max; d++){
+      const o = document.createElement('option');
+      o.value = String(d).padStart(2,'0');
+      o.textContent = d;
+      if(d === cur) o.selected = true;
+      dayEl.appendChild(o);
+    }
+  }
+  updateDays();
+  monthEl.addEventListener('change', updateDays);
+  yearEl.addEventListener('change',  updateDays);
+  [dayEl, monthEl, yearEl].forEach(el=>{
+    el.addEventListener('focus', ()=>{ el.style.borderColor='var(--purple)'; el.style.boxShadow='0 0 0 3px rgba(124,58,237,.12)'; });
+    el.addEventListener('blur',  ()=>{ el.style.borderColor='var(--border)'; el.style.boxShadow='none'; });
+  });
+})();
+
+function setTab(tab,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.form').forEach(f=>f.classList.remove('active'));
+  document.getElementById('form'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
+}
+function showErr(id,msg){const e=document.getElementById(id);e.textContent=msg;e.classList.add('show');}
+function clearErrs(){document.querySelectorAll('.err').forEach(e=>e.classList.remove('show'));}
+function quickFill(nick){document.getElementById('loginNick').value=nick;setTab('login',document.querySelectorAll('.tab')[0]);document.getElementById('loginPass').focus();}
+
+async function doLogin(){
+  clearErrs();
+  var nick=document.getElementById('loginNick').value.trim();
+  var pass=document.getElementById('loginPass').value;
+  if(!nick||!pass){showErr('loginErr','Preencha nick e senha.');return;}
+  try{ await API.login(nick,pass); window.location.href='salas.html'; }
+  catch(e){ showErr('loginErr', e.message); }
+}
+async function doRegister(){
+  clearErrs();
+  var nick=document.getElementById('regNick').value.trim();
+  var pass=document.getElementById('regPass').value;
+  var pass2=document.getElementById('regPass2').value;
+  if(!nick){showErr('regErr','Digite um nick.');return;}
+  if(nick.length<3){showErr('regErr','Nick mínimo 3 caracteres.');return;}
+  if(!/^[a-zA-Z0-9_]+$/.test(nick)){showErr('regErr','Nick: letras, números e _ apenas.');return;}
+  if(pass.length<6){showErr('regErr','Senha mínimo 6 caracteres.');return;}
+  if(pass!==pass2){showErr('regErr','Senhas não coincidem.');return;}
+  var _d=document.getElementById('regBirthDay').value;
+  var _m=document.getElementById('regBirthMonth').value;
+  var _y=document.getElementById('regBirthYear').value;
+  var birthday=(_d&&_m&&_y)?(_y+'-'+_m+'-'+_d.padStart(2,'0')):'';
+  try{
+    await API.register(nick,pass,birthday);
+    var fr=document.querySelector('.faceid-row');
+    if(fr && fr.classList.contains('active') && _webAuthnSupported()){
+      window._regPending={nick:nick};
+      document.getElementById('formRegister').classList.remove('active');
+      document.getElementById('formFaceId').classList.add('active');
+    } else { window.location.href='salas.html'; }
+  }
+  catch(e){ showErr('regErr', e.message); }
+}
+
+function voltarCadastro(){
+  window._regPending = null;
+  document.getElementById('formFaceId').classList.remove('active');
+  document.getElementById('formRegister').classList.add('active');
+}
+
+async function confirmarFaceId(){
+  const data = window._regPending;
+  if(!data){ window.location.href='salas.html'; return; }
+  const btn = document.getElementById('btnConfirmarFaceId');
+  btn.disabled = true; btn.textContent = '⏳ Aguardando biometria…';
+  const result = await registerFaceId(data.nick);
+  if(result.ok){
+    try{
+      var rnd = crypto.getRandomValues(new Uint8Array(32));
+      var secret = btoa(String.fromCharCode.apply(null, rnd));
+      await API.faceidEnroll(secret);
+      var creds = JSON.parse(localStorage.getItem('tc_faceid_creds')||'{}');
+      creds[data.nick.toLowerCase()] = { id: result.id, secret: secret };
+      localStorage.setItem('tc_faceid_creds', JSON.stringify(creds));
+    }catch(e){ /* segue logado mesmo se o enroll falhar */ }
+    window.location.href='salas.html';
+  } else {
+    btn.disabled = false; btn.innerHTML = '🪪 Confirmar com Face ID';
+    const e = document.getElementById('faceIdErr');
+    e.textContent = result.err || 'Face ID não confirmado.'; e.classList.add('show');
+  }
+}
+
+async function doGuest(){
+  clearErrs();
+  var nick=document.getElementById('guestNick').value.trim();
+  if(!nick||nick.length<2){showErr('guestErr','Digite um nick (mínimo 2 caracteres).');return;}
+  if(!/^[a-zA-Z0-9_]+$/.test(nick)){showErr('guestErr','Nick: letras, números e _ apenas.');return;}
+  try{ await API.guest(nick); window.location.href='salas.html'; }
+  catch(e){ showErr('guestErr', e.message); }
+}
+function saveSession(nick,type,role){
+  localStorage.setItem('tc_nick',nick);
+  localStorage.setItem('tc_type',type);
+  localStorage.setItem('tc_role',role);
+  localStorage.setItem('tc_token',(type==='guest'?'guest_':'tok_')+Date.now());
+}
+
+// ── Face ID (WebAuthn) ─────────────────────────────────────────
+function _webAuthnSupported(){
+  return !!(window.PublicKeyCredential && navigator.credentials && window.isSecureContext);
+}
+
+async function registerFaceId(nick){
+  if(!_webAuthnSupported()) return { ok: false, err: 'Face ID requer HTTPS. Acesse via https:// ou localhost.' };
+  try{
+    // Verifica suporte a autenticador de plataforma (Face ID / Touch ID)
+    const hasPlatform = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    if(!hasPlatform) return { ok: false, err: 'Nenhum autenticador biométrico encontrado neste dispositivo.' };
+
+    const encoder = new TextEncoder();
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const userId = encoder.encode(nick + '_' + Date.now());
+
+    // rp.id: deixar o navegador inferir automaticamente (evita erro de domínio inválido)
+    const credential = await navigator.credentials.create({
+      publicKey:{
+        challenge,
+        rp:{ name:'Chat Supremo' },
+        user:{ id: userId, name: nick, displayName: nick },
+        pubKeyCredParams:[
+          { type:'public-key', alg:-7 },
+          { type:'public-key', alg:-257 }
+        ],
+        authenticatorSelection:{
+          authenticatorAttachment:'platform',
+          userVerification:'required',
+          residentKey:'preferred'
+        },
+        timeout: 60000,
+        attestation:'none'
+      }
+    });
+    if(!credential) return { ok: false, err: 'Cadastro biométrico cancelado.' };
+
+    const credId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+    const stored = JSON.parse(localStorage.getItem('tc_faceid_creds')||'{}');
+    stored[nick.toLowerCase()] = credId;
+    localStorage.setItem('tc_faceid_creds', JSON.stringify(stored));
+    return { ok: true, id: credId };
+  }catch(e){
+    console.warn('Face ID erro:', e.name, e.message);
+    if(e.name === 'NotAllowedError')  return { ok: false, err: 'Permissão negada ou tempo esgotado. Tente novamente.' };
+    if(e.name === 'InvalidStateError') return { ok: false, err: 'Biometria já cadastrada para este nick.' };
+    if(e.name === 'NotSupportedError') return { ok: false, err: 'Biometria não suportada neste dispositivo/navegador.' };
+    return { ok: false, err: 'Erro: ' + e.message };
+  }
+}
+
+async function doFaceIdLogin(){
+  if(!_webAuthnSupported()){
+    showErr('loginErr','Face ID requer HTTPS. Acesse via https:// ou localhost.');
+    return;
+  }
+  const stored = JSON.parse(localStorage.getItem('tc_faceid_creds')||'{}');
+  const entries = Object.entries(stored);
+  if(!entries.length){
+    showErr('loginErr','Nenhuma conta com Face ID cadastrada neste dispositivo.');
+    return;
+  }
+  try{
+    const challenge = crypto.getRandomValues(new Uint8Array(32));
+    const allowCreds = entries.map(([,v])=>({
+      type:'public-key',
+      id: Uint8Array.from(atob(typeof v==='string'?v:v.id), c=>c.charCodeAt(0))
+    }));
+    const assertion = await navigator.credentials.get({
+      publicKey:{ challenge, allowCredentials: allowCreds, userVerification:'required', timeout:60000 }
+    });
+    if(!assertion) return;
+    const usedId = btoa(String.fromCharCode(...new Uint8Array(assertion.rawId)));
+    const found = entries.find(([,v])=>{
+      const id = typeof v==='string'?v:v.id;
+      return id===usedId;
+    });
+    if(!found){ showErr('loginErr','Credencial não reconhecida.'); return; }
+    var entry = found[1];
+    var secret = (entry && typeof entry==='object') ? entry.secret : null;
+    if(!secret){ showErr('loginErr','Reentre com senha para reativar o Face ID neste dispositivo.'); return; }
+    try{ await API.faceidLogin(found[0], secret); window.location.href='salas.html'; }
+    catch(err){ showErr('loginErr', err.message || 'Falha no Face ID.'); }
+  }catch(e){
+    if(e.name!=='NotAllowedError') showErr('loginErr','Falha na autenticação: '+e.message);
+  }
+}
+
+// Verifica suporte e mostra/esconde botão Face ID no login
+(function initFaceIdUI(){
+  const btn = document.getElementById('btnFaceLogin');
+  if(!btn) return;
+  if(!_webAuthnSupported()){
+    btn.style.display='none'; return;
+  }
+  const stored = JSON.parse(localStorage.getItem('tc_faceid_creds')||'{}');
+  if(!Object.keys(stored).length) btn.style.display='none';
+})();
+</script>
+<footer style="text-align:center;font-size:11px;color:var(--text3);margin-top:16px;padding-top:16px;border-top:1px solid var(--border);width:100%;max-width:420px">
+  Chat Supremo © <span id="footerYear"></span> — Todos os direitos reservados. &nbsp;|&nbsp;
+  <a href="terms.html" style="color:var(--text3);text-decoration:none">Termos de Uso</a> &nbsp;|&nbsp;
+  <a href="privacy.html" style="color:var(--text3);text-decoration:none">Política de Privacidade</a>
+</footer>
+<script>document.getElementById('footerYear').textContent=new Date().getFullYear();</script>
+<script>
+/* === Logo do chat: aplica o logo enviado no painel (lido do servidor) === */
+(function(){
+  if(typeof API==='undefined') return;
+  API.getSystemConfig().then(function(d){
+    var url=d&&d.config&&d.config.logo_url; if(!url) return;
+    try{ localStorage.setItem('tc_logo', url); }catch(e){}
+    if(typeof applyLogo==='function'){ try{ applyLogo(); }catch(e){} }
+    document.querySelectorAll('.tc-logo').forEach(function(el){ el.innerHTML='<img src="'+url+'" alt="logo" style="height:32px;max-width:170px;object-fit:contain;display:block">'; });
+    var lt=document.querySelector('.logo-text');
+    if(lt){ lt.innerHTML='<img src="'+url+'" alt="logo" style="height:44px;max-width:240px;object-fit:contain">'; }
+    if(!document.querySelector('.tc-logo')){
+      var lg=document.querySelector('.logo');
+      if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
+    }
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>
