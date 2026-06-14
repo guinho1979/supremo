@@ -8608,8 +8608,8 @@ function processSmileKeywords(text){
   var notified = {};
   function showInviteToast(inv){
     var el = document.createElement('div');
-    el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:99999;background:#1a1735;color:#fff;border:1.5px solid #7c3aed;border-radius:14px;padding:12px 16px;box-shadow:0 6px 28px rgba(0,0,0,.45);font-family:DM Sans,sans-serif;max-width:92%;display:flex;align-items:center;gap:12px;cursor:pointer';
-    el.innerHTML = '<span style="font-size:22px">📨</span><div style="flex:1;font-size:13px;line-height:1.35"><b>'+((inv.from_nick||'Alguém'))+'</b> te convidou para a sala privada <b>'+((inv.name||''))+'</b>.<br><span style="color:#a855f7;font-weight:700">Toque para ver e aceitar →</span></div>';
+    el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:99999;background:#ffffff;color:#0f1f3d;border:1.5px solid #7c3aed;border-radius:14px;padding:12px 16px;box-shadow:0 8px 32px rgba(0,0,0,.18);font-family:DM Sans,sans-serif;max-width:92%;display:flex;align-items:center;gap:12px;cursor:pointer';
+    el.innerHTML = '<span style="font-size:22px">📨</span><div style="flex:1;font-size:13px;line-height:1.35;color:#374d6e"><b style="color:#0f1f3d">'+((inv.from_nick||'Alguém'))+'</b> te convidou para a sala privada <b style="color:#0f1f3d">'+((inv.name||''))+'</b>.<br><span style="color:#7c3aed;font-weight:700">Toque para ver e aceitar →</span></div>';
     el.onclick = function(){ try{ location.href='salas-privadas.html'; }catch(e){} };
     document.body.appendChild(el);
     setTimeout(function(){ try{ el.remove(); }catch(e){} }, 20000);

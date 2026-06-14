@@ -374,6 +374,7 @@ function entrarSala(salaId){
   LS.set('tc_room', s.id);
   LS.set('tc_room_name', s.name);
   LS.set('tc_room_dbid', String(s.dbId||''));
+  LS.set('tc_room_owner', s.owner || '');
   window.location.href='chatprivado.html';
 }
 
