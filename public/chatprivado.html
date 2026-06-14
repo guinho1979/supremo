@@ -1116,11 +1116,7 @@ const MSG_TTL = 10 * 60 * 1000;
 // Safe localStorage wrapper
 const LS={get:(k,d='')=>{try{return localStorage.getItem(k)||d;}catch(e){return d;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}}};
 
-// Demo: force regular user session
-try{localStorage.setItem('tc_nick','PauloXX');}catch(e){}
-try{localStorage.setItem('tc_role','premium');}catch(e){}
-try{localStorage.setItem('tc_avatar','👑');}catch(e){}
-try{localStorage.setItem('tc_nickcolor','#d97706');}catch(e){}
+// (Removido) Identidade demo forçada — agora usa o login real da sessão.
 // ─── Verificar se foi expulso pelo admin ─────────────────────────────────────
 (function checkKick(){
   const currentRoom = LS.get('tc_room','geral');
@@ -5101,23 +5097,23 @@ function abrirConvidarPrivado(){
   if(s1) s1.style.display = '';
   if(s2) s2.style.display = 'none';
 
-  // Grid visual de salas (igual ao salas.html)
+  // Grid visual de salas REAIS (do servidor)
   const cpEl = document.getElementById('cpSalasList');
   if(cpEl){
-    cpEl.innerHTML = CP_SALAS.map(s=>{
-      const [icon,...rest] = s.name.split(' ');
-      const nome = rest.join(' ');
-      return `<button onclick="cpVerUsuarios('${s.id}','${s.name}')"
-        style="display:flex;align-items:center;gap:8px;background:#ffffff;border:1.5px solid #dde3ef;border-radius:10px;padding:10px 12px;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:left;transition:.15s;width:100%"
-        onmouseover="this.style.borderColor='#1d4ed8';this.style.background='#e8f2ff'"
-        onmouseout="this.style.borderColor='#dde3ef';this.style.background='#ffffff'">
-        <span style="font-size:22px;flex-shrink:0">${icon}</span>
-        <div>
-          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#1a2340">${nome}</div>
-          <div style="font-size:9px;color:#7c8eaa;margin-top:1px">Ver usuários →</div>
-        </div>
-      </button>`;
-    }).join('');
+    cpEl.innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:#8aafd4">Carregando salas…</div>';
+    API.getRooms().then(function(d){
+      var rooms=(d&&d.rooms)||[];
+      cpEl.innerHTML = rooms.map(function(s){
+        var nome=(s.name||s.slug||'').replace(/'/g,'&#39;');
+        return '<button onclick="cpVerUsuarios(\''+s.slug+'\',\''+nome+'\')"'
+          +' style="display:flex;align-items:center;gap:8px;background:#ffffff;border:1.5px solid #dde3ef;border-radius:10px;padding:10px 12px;cursor:pointer;font-family:\'DM Sans\',sans-serif;text-align:left;transition:.15s;width:100%"'
+          +' onmouseover="this.style.borderColor=\'#1d4ed8\';this.style.background=\'#e8f2ff\'"'
+          +' onmouseout="this.style.borderColor=\'#dde3ef\';this.style.background=\'#ffffff\'">'
+          +'<span style="font-size:22px;flex-shrink:0">'+(s.icon||'💬')+'</span>'
+          +'<div><div style="font-family:\'Syne\',sans-serif;font-size:12px;font-weight:800;color:#1a2340">'+nome+'</div>'
+          +'<div style="font-size:9px;color:#7c8eaa;margin-top:1px">Ver usuários →</div></div></button>';
+      }).join('') || '<div style="text-align:center;padding:20px;font-size:12px;color:#8aafd4">Nenhuma sala.</div>';
+    }).catch(function(){ cpEl.innerHTML='<div style="text-align:center;padding:20px;font-size:12px;color:#8aafd4">Erro ao carregar salas.</div>'; });
   }
   // step já controlado acima na função
 
@@ -5135,51 +5131,22 @@ function fecharConvidarPrivado(){
 function cpVerUsuarios(salaId, salaNome){
   document.getElementById('cpSalaSel').textContent = salaNome;
   const list  = document.getElementById('cpUsersList');
-  const roomId = LS.get('tc_room','');
-
-  // Monta lista de usuários
-  let users = [];
-  if(salaId === roomId){
-    // Sala atual: usa o Set onlineUsers
-    onlineUsers.forEach(nick => {
-      if(nick === ME.nick) return;
-      const u = USERS[nick] || {};
-      users.push({nick, av: u.photo||u.av||'😊', role: u.role||'', color: u.color||'#8aafd4'});
-    });
-    // Fallback: lê itens do painel online pelo onclick (contém o nick)
-    if(!users.length){
-      document.querySelectorAll('#onlineList .ou').forEach(row => {
-        const onclick = row.getAttribute('onclick')||'';
-        const m = onclick.match(/openProfile\('([^']+)'\)/);
-        if(!m) return;
-        const nick = m[1];
-        if(nick === ME.nick) return;
-        const u = USERS[nick] || {};
-        users.push({nick, av: u.photo||u.av||'😊', role: u.role||'', color: u.color||'#8aafd4'});
-      });
-    }
-  } else {
-    users = (CP_USERS[salaId] || []).filter(u => u.nick !== ME.nick);
-  }
-
-  list.innerHTML = users.length ? users.map(u=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:#ffffff;border:1px solid #dde3ef">
-      <span style="font-size:22px;flex-shrink:0">${u.av||'😊'}</span>
-      <div style="flex:1;min-width:0">
-        <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:${u.color||'#1a2340'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.nick}</div>
-        ${u.role ? `<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:${u.color||'#8aafd4'};opacity:.7">${u.role}</div>` : ''}
-      </div>
-      <button id="cpInv_${u.nick}" onclick="cpEnviarConvite('${u.nick}','${u.av||'😊'}')"
-        style="height:28px;padding:0 12px;border-radius:6px;background:#7c3aed;border:none;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:.15s"
-        onmouseover="if(!this.disabled)this.style.background='#1d4ed8'"
-        onmouseout="if(!this.disabled)this.style.background='#0f1f3d'">
-        📨 Convidar
-      </button>
-    </div>`).join('')
-  : '<div style="text-align:center;padding:24px;font-size:12px;color:#8aafd4">Nenhum usuário online nesta sala</div>';
-
   document.getElementById('cpStep1').style.display = 'none';
   document.getElementById('cpStep2').style.display = '';
+  list.innerHTML = '<div style="text-align:center;padding:24px;font-size:12px;color:#8aafd4">Carregando…</div>';
+  API.roomUsers(salaId).then(function(d){
+    var users = ((d&&d.users)||[]).filter(function(u){ return u.nick !== ME.nick; });
+    list.innerHTML = users.length ? users.map(function(u){
+      var av=u.avatar||'\u{1F464}', role=u.role||'';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:#ffffff;border:1px solid #dde3ef">'
+        +'<span style="font-size:22px;flex-shrink:0">'+av+'</span>'
+        +'<div style="flex:1;min-width:0"><div style="font-family:\'Syne\',sans-serif;font-size:12px;font-weight:800;color:#1a2340;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+u.nick+'</div>'
+        +(role?'<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#8aafd4">'+role+'</div>':'')+'</div>'
+        +'<button id="cpInv_'+u.nick+'" onclick="cpEnviarConvite(\''+u.nick.replace(/'/g,"&#39;")+'\')" '
+        +'style="height:28px;padding:0 12px;border-radius:6px;background:#7c3aed;border:none;color:#fff;font-size:10px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif;white-space:nowrap;transition:.15s">\u{1F4E8} Convidar</button>'
+        +'</div>';
+    }).join('') : '<div style="text-align:center;padding:24px;font-size:12px;color:#8aafd4">Nenhum usuário online nesta sala</div>';
+  }).catch(function(){ list.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:#8aafd4">Erro ao carregar usuários.</div>'; });
 }
 
 function cpVoltar(){
@@ -5187,16 +5154,18 @@ function cpVoltar(){
 
 }
 
-function cpEnviarConvite(nick, av){
-  const roomId   = LS.get('tc_room','');
-  const roomName = LS.get('tc_room_name', roomId) || 'Sala Privada';
-  const convite  = { de: ME.nick, deAv: ME.av||'😊', salaPrivId: roomId, salaNome: roomName, salaIcon: '🔒', ts: Date.now() };
-  try { localStorage.setItem('tc_convite_'+nick, JSON.stringify(convite)); } catch(e){}
-  // Dispara evento de storage para que a aba/janela do destinatário receba o convite
-  // (O toast NÃO aparece para quem enviou — só para quem recebeu)
+function cpEnviarConvite(nick){
+  const dbId = parseInt(LS.get('tc_room_dbid','')||'0', 10);
   const btn = document.getElementById('cpInv_'+nick);
-  if(btn){ btn.textContent='✅ Enviado'; btn.style.background='#10b981'; btn.disabled=true; }
-  showToast('📨 Convite enviado para @'+nick+'!');
+  if(!dbId){ showToast('Não consegui identificar a sala. Entre pela lista de salas privadas.','error'); return; }
+  if(btn){ btn.textContent='Enviando…'; btn.disabled=true; }
+  API.privateRooms.invite(dbId, nick).then(function(){
+    if(btn){ btn.textContent='✅ Enviado'; btn.style.background='#10b981'; btn.disabled=true; }
+    showToast('📨 Convite enviado para @'+nick+'!');
+  }).catch(function(e){
+    if(btn){ btn.textContent='📨 Convidar'; btn.disabled=false; }
+    showToast((e&&e.message)||'Erro ao enviar convite.','error');
+  });
 }
 
 // ── CONVITE TOAST (canto inferior esquerdo) ─────────────────
@@ -5746,7 +5715,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
   }
   tcSocket.offAll();
   tcSocket.on('connected', function(){ tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
-  tcSocket.on('history', function(d){ (d.messages||[]).forEach(incoming); });
+  tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
   tcSocket.on('message', incoming);
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });

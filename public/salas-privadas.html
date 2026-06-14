@@ -373,6 +373,7 @@ function entrarSala(salaId){
   if(!s){ showToast('Sala não encontrada.','error'); return; }
   LS.set('tc_room', s.id);
   LS.set('tc_room_name', s.name);
+  LS.set('tc_room_dbid', String(s.dbId||''));
   window.location.href='chatprivado.html';
 }
 
