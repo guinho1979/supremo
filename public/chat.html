@@ -1193,11 +1193,7 @@ const MSG_TTL = 10 * 60 * 1000;
 // Safe localStorage wrapper
 const LS={get:(k,d='')=>{try{return localStorage.getItem(k)||d;}catch(e){return d;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}}};
 
-// Demo: force regular user session
-try{localStorage.setItem('tc_nick','dj_master');}catch(e){}
-try{localStorage.setItem('tc_role','dj');}catch(e){}
-try{localStorage.setItem('tc_avatar','🎧');}catch(e){}
-try{localStorage.setItem('tc_nickcolor','#a855f7');}catch(e){}
+// (Removido) Identidade demo forçada — agora usa o login real da sessão.
 // ─── Verificar se foi expulso pelo admin ─────────────────────────────────────
 (function checkKick(){
   const currentRoom = LS.get('tc_room','geral');
@@ -8462,7 +8458,7 @@ function processSmileKeywords(text){
   }
   tcSocket.offAll();
   tcSocket.on('connected', function(){ tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
-  tcSocket.on('history', function(d){ (d.messages||[]).forEach(incoming); });
+  tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
   tcSocket.on('message', incoming);
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
