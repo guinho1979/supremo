@@ -8327,7 +8327,6 @@ function processSmileKeywords(text){
   tcSocket.on('private', function(d){
     if(!d || !d.from_nick) return;
     try{ if(typeof receivePrivateMessage==='function') receivePrivateMessage(d.from_nick, d.content||''); }catch(e){}
-    try{ if(typeof showToast==='function') showToast('📨 Mensagem privada de @'+d.from_nick, 'info'); }catch(e){}
   });
   tcSocket.on('message', incoming);
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
@@ -8615,6 +8614,7 @@ function processSmileKeywords(text){
     setTimeout(function(){ try{ el.remove(); }catch(e){} }, 20000);
   }
   function checkInvites(){
+    try{ if(localStorage.getItem('tc_no_convites')==='1') return; }catch(e){}
     try{
       API.privateRooms.invites().then(function(d){
         ((d&&d.invites)||[]).forEach(function(inv){

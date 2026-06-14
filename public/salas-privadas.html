@@ -710,6 +710,7 @@ let _convitePendente = null;
 
 async function verificarConvitesPendentes() {
   if (_convitePendente) return;
+  try{ if(localStorage.getItem('tc_no_convites')==='1') return; }catch(e){}
   try {
     const d = await API.privateRooms.invites();
     const inv = (d.invites||[])[0];
