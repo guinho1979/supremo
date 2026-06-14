@@ -2582,6 +2582,7 @@ function toggleMsgExpiracao(el){
 let _currentPlayer = 1;
 const _playerLabels = {1:'Player 1 · Chat', 2:'Player 2 · Chat Privado', 3:'Player 3 · Global'};
 const _playerKeys = {1:'tc_radio_config', 2:'tc_radio_config_priv', 3:'tc_radio_config_global'};
+const _radioServerKeys = {1:'radio_chat', 2:'radio_priv', 3:'radio_global'};
 
 function selectPlayer(n){
   _currentPlayer = n;
@@ -2592,7 +2593,7 @@ function selectPlayer(n){
     if(i===n){t.style.borderColor='var(--purple)';t.style.background='var(--surface3)';t.style.color='var(--purple)';}
     else{t.style.borderColor='var(--border2)';t.style.background='var(--surface2)';t.style.color='var(--purple2)';}
   });
-  const saved = JSON.parse(localStorage.getItem(_playerKeys[n])||'{}');
+  const saved = (window._radioCfg && window._radioCfg[_radioServerKeys[n]]) || {};
   document.getElementById('radioUrl').value = saved.url||'';
   document.getElementById('radioName').value = saved.name||'Rádio Chat Supremo FM';
   document.getElementById('radioFormat').value = saved.format||'mp3';
@@ -2603,8 +2604,12 @@ function salvarRadioAdmin(){
   const name=document.getElementById('radioName').value.trim();
   const format=document.getElementById('radioFormat').value;
   if(!url){alert('Informe o endereço do stream');return;}
-  localStorage.setItem(_playerKeys[_currentPlayer], JSON.stringify({url,name,format}));
-  toast('✅ Player '+_currentPlayer+' salvo!');
+  const key=_radioServerKeys[_currentPlayer];
+  API.admin.setSystem(key, JSON.stringify({url,name,format})).then(function(){
+    if(!window._radioCfg) window._radioCfg={};
+    window._radioCfg[key]={url,name,format};
+    toast('✅ Player '+_currentPlayer+' salvo!');
+  }).catch(function(e){ alert((e&&e.message)||'Erro ao salvar'); });
 }
 
 function testarRadioAdmin(){
@@ -2620,7 +2625,10 @@ function testarRadioAdmin(){
 
 // Init first player on load
 document.addEventListener('DOMContentLoaded',function(){
-  selectPlayer(1);
+  API.getSystemConfig().then(function(d){
+    var cfg=(d&&d.config)||{}; window._radioCfg={};
+    ['radio_chat','radio_priv','radio_global'].forEach(function(k){ try{ window._radioCfg[k]=cfg[k]?JSON.parse(cfg[k]):{}; }catch(e){ window._radioCfg[k]={}; } });
+  }).catch(function(){ window._radioCfg={}; }).then(function(){ selectPlayer(1); });
   renderLoginTable();
   carregarConfigMensagens();
 });

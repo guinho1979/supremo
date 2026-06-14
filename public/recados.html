@@ -178,8 +178,11 @@ input[type=color]{width:0;height:0;border:none;padding:0;opacity:0;position:abso
   <div class="page-title">📝 Mural de Recados</div>
   <p class="page-sub">Compartilhe com a comunidade · <span id="totalPosts">0</span> publicações</p>
 
+  <!-- BOTÃO DEIXAR RECADOS (mostra/esconde o card de publicação) -->
+  <button id="deixarRecadosBtn" onclick="toggleComposer()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:24px;padding:14px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 2px 16px rgba(37,99,235,.06);transition:.15s">✏️ Deixar recados</button>
+
   <!-- COMPOSER -->
-  <div class="composer">
+  <div class="composer" id="composerCard" style="display:none">
     <div class="composer-header">
       <div class="composer-av" id="compAv">😊</div>
       <div>
@@ -917,6 +920,17 @@ function fecharGuestAlert(){
     }
   }).catch(function(){});
 })();
+</script>
+<script>
+function toggleComposer(){
+  var c=document.getElementById('composerCard');
+  var b=document.getElementById('deixarRecadosBtn');
+  if(!c) return;
+  var show = (c.style.display==='none' || !c.style.display);
+  c.style.display = show ? '' : 'none';
+  if(b) b.innerHTML = show ? '✖ Fechar' : '✏️ Deixar recados';
+  if(show){ var t=document.getElementById('postText'); if(t) setTimeout(function(){ try{t.focus();}catch(e){} },60); }
+}
 </script>
 </body>
 </html>
