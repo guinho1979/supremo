@@ -927,7 +927,7 @@ function toggleComposer(){
   var b=document.getElementById('deixarRecadosBtn');
   if(!c) return;
   var show = (c.style.display==='none' || !c.style.display);
-  c.style.display = show ? '' : 'none';
+  c.style.display = show ? 'block' : 'none';
   if(b) b.innerHTML = show ? '✖ Fechar' : '✏️ Deixar recados';
   if(show){ var t=document.getElementById('postText'); if(t) setTimeout(function(){ try{t.focus();}catch(e){} },60); }
 }
