@@ -253,8 +253,8 @@ router.patch('/me', authMiddleware, async (req, res) => {
     const b = req.body;
     if (b.photo_url && b.photo_url.length > 3 * 1024 * 1024)
       return res.status(400).json({ error: 'Foto muito grande. Máximo 2MB.' });
-    if (b.profile_audio && b.profile_audio.length > 8 * 1024 * 1024)
-      return res.status(400).json({ error: 'Áudio muito grande (máx ~6MB).' });
+    if (b.profile_audio && b.profile_audio.length > 10 * 1024 * 1024)
+      return res.status(400).json({ error: 'Áudio muito grande (máx 7MB).' });
 
     const fields = [];
     const values = [];
