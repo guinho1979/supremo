@@ -7271,6 +7271,10 @@ function sendPrivateWindow(nick, inp) {
   renderPvNotifBadge();
   // Add to private window
   addPrivateMsgToWindow(nick, ME.nick, text, true);
+  // Enviar pelo socket para o destinatário
+  if (window.tcSocket && tcSocket.connected) {
+    tcSocket.emit('private_message', { to: nick, text: text });
+  }
   inp.value = '';
 
 }
@@ -8101,6 +8105,27 @@ function ctxPrivate() {
     const icon = document.getElementById('frpVolIcon');
     if (icon) icon.textContent = frpMuted ? '🔇' : (frpVol < 50 ? '🔉' : '🔊');
   };
+
+  // Carrega as estações configuradas pelo admin (servidor) e esconde as não configuradas
+  (function(){
+    if (typeof API === 'undefined') return;
+    var keys = ['radio_chat','radio_priv','radio_global'];
+    API.getSystemConfig().then(function(d){
+      var cfg = (d && d.config) || {};
+      keys.forEach(function(k, i){
+        var card = document.getElementById('frpSt' + i);
+        var raw = cfg[k]; var st = null;
+        try { st = raw ? JSON.parse(raw) : null; } catch(e) { st = null; }
+        if (st && st.url) {
+          STATIONS[i].url = st.url;
+          if (st.name) STATIONS[i].name = st.name;
+          if (card) { card.style.display = ''; var nm = card.querySelector('.frp-st-name'); if (nm && st.name) nm.textContent = st.name; }
+        } else {
+          if (card) card.style.display = 'none';
+        }
+      });
+    }).catch(function(){});
+  })();
 })();
 </script>
 
@@ -8299,9 +8324,16 @@ function processSmileKeywords(text){
     if(typeof updateDJOnlineName==='function'){ try{ updateDJOnlineName(); }catch(e){} }
   }
   tcSocket.offAll();
-  tcSocket.on('connected', function(){ tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
+  tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
   tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
   tcSocket.on('message', incoming);
+  // ── Receber mensagens privadas e disparar notificação ────────────────────
+  tcSocket.on('private_message', function(d) {
+    if (!d || !d.from || !d.text) return;
+    if (typeof receivePrivateMessage === 'function') {
+      receivePrivateMessage(d.from, d.text);
+    }
+  });
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
   tcSocket.on('user_left', function(d){ delete roomRoles[d.nick]; renderOnline(); });
@@ -8482,7 +8514,8 @@ function processSmileKeywords(text){
   if(!window.tcSocket) return;
   tcSocket.on('kicked', function(d){ try{ if(typeof showToast==='function') showToast('Você foi removido da sala'+(d&&d.by?(' por '+d.by):'')+'.','error'); else alert('Você foi removido da sala.'); }catch(e){} setTimeout(function(){ location.href='salas.html'; }, 800); });
   tcSocket.on('room_cleared', function(){ var a=document.getElementById('msgArea'); if(a) a.innerHTML=''; if(typeof showToast==='function') showToast('As mensagens desta sala foram limpas.','info'); });
-  tcSocket.on('session_replaced', function(){ try{ if(typeof showToast==='function') showToast('Sua conta entrou em outro dispositivo. Esta sessão foi encerrada.','error'); }catch(e){} setTimeout(function(){ location.href='login.html'; }, 1400); });
+  tcSocket.on('session_replaced', function(){ if(Date.now()-(window._tcConnAt||0) < 6000) return; try{ if(typeof showToast==='function') showToast('Sua conta entrou em outro dispositivo. Esta sessão foi encerrada.','error'); }catch(e){} setTimeout(function(){ location.href='login.html'; }, 1400); });
+  window.addEventListener('pageshow', function(e){ if(e.persisted){ location.reload(); } });
 })();
 </script>
 <script>
