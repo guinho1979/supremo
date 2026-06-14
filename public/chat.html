@@ -7271,10 +7271,8 @@ function sendPrivateWindow(nick, inp) {
   renderPvNotifBadge();
   // Add to private window
   addPrivateMsgToWindow(nick, ME.nick, text, true);
-  // Enviar pelo socket para o destinatário
-  if (window.tcSocket && tcSocket.connected) {
-    tcSocket.emit('private_message', { to: nick, text: text });
-  }
+  // Enviar pelo servidor (tempo real)
+  if(window.tcSocket && tcSocket.connected){ try{ tcSocket.private(nick, text); }catch(e){} }
   inp.value = '';
 
 }
@@ -8326,14 +8324,8 @@ function processSmileKeywords(text){
   tcSocket.offAll();
   tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
   tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
+  tcSocket.on('private', function(d){ if(d && d.from_nick && typeof receivePrivateMessage==='function'){ receivePrivateMessage(d.from_nick, d.content||''); } });
   tcSocket.on('message', incoming);
-  // ── Receber mensagens privadas e disparar notificação ────────────────────
-  tcSocket.on('private_message', function(d) {
-    if (!d || !d.from || !d.text) return;
-    if (typeof receivePrivateMessage === 'function') {
-      receivePrivateMessage(d.from, d.text);
-    }
-  });
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
   tcSocket.on('user_left', function(d){ delete roomRoles[d.nick]; renderOnline(); });
