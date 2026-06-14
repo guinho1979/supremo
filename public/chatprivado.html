@@ -5155,7 +5155,13 @@ function cpVoltar(){
 }
 
 function cpEnviarConvite(nick){
-  const dbId = parseInt(LS.get('tc_room_dbid','')||'0', 10);
+  var dbId = parseInt(LS.get('tc_room_dbid','')||'0', 10);
+  if(!dbId){
+    // Fallback: o slug da sala é 'priv_<id>', então extrai o número dele
+    var slug = LS.get('tc_room','');
+    var m = /(\d+)/.exec(slug||'');
+    if(m) dbId = parseInt(m[1], 10);
+  }
   const btn = document.getElementById('cpInv_'+nick);
   if(!dbId){ showToast('Não consegui identificar a sala. Entre pela lista de salas privadas.','error'); return; }
   if(btn){ btn.textContent='Enviando…'; btn.disabled=true; }

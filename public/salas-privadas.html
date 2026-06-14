@@ -358,6 +358,8 @@ async function criarSala(){
     fecharModalCriar();
     LS.set('tc_room', d.room.slug);
     LS.set('tc_room_name', d.room.name);
+    LS.set('tc_room_dbid', String(d.room.id||''));
+    LS.set('tc_room_owner', d.room.owner_nick || (typeof ME!=='undefined'&&ME.nick ? ME.nick : LS.get('tc_nick','')));
     window.location.href='chatprivado.html';
   }catch(e){ showToast(e.message||'Erro ao criar sala.','error'); }
 }
