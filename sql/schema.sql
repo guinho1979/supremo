@@ -215,13 +215,7 @@ CREATE TABLE IF NOT EXISTS online_presence (
 -- ─────────────────────────────────────────────────────────────
 INSERT INTO rooms (slug, name, description, icon, category, sort_order) VALUES
   ('geral',     'Geral',          'Sala principal para todos',           '💬', 'geral',    1),
-  ('esportes',  'Esportes',       'Futebol, MMA e todos os esportes',    '⚽', 'esportes', 2),
-  ('musica',    'Música',         'Para os amantes da boa música',       '🎵', 'cultura',  3),
-  ('jogos',     'Jogos',          'Games, RPG e diversão',               '🎮', 'games',    4),
-  ('filmes',    'Filmes & Séries','Cinema, Netflix e indicações',        '🎬', 'cultura',  5),
-  ('tecnologia','Tecnologia',     'Tech, programação e gadgets',         '💻', 'tech',     6),
-  ('vip',       'VIP Lounge',     'Exclusivo para VIP e Premium',        '⭐', 'especial', 7),
-  ('admin',     'Staff',          'Sala da equipe de moderação',         '🛡', 'staff',    8)
+  ('musica',    'Música',         'Para os amantes da boa música',       '🎵', 'cultura',  3)
 ON CONFLICT (slug) DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────────
