@@ -8601,6 +8601,34 @@ function processSmileKeywords(text){
   }).catch(function(){});
 })();
 </script>
+<script>
+/* Aviso de convite de sala privada — funciona no chat principal */
+(function(){
+  if(typeof API==='undefined' || !API.privateRooms || !API.privateRooms.invites) return;
+  var notified = {};
+  function showInviteToast(inv){
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:99999;background:#1a1735;color:#fff;border:1.5px solid #7c3aed;border-radius:14px;padding:12px 16px;box-shadow:0 6px 28px rgba(0,0,0,.45);font-family:DM Sans,sans-serif;max-width:92%;display:flex;align-items:center;gap:12px;cursor:pointer';
+    el.innerHTML = '<span style="font-size:22px">📨</span><div style="flex:1;font-size:13px;line-height:1.35"><b>'+((inv.from_nick||'Alguém'))+'</b> te convidou para a sala privada <b>'+((inv.name||''))+'</b>.<br><span style="color:#a855f7;font-weight:700">Toque para ver e aceitar →</span></div>';
+    el.onclick = function(){ try{ location.href='salas-privadas.html'; }catch(e){} };
+    document.body.appendChild(el);
+    setTimeout(function(){ try{ el.remove(); }catch(e){} }, 20000);
+  }
+  function checkInvites(){
+    try{
+      API.privateRooms.invites().then(function(d){
+        ((d&&d.invites)||[]).forEach(function(inv){
+          if(notified[inv.id]) return;
+          notified[inv.id]=true;
+          showInviteToast(inv);
+        });
+      }).catch(function(){});
+    }catch(e){}
+  }
+  setTimeout(checkInvites, 3000);
+  setInterval(checkInvites, 10000);
+})();
+</script>
 </body>
 <!-- ── MAIN CHAT PAINT MODAL ──────────────────────────────────────────────── -->
 <div id="mainPaintOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeMainPaintModal()">
