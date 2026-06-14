@@ -2825,11 +2825,12 @@ function togglePlay(){
 
 function syncTopRoomName(){
   const roomId=LS.get('tc_room')||'geral';
-  const rd=ROOM_DATA[roomId]||ROOM_DATA.geral;
+  const realName=LS.get('tc_room_name','');
+  const rd=ROOM_DATA[roomId]||{name:(realName||roomId),icon:'💬'};
   const iconEl=document.getElementById('topRoomIcon');
   const nameEl=document.getElementById('topRoomName');
   if(iconEl)iconEl.textContent=rd.icon;
-  if(nameEl)nameEl.textContent=rd.name;
+  if(nameEl)nameEl.textContent=realName||rd.name;
 }
 
 // ─── AUDIO PLAYER (real HTMLAudioElement) ────────────────────────────────────
@@ -7746,165 +7747,6 @@ function ctxPrivate() {
   closeCtx();
 }
 
-// ─── DEMO USER: DanielDev — add to online panel ──────────────────────────────
-(function addDemoUserDanielDev() {
-  const nick = 'DanielDev';
-  const av = '💻';
-  const color = '#0891b2';
-  const badge = 'b-user';
-
-  // Add to the onlineUsers set so PV check passes
-  onlineUsers.add(nick);
-
-  // Add to USERS_DATA
-  if (typeof USERS_DATA !== 'undefined') {
-    USERS_DATA[nick] = {
-      av, avBg: '#0e3a4a', avColor: '#67e8f9',
-      bio: 'Dev full-stack 🚀 Apaixonado por código e café.',
-      role: 'user', age: '26', city: 'Florianópolis', gender: 'M',
-      job: 'Desenvolvedor', interests: 'Programação, games, música'
-    };
-  }
-
-  // Update onlineNum counter
-  function _updateOnlineNum(delta) {
-    const el = document.getElementById('onlineNum');
-    if (el) el.textContent = parseInt(el.textContent || '0') + delta;
-  }
-
-  // Build the .ou row HTML same as the app pattern
-  function _buildOuRow() {
-    var row = document.createElement('div');
-    row.className = 'ou';
-    row.dataset.nick = nick;
-    row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:5px 3px;cursor:pointer;border-radius:8px;transition:.15s';
-    // Avatar
-    var avEl = document.createElement('div');
-    avEl.className = 'ou-av';
-    avEl.style.cssText = 'width:28px;height:28px;border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;background:#0e3a4a;color:#67e8f9;flex-shrink:0';
-    avEl.textContent = av;
-    // Info
-    var infoEl = document.createElement('div');
-    infoEl.className = 'ou-info';
-    infoEl.style.cssText = 'overflow:hidden;flex:1';
-    // Nick row
-    var nickEl = document.createElement('div');
-    nickEl.className = 'ou-nick';
-    nickEl.style.cssText = 'font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Montserrat,sans-serif;display:flex;align-items:center;gap:4px;color:' + color;
-    var dot = document.createElement('span');
-    dot.className = 'ou-nick-dot';
-    dot.style.cssText = 'width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block;background:#22c55e';
-    var nickText = document.createTextNode(' ' + nick + ' ');
-    var devBadge = document.createElement('span');
-    devBadge.style.cssText = 'font-size:10px;font-weight:600;padding:1px 5px;border-radius:4px;background:#e0f2fe;color:#0369a1;margin-left:2px';
-    devBadge.textContent = 'DEMO';
-    nickEl.appendChild(dot);
-    nickEl.appendChild(nickText);
-    nickEl.appendChild(devBadge);
-    var statusEl = document.createElement('div');
-    statusEl.style.cssText = 'font-size:10px;color:#9ab;margin-top:1px';
-    statusEl.textContent = 'online';
-    infoEl.appendChild(nickEl);
-    infoEl.appendChild(statusEl);
-    row.appendChild(avEl);
-    row.appendChild(infoEl);
-    return row;
-  }
-
-  // Wait for onlineList to be ready then insert
-  function _insertDemoUser() {
-    const list = document.getElementById('onlineList');
-    if (!list) { setTimeout(_insertDemoUser, 500); return; }
-    const row = _buildOuRow();
-    list.appendChild(row);
-    _patchOuElement(row);
-    _updateOnlineNum(1);
-  }
-
-  // Insert after a small delay to feel natural
-  setTimeout(_insertDemoUser, 800);
-
-  // Send a greeting PV after 5 seconds
-  setTimeout(() => {
-    receivePrivateMessage(nick, 'Oi! 👋 Sou o DanielDev. Manda um PV pra mim, posso responder!');
-  }, 5000);
-})();
-
-// ─── DEMO USER: Larissa_M — add to online panel ──────────────────────────────
-(function addDemoUserLarissa() {
-  const nick = 'Larissa_M';
-  const av = '🌺';
-  const color = '#db2777';
-  const badge = 'b-user';
-
-  onlineUsers.add(nick);
-
-  if (typeof USERS_DATA !== 'undefined') {
-    USERS_DATA[nick] = {
-      av, avBg: '#4a1a3a', avColor: '#f9a8d4',
-      bio: 'Oi pessoal! 🌸 Aqui pra bater papo.',
-      role: 'user', age: '22', city: 'Salvador', gender: 'F',
-      job: 'Estudante', interests: 'Música, viagens, moda'
-    };
-  }
-
-  function _updateNum(delta) {
-    const el = document.getElementById('onlineNum');
-    if (el) el.textContent = parseInt(el.textContent || '0') + delta;
-  }
-
-  function _buildRow() {
-    var row = document.createElement('div');
-    row.className = 'ou';
-    row.dataset.nick = nick;
-    var avEl = document.createElement('div');
-    avEl.className = 'ou-av';
-    avEl.style.cssText = 'width:28px;height:28px;border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;background:#4a1a3a;color:#f9a8d4;flex-shrink:0';
-    avEl.textContent = av;
-    var infoEl = document.createElement('div');
-    infoEl.className = 'ou-info';
-    infoEl.style.cssText = 'overflow:hidden;flex:1';
-    var nickEl = document.createElement('div');
-    nickEl.className = 'ou-nick';
-    nickEl.style.cssText = 'font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:Montserrat,sans-serif;display:flex;align-items:center;gap:4px;color:' + color;
-    var dot = document.createElement('span');
-    dot.className = 'ou-nick-dot';
-    dot.style.cssText = 'width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block;background:#22c55e';
-    var nickText = document.createTextNode(' ' + nick + ' ');
-    // Nick emoji (from tc_nick_emoji — only for the current user's row)
-    var neData = (typeof ME !== 'undefined' && nick === ME.nick) ? LS.get('tc_nick_emoji','') : '';
-    if(neData){
-      var neSpan = document.createElement('span');
-      neSpan.dataset.nickEmoji = '1';
-      neSpan.style.cssText = 'font-size:14px;margin-right:2px;flex-shrink:0';
-      neSpan.textContent = neData;
-      nickEl.appendChild(dot);
-      nickEl.appendChild(neSpan);
-    } else {
-      nickEl.appendChild(dot);
-    }
-    nickEl.appendChild(nickText);
-    var statusEl = document.createElement('div');
-    statusEl.style.cssText = 'font-size:10px;color:#9ab;margin-top:1px';
-    statusEl.textContent = 'online';
-    infoEl.appendChild(nickEl);
-    infoEl.appendChild(statusEl);
-    row.appendChild(avEl);
-    row.appendChild(infoEl);
-    return row;
-  }
-
-  function _insert() {
-    const list = document.getElementById('onlineList');
-    if (!list) { setTimeout(_insert, 500); return; }
-    const row = _buildRow();
-    list.appendChild(row);
-    if (typeof _patchOuElement === 'function') _patchOuElement(row);
-    _updateNum(1);
-  }
-
-  setTimeout(_insert, 1000);
-})();
 </script>
 
 <!-- ONLINE PANEL USER MENU -->

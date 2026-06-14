@@ -634,18 +634,24 @@ function abrirModalConvidar(salaPrivId, salaNome, salaIcon) {
   document.getElementById('convidarStep1').style.display = '';
   document.getElementById('convidarStep2').style.display = 'none';
 
-  // Renderizar grid de salas públicas
+  // Renderizar grid de salas públicas REAIS (do servidor)
   const grid = document.getElementById('convidarSalasGrid');
-  grid.innerHTML = SALAS_PUBLICAS.map(s => `
-    <button onclick="selecionarSalaPublica('${s.id}','${s.name}')"
-      style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px solid #c8d8f5;background:#f0f6fc;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;text-align:left"
-      onmouseover="this.style.borderColor='#7c3aed';this.style.background='#f5f3ff'"
-      onmouseout="this.style.borderColor='#c8d8f5';this.style.background='#f0f6fc'">
-      <span style="font-size:20px">${s.icon}</span>
-      <span style="font-size:12px;font-weight:700;color:#0f1f3d">${s.name.replace(/^.+ /,'')}</span>
-    </button>`).join('');
-
+  grid.innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:#7a90b0">Carregando salas…</div>';
   document.getElementById('convidarModal').style.display = 'flex';
+  API.getRooms().then(function(d){
+    var rooms = (d && d.rooms) || [];
+    grid.innerHTML = rooms.map(function(s){
+      var nm = (s.name || s.slug || '').replace(/'/g,'&#39;');
+      return '<button onclick="selecionarSalaPublica(\''+s.slug+'\',\''+nm+'\')"'
+        + ' style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;border:1.5px solid #c8d8f5;background:#f0f6fc;cursor:pointer;font-family:\'DM Sans\',sans-serif;transition:.15s;text-align:left"'
+        + ' onmouseover="this.style.borderColor=\'#7c3aed\';this.style.background=\'#f5f3ff\'"'
+        + ' onmouseout="this.style.borderColor=\'#c8d8f5\';this.style.background=\'#f0f6fc\'">'
+        + '<span style="font-size:20px">'+(s.icon||'💬')+'</span>'
+        + '<span style="font-size:12px;font-weight:700;color:#0f1f3d">'+nm+'</span></button>';
+    }).join('') || '<div style="text-align:center;padding:20px;font-size:12px;color:#7a90b0">Nenhuma sala disponível.</div>';
+  }).catch(function(){
+    grid.innerHTML = '<div style="text-align:center;padding:20px;font-size:12px;color:#7a90b0">Erro ao carregar salas.</div>';
+  });
 }
 
 async function selecionarSalaPublica(salaId, salaNome) {
