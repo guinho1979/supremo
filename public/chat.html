@@ -8324,7 +8324,11 @@ function processSmileKeywords(text){
   tcSocket.offAll();
   tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
   tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
-  tcSocket.on('private', function(d){ if(d && d.from_nick && typeof receivePrivateMessage==='function'){ receivePrivateMessage(d.from_nick, d.content||''); } });
+  tcSocket.on('private', function(d){
+    if(!d || !d.from_nick) return;
+    try{ if(typeof receivePrivateMessage==='function') receivePrivateMessage(d.from_nick, d.content||''); }catch(e){}
+    try{ if(typeof showToast==='function') showToast('📨 Mensagem privada de @'+d.from_nick, 'info'); }catch(e){}
+  });
   tcSocket.on('message', incoming);
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
