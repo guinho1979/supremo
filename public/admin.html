@@ -855,42 +855,33 @@ tr:hover td{background:var(--surface2)}
     <div class="page" id="page-dj">
       <div class="page-title">🎧 Painel DJ</div>
 
-      <!-- Servidor da Rádio -->
+      <!-- Rádios do Chat -->
       <div class="section" id="secRadioServer">
-        <div class="section-title">📡 Servidor da Rádio <span style="font-size:9px;background:#064e3b;color:#6ee7b7;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:700">ADMIN</span></div>
-        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-          <button onclick="selectPlayer(1)" id="tabPlayer1" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s">Player 1</button>
-          <button onclick="selectPlayer(2)" id="tabPlayer2" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s">Player 2</button>
-          <button onclick="selectPlayer(3)" id="tabPlayer3" style="flex:1;padding:7px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s">Player 3</button>
+        <div class="section-title">📻 Rádios do Chat <span style="font-size:9px;background:#064e3b;color:#6ee7b7;padding:2px 8px;border-radius:20px;margin-left:6px;font-weight:700">ADMIN</span></div>
+        <div style="font-size:11px;color:#8aafd4;margin-bottom:14px;line-height:1.55">
+          Configure até 3 rádios. Os usuários escolhem qual ouvir no player das salas de chat. Deixe os campos em branco para não exibir aquela rádio.
         </div>
-        <div class="field" style="margin-bottom:10px">
-          <label>Endereço do stream (URL) — <span id="playerLabel" style="color:#8aafd4;font-weight:700">Player 1 · Chat</span></label>
-          <input id="radioUrl" placeholder="ex: https://stream.minharadio.com:8000/live" style="font-family:monospace"/>
-        </div>
-        <div class="field" style="margin-bottom:10px">
-          <label>Nome da rádio</label>
-          <input id="radioName" placeholder="ex: Rádio Chat Supremo FM" value="Rádio Chat Supremo FM"/>
-        </div>
-        <div class="field" style="margin-bottom:10px">
-          <label>Formato</label>
-          <select id="radioFormat">
-            <option value="mp3">MP3</option>
-            <option value="aac">AAC</option>
-            <option value="ogg">OGG</option>
-            <option value="hls">HLS (.m3u8)</option>
-          </select>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn-primary" onclick="salvarRadioAdmin()">💾 Salvar Player <span id="savingPlayer">1</span></button>
-          <button class="btn-secondary" onclick="testarRadioAdmin()">▶ Testar</button>
-        </div>
-        <div id="radioTestResult" style="margin-top:8px;font-size:11px;display:none"></div>
-      </div>
 
-      <div class="section">
-        <div class="section-title">Status</div>
-        <div class="toggle-row"><div class="toggle-info">DJ Online</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div class="toggle-row"><div class="toggle-info">Radio ao vivo</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div style="border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:10px">
+          <div style="font-weight:800;font-size:12px;color:var(--purple2);margin-bottom:8px">🎵 Rádio 1</div>
+          <div class="field" style="margin-bottom:8px"><label>Nome</label><input id="radioName1" placeholder="ex: Rádio Sertanejo"/></div>
+          <div class="field"><label>Endereço do stream (URL)</label><input id="radioUrl1" placeholder="https://stream.exemplo.com:8000/live" style="font-family:monospace"/></div>
+        </div>
+
+        <div style="border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:10px">
+          <div style="font-weight:800;font-size:12px;color:var(--purple2);margin-bottom:8px">🎵 Rádio 2</div>
+          <div class="field" style="margin-bottom:8px"><label>Nome</label><input id="radioName2" placeholder="ex: Rádio Rock"/></div>
+          <div class="field"><label>Endereço do stream (URL)</label><input id="radioUrl2" placeholder="https://stream.exemplo.com:8000/live" style="font-family:monospace"/></div>
+        </div>
+
+        <div style="border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:12px">
+          <div style="font-weight:800;font-size:12px;color:var(--purple2);margin-bottom:8px">🎵 Rádio 3</div>
+          <div class="field" style="margin-bottom:8px"><label>Nome</label><input id="radioName3" placeholder="ex: Rádio Pop"/></div>
+          <div class="field"><label>Endereço do stream (URL)</label><input id="radioUrl3" placeholder="https://stream.exemplo.com:8000/live" style="font-family:monospace"/></div>
+        </div>
+
+        <button class="btn-primary" onclick="salvarRadioAdmin()">💾 Salvar rádios</button>
+        <div id="radioTestResult" style="margin-top:10px;font-size:11px;display:none"></div>
       </div>
     </div>
 
@@ -2584,43 +2575,36 @@ const _playerLabels = {1:'Player 1 · Chat', 2:'Player 2 · Chat Privado', 3:'Pl
 const _playerKeys = {1:'tc_radio_config', 2:'tc_radio_config_priv', 3:'tc_radio_config_global'};
 const _radioServerKeys = {1:'radio_chat', 2:'radio_priv', 3:'radio_global'};
 
-function selectPlayer(n){
-  _currentPlayer = n;
-  document.getElementById('playerLabel').textContent = _playerLabels[n];
-  document.getElementById('savingPlayer').textContent = n;
-  [1,2,3].forEach(i=>{
-    const t=document.getElementById('tabPlayer'+i);
-    if(i===n){t.style.borderColor='var(--purple)';t.style.background='var(--surface3)';t.style.color='var(--purple)';}
-    else{t.style.borderColor='var(--border2)';t.style.background='var(--surface2)';t.style.color='var(--purple2)';}
-  });
-  const saved = (window._radioCfg && window._radioCfg[_radioServerKeys[n]]) || {};
-  document.getElementById('radioUrl').value = saved.url||'';
-  document.getElementById('radioName').value = saved.name||'Rádio Chat Supremo FM';
-  document.getElementById('radioFormat').value = saved.format||'mp3';
+var _radioKeys = ['radio_chat','radio_priv','radio_global'];
+
+function carregarRadioAdmin(){
+  for(var i=1;i<=3;i++){
+    var saved = (window._radioCfg && window._radioCfg[_radioKeys[i-1]]) || {};
+    var u=document.getElementById('radioUrl'+i); if(u) u.value=saved.url||'';
+    var n=document.getElementById('radioName'+i); if(n) n.value=saved.name||'';
+  }
 }
 
 function salvarRadioAdmin(){
-  const url=document.getElementById('radioUrl').value.trim();
-  const name=document.getElementById('radioName').value.trim();
-  const format=document.getElementById('radioFormat').value;
-  if(!url){alert('Informe o endereço do stream');return;}
-  const key=_radioServerKeys[_currentPlayer];
-  API.admin.setSystem(key, JSON.stringify({url,name,format})).then(function(){
+  var res=document.getElementById('radioTestResult');
+  function msg(c,t){ if(res){res.style.display='';res.style.color=c;res.textContent=t;} }
+  var dados=[];
+  for(var i=1;i<=3;i++){
+    var url=(document.getElementById('radioUrl'+i).value||'').trim();
+    var name=(document.getElementById('radioName'+i).value||'').trim();
+    if(url && !/^https?:\/\//i.test(url)){ msg('#ef4444','❌ Rádio '+i+': use uma URL começando com http:// ou https://.'); return; }
+    dados.push({url:url, name:(name||('Rádio '+i)), format:'mp3'});
+  }
+  msg('#f59e0b','⏳ Salvando...');
+  Promise.all([
+    API.admin.setSystem(_radioKeys[0], JSON.stringify(dados[0])),
+    API.admin.setSystem(_radioKeys[1], JSON.stringify(dados[1])),
+    API.admin.setSystem(_radioKeys[2], JSON.stringify(dados[2]))
+  ]).then(function(){
     if(!window._radioCfg) window._radioCfg={};
-    window._radioCfg[key]={url,name,format};
-    toast('✅ Player '+_currentPlayer+' salvo!');
-  }).catch(function(e){ alert((e&&e.message)||'Erro ao salvar'); });
-}
-
-function testarRadioAdmin(){
-  const url=document.getElementById('radioUrl').value.trim();
-  const res=document.getElementById('radioTestResult');
-  if(!url){alert('Informe o endereço do stream');return;}
-  res.style.display='';res.style.color='#f59e0b';res.textContent='⏳ Testando conexão...';
-  setTimeout(()=>{
-    if(url.startsWith('http')){res.style.color='#10b981';res.textContent='✅ Servidor acessível! Stream pronto.';}
-    else{res.style.color='#ef4444';res.textContent='❌ URL inválida. Use http:// ou https://';}
-  },1500);
+    for(var k=0;k<3;k++){ window._radioCfg[_radioKeys[k]]=dados[k]; }
+    msg('#10b981','✅ Rádios salvas! Os usuários já podem escolher nas salas de chat.');
+  }).catch(function(e){ msg('#ef4444','❌ '+((e&&e.message)||'Erro ao salvar')); });
 }
 
 // Init first player on load
@@ -2628,7 +2612,7 @@ document.addEventListener('DOMContentLoaded',function(){
   API.getSystemConfig().then(function(d){
     var cfg=(d&&d.config)||{}; window._radioCfg={};
     ['radio_chat','radio_priv','radio_global'].forEach(function(k){ try{ window._radioCfg[k]=cfg[k]?JSON.parse(cfg[k]):{}; }catch(e){ window._radioCfg[k]={}; } });
-  }).catch(function(){ window._radioCfg={}; }).then(function(){ selectPlayer(1); });
+  }).catch(function(){ window._radioCfg={}; }).then(function(){ carregarRadioAdmin(); });
   renderLoginTable();
   carregarConfigMensagens();
 });

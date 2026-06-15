@@ -3487,6 +3487,7 @@ const REACTIONS = window._REACTIONS || (window._REACTIONS = [
     ${(msg.isMine||canDeleteMsg())&&!msg.monitoredPV?`<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>`:''}
   </div></div>`;
   area.appendChild(d);
+  if(!msg.isMine){ try{ if(typeof _applyNickStyle==='function'){ var _ne=d.querySelector('.msg-nick'); if(_ne) _applyNickStyle(_ne, msg.nick); } }catch(e){} }
   if(msg.isMine){
     const nickEl = d.querySelector('.msg-nick');
     if(nickEl){
@@ -8316,7 +8317,8 @@ function processSmileKeywords(text){
     if(el){
       el.innerHTML = nicks.map(function(n){
         var role=(roomRoles[n]||'user');
-        return '<div class="ou" style="display:flex;align-items:center;gap:8px;padding:6px 4px"><span class="ou-nick" style="flex:1;font-weight:700;font-size:13px">'+n+'</span><span class="badge">'+role.toUpperCase()+'</span></div>';
+        var _cp=(typeof _nickColorParts==='function')?_nickColorParts(n):{cls:'',style:''};
+        return '<div class="ou" style="display:flex;align-items:center;gap:8px;padding:6px 4px"><span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:13px;'+_cp.style+'">'+n+'</span><span class="badge">'+role.toUpperCase()+'</span></div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
     if(typeof updateDJOnlineName==='function'){ try{ updateDJOnlineName(); }catch(e){} }
@@ -8628,6 +8630,44 @@ function processSmileKeywords(text){
   setTimeout(checkInvites, 3000);
   setInterval(checkInvites, 10000);
 })();
+</script>
+<script>
+/* Cores de nick (servidor) — aplica na lista de online e nas mensagens, para todos */
+window._nickColors = window._nickColors || {};
+function _nickColorParts(nick){
+  var c = window._nickColors[nick];
+  if(!c) return {cls:'',style:''};
+  if(c.effect && c.effect!=='none') return {cls:'nick-fx-'+c.effect, style:''};
+  if(c.gradient && c.gradient.indexOf(',')>-1){
+    var p=c.gradient.split(',');
+    return {cls:'', style:'background:linear-gradient(90deg,'+p[0]+','+p[1]+');-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:800;'};
+  }
+  if(c.color) return {cls:'', style:'color:'+c.color+' !important;'};
+  return {cls:'',style:''};
+}
+function _applyNickStyle(el, nick){
+  if(!el) return;
+  var parts=_nickColorParts(nick);
+  ['nick-fx-rainbow','nick-fx-fire','nick-fx-galaxy','nick-fx-gold','nick-fx-matrix'].forEach(function(k){ try{el.classList.remove(k);}catch(e){} });
+  try{ el.style.background=''; el.style.webkitBackgroundClip=''; el.style.backgroundClip=''; el.style.webkitTextFillColor=''; }catch(e){}
+  if(parts.cls){ try{el.classList.add(parts.cls);}catch(e){} }
+  if(parts.style){ el.setAttribute('style', (el.getAttribute('style')||'')+';'+parts.style); }
+}
+function loadNickColors(){
+  try{
+    fetch((location.protocol+'//'+location.host+'/api')+'/auth/colors',{headers:{'Authorization':'Bearer '+(localStorage.getItem('tc_token')||'')}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      window._nickColors=(d&&d.colors)||{};
+      // re-pinta lista de online já desenhada
+      try{ document.querySelectorAll('#onlineList .ou-nick').forEach(function(el){ _applyNickStyle(el, el.getAttribute('data-nick')||el.textContent.trim()); }); }catch(e){}
+      // re-pinta mensagens já desenhadas (exceto as minhas, que usam preview local)
+      try{ document.querySelectorAll('.msg-group').forEach(function(g){ if(g.dataset.mine) return; var el=g.querySelector('.msg-nick'); if(el) _applyNickStyle(el, g.dataset.user); }); }catch(e){}
+    }).catch(function(){});
+  }catch(e){}
+}
+setTimeout(loadNickColors, 1500);
+setInterval(loadNickColors, 30000);
 </script>
 </body>
 <!-- ── MAIN CHAT PAINT MODAL ──────────────────────────────────────────────── -->

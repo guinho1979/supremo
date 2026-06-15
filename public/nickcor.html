@@ -216,7 +216,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- HEADER -->
 <div class="page-header">
-  <button class="back-btn" onclick="history.back()" title="Voltar">‹</button>
+  <button class="back-btn" onclick="location.href='chat.html'" title="Voltar">‹</button>
   <span class="page-title">🎨 Cor do Nick</span>
   <div class="header-preview" id="headerPreview">Seu Nick</div>
 </div>
@@ -595,13 +595,24 @@ function clearEffect(){
 // ── SAVE ────────────────────────────────────────────────────────
 function saveColors(){
   LS.set('tc_nick_color', state.nickColor);
+  LS.set('tc_nickcolor',  state.nickColor);
   LS.set('tc_msg_color',  state.msgColor);
   LS.set('tc_nick_grad_on', state.gradOn?'1':'0');
   LS.set('tc_nick_grad_c1', state.gradC1);
   LS.set('tc_nick_grad_c2', state.gradC2);
   LS.set('tc_nick_fx', state.fxId||'none');
+  // Salvar no servidor (para valer para todos e na lista de online)
+  try{
+    var base = location.protocol+'//'+location.host+'/api';
+    var grad = state.gradOn ? (state.gradC1+','+state.gradC2) : '';
+    fetch(base+'/auth/me', {
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('tc_token')||'')},
+      body: JSON.stringify({ nick_color: state.nickColor, msg_color: state.msgColor, nick_gradient: grad, nick_effect: state.fxId||'none' })
+    }).catch(function(){});
+  }catch(e){}
   showToast('✅ Cores salvas com sucesso!');
-  setTimeout(()=>{ if(document.referrer) history.back(); }, 900);
+  setTimeout(()=>{ location.href='chat.html'; }, 1100);
 }
 
 // ── TOAST ────────────────────────────────────────────────────────
