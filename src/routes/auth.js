@@ -366,7 +366,7 @@ router.post('/faceid/login', async (req, res) => {
 router.get('/colors', authMiddleware, async (req, res) => {
   try {
     const { rows } = await db.query(
-      `SELECT nick, nick_color, nick_gradient, nick_effect, avatar, photo_url, nick_emoji
+      `SELECT nick, nick_color, nick_gradient, nick_effect, avatar, photo_url, nick_emoji, status
        FROM users WHERE nick IS NOT NULL`
     );
     const colors = {};
@@ -377,7 +377,8 @@ router.get('/colors', authMiddleware, async (req, res) => {
         effect: u.nick_effect || '',
         avatar: u.avatar || '😊',
         photo: u.photo_url || '',
-        emoji: u.nick_emoji || ''
+        emoji: u.nick_emoji || '',
+        status: u.status || 'online'
       };
     });
     res.json({ colors });
