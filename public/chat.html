@@ -8350,6 +8350,7 @@ function processSmileKeywords(text){
     }
     if(typeof updateDJOnlineName==='function'){ try{ updateDJOnlineName(); }catch(e){} }
   }
+  try{ window.renderOnline = renderOnline; }catch(e){}
   tcSocket.offAll();
   tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
   tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
@@ -8700,7 +8701,7 @@ function loadNickColors(){
     })
     .then(function(d){
       window._nickColors=(d&&d.colors)||{};
-      try{ document.querySelectorAll('#onlineList .ou-nick').forEach(function(el){ _applyNickStyle(el, el.getAttribute('data-nick')||el.textContent.trim()); }); }catch(e){}
+      try{ if(typeof window.renderOnline==='function'){ window.renderOnline(); } else { document.querySelectorAll('#onlineList .ou-nick').forEach(function(el){ _applyNickStyle(el, el.getAttribute('data-nick')||el.textContent.trim()); }); } }catch(e){}
       try{ document.querySelectorAll('.msg-group').forEach(function(g){ var el=g.querySelector('.msg-nick'); if(el && window._nickColors[g.dataset.user]) _applyNickStyle(el, g.dataset.user); }); }catch(e){}
     }).catch(function(){ if(!window._ncWarned){ window._ncWarned=1; try{ if(typeof showToast==='function') showToast('⚠️ Cores: sem resposta do servidor'); }catch(e){} } });
   }catch(e){}
