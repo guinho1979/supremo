@@ -8319,7 +8319,12 @@ function processSmileKeywords(text){
       el.innerHTML = nicks.map(function(n){
         var role=(roomRoles[n]||'user');
         var _cp=(typeof _nickColorParts==='function')?_nickColorParts(n):{cls:'',style:''};
-        return '<div class="ou" style="display:flex;align-items:center;gap:8px;padding:6px 4px"><span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span><span class="badge">'+role.toUpperCase()+'</span></div>';
+        var info=(window._nickColors&&window._nickColors[n])||{};
+        var av = info.photo
+          ? '<img src="'+info.photo+'" style="width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0">'
+          : '<span style="width:26px;height:26px;border-radius:50%;background:#22304a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(info.avatar||'😊')+'</span>';
+        var emo = info.emoji ? '<span style="flex-shrink:0;font-size:14px">'+info.emoji+'</span>' : '';
+        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span><span class="badge">'+role.toUpperCase()+'</span></div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
     if(typeof updateDJOnlineName==='function'){ try{ updateDJOnlineName(); }catch(e){} }
