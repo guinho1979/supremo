@@ -8656,14 +8656,15 @@ function _applyNickStyle(el, nick){
 function loadNickColors(){
   try{
     fetch((location.protocol+'//'+location.host+'/api')+'/auth/colors',{headers:{'Authorization':'Bearer '+(localStorage.getItem('tc_token')||'')}})
-    .then(function(r){return r.json();})
+    .then(function(r){
+      if(!r.ok){ if(!window._ncWarned){ window._ncWarned=1; try{ if(typeof showToast==='function') showToast('⚠️ Cores: servidor respondeu '+r.status); }catch(e){} } return {colors:{}}; }
+      return r.json();
+    })
     .then(function(d){
       window._nickColors=(d&&d.colors)||{};
-      // re-pinta lista de online já desenhada
       try{ document.querySelectorAll('#onlineList .ou-nick').forEach(function(el){ _applyNickStyle(el, el.getAttribute('data-nick')||el.textContent.trim()); }); }catch(e){}
-      // re-pinta mensagens já desenhadas (exceto as minhas, que usam preview local)
       try{ document.querySelectorAll('.msg-group').forEach(function(g){ if(g.dataset.mine) return; var el=g.querySelector('.msg-nick'); if(el) _applyNickStyle(el, g.dataset.user); }); }catch(e){}
-    }).catch(function(){});
+    }).catch(function(){ if(!window._ncWarned){ window._ncWarned=1; try{ if(typeof showToast==='function') showToast('⚠️ Cores: sem resposta do servidor'); }catch(e){} } });
   }catch(e){}
 }
 setTimeout(loadNickColors, 1500);

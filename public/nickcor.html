@@ -593,7 +593,7 @@ function clearEffect(){
 }
 
 // ── SAVE ────────────────────────────────────────────────────────
-function saveColors(){
+async function saveColors(){
   LS.set('tc_nick_color', state.nickColor);
   LS.set('tc_nickcolor',  state.nickColor);
   LS.set('tc_msg_color',  state.msgColor);
@@ -602,17 +602,20 @@ function saveColors(){
   LS.set('tc_nick_grad_c2', state.gradC2);
   LS.set('tc_nick_fx', state.fxId||'none');
   // Salvar no servidor (para valer para todos e na lista de online)
+  var okServer = false;
   try{
     var base = location.protocol+'//'+location.host+'/api';
     var grad = state.gradOn ? (state.gradC1+','+state.gradC2) : '';
-    fetch(base+'/auth/me', {
+    var r = await fetch(base+'/auth/me', {
       method:'PATCH',
+      keepalive:true,
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('tc_token')||'')},
       body: JSON.stringify({ nick_color: state.nickColor, msg_color: state.msgColor, nick_gradient: grad, nick_effect: state.fxId||'none' })
-    }).catch(function(){});
-  }catch(e){}
-  showToast('✅ Cores salvas com sucesso!');
-  setTimeout(()=>{ location.href='chat.html'; }, 1100);
+    });
+    okServer = r.ok;
+  }catch(e){ okServer=false; }
+  showToast(okServer ? '✅ Cores salvas com sucesso!' : '⚠️ Salvo no aparelho, mas falha ao salvar no servidor.');
+  setTimeout(()=>{ location.href='chat.html'; }, okServer?1000:1800);
 }
 
 // ── TOAST ────────────────────────────────────────────────────────
