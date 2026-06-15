@@ -1377,7 +1377,10 @@ function setStatus(s,btn){
   state.currentStatus=s;
   if(btn){document.querySelectorAll('.sts-btn').forEach(b=>b.classList.remove('active-status'));btn.classList.add('active-status');}
   LS.set('tc_status',s);
-  // In production: send via WebSocket {event:'status',data:{status:s}}
+  // Envia ao servidor (transmite para todos via user_status)
+  try{ if(window.tcSocket && tcSocket.connected && tcSocket.status) tcSocket.status(s); }catch(e){}
+  // Atualiza meu próprio status no mapa local e re-renderiza a lista
+  try{ if(window._nickColors){ if(!window._nickColors[ME.nick]) window._nickColors[ME.nick]={}; window._nickColors[ME.nick].status=s; if(typeof window.renderOnline==='function') window.renderOnline(); } }catch(e){}
 }
 
 // ─── EMOJI PICKER (categories) ───────────────────────────────────────────────
@@ -8345,14 +8348,19 @@ function processSmileKeywords(text){
           ? '<img src="'+info.photo+'" style="width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0">'
           : '<span style="width:26px;height:26px;border-radius:50%;background:#22304a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(info.avatar||'😊')+'</span>';
         var emo = info.emoji ? '<span style="flex-shrink:0;font-size:14px">'+info.emoji+'</span>' : '';
-        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span><span class="badge">'+role.toUpperCase()+'</span></div>';
+        var SHOW_BADGE=['dj','premium','mod','supervisor','admin'];
+        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '';
+        var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
+        var dot='<span title="'+(info.status||'online')+'" style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
+        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span>'+dot+badge+'</div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
     if(typeof updateDJOnlineName==='function'){ try{ updateDJOnlineName(); }catch(e){} }
   }
   try{ window.renderOnline = renderOnline; }catch(e){}
   tcSocket.offAll();
-  tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
+  tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ if(tcSocket.status) tcSocket.status(LS.get('tc_status','online')); }catch(e){} try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
+  tcSocket.on('user_status', function(d){ try{ if(d&&d.nick){ if(!window._nickColors) window._nickColors={}; if(!window._nickColors[d.nick]) window._nickColors[d.nick]={}; window._nickColors[d.nick].status=d.status; if(typeof window.renderOnline==='function') window.renderOnline(); } }catch(e){} });
   tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
   tcSocket.on('private', function(d){
     if(!d || !d.from_nick) return;
