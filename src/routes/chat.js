@@ -134,14 +134,18 @@ router.get('/recados', authMiddleware, async (req, res) => {
     const { rows } = await db.query(`
       SELECT r.id, r.user_id, r.nick, r.role, r.avatar, r.content, r.likes,
              r.media_url, r.media_type, r.color, r.is_pinned, r.created_at,
+             u.photo_url AS author_photo,
              COALESCE((SELECT json_agg(json_build_object('nick', rr.nick, 'emoji', rr.emoji))
                        FROM recado_reactions rr WHERE rr.recado_id = r.id), '[]') AS reactions,
              COALESCE((SELECT json_agg(json_build_object(
                           'id', rc.id, 'nick', rc.nick, 'role', rc.role,
-                          'avatar', rc.avatar, 'content', rc.content, 'created_at', rc.created_at
+                          'avatar', rc.avatar, 'photo', cu.photo_url, 'content', rc.content, 'created_at', rc.created_at
                        ) ORDER BY rc.created_at)
-                       FROM recado_comments rc WHERE rc.recado_id = r.id), '[]') AS comments
+                       FROM recado_comments rc
+                       LEFT JOIN users cu ON cu.id = rc.user_id
+                       WHERE rc.recado_id = r.id), '[]') AS comments
       FROM recados r
+      LEFT JOIN users u ON u.id = r.user_id
       WHERE r.is_deleted = FALSE
       ORDER BY r.is_pinned DESC, r.created_at DESC
       LIMIT $1 OFFSET $2
