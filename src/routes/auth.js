@@ -360,4 +360,27 @@ router.post('/faceid/login', async (req, res) => {
   } catch (err) { console.error('faceid/login error:', err); res.status(500).json({ error: 'Erro no Face ID.' }); }
 });
 
+// ─── GET /api/auth/colors ─────────────────────────────────────
+// Devolve as cores/gradiente/efeito de nick de todos os usuários
+// (usado pelo chat para pintar nicks na lista de online e nas mensagens)
+router.get('/colors', authMiddleware, async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT nick, nick_color, nick_gradient, nick_effect
+       FROM users WHERE nick IS NOT NULL`
+    );
+    const colors = {};
+    rows.forEach(u => {
+      colors[u.nick] = {
+        color: u.nick_color || '',
+        gradient: u.nick_gradient || '',
+        effect: u.nick_effect || ''
+      };
+    });
+    res.json({ colors });
+  } catch (err) {
+    res.json({ colors: {} });
+  }
+});
+
 module.exports = router;
