@@ -219,7 +219,18 @@ const DEMO_ONLINE=[
 ];
 
 // ── HEADER ────────────────────────────────────────────────────
-document.getElementById('headerAv').textContent=ME.av||'😊';
+(function(){
+  var _hav=document.getElementById('headerAv');
+  function setAv(photo, emoji){
+    if(!_hav) return;
+    if(photo){ _hav.innerHTML='<img src="'+photo+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:block">'; }
+    else { _hav.textContent = emoji||'😊'; }
+  }
+  setAv(LS.get('tc_photo',''), ME.av);
+  if(IS_LOGGED && window.API && API.get){
+    try{ API.get('/auth/me').then(function(d){ var u=(d&&d.user)?d.user:d; if(u){ if(u.photo_url){ LS.set('tc_photo', u.photo_url); } setAv(u.photo_url||LS.get('tc_photo',''), u.avatar||ME.av); } }).catch(function(){}); }catch(e){}
+  }
+})();
 document.getElementById('headerNick').textContent=IS_LOGGED?ME.nick:'Visitante';
 const bg=document.getElementById('headerBadge');
 bg.className='badge-chip '+(BADGE_MAP[ME.role]||'b-guest');
