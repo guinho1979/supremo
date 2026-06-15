@@ -294,7 +294,7 @@ function mapPost(r){
   var tipo = r.media_type || 'texto';
   return {
     id: Number(r.id), _ts: d.getTime(),
-    autor: r.nick, role: r.role, av: r.avatar || '\u{1F60A}',
+    autor: r.nick, role: r.role, av: r.avatar || '\u{1F60A}', photo: r.author_photo || '',
     texto: r.content || '', fontColor: r.color || '#0f1f3d',
     tipo: tipo,
     arquivo: tipo !== 'youtube' ? (r.media_url || null) : null,
@@ -305,7 +305,7 @@ function mapPost(r){
     reacts: (r.reactions||[]).map(function(x){ var lbl=(REACTIONS.find(function(R){return R.e===x.emoji;})||{}).l||''; return {emoji:x.emoji,label:lbl,nick:x.nick,av:'\u{1F464}'}; }),
     likedBy: (r.reactions||[]).map(function(x){ return x.nick; }),
     likes: (r.reactions||[]).length,
-    comentarios: (r.comments||[]).map(function(c){ var cd=new Date(c.created_at); return {id:Number(c.id),autor:c.nick,role:c.role,av:c.avatar||'\u{1F60A}',texto:c.content,hora:cd.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}; })
+    comentarios: (r.comments||[]).map(function(c){ var cd=new Date(c.created_at); return {id:Number(c.id),autor:c.nick,role:c.role,av:c.avatar||'\u{1F60A}',photo:c.photo||'',texto:c.content,hora:cd.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}; })
   };
 }
 async function loadRecados(){
@@ -529,7 +529,7 @@ function renderCmtPage(p, page){
     const cbl=BADGE_L[c.role]||'';
     const cbadge=cbc?`<span style="font-size:7px;padding:1px 5px;border-radius:20px;background:${cbc}22;color:${cbc};font-weight:700">${cbl}</span>`:'';
     return `<div style="display:flex;gap:8px;align-items:flex-start">
-      <div style="width:26px;height:26px;border-radius:50%;background:#e8f2ff;border:1.5px solid ${cbc||'#c8d8f5'};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${c.av}</div>
+      <div style="width:26px;height:26px;border-radius:50%;background:#e8f2ff;border:1.5px solid ${cbc||'#c8d8f5'};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden">${c.photo?`<img src="${c.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`:c.av}</div>
       <div style="flex:1;background:var(--surface2);border-radius:0 10px 10px 10px;padding:7px 10px">
         <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
           <span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:${cbc||'var(--text)'}">${c.autor}</span>${cbadge}
@@ -586,7 +586,7 @@ function renderFeed(){
     const tipoTag={imagem:'🖼 Imagem',video:'🎬 Vídeo',audio:'🎵 Áudio',youtube:'▶ YouTube',texto:'✏ Texto'}[p.tipo]||'📌';
     return `<div class="post-card" style="animation:fadeUp .25s ease">
       <div class="post-header">
-        <div class="post-av" style="border-color:${bc||'#c8d8f5'}">${p.av}</div>
+        <div class="post-av" style="border-color:${bc||'#c8d8f5'};overflow:hidden">${p.photo?`<img src="${p.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`:p.av}</div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px">
             <span class="post-nick" style="color:${bc||'var(--text)'}">${p.autor}</span>${badge}
@@ -697,7 +697,7 @@ async function comentar(postId){
     const res = await API.commentRecado(postId, texto);
     const c = res.comment; const cd = new Date(c.created_at);
     if(!p.comentarios) p.comentarios = [];
-    p.comentarios.push({ id:Number(c.id), autor:c.nick, role:c.role, av:c.avatar||'\u{1F60A}', texto:c.content, hora:cd.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) });
+    p.comentarios.push({ id:Number(c.id), autor:c.nick, role:c.role, av:c.avatar||'\u{1F60A}', photo:(c.photo||LS.get('tc_photo','')||''), texto:c.content, hora:cd.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) });
     inp.value='';
     const lastPage = Math.ceil(p.comentarios.length/CMT_PER_PAGE)||1;
     refreshCmtSection(p, lastPage);
