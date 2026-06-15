@@ -3487,7 +3487,6 @@ const REACTIONS = window._REACTIONS || (window._REACTIONS = [
     ${(msg.isMine||canDeleteMsg())&&!msg.monitoredPV?`<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>`:''}
   </div></div>`;
   area.appendChild(d);
-  if(!msg.isMine){ try{ if(typeof _applyNickStyle==='function'){ var _ne=d.querySelector('.msg-nick'); if(_ne) _applyNickStyle(_ne, msg.nick); } }catch(e){} }
   if(msg.isMine){
     const nickEl = d.querySelector('.msg-nick');
     if(nickEl){
@@ -3510,6 +3509,8 @@ const REACTIONS = window._REACTIONS || (window._REACTIONS = [
     const nickEl=d.querySelector('.msg-nick');
     if(nickEl){ nickEl.classList.add('nick-vip-rainbow'); nickEl.style.color=''; }
   }
+  // Cor de nick do servidor (vale para todos, inclusive eu) — palavra final
+  try{ if(typeof _applyNickStyle==='function'){ var _nk2=d.querySelector('.msg-nick'); if(_nk2 && window._nickColors && window._nickColors[msg.nick]) _applyNickStyle(_nk2, msg.nick); } }catch(e){}
   area.scrollTop=area.scrollHeight;
   purgeOldMessages();
   scheduleMessageExpiry(d);
@@ -8638,9 +8639,13 @@ function _nickColorParts(nick){
   var c = window._nickColors[nick];
   if(!c) return {cls:'',style:''};
   if(c.effect && c.effect!=='none') return {cls:'nick-fx-'+c.effect, style:''};
-  if(c.gradient && c.gradient.indexOf(',')>-1){
-    var p=c.gradient.split(',');
-    return {cls:'', style:'background:linear-gradient(90deg,'+p[0]+','+p[1]+');-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:800;'};
+  var g = c.gradient, c1='', c2='';
+  if(g){
+    if(g.indexOf('{')>-1){ try{ var o=JSON.parse(g); if(o && o.on!==false && o.c1 && o.c2){ c1=o.c1; c2=o.c2; } }catch(e){} }
+    else if(g.indexOf(',')>-1){ var p=g.split(','); c1=(p[0]||'').trim(); c2=(p[1]||'').trim(); }
+  }
+  if(c1 && c2){
+    return {cls:'', style:'background:linear-gradient(90deg,'+c1+','+c2+');-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:800;'};
   }
   if(c.color) return {cls:'', style:'color:'+c.color+' !important;'};
   return {cls:'',style:''};
@@ -8663,7 +8668,7 @@ function loadNickColors(){
     .then(function(d){
       window._nickColors=(d&&d.colors)||{};
       try{ document.querySelectorAll('#onlineList .ou-nick').forEach(function(el){ _applyNickStyle(el, el.getAttribute('data-nick')||el.textContent.trim()); }); }catch(e){}
-      try{ document.querySelectorAll('.msg-group').forEach(function(g){ if(g.dataset.mine) return; var el=g.querySelector('.msg-nick'); if(el) _applyNickStyle(el, g.dataset.user); }); }catch(e){}
+      try{ document.querySelectorAll('.msg-group').forEach(function(g){ var el=g.querySelector('.msg-nick'); if(el && window._nickColors[g.dataset.user]) _applyNickStyle(el, g.dataset.user); }); }catch(e){}
     }).catch(function(){ if(!window._ncWarned){ window._ncWarned=1; try{ if(typeof showToast==='function') showToast('⚠️ Cores: sem resposta do servidor'); }catch(e){} } });
   }catch(e){}
 }
