@@ -301,41 +301,47 @@ const SALAS_SPY=[
 
 function abrirModalEspiar(){
   if(!canSpy){toast('Sem permissão para espiar','err');return;}
-  const privs=['admin','supervisor'].includes(ME.role)?getPrivRooms():[];
-  let grid=SALAS_SPY.map(s=>`
-    <button onclick="espiarSala('${s.id}','${s.name}')"
-      style="padding:12px 8px;border-radius:10px;border:1px solid #c8d8f5;background:#e8f2ff;color:#0f1f3d;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:6px;justify-content:center;transition:.15s" onmouseover="this.style.background='#d0e6ff'" onmouseout="this.style.background='#e8f2ff'">
-      ${s.name}
-    </button>`).join('');
-  if(privs.length){
-    grid+=`<div style="grid-column:1/-1;margin-top:8px;font-size:10px;font-weight:700;color:#7c3aed;font-family:'Syne',sans-serif">🔒 SALAS PRIVADAS</div>`;
-    grid+=privs.map(p=>`
-      <button onclick="espiarSala('${p.id}','${p.icon||'🔒'} ${p.name}')"
-        style="padding:12px 8px;border-radius:10px;border:1px solid #c8d8f5;background:#e8f2ff;color:#0f1f3d;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:6px;justify-content:center">
-        ${p.icon||'🔒'} ${p.name}
-      </button>`).join('');
-  }
-  document.getElementById('espiarModalGrid').innerHTML=grid;
+  var gridEl=document.getElementById('espiarModalGrid');
+  gridEl.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#6a8aaa;font-size:12px;padding:14px">Carregando salas…</div>';
   document.getElementById('espiarModal').style.display='flex';
+  function btn(id,label){ return '<button onclick="espiarSala(\''+String(id).replace(/\'/g,"\\'")+'\',\''+String(label).replace(/\'/g,"\\'")+'\')" style="padding:12px 8px;border-radius:10px;border:1px solid #c8d8f5;background:#e8f2ff;color:#0f1f3d;font-size:12px;font-weight:700;cursor:pointer;font-family:Syne,sans-serif;display:flex;align-items:center;gap:6px;justify-content:center">'+label+'</button>'; }
+  var canPriv=['admin','supervisor'].includes(ME.role);
+  Promise.all([
+    API.getRooms().catch(function(){return {rooms:[]};}),
+    canPriv ? API.privateRooms.list().catch(function(){return {rooms:[]};}) : Promise.resolve({rooms:[]})
+  ]).then(function(res){
+    var pub=(res[0].rooms||(Array.isArray(res[0])?res[0]:[])); if(!Array.isArray(pub)) pub=[];
+    var priv=(res[1].rooms||(Array.isArray(res[1])?res[1]:[])); if(!Array.isArray(priv)) priv=[];
+    var grid=pub.map(function(z){ var slug=z.slug||z.id||z.name; var nm=(z.icon?z.icon+' ':'')+(z.name||slug); return btn(slug,nm); }).join('');
+    if(priv.length){
+      grid+='<div style="grid-column:1/-1;margin-top:8px;font-size:10px;font-weight:700;color:#7c3aed;font-family:Syne,sans-serif">🔒 SALAS PRIVADAS</div>';
+      grid+=priv.map(function(pp){ var slug=pp.slug||('priv_'+pp.id); var nm=(pp.icon||'🔒')+' '+(pp.name||slug); return btn(slug,nm); }).join('');
+    }
+    gridEl.innerHTML=grid||'<div style="grid-column:1/-1;text-align:center;color:#6a8aaa;font-size:12px;padding:14px">Nenhuma sala.</div>';
+  });
 }
 
 function fecharEspiarModal(){document.getElementById('espiarModal').style.display='none';}
 
 function espiarSala(roomId,roomName){
+  if(String(roomId).indexOf('priv_')===0 && !['admin','supervisor'].includes(ME.role)){ toast('Só admin e supervisor espiam salas privadas','err'); return; }
   fecharEspiarModal();
   document.getElementById('spyRoomName').textContent=roomName;
-  const area=document.getElementById('spyMsgs');
-  const BC={admin:'#10b981',supervisor:'#ef4444',mod:'#6b7280',vip:'#3b82f6',premium:'#f59e0b',dj:'#a855f7',user:''};
-  area.innerHTML=DEMO_MSGS.map(m=>`
-    <div style="display:flex;gap:8px;align-items:flex-start">
-      <div class="spy-av" style="border-color:${BC[m.role]||'#3a5068'}"><span>${m.av}</span></div>
-      <div class="spy-bubble">
-        <div class="spy-nick" style="color:${m.color}">${m.nick}</div>
-        <div class="spy-text">${m.text}</div>
-        <div class="spy-time">${m.time}</div>
-      </div>
-    </div>`).join('');
+  var area=document.getElementById('spyMsgs');
+  area.innerHTML='<div style="text-align:center;color:#8aafd4;font-size:12px;padding:20px">Carregando…</div>';
   document.getElementById('spyOverlay').style.display='flex';
+  var BC={admin:'#10b981',supervisor:'#ef4444',mod:'#6b7280',vip:'#3b82f6',premium:'#f59e0b',dj:'#a855f7',user:''};
+  API.getMessages(roomId).then(function(d){
+    var msgs=(d&&(d.messages||d.msgs))||(Array.isArray(d)?d:[]);
+    if(!Array.isArray(msgs)) msgs=[];
+    if(!msgs.length){ area.innerHTML='<div style="text-align:center;color:#8aafd4;font-size:12px;padding:20px">Nenhuma mensagem recente.</div>'; return; }
+    area.innerHTML=msgs.map(function(m){
+      var role=m.role||'user';
+      var when=m.created_at?new Date(m.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+      var body=(m.msg_type&&String(m.msg_type).indexOf('media:')===0)?'📎 [mídia]':String(m.content||'').replace(/</g,'&lt;');
+      return '<div style="display:flex;gap:8px;align-items:flex-start"><div class="spy-av" style="border-color:'+(BC[role]||'#3a5068')+'"><span>'+(m.avatar||'😊')+'</span></div><div class="spy-bubble"><div class="spy-nick" style="color:'+(m.nick_color||'#0f1f3d')+'">'+m.nick+'</div><div class="spy-text">'+body+'</div><div class="spy-time">'+when+'</div></div></div>';
+    }).join('');
+  }).catch(function(){ area.innerHTML='<div style="text-align:center;color:#ef4444;font-size:12px;padding:20px">Erro ao carregar mensagens.</div>'; });
 }
 
 function fecharSpy(){document.getElementById('spyOverlay').style.display='none';}

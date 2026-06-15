@@ -1754,8 +1754,21 @@ function toggleSpyOnline(){
   if(p) p.style.display=p.style.display==='none'?'':'none';
 }
 function spyAction(action,nick){
-  const msgs={ban:`🔨 ${nick} banido!`,kick:`👢 ${nick} removido da sala!`,mute:`🔇 ${nick} mutado!`,shadowban:`👻 ${nick} em shadowban!`};
-  showToast(msgs[action]||'Ação executada');
+  if(!nick) return;
+  try{
+    if(action==='kick'){
+      if(window.tcSocket && tcSocket.kick){ tcSocket.kick(nick); showToast('👢 '+nick+' removido da sala!'); }
+      else showToast('Conexão indisponível','error');
+    } else if(action==='mute'){
+      API.admin.mute(nick, 10).then(function(){ showToast('🔇 '+nick+' mutado por 10 min!'); }).catch(function(e){ showToast((e&&e.message)||'Erro ao mutar','error'); });
+    } else if(action==='ban'){
+      API.admin.banUser(nick, 'Via espião', 'permanent', null).then(function(){ showToast('🔨 '+nick+' banido!'); }).catch(function(e){ showToast((e&&e.message)||'Erro ao banir','error'); });
+    } else if(action==='shadowban'){
+      API.admin.shadow(nick, true).then(function(){ showToast('👻 '+nick+' em shadowban!'); }).catch(function(e){ showToast((e&&e.message)||'Erro','error'); });
+    } else {
+      showToast('Ação desconhecida','error');
+    }
+  }catch(e){ showToast('Erro na ação','error'); }
 }
 
 // ── ESPIAR SALAS ─────────────────────────────────────────────
@@ -1782,107 +1795,60 @@ function espiarSala(roomId, roomName){
   const role = ME.role;
   const allowed = ['admin','supervisor','mod','premium'];
   if(!allowed.includes(role)){ showToast('Sem permissão para espiar salas','error'); return; }
-
-  // Close admin overlay
+  if(String(roomId).indexOf('priv_')===0 && !['admin','supervisor'].includes(role)){ showToast('Só admin e supervisor podem espiar salas privadas','error'); return; }
   fecharAdminOverlay();
-
-  // Room icon mapping
   const ROOM_ICONS = {geral:'💬',games:'🎮',musica:'🎵',esportes:'⚽',vip:'⭐',premium:'👑',dj:'🎧',admin:'🛡'};
-  const icon = ROOM_ICONS[roomId] || '💬';
-
-  // Set spy bar and topbar info
-  document.getElementById('spyModalRoomName').textContent = roomName;
-  const spyIcon = document.getElementById('spyTopRoomIcon');
-  const spyName = document.getElementById('spyTopRoomName');
-  if(spyIcon) spyIcon.textContent = icon;
-  if(spyName) spyName.textContent = roomName;
-
-  // Show ⚙ Painel button for admin/sup/mod
-  const modBtn = document.getElementById('spyModBtn');
-  if(modBtn) modBtn.style.display = ['admin','supervisor','mod'].includes(role) ? '' : 'none';
-
-  // Build messages
-  const area = document.getElementById('spyMsgArea');
-  const msgs = DEMO_MSGS_SPY[roomId] || DEMO_MSGS_SPY.geral;
+  const icon = ROOM_ICONS[roomId] || (roomId && roomId.indexOf('priv_')===0 ? '🔒' : '💬');
+  if(document.getElementById('spyModalRoomName')) document.getElementById('spyModalRoomName').textContent = roomName;
+  const spyIcon = document.getElementById('spyTopRoomIcon'); if(spyIcon) spyIcon.textContent = icon;
+  const spyName = document.getElementById('spyTopRoomName'); if(spyName) spyName.textContent = roomName;
+  const modBtn = document.getElementById('spyModBtn'); if(modBtn) modBtn.style.display = ['admin','supervisor','mod'].includes(role) ? '' : 'none';
   const canDel = ['admin','supervisor','mod'].includes(role);
-  const canSeePV = ['admin','supervisor'].includes(role);
 
-  area.innerHTML = `<div style="text-align:center;font-size:11px;color:#6a8aaa;padding:5px 12px;background:#1a1735;border-radius:20px;margin:0 auto 4px">👁 Modo espião · ${roomName} · Você está invisível</div>`;
+  const area = document.getElementById('spyMsgArea');
+  area.innerHTML = '<div style="text-align:center;font-size:11px;color:#6a8aaa;padding:5px 12px;background:#1a1735;border-radius:20px;margin:0 auto 4px">👁 Modo espião · '+roomName+' · Você está invisível</div><div id="spyLoading" style="text-align:center;color:#8aafd4;font-size:12px;padding:20px">Carregando mensagens…</div>';
 
-  msgs.forEach(m => {
-    const bc = SPY_BADGE_COLORS[m.role];
-    const badge = bc ? `<span style="font-size:8px;padding:2px 5px;border-radius:20px;background:${bc}22;color:${bc};font-weight:700;margin-left:4px">${m.role.toUpperCase()}</span>` : '';
-    area.innerHTML += `
-      <div style="display:flex;gap:8px;align-items:flex-start">
-        <div style="width:32px;height:32px;border-radius:50%;background:#1a1735;border:2px solid ${m.color};display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">${m.av}</div>
-        <div style="flex:1;min-width:0">
-          <div style="background:#ffffff;border:0.5px solid #b8d0e8;border-radius:0 12px 12px 12px;padding:8px 12px;width:100%">
-            <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
-              <span style="font-size:12px;font-weight:800;color:${m.color};font-family:'Syne',sans-serif;cursor:pointer" onclick="insertNick('${m.nick}')" title="Inserir nick">${m.nick}</span>${badge}
-            </div>
-            <div style="font-size:14px;font-weight:700;color:#1a1735">${m.text}</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
-              <span style="font-size:10px;color:#8aafd4">${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
-              <div style="display:flex;gap:3px;flex-wrap:wrap">
-                <button onclick="setReply('${m.nick}')" style="background:#1E90FF;border:none;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">↩ Reply</button>
-                ${canDel?`<button onclick="this.closest('div[style]').parentElement.parentElement.parentElement.remove();showToast('Mensagem apagada')" style="background:#ef4444;border:none;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🗑 Apagar</button>`:''}
-                ${canDel?`<button onclick="spyAction('ban','${m.nick}')" style="background:#7f1d1d;border:none;color:#fca5a5;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔨 Banir</button>`:''}
-                ${canDel?`<button onclick="spyAction('kick','${m.nick}')" style="background:#1e3a5f;border:none;color:#93c5fd;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">👢 Kick</button>`:''}
-                ${canDel?`<button onclick="spyAction('mute','${m.nick}')" style="background:#1c1c2e;border:none;color:#d1d5db;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔇 Mutar</button>`:''}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>`;
-  });
-
-  // PV monitorado — só admin/supervisor
-  if(canSeePV){
-    area.innerHTML += `
-      <div style="display:flex;gap:8px;align-items:flex-start">
-        <div style="width:32px;height:32px;border-radius:50%;background:#4a1a3a;border:2px solid #db2777;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">🌸</div>
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:5px;background:#000;border:1px solid #ef4444;border-radius:6px 6px 0 0;padding:4px 8px">
-            <span style="font-size:11px">🔓</span>
-            <span style="font-size:10px;color:#fff;font-weight:700">Mari_s → alexvip</span>
-          </div>
-          <div style="background:#fffde7;border:1px solid #ffffff;border-left:3px solid #ef4444;border-radius:0 10px 10px 10px;padding:8px 12px;width:100%">
-            <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
-              <span style="font-size:12px;font-weight:800;color:#db2777;font-family:'Syne',sans-serif">Mari_s</span>
-            </div>
-            <div style="font-size:14px;font-weight:700;color:#1a1735">Ei, vai ao jogo amanhã? 🎟️</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
-              <span style="font-size:10px;color:#8aafd4">${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
-            </div>
-          </div>
-        </div>
-      </div>`;
-  }
-
-  // Online list
-  const onlineList = document.getElementById('spyOnlineList');
-  if(onlineList){
-    onlineList.innerHTML = DEMO_ONLINE_SPY.map(u => {
-      const bc = SPY_BADGE_COLORS[u.role];
-      const badge = bc ? `<span style="font-size:7px;padding:1px 4px;border-radius:10px;background:${bc}22;color:${bc};font-weight:700">${u.role.toUpperCase()}</span>` : '';
-      return `<div style="display:flex;align-items:center;gap:5px;padding:4px 2px">
-        <div style="width:26px;height:26px;border-radius:50%;background:#0f0e1a;border:2px solid ${u.color};display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${u.av}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:11px;font-weight:700;color:${u.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.status} ${u.nick}</div>
-          ${badge}
-        </div>
-        ${canDel?`<div style="display:flex;flex-direction:column;gap:2px">
-          <button onclick="spyAction('kick','${u.nick}')" style="background:#1e3a5f;border:none;color:#93c5fd;font-size:7px;font-weight:700;padding:1px 5px;border-radius:4px;cursor:pointer">Kick</button>
-          <button onclick="spyAction('mute','${u.nick}')" style="background:#1c1c2e;border:none;color:#d1d5db;font-size:7px;font-weight:700;padding:1px 5px;border-radius:4px;cursor:pointer">Mutar</button>
-        </div>`:''}
-      </div>`;
-    }).join('');
-  }
-
-  // Show overlay
   const ov = document.getElementById('spyOverlay');
   ov.style.display = 'flex';
-  setTimeout(()=>{ area.scrollTop = area.scrollHeight; }, 100);
+
+  // Mensagens reais (sem entrar na sala = invisível)
+  API.getMessages(roomId).then(function(d){
+    var msgs = (d && (d.messages||d.msgs)) || (Array.isArray(d)?d:[]);
+    if(!Array.isArray(msgs)) msgs=[];
+    var lo=document.getElementById('spyLoading'); if(lo) lo.remove();
+    if(!msgs.length){ area.innerHTML += '<div style="text-align:center;color:#8aafd4;font-size:12px;padding:20px">Nenhuma mensagem recente nesta sala.</div>'; return; }
+    msgs.forEach(function(m){
+      var mrole=m.role||'user';
+      var bc=SPY_BADGE_COLORS[mrole];
+      var badge=bc?'<span style="font-size:8px;padding:2px 5px;border-radius:20px;background:'+bc+'22;color:'+bc+';font-weight:700;margin-left:4px">'+mrole.toUpperCase()+'</span>':'';
+      var ci=(window._nickColors&&window._nickColors[m.nick])||{};
+      var av=ci.photo?'<img src="'+ci.photo+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">':'<div style="width:32px;height:32px;border-radius:50%;background:#1a1735;border:2px solid '+(ci.color||'#3a6fa8')+';display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(ci.avatar||'😊')+'</div>';
+      var when=m.created_at?new Date(m.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+      var body=(m.msg_type&&String(m.msg_type).indexOf('media:')===0)?'📎 [mídia]':String(m.content||'').replace(/</g,'&lt;');
+      area.innerHTML += '<div style="display:flex;gap:8px;align-items:flex-start">'+av+'<div style="flex:1;min-width:0"><div style="background:#ffffff;border:0.5px solid #b8d0e8;border-radius:0 12px 12px 12px;padding:8px 12px;width:100%"><div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="font-size:12px;font-weight:800;color:'+(ci.color||'#1a1735')+';font-family:Syne,sans-serif;cursor:pointer" onclick="insertNick(\''+m.nick+'\')" title="Inserir nick">'+m.nick+'</span>'+badge+'</div><div style="font-size:14px;font-weight:700;color:#1a1735;word-break:break-word">'+body+'</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><span style="font-size:10px;color:#8aafd4">'+when+'</span><div style="display:flex;gap:3px;flex-wrap:wrap">'+(canDel?'<button onclick="spyAction(\'kick\',\''+m.nick+'\')" style="background:#1e3a5f;border:none;color:#93c5fd;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">👢 Kick</button><button onclick="spyAction(\'mute\',\''+m.nick+'\')" style="background:#1c1c2e;border:none;color:#d1d5db;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔇 Mutar</button>':'')+'</div></div></div></div></div>';
+    });
+    setTimeout(function(){ area.scrollTop=area.scrollHeight; }, 50);
+  }).catch(function(){ var lo=document.getElementById('spyLoading'); if(lo) lo.textContent='Erro ao carregar mensagens.'; });
+
+  // Usuários online reais
+  const onlineList = document.getElementById('spyOnlineList');
+  if(onlineList){
+    onlineList.innerHTML='<div style="font-size:11px;color:#8aafd4;padding:8px">Carregando…</div>';
+    API.roomUsers(roomId).then(function(d){
+      var users=(d&&(d.users||d.online))||(Array.isArray(d)?d:[]);
+      if(!Array.isArray(users)) users=[];
+      if(!users.length){ onlineList.innerHTML='<div style="font-size:11px;color:#8aafd4;padding:8px">Ninguém online aqui.</div>'; return; }
+      onlineList.innerHTML=users.map(function(u){
+        var urole=u.role||'user';
+        var bc=SPY_BADGE_COLORS[urole];
+        var badge=bc?'<span style="font-size:7px;padding:1px 4px;border-radius:10px;background:'+bc+'22;color:'+bc+';font-weight:700">'+urole.toUpperCase()+'</span>':'';
+        var ci=(window._nickColors&&window._nickColors[u.nick])||{};
+        var av=ci.photo?'<img src="'+ci.photo+'" style="width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0">':'<div style="width:26px;height:26px;border-radius:50%;background:#0f0e1a;border:2px solid '+(ci.color||'#3a6fa8')+';display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">'+(ci.avatar||u.avatar||'😊')+'</div>';
+        var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[ci.status||'online']||'#10b981';
+        return '<div style="display:flex;align-items:center;gap:5px;padding:4px 2px">'+av+'<div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:700;color:'+(ci.color||'#1a1735')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+u.nick+'</div>'+badge+'</div><span style="width:8px;height:8px;border-radius:50%;background:'+stColor+';flex-shrink:0"></span>'+(canDel?'<div style="display:flex;flex-direction:column;gap:2px"><button onclick="spyAction(\'kick\',\''+u.nick+'\')" style="background:#1e3a5f;border:none;color:#93c5fd;font-size:7px;font-weight:700;padding:1px 5px;border-radius:4px;cursor:pointer">Kick</button><button onclick="spyAction(\'mute\',\''+u.nick+'\')" style="background:#1c1c2e;border:none;color:#d1d5db;font-size:7px;font-weight:700;padding:1px 5px;border-radius:4px;cursor:pointer">Mutar</button></div>':'')+'</div>';
+      }).join('');
+    }).catch(function(){ onlineList.innerHTML='<div style="font-size:11px;color:#8aafd4;padding:8px">Erro ao carregar.</div>'; });
+  }
 }
 
 
@@ -5134,15 +5100,8 @@ tr:hover td{background:var(--surface2)}
       <div class="page-title">👁 Espiar Salas</div>
       <div class="section">
         <div class="section-title">Selecione uma sala para espiar</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <button class="abtn abtn-spy" style="padding:12px;font-size:12px;border-radius:10px;display:flex;align-items:center;gap:8px;justify-content:center" onclick="espiarSala('geral','💬 Geral')">💬 Geral</button>
-          <button class="abtn abtn-spy" style="padding:12px;font-size:12px;border-radius:10px;display:flex;align-items:center;gap:8px;justify-content:center" onclick="espiarSala('games','🎮 Games')">🎮 Games</button>
-          <button class="abtn abtn-spy" style="padding:12px;font-size:12px;border-radius:10px;display:flex;align-items:center;gap:8px;justify-content:center" onclick="espiarSala('musica','🎵 Música')">🎵 Música</button>
-          <button class="abtn abtn-spy" style="padding:12px;font-size:12px;border-radius:10px;display:flex;align-items:center;gap:8px;justify-content:center" onclick="espiarSala('esportes','⚽ Esportes')">⚽ Esportes</button>
-          <button class="abtn abtn-spy" style="padding:12px;font-size:12px;border-radius:10px;display:flex;align-items:center;gap:8px;justify-content:center" onclick="espiarSala('vip','⭐ VIP Lounge')">⭐ VIP Lounge</button>
-          <button class="abtn abtn-spy" style="padding:12px;font-size:12px;border-radius:10px;display:flex;align-items:center;gap:8px;justify-content:center" onclick="espiarSala('premium','👑 Premium')">👑 Premium</button>
-          <button class="abtn abtn-spy" style="padding:12px;font-size:12px;border-radius:10px;display:flex;align-items:center;gap:8px;justify-content:center" onclick="espiarSala('dj','🎧 Sala DJ')">🎧 Sala DJ</button>
-          <button class="abtn abtn-spy" style="padding:12px;font-size:12px;border-radius:10px;display:flex;align-items:center;gap:8px;justify-content:center" onclick="espiarSala('admin','🛡 Admin')">🛡 Admin</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="spyRoomGrid">
+          <div style="grid-column:1/-1;text-align:center;color:#8aafd4;font-size:12px;padding:14px">Carregando salas…</div>
         </div>
       </div>
     </div>
@@ -8588,23 +8547,7 @@ function processSmileKeywords(text){
       if(b){ b.classList.toggle('is-fan', r.isFan); b.innerHTML = r.isFan?'<span style="color:#fff">❤️</span> Sou fã':'<span style="color:#e53e3e">❤️</span> Ser fã'; }
     }).catch(function(e){ if(typeof showToast==='function') showToast(e.message||'Erro','error'); });
   };
-  // -- Espião com dados REAIS (substitui as listas demo antes de renderizar) --
-  var _origEspiar = window.espiarSala;
-  if(typeof _origEspiar==='function'){
-    window.espiarSala = function(roomId, roomName){
-      Promise.all([
-        API.getMessages(roomId).catch(function(){return {};}),
-        API.roomUsers(roomId).catch(function(){return {};})
-      ]).then(function(res){
-        var ms=(res[0].messages||res[0].msgs||[]).slice(-40).map(function(m){
-          return {nick:m.nick, av:(m.avatar||'😊'), text:m.content||m.text||'', role:m.role||'user', color:m.nick_color||'#cbd5e1'};
-        });
-        try{ if(typeof DEMO_MSGS_SPY!=='undefined'){ DEMO_MSGS_SPY[roomId]=ms; DEMO_MSGS_SPY.geral=ms; } }catch(e){}
-        var on=(res[1].users||res[1].online||[]).map(function(u){ return {nick:u.nick, av:u.avatar||'😊', role:u.role||'user'}; });
-        try{ if(typeof DEMO_ONLINE_SPY!=='undefined'){ DEMO_ONLINE_SPY.length=0; on.forEach(function(o){ DEMO_ONLINE_SPY.push(o); }); } }catch(e){}
-      }).catch(function(){}).then(function(){ _origEspiar(roomId, roomName); });
-    };
-  }
+  // (Espião agora busca dados reais diretamente em espiarSala)
 })();
 </script>
 <script>
@@ -8716,6 +8659,25 @@ function loadNickColors(){
 }
 setTimeout(loadNickColors, 1500);
 setInterval(loadNickColors, 30000);
+</script>
+<script>
+/* Lista dinâmica de salas reais para o Espião */
+function buildSpyRoomList(){
+  var grid=document.getElementById('spyRoomGrid');
+  if(!grid || !window.API || !API.getRooms) return;
+  API.getRooms().then(function(d){
+    var rooms=(d&&(d.rooms||d))||[];
+    if(!Array.isArray(rooms)) rooms=[];
+    if(!rooms.length){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#8aafd4;font-size:12px;padding:14px">Nenhuma sala disponível.</div>'; return; }
+    grid.innerHTML=rooms.map(function(r){
+      var slug=String(r.slug||r.id||r.name||'').replace(/'/g,"\\'");
+      var nm=((r.icon?r.icon+' ':'')+(r.name||slug));
+      var label=nm.replace(/'/g,"\\'");
+      return '<button class="abtn abtn-spy" style="padding:12px;font-size:12px;border-radius:10px;display:flex;align-items:center;gap:8px;justify-content:center" onclick="espiarSala(\''+slug+'\',\''+label+'\')">'+nm+'</button>';
+    }).join('');
+  }).catch(function(){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#8aafd4;font-size:12px;padding:14px">Erro ao carregar salas.</div>'; });
+}
+setTimeout(buildSpyRoomList, 1800);
 </script>
 </body>
 <!-- ── MAIN CHAT PAINT MODAL ──────────────────────────────────────────────── -->
