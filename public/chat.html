@@ -6770,6 +6770,7 @@ function openPrivateWindow(nick) {
       var reader = new FileReader();
       reader.onload = function(e) {
         pvHistoryPush(nick, ME.nick, msgText, true, e.target.result, mediaType, null);
+        try{ if(window.tcSocket && tcSocket.connected){ tcSocket.private(nick, msgText, {msg_type:'media:'+mediaType, media_url:e.target.result}); } }catch(_e){}
       };
       reader.readAsDataURL(file);
       renderPvNotifBadge();
@@ -6780,6 +6781,7 @@ function openPrivateWindow(nick) {
       var reader = new FileReader();
       reader.onload = function(e) {
         pvHistoryPush(nick, ME.nick, msgText, true, null, 'audio', e.target.result);
+        try{ if(window.tcSocket && tcSocket.connected){ tcSocket.private(nick, msgText, {msg_type:'media:audio', media_url:e.target.result}); } }catch(_e){}
       };
       reader.readAsDataURL(file);
       renderPvNotifBadge();
@@ -7450,6 +7452,25 @@ function receivePrivateMessage(fromNick, text) {
     if (!window._pvInbox[fromNick]) window._pvInbox[fromNick] = [];
     window._pvInbox[fromNick].push({ from: fromNick, text: text, isMine: false });
     showPvNotification(fromNick, text, u.av);
+  }
+}
+
+function receivePrivateMedia(fromNick, text, mediaType, mediaUrl){
+  var u = USERS_DATA[fromNick] || {};
+  var isAudio = (mediaType==='audio');
+  var mUrl = isAudio ? null : mediaUrl;
+  var aUrl = isAudio ? mediaUrl : null;
+  pvHistoryPush(fromNick, fromNick, text||'', false, mUrl, mediaType, aUrl);
+  renderPvNotifBadge();
+  if (pvWindows[fromNick]) {
+    clearPvNotification(fromNick);
+    addPrivateMsgToWindow(fromNick, fromNick, text||'', false, mUrl, mediaType, aUrl);
+  } else {
+    if (!window._pvInbox) window._pvInbox = {};
+    if (!window._pvInbox[fromNick]) window._pvInbox[fromNick] = [];
+    window._pvInbox[fromNick].push({ from: fromNick, text: text||'', isMine: false, mediaUrl: mUrl, mediaType: mediaType, audioBlobUrl: aUrl });
+    var label = mediaType==='image' ? '📷 Imagem' : (mediaType==='video' ? '🎬 Vídeo' : (mediaType==='audio' ? '🎵 Áudio' : (text||'Mídia')));
+    showPvNotification(fromNick, label, u.av);
   }
 }
 
@@ -8334,7 +8355,14 @@ function processSmileKeywords(text){
   tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
   tcSocket.on('private', function(d){
     if(!d || !d.from_nick) return;
-    try{ if(typeof receivePrivateMessage==='function') receivePrivateMessage(d.from_nick, d.content||''); }catch(e){}
+    try{
+      if(d.msg_type && d.msg_type.indexOf('media:')===0){
+        var mt=d.msg_type.slice(6); var mediaType=(mt==='gif')?'image':mt;
+        if(typeof receivePrivateMedia==='function') receivePrivateMedia(d.from_nick, d.content||'', mediaType, d.media_url||'');
+      } else if(typeof receivePrivateMessage==='function'){
+        receivePrivateMessage(d.from_nick, d.content||'');
+      }
+    }catch(e){}
   });
   tcSocket.on('message', incoming);
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });

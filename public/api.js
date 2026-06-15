@@ -228,7 +228,7 @@ TCSocket.prototype.send = function (event, data) {
 };
 TCSocket.prototype.join    = function (room) { this.send('join', { room: room }); };
 TCSocket.prototype.message = function (content, opts) { this.send('message', Object.assign({ content: content }, opts || {})); };
-TCSocket.prototype.private = function (to, content) { this.send('private', { to_nick: to, content: content }); };
+TCSocket.prototype.private = function (to, content, opts) { this.send('private', Object.assign({ to_nick: to, content: content }, opts || {})); };
 TCSocket.prototype.typing  = function () { this.send('typing'); };
 TCSocket.prototype.status  = function (s) { this.send('status', { status: s }); };
 TCSocket.prototype.kick    = function (nick) { this.send('admin_kick', { target_nick: nick }); };
