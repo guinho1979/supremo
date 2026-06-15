@@ -7867,8 +7867,8 @@ function ctxPrivate() {
   font-size:18px;flex-shrink:0;
 }
 .frp-st-info{flex:1;overflow:hidden}
-.frp-st-name{font-size:12px;font-weight:700;color:#e8edf5;font-family:'Syne',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.frp-st-genre{font-size:10px;color:#6a8aaa;margin-top:1px}
+.frp-st-name{font-size:15px;font-weight:700;color:#e8edf5;font-family:'Syne',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frp-st-genre{display:none}
 .frp-st-play{
   width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
@@ -7923,7 +7923,7 @@ function ctxPrivate() {
     </div>
     <!-- Rádio 2 -->
     <div class="frp-station" id="frpSt1" onclick="selectFloatStation(1)">
-      <div class="frp-st-icon" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">🎸</div>
+      <div class="frp-st-icon" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">🎵</div>
       <div class="frp-st-info">
         <div class="frp-st-name">Rock Supremo</div>
         <div class="frp-st-genre">Rock • Metal • Clássicos</div>
@@ -7932,7 +7932,7 @@ function ctxPrivate() {
     </div>
     <!-- Rádio 3 -->
     <div class="frp-station" id="frpSt2" onclick="selectFloatStation(2)">
-      <div class="frp-st-icon" style="background:linear-gradient(135deg,#059669,#064e3b)">🎷</div>
+      <div class="frp-st-icon" style="background:linear-gradient(135deg,#059669,#064e3b)">🎵</div>
       <div class="frp-st-info">
         <div class="frp-st-name">Lounge Chill</div>
         <div class="frp-st-genre">Lo-fi • Jazz • Relaxante</div>
@@ -8319,7 +8319,7 @@ function processSmileKeywords(text){
       el.innerHTML = nicks.map(function(n){
         var role=(roomRoles[n]||'user');
         var _cp=(typeof _nickColorParts==='function')?_nickColorParts(n):{cls:'',style:''};
-        return '<div class="ou" style="display:flex;align-items:center;gap:8px;padding:6px 4px"><span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:13px;'+_cp.style+'">'+n+'</span><span class="badge">'+role.toUpperCase()+'</span></div>';
+        return '<div class="ou" style="display:flex;align-items:center;gap:8px;padding:6px 4px"><span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span><span class="badge">'+role.toUpperCase()+'</span></div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
     if(typeof updateDJOnlineName==='function'){ try{ updateDJOnlineName(); }catch(e){} }
