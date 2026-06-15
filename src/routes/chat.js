@@ -30,6 +30,32 @@ router.get('/rooms', authMiddleware, async (req, res) => {
 // Histórico de mensagens da sala (últimas 50, não deletadas)
 router.get('/rooms/:slug/messages', authMiddleware, async (req, res) => {
   try {
+    const slug = req.params.slug;
+
+    // Proteção: mensagens de sala PRIVADA só podem ser lidas por
+    // membro, dono da sala, ou staff (mod/supervisor/admin).
+    if (slug.indexOf('priv_') === 0) {
+      const isStaff = ['mod', 'supervisor', 'admin'].includes(req.user.role);
+      if (!isStaff) {
+        const uid = req.user.user_id;
+        const roomId = parseInt(slug.slice(5), 10);
+        let allowed = false;
+        if (uid && roomId) {
+          const { rows: [room] } = await db.query(
+            'SELECT owner_id FROM private_rooms WHERE id = $1', [roomId]
+          ).catch(() => ({ rows: [] }));
+          allowed = !!(room && room.owner_id === uid);
+          if (!allowed) {
+            const { rows: mem } = await db.query(
+              'SELECT 1 FROM private_room_members WHERE room_id = $1 AND user_id = $2', [roomId, uid]
+            ).catch(() => ({ rows: [] }));
+            allowed = mem.length > 0;
+          }
+        }
+        if (!allowed) return res.status(403).json({ error: 'Sem acesso a esta sala privada.' });
+      }
+    }
+
     const limit = Math.min(parseInt(req.query.limit) || 50, 100);
     const { rows } = await db.query(`
       SELECT id, nick, role, content, msg_type, media_url, reply_to, created_at
@@ -39,7 +65,7 @@ router.get('/rooms/:slug/messages', authMiddleware, async (req, res) => {
         AND created_at > NOW() - INTERVAL '10 minutes'
       ORDER BY created_at DESC
       LIMIT $2
-    `, [req.params.slug, limit]);
+    `, [slug, limit]);
 
     res.json({ messages: rows.reverse() });
   } catch (err) {
