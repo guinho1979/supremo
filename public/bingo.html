@@ -4,14 +4,25 @@
   <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
 <script>
 (function(){
-(function(){
   try{
     if(!localStorage.getItem('tc_token')) window.location.replace('login.html');
-    const role = localStorage.getItem('tc_role')||'';
-    const ativo = localStorage.getItem('tc_bingo_ativo') === '1';
-    if(!ativo && !['admin','supervisor'].includes(role)) window.location.replace('salas.html');
   }catch(e){}
 })();
+</script>
+<script>
+/* Trava real do Bingo: lê a liberação do servidor (admin) */
+(function(){
+  function check(){
+    if(typeof API==='undefined' || !API.getSystemConfig){ setTimeout(check,150); return; }
+    var role=(localStorage.getItem('tc_role')||'');
+    if(['admin','supervisor'].includes(role)) return; // staff sempre acessa
+    API.getSystemConfig().then(function(d){
+      var on = d && d.config && d.config.bingo_enabled === 'true';
+      try{ localStorage.setItem('tc_bingo_ativo', on?'1':'0'); }catch(e){}
+      if(!on){ alert('O Bingo está fechado pelo administrador.'); window.location.replace('salas.html'); }
+    }).catch(function(){});
+  }
+  check();
 })();
 </script>
 
@@ -688,10 +699,6 @@ function showToast(msg){
   t.textContent=msg;t.style.opacity='1';
   clearTimeout(t._x);t._x=setTimeout(()=>t.style.opacity='0',2500);
 }
-</script>
-<script>
-  window.TC_API_URL = "https://SEU-BACKEND.up.railway.app/api";
-  window.TC_WS_URL  = "wss://SEU-BACKEND.up.railway.app/ws";
 </script>
 <script src="api.js"></script>
 <script>

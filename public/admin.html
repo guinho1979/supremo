@@ -1619,7 +1619,21 @@ function guSelecionar(nick){
 }
 function guLimpar(){GU_SELECTED=null;GU_ROLE_PENDING=null;document.getElementById('guSearchInput').value='';document.getElementById('guCard').style.display='none';document.getElementById('guDropdown').style.display='none';}
 function guSetRole(r){if(!GU_SELECTED){toast('Selecione um usuário','err');return;}const u=GU_USUARIOS.find(x=>x.nick===GU_SELECTED);if(!u)return;u.role=r;if(USERS_DATA[GU_SELECTED])USERS_DATA[GU_SELECTED].role=r;toast(`✅ Cargo de ${GU_SELECTED} → ${r}`);guSelecionar(GU_SELECTED);guRenderLista();}
-function guExcluirCadastro(){if(!GU_SELECTED){toast('Selecione um usuário','err');return;}if(GU_SELECTED==='admin'){toast('❌ Não é possível excluir o admin!','err');return;}if(!confirm(`EXCLUIR PERMANENTEMENTE o cadastro de "${GU_SELECTED}"?`))return;GU_USUARIOS=GU_USUARIOS.filter(u=>u.nick!==GU_SELECTED);delete USERS_DATA[GU_SELECTED];toast(`✅ Cadastro de ${GU_SELECTED} excluído!`);guLimpar();guRenderLista();}
+async function guExcluirCadastro(){
+  if(!GU_SELECTED){toast('Selecione um usuário','err');return;}
+  if(GU_SELECTED==='admin'){toast('❌ Não é possível excluir o admin!','err');return;}
+  const u=USERS_DATA[GU_SELECTED];
+  if(!u||!u.id){toast('Usuário inválido','err');return;}
+  if(!confirm(`EXCLUIR PERMANENTEMENTE o cadastro de "${GU_SELECTED}"?`))return;
+  try{
+    const r=await API.delete('/admin/users/'+u.id);
+    GU_USUARIOS=GU_USUARIOS.filter(x=>x.nick!==GU_SELECTED);
+    delete USERS_DATA[GU_SELECTED];
+    toast((r&&r.message)?('✅ '+r.message):`✅ Cadastro de ${GU_SELECTED} excluído!`);
+    guLimpar();guRenderLista();
+    if(typeof loadAdminUsers==='function') loadAdminUsers();
+  }catch(e){ toast(e.message||'Erro ao excluir cadastro','err'); }
+}
 function guRenderLista(){const el=document.getElementById('guListaUsuarios');if(!el)return;if(!GU_USUARIOS.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:12px">Nenhum usuário.</div>';return;}el.innerHTML=GU_USUARIOS.map(u=>`<div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px"><span style="font-size:18px">${u.av||'👤'}</span><span style="font-size:12px;font-weight:700;flex:1">${u.nick}</span><span class="badge b-${u.role||'user'}">${u.role||'user'}</span><button class="abtn abtn-role" style="padding:4px 8px;font-size:10px" onclick="guSelecionar('${u.nick}')">✏️</button></div>`).join('');}
 
 // ── MONITOR DE PV (JANELA PV) ─────────────────────────────────
@@ -3152,6 +3166,68 @@ window.show = function(id, el){
     var _show=window.show;
     window.show=function(p,el){ _show(p,el); try{ loadBanned(); loadReports(); loadSpyRooms(); }catch(e){} };
   }
+})();
+</script>
+<script>
+/* === CONTROLE: ligar toggles ao servidor (system_config) === */
+(function(){
+  if(typeof API==='undefined' || !API.admin || !API.admin.setSystem) return;
+  function T(m,t){ if(typeof toast==='function') toast(m,t); }
+  var BLOCK_KEYS={guest:'guest_blocked',registered:'registered_blocked',register:'register_blocked',site:'maintenance'};
+  var BLOCK_LAB={guest:'Entrada de visitantes',registered:'Entrada de cadastrados',register:'Novos cadastros',site:'Site (manutenção)'};
+
+  window.toggleBlock=function(type,el){
+    el.classList.toggle('on'); var on=el.classList.contains('on'); var key=BLOCK_KEYS[type];
+    if(!key) return;
+    API.admin.setSystem(key,on?'true':'false')
+      .then(function(){ T((on?'🔒 Ativado: ':'🔓 Removido: ')+BLOCK_LAB[type], on?'err':'ok'); })
+      .catch(function(e){ el.classList.toggle('on'); T((e&&e.message)||'Erro ao salvar','err'); });
+  };
+  window.toggleMembersOnly=function(el){
+    el.classList.toggle('on'); var on=el.classList.contains('on');
+    API.admin.setSystem('members_only',on?'true':'false')
+      .then(function(){ T('Somente membros '+(on?'ativado':'desativado'), on?'err':'ok'); })
+      .catch(function(e){ el.classList.toggle('on'); T((e&&e.message)||'Erro','err'); });
+  };
+  window.toggleBingo=function(el){
+    el.classList.toggle('on'); var on=el.classList.contains('on');
+    API.admin.setSystem('bingo_enabled',on?'true':'false')
+      .then(function(){ try{localStorage.setItem('tc_bingo_ativo',on?'1':'0');}catch(e){} T('🎱 Bingo '+(on?'liberado para usuários':'bloqueado'), on?'ok':'err'); })
+      .catch(function(e){ el.classList.toggle('on'); T((e&&e.message)||'Erro','err'); });
+  };
+
+  var _origSalvarMsg=window.salvarConfigMensagens;
+  window.salvarConfigMensagens=function(showToast){
+    if(typeof _origSalvarMsg==='function') _origSalvarMsg(showToast);
+    var gV=function(id){var e=document.getElementById(id);return e?e.value:null;};
+    var isOn=function(id){var e=document.getElementById(id);return e?e.classList.contains('on'):false;};
+    var limit=parseInt(gV('msgLimitGlobal'))||100;
+    var ttlNum=parseInt(gV('msgTTLGlobal'))||60;
+    var unit=gV('msgTTLGlobalUnit')||'min';
+    var mult=unit==='dia'?1440:unit==='hora'?60:1;
+    var ttlMin=isOn('toggleMsgExpiracao')?(ttlNum*mult):0;
+    API.admin.setSystem('msg_limit',String(limit)).catch(function(){});
+    API.admin.setSystem('msg_ttl',String(ttlMin)).catch(function(){});
+  };
+
+  function loadControlStates(){
+    if(!API.getSystemConfig) return;
+    API.getSystemConfig().then(function(r){
+      var c=(r&&r.config)||{};
+      function setTog(id,on){ var el=document.getElementById(id); if(el){ on?el.classList.add('on'):el.classList.remove('on'); } }
+      setTog('guestBlock', c.guest_blocked==='true');
+      setTog('registeredBlock', c.registered_blocked==='true');
+      setTog('registerBlock', c.register_blocked==='true');
+      setTog('siteBlock', c.maintenance==='true');
+      setTog('membersOnlyAdminToggle', c.members_only==='true');
+      setTog('bingoToggle', c.bingo_enabled==='true');
+      var ml=document.getElementById('msgLimitGlobal'); if(ml&&c.msg_limit) ml.value=c.msg_limit;
+      var mt=document.getElementById('msgTTLGlobal'); if(mt&&c.msg_ttl&&c.msg_ttl!=='0') mt.value=c.msg_ttl;
+    }).catch(function(){});
+  }
+  var _show2=window.show;
+  if(typeof _show2==='function'){ window.show=function(p,el){ _show2(p,el); if(p==='acesso') loadControlStates(); }; }
+  setTimeout(loadControlStates,300);
 })();
 </script>
 </body>
