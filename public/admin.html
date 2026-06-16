@@ -838,6 +838,13 @@ tr:hover td{background:var(--surface2)}
             <input type="hidden" id="modDuration" value=""/>
             <div id="modDurLabel" style="font-size:10px;color:var(--purple);margin-top:5px">Nenhuma duração selecionada</div>
           </div>
+          <div class="field" style="grid-column:1/-1">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700">
+              <input type="checkbox" id="modBanIp" style="width:16px;height:16px;cursor:pointer"/>
+              🚫 Banir o IP também (bloqueia o aparelho/conexão, não só o nick)
+            </label>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px">Impede a pessoa de criar outra conta ou entrar como visitante pelo mesmo IP.</div>
+          </div>
         </div>
         <button class="btn-danger" style="margin-top:10px" onclick="doMod()">Aplicar ação</button>
       </div>
@@ -2361,8 +2368,10 @@ async function doMod(){
       if(dur===''){toast('Selecione a duração do ban','err');return;}
       const ban_type = dur==='0' ? 'permanent' : 'temporary';
       const expires_at = (dur && dur!=='0') ? new Date(Date.now()+parseInt(dur)*3600*1000).toISOString() : null;
-      await API.admin.banUser(n, 'Painel admin', ban_type, expires_at);
-      toast(`✅ ${n} banido ${dur==='0'?'permanentemente':'por '+dur+'h'}`);
+      const banIp = !!(document.getElementById('modBanIp') && document.getElementById('modBanIp').checked);
+      const r = await API.post('/admin/ban', { nick:n, reason:'Painel admin', ban_type:ban_type, expires_at:expires_at, ban_ip:banIp });
+      toast((r&&r.message) ? r.message : `✅ ${n} banido ${dur==='0'?'permanentemente':'por '+dur+'h'}`);
+      var cbx=document.getElementById('modBanIp'); if(cbx) cbx.checked=false;
     } else if(a==='desbanir'){
       await API.admin.unbanUser(n);
       toast(`✅ ${n} desbanido`);
