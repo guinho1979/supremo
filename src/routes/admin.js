@@ -126,24 +126,27 @@ router.patch('/reports/:id', requireRole('supervisor'), async (req, res) => {
 // ─── POST /api/admin/ban ──────────────────────────────────────
 router.post('/ban', requireRole('mod'), async (req, res) => {
   try {
-    const { nick, reason, ban_type, expires_at } = req.body;
+    const { nick, reason, ban_type, expires_at, ban_ip } = req.body;
 
     if (!nick) return res.status(400).json({ error: 'Nick obrigatório.' });
 
     // Não pode banir admin
     const { rows: target } = await db.query(
-      'SELECT id, role FROM users WHERE LOWER(nick) = LOWER($1)', [nick]
+      'SELECT id, role, last_ip FROM users WHERE LOWER(nick) = LOWER($1)', [nick]
     );
 
     if (target.length && target[0].role === 'admin') {
       return res.status(403).json({ error: 'Não é possível banir um administrador.' });
     }
 
-    // Registrar ban
+    // Se pediu banir o IP, pega o último IP conhecido do usuário
+    const ipToBan = (ban_ip && target[0] && target[0].last_ip) ? target[0].last_ip : null;
+
+    // Registrar ban (com IP, se houver)
     await db.query(`
-      INSERT INTO bans (nick, user_id, banned_by, reason, ban_type, expires_at)
-      VALUES ($1, $2, $3, $4, $5, $6)
-    `, [nick, target[0]?.id || null, req.user.nick, reason || '', ban_type || 'permanent', expires_at || null]);
+      INSERT INTO bans (nick, user_id, banned_by, reason, ban_type, expires_at, ip_address)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+    `, [nick, target[0]?.id || null, req.user.nick, reason || '', ban_type || 'permanent', expires_at || null, ipToBan]);
 
     // Atualizar flag no usuário
     if (target.length) {
@@ -156,7 +159,11 @@ router.post('/ban', requireRole('mod'), async (req, res) => {
       await db.query('DELETE FROM sessions WHERE user_id = $1', [target[0].id]);
     }
 
-    res.json({ ok: true, message: `${nick} foi banido com sucesso.` });
+    let msg = `${nick} foi banido com sucesso.`;
+    if (ban_ip) {
+      msg += ipToBan ? ` IP ${ipToBan} também bloqueado.` : ' (IP não registrado ainda — só o nick foi bloqueado.)';
+    }
+    res.json({ ok: true, message: msg, ip_banned: !!ipToBan });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro ao banir usuário.' });
@@ -171,6 +178,8 @@ router.post('/unban', requireRole('supervisor'), async (req, res) => {
       UPDATE users SET is_banned = FALSE, ban_reason = '', ban_expires = NULL
       WHERE LOWER(nick) = LOWER($1)
     `, [nick]);
+    // Remove os registros de ban desse nick (libera também o IP banido)
+    await db.query('DELETE FROM bans WHERE LOWER(nick) = LOWER($1)', [nick]);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: 'Erro ao desbanir.' });

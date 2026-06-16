@@ -9,6 +9,22 @@ const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Retorna o IP real do cliente (Render usa proxy)
+function getClientIp(req) {
+  return (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
+}
+// Verifica se o IP está banido (ban ativo, não expirado)
+async function isIpBanned(ip) {
+  if (!ip) return false;
+  try {
+    const { rows } = await db.query(
+      `SELECT 1 FROM bans WHERE ip_address = $1 AND (expires_at IS NULL OR expires_at > NOW()) LIMIT 1`,
+      [ip]
+    );
+    return rows.length > 0;
+  } catch (e) { return false; }
+}
+
 async function logLogin(req, nick, kind) {
   try {
     const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
@@ -22,6 +38,10 @@ const SALT_ROUNDS = 12;
 router.post('/register', async (req, res) => {
   try {
     const { nick, password, birthday } = req.body;
+
+    // Bloqueio por IP
+    if (await isIpBanned(getClientIp(req)))
+      return res.status(403).json({ error: 'Seu acesso foi bloqueado por um administrador.' });
 
     // Validações
     if (!nick || !password)
@@ -96,6 +116,10 @@ router.post('/login', async (req, res) => {
 
     if (!nick || !password)
       return res.status(400).json({ error: 'Preencha nick e senha.' });
+
+    // Bloqueio por IP
+    if (await isIpBanned(getClientIp(req)))
+      return res.status(403).json({ error: 'Seu acesso foi bloqueado por um administrador.' });
 
     // Checar sistema
     const { rows: cfg } = await db.query(
@@ -179,6 +203,10 @@ router.post('/login', async (req, res) => {
 router.post('/guest', async (req, res) => {
   try {
     const { nick } = req.body;
+
+    // Bloqueio por IP
+    if (await isIpBanned(getClientIp(req)))
+      return res.status(403).json({ error: 'Seu acesso foi bloqueado por um administrador.' });
 
     if (!nick || nick.length < 2 || nick.length > 20)
       return res.status(400).json({ error: 'Nick deve ter entre 2 e 20 caracteres.' });
