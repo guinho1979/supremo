@@ -2,6 +2,7 @@
 const express = require('express');
 const bcrypt  = require('bcrypt');
 const db      = require('../db');
+const geoip   = require('../geoip');
 const ws      = require('../websocket');
 const { authMiddleware, requireRole } = require('../middleware/auth');
 
@@ -30,67 +31,12 @@ router.get('/users', async (req, res) => {
   }
 });
 
-// ─── GET /api/admin/geoip?ip=X — geolocalização do IP (cidade/país/ASN) ──
-const _geoCache = new Map(); // ip -> { data, ts }
-const GEO_TTL = 24 * 60 * 60 * 1000; // 24h
-
-function _isPrivateIp(ip){
-  if(!ip) return true;
-  if(ip === '127.0.0.1' || ip === '::1') return true;
-  if(/^10\./.test(ip) || /^192\.168\./.test(ip) || /^172\.(1[6-9]|2\d|3[01])\./.test(ip)) return true;
-  if(/^(fc|fd)/i.test(ip)) return true;
-  return false;
-}
-
+// ─── GET /api/admin/geoip?ip=X — geolocalização + VPN/Proxy ──
 router.get('/geoip', async (req, res) => {
   try {
-    let ip = (req.query.ip || '').trim();
-    if (ip.startsWith('::ffff:')) ip = ip.slice(7);
+    const ip = (req.query.ip || '').trim();
     if (!ip) return res.json({ ok:false, reason:'sem-ip' });
-    if (_isPrivateIp(ip))
-      return res.json({ ok:true, local:'Rede local / localhost', city:'', region:'', country:'', countryCode:'', asn:'', isp:'', org:'' });
-
-    const cached = _geoCache.get(ip);
-    if (cached && (Date.now() - cached.ts) < GEO_TTL) return res.json(cached.data);
-
-    let out = null;
-
-    // 1) ipwho.is (HTTPS, sem chave)
-    try {
-      const r = await fetch('https://ipwho.is/' + encodeURIComponent(ip), { signal: AbortSignal.timeout(5000) });
-      const j = await r.json();
-      if (j && j.success) {
-        out = {
-          ok:true,
-          city: j.city || '', region: j.region || '', country: j.country || '',
-          countryCode: j.country_code || '',
-          asn: (j.connection && j.connection.asn) ? ('AS' + j.connection.asn) : '',
-          isp: (j.connection && (j.connection.isp || j.connection.org)) || '',
-          org: (j.connection && j.connection.org) || ''
-        };
-      }
-    } catch (e) {}
-
-    // 2) fallback ip-api.com (HTTP, sem chave)
-    if (!out) {
-      try {
-        const r = await fetch('http://ip-api.com/json/' + encodeURIComponent(ip) + '?fields=status,country,countryCode,regionName,city,isp,org,as', { signal: AbortSignal.timeout(5000) });
-        const j = await r.json();
-        if (j && j.status === 'success') {
-          out = {
-            ok:true,
-            city: j.city || '', region: j.regionName || '', country: j.country || '',
-            countryCode: j.countryCode || '',
-            asn: j.as || '', isp: j.isp || '', org: j.org || ''
-          };
-        }
-      } catch (e) {}
-    }
-
-    if (!out) return res.json({ ok:false, reason:'lookup-falhou' });
-
-    out.local = [out.city, out.region, out.country].filter(Boolean).join(', ') || '—';
-    _geoCache.set(ip, { data: out, ts: Date.now() });
+    const out = await geoip.lookupGeo(ip);
     res.json(out);
   } catch (err) {
     res.json({ ok:false, reason:'erro' });
@@ -262,7 +208,7 @@ router.get('/bans', async (req, res) => {
 router.patch('/system', requireRole('admin'), async (req, res) => {
   try {
     const { key, value } = req.body;
-    const ALLOWED = ['register_blocked','guest_blocked','registered_blocked','members_only','bingo_enabled','msg_limit','msg_ttl','notice_warn','notice_danger','maintenance','logo_url','radio_chat','radio_priv','radio_global'];
+    const ALLOWED = ['register_blocked','guest_blocked','registered_blocked','members_only','bingo_enabled','msg_limit','msg_ttl','antiflood','block_vpn','notice_warn','notice_danger','maintenance','logo_url','radio_chat','radio_priv','radio_global'];
     if (!ALLOWED.includes(key)) return res.status(400).json({ error: 'Configuração inválida.' });
 
     await db.query(`
@@ -302,6 +248,47 @@ router.post('/spam-words', requireRole('supervisor'), async (req, res) => {
     res.json({ ok: true, count: sanitized.length });
   } catch (err) {
     res.status(500).json({ error: 'Erro ao salvar palavras bloqueadas.' });
+  }
+});
+
+// ─── Blacklist de IPs (reusa a tabela bans com ip_address) ────
+router.get('/ip-block', requireRole('supervisor'), async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT DISTINCT ip_address FROM bans
+       WHERE ip_address IS NOT NULL AND (expires_at IS NULL OR expires_at > NOW())
+       ORDER BY ip_address`
+    );
+    res.json({ ips: rows.map(r => r.ip_address) });
+  } catch (err) { res.json({ ips: [] }); }
+});
+
+router.post('/ip-block', requireRole('supervisor'), async (req, res) => {
+  try {
+    const ip = (req.body.ip || '').trim();
+    if (!ip) return res.status(400).json({ error: 'IP obrigatório.' });
+    const { rows: ex } = await db.query('SELECT 1 FROM bans WHERE ip_address = $1 LIMIT 1', [ip]);
+    if (!ex.length) {
+      await db.query(
+        `INSERT INTO bans (nick, banned_by, reason, ban_type, ip_address)
+         VALUES ('[IP]', $1, 'Blacklist manual', 'ip', $2)`,
+        [req.user.nick, ip]
+      );
+    }
+    res.json({ ok: true, message: `IP ${ip} bloqueado.` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao bloquear IP.' });
+  }
+});
+
+router.delete('/ip-block/:ip', requireRole('supervisor'), async (req, res) => {
+  try {
+    const ip = decodeURIComponent(req.params.ip || '');
+    await db.query('DELETE FROM bans WHERE ip_address = $1', [ip]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao remover IP.' });
   }
 });
 

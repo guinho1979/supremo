@@ -4,6 +4,7 @@ const bcrypt  = require('bcrypt');
 const jwt     = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const db      = require('../db');
+const geoip   = require('../geoip');
 const ws = require('../websocket');
 const { authMiddleware } = require('../middleware/auth');
 
@@ -22,6 +23,15 @@ async function isIpBanned(ip) {
       [ip]
     );
     return rows.length > 0;
+  } catch (e) { return false; }
+}
+// Verifica se deve bloquear VPN/Proxy (só quando o admin ligou 'block_vpn')
+async function isVpnBlocked(ip) {
+  try {
+    const { rows } = await db.query("SELECT value FROM system_config WHERE key = 'block_vpn'");
+    if (!rows.length || rows[0].value !== 'true') return false;
+    const g = await geoip.lookupGeo(ip);
+    return !!(g && g.ok && g.vpn);
   } catch (e) { return false; }
 }
 
@@ -64,6 +74,10 @@ router.post('/register', async (req, res) => {
     const { rows: mnt } = await db.query("SELECT value FROM system_config WHERE key = 'maintenance'");
     if (mnt[0]?.value === 'true')
       return res.status(503).json({ error: 'Site em manutenção. Tente mais tarde.' });
+
+    // Bloqueio de VPN/Proxy (se ligado)
+    if (await isVpnBlocked(getClientIp(req)))
+      return res.status(403).json({ error: 'Conexões via VPN/Proxy não são permitidas.' });
 
     // Nick já existe?
     const { rows: exists } = await db.query(
@@ -167,6 +181,8 @@ router.post('/login', async (req, res) => {
         return res.status(503).json({ error: 'Site em manutenção. Tente mais tarde.' });
       if (sysMap.registered_blocked === 'true')
         return res.status(403).json({ error: 'Entrada de usuários está temporariamente fechada.' });
+      if (await isVpnBlocked(getClientIp(req)))
+        return res.status(403).json({ error: 'Conexões via VPN/Proxy não são permitidas.' });
     }
 
     // Atualizar last_seen + IP/dispositivo
@@ -236,6 +252,10 @@ router.post('/guest', async (req, res) => {
     const { rows: mntG } = await db.query("SELECT value FROM system_config WHERE key = 'maintenance'");
     if (mntG[0]?.value === 'true')
       return res.status(503).json({ error: 'Site em manutenção. Tente mais tarde.' });
+
+    // Bloqueio de VPN/Proxy (se ligado)
+    if (await isVpnBlocked(getClientIp(req)))
+      return res.status(403).json({ error: 'Conexões via VPN/Proxy não são permitidas.' });
 
     // Nick em uso por usuário registrado?
     const { rows: taken } = await db.query(
