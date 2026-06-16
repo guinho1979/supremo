@@ -316,6 +316,23 @@ router.get('/system/config', async (req, res) => {
   }
 });
 
+// ─── POST /api/contacts — usuário envia contato/reclamação ───
+router.post('/contacts', authMiddleware, async (req, res) => {
+  try {
+    const type = (req.body.type || 'contato').toString().slice(0, 30);
+    const message = (req.body.message || '').toString().trim().slice(0, 2000);
+    if (!message) return res.status(400).json({ error: 'Mensagem obrigatória.' });
+    await db.query(
+      `INSERT INTO contacts (user_id, nick, type, message) VALUES ($1, $2, $3, $4)`,
+      [req.user.user_id || null, req.user.nick || 'visitante', type, message]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao enviar mensagem.' });
+  }
+});
+
 // ─── POST /api/messages/:id/react  { emoji } — toggle ─────────
 router.post('/messages/:id/react', authMiddleware, async (req, res) => {
   if (!req.user.user_id) return res.status(403).json({ error: 'Visitantes não podem reagir.' });

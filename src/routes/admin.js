@@ -292,6 +292,24 @@ router.delete('/ip-block/:ip', requireRole('supervisor'), async (req, res) => {
   }
 });
 
+// ─── Contatos / Reclamações ──────────────────────────────────
+router.get('/contacts', requireRole('supervisor'), async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT id, nick, type, message, status, created_at FROM contacts ORDER BY created_at DESC LIMIT 200`
+    );
+    res.json({ contacts: rows });
+  } catch (err) { res.json({ contacts: [] }); }
+});
+router.delete('/contacts/:id', requireRole('supervisor'), async (req, res) => {
+  try { await db.query('DELETE FROM contacts WHERE id = $1', [parseInt(req.params.id, 10)]); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: 'Erro ao excluir.' }); }
+});
+router.delete('/contacts', requireRole('supervisor'), async (req, res) => {
+  try { await db.query('DELETE FROM contacts'); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: 'Erro ao limpar.' }); }
+});
+
 // ─── DELETE /api/admin/recados/:id ───────────────────────────
 router.delete('/recados/:id', async (req, res) => {
   try {
