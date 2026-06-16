@@ -159,15 +159,33 @@ function setupWebSocket(server) {
           `, [client.userId, client.nick, room, socketId]).catch(() => {});
         }
 
-        // Enviar histórico
-        const { rows: history } = await db.query(`
+        // Config de mensagens (limite / expiração) definida no painel admin
+        let msgLimit = 50, msgTtl = 0;
+        try {
+          const { rows: mc } = await db.query(
+            "SELECT key, value FROM system_config WHERE key IN ('msg_limit','msg_ttl')"
+          );
+          mc.forEach(r => {
+            if (r.key === 'msg_limit') msgLimit = Math.min(Math.max(parseInt(r.value) || 50, 10), 500);
+            if (r.key === 'msg_ttl')   msgTtl   = Math.max(parseInt(r.value) || 0, 0);
+          });
+        } catch (e) {}
+
+        let histWhere = 'room_slug = $1 AND is_deleted = FALSE';
+        const histParams = [room];
+        if (msgTtl > 0) {
+          histParams.push(String(msgTtl));
+          histWhere += ` AND created_at > NOW() - ($${histParams.length} || ' minutes')::interval`;
+        }
+        // Enviar histórico (últimas N mensagens, dentro da expiração se houver)
+        const { rows: histDesc } = await db.query(`
           SELECT id, nick, role, content, msg_type, media_url, reply_to, created_at
           FROM messages
-          WHERE room_slug = $1 AND is_deleted = FALSE
-            AND created_at > NOW() - INTERVAL '10 minutes'
-          ORDER BY created_at ASC
-          LIMIT 50
-        `, [room]).catch(() => ({ rows: [] }));
+          WHERE ${histWhere}
+          ORDER BY created_at DESC
+          LIMIT ${msgLimit}
+        `, histParams).catch(() => ({ rows: [] }));
+        const history = histDesc.reverse();
 
         ws.send(JSON.stringify({ event: 'history', data: { messages: history } }));
 
@@ -205,6 +223,17 @@ function setupWebSocket(server) {
         if (client.type === 'guest' && msg_type !== 'text') {
           ws.send(JSON.stringify({ event: 'error', data: { message: 'Visitantes não podem enviar mídia.' } }));
           return;
+        }
+
+        // Modo "somente membros": visitante não envia nenhuma mensagem
+        if (client.type === 'guest') {
+          const { rows: moRows } = await db.query(
+            "SELECT value FROM system_config WHERE key = 'members_only'"
+          ).catch(() => ({ rows: [] }));
+          if (moRows.length && moRows[0].value === 'true') {
+            ws.send(JSON.stringify({ event: 'error', data: { message: 'Somente membros podem enviar mensagens no momento.' } }));
+            return;
+          }
         }
 
         // Anti-Spam: substituir palavras bloqueadas por ***
