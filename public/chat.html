@@ -8290,10 +8290,16 @@ function processSmileKeywords(text){
     var avHtml=(typeof renderAv==='function')?renderAv(mine?( (typeof ME!=='undefined'&&(ME.photo||ME.av))||d.nick ):d.nick):'😊';
     var badge=(typeof getBadgeHtml==='function')?getBadgeHtml(d.role||'user'):'';
     var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1';
+    var mediaBlock;
+    if(type==='gif'){
+      mediaBlock='<img src="'+src+'" alt="GIF" loading="lazy" style="max-width:220px;max-height:220px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="this.requestFullscreen&amp;&amp;this.requestFullscreen()">';
+    } else {
+      mediaBlock='<div class="media-msg" onclick="'+cfg.onclick.replace(/"/g,'&quot;')+'"><span class="media-icon">'+cfg.icon+'</span>'
+        +'<div class="media-info"><div class="media-name">'+name+'</div><div class="media-meta">'+(cfg.label||'')+'</div></div></div>';
+    }
     div.innerHTML='<div class="msg-av">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble">'
       +'<div class="msg-head"><span class="msg-nick">'+d.nick+'</span>'+badge+'</div>'
-      +'<div class="media-msg" onclick="'+cfg.onclick.replace(/"/g,'&quot;')+'"><span class="media-icon">'+cfg.icon+'</span>'
-      +'<div class="media-info"><div class="media-name">'+name+'</div><div class="media-meta">'+(cfg.label||'')+'</div></div></div>'
+      +mediaBlock
       +'</div></div>';
     area.appendChild(div); area.scrollTop=area.scrollHeight;
   }

@@ -3327,5 +3327,66 @@ window.show = function(id, el){
   if(typeof _show5==='function'){ window.show=function(p,el){ _show5(p,el); if(p==='contatos' && typeof loadContatos==='function') loadContatos(); }; }
 })();
 </script>
+<script>
+/* === ARQUIVOS ENVIADOS === */
+(function(){
+  if(typeof API==='undefined' || !API.get) return;
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function T(m,t){ if(typeof toast==='function') toast(m,t); }
+
+  window.loadArquivos=function(){
+    var grid=document.getElementById('arquivosGrid');
+    var vazio=document.getElementById('arquivosVazio');
+    if(!grid) return;
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text3);font-size:12px;padding:20px">Carregando…</div>';
+    API.get('/admin/files').then(function(d){
+      var files=(d&&d.files)||[];
+      if(!files.length){ grid.innerHTML=''; if(vazio) vazio.style.display='block'; return; }
+      if(vazio) vazio.style.display='none';
+      grid.innerHTML=files.map(function(f){
+        var type=String(f.msg_type||'').replace('media:','');
+        var when=f.created_at?new Date(f.created_at).toLocaleString('pt-BR'):'';
+        var icon=type==='video'?'🎬':type==='audio'?'🎵':type==='gif'?'🎞':'🖼';
+        var thumb;
+        if(type==='image'||type==='gif'){
+          thumb='<div class="arquivo-thumb" data-fileid="'+f.id+'" onclick="abrirArquivo('+f.id+',\''+type+'\')" style="display:flex;align-items:center;justify-content:center;font-size:26px">⏳</div>';
+        } else {
+          thumb='<div class="arquivo-thumb" onclick="abrirArquivo('+f.id+',\''+type+'\')" style="display:flex;align-items:center;justify-content:center;font-size:42px">'+icon+'</div>';
+        }
+        return '<div class="arquivo-card">'+thumb+'<div class="arquivo-info"><div class="arquivo-nick">'+esc(f.nick||'?')+'</div><div class="arquivo-meta">'+icon+' '+esc(type)+' · '+esc(when)+'</div></div></div>';
+      }).join('');
+      var thumbs=grid.querySelectorAll('.arquivo-thumb[data-fileid]');
+      function loadThumb(el){
+        var id=el.getAttribute('data-fileid');
+        API.get('/admin/files/'+id).then(function(r){
+          if(r&&r.media_url){ el.innerHTML='<img src="'+r.media_url+'" style="width:100%;height:100%;object-fit:cover">'; }
+          else el.textContent='🖼';
+        }).catch(function(){ el.textContent='🖼'; });
+      }
+      if('IntersectionObserver' in window){
+        var io=new IntersectionObserver(function(en){ en.forEach(function(e){ if(e.isIntersecting){ loadThumb(e.target); io.unobserve(e.target); } }); });
+        thumbs.forEach(function(t){ io.observe(t); });
+      } else { thumbs.forEach(loadThumb); }
+    }).catch(function(){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text3);font-size:12px;padding:20px">Erro ao carregar.</div>'; });
+  };
+
+  window.abrirArquivo=function(id,type){
+    API.get('/admin/files/'+id).then(function(d){
+      if(!d||!d.media_url){ T('Mídia indisponível','err'); return; }
+      var inner = type==='video' ? '<video src="'+d.media_url+'" controls autoplay style="max-width:90vw;max-height:80vh"></video>'
+                : type==='audio' ? '<audio src="'+d.media_url+'" controls autoplay style="width:80vw;max-width:420px"></audio>'
+                : '<img src="'+d.media_url+'" style="max-width:90vw;max-height:80vh;object-fit:contain">';
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+      ov.onclick=function(){ ov.remove(); };
+      ov.innerHTML='<div onclick="event.stopPropagation()">'+inner+'<div style="text-align:center;margin-top:10px"><a href="'+d.media_url+'" download style="color:#93c5fd;font-size:13px;text-decoration:none">⬇ Baixar</a></div></div>';
+      document.body.appendChild(ov);
+    }).catch(function(){ T('Erro ao abrir','err'); });
+  };
+
+  var _show6=window.show;
+  if(typeof _show6==='function'){ window.show=function(p,el){ _show6(p,el); if(p==='arquivos') loadArquivos(); }; }
+})();
+</script>
 </body>
 </html>
