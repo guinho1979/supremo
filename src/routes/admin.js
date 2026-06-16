@@ -310,6 +310,30 @@ router.delete('/contacts', requireRole('supervisor'), async (req, res) => {
   catch (err) { res.status(500).json({ error: 'Erro ao limpar.' }); }
 });
 
+// ─── Arquivos enviados (mídia do chat) ───────────────────────
+router.get('/files', requireRole('supervisor'), async (req, res) => {
+  try {
+    const { rows } = await db.query(`
+      SELECT id, nick, role, msg_type, room_slug, created_at
+      FROM messages
+      WHERE msg_type LIKE 'media:%' AND msg_type <> 'media:gif'
+        AND media_url IS NOT NULL AND media_url <> '' AND is_deleted = FALSE
+      ORDER BY created_at DESC
+      LIMIT 150
+    `);
+    res.json({ files: rows });
+  } catch (err) { res.json({ files: [] }); }
+});
+router.get('/files/:id', requireRole('supervisor'), async (req, res) => {
+  try {
+    const { rows: [m] } = await db.query(
+      'SELECT media_url, msg_type, nick FROM messages WHERE id = $1', [parseInt(req.params.id, 10)]
+    );
+    if (!m) return res.status(404).json({ error: 'Não encontrado.' });
+    res.json({ media_url: m.media_url, msg_type: m.msg_type, nick: m.nick });
+  } catch (err) { res.status(500).json({ error: 'Erro.' }); }
+});
+
 // ─── DELETE /api/admin/recados/:id ───────────────────────────
 router.delete('/recados/:id', async (req, res) => {
   try {
