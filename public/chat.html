@@ -3080,9 +3080,13 @@ function closeContactAdmin(){document.getElementById('contactOverlay').classList
 function sendContactAdmin(){
   const t=document.getElementById('contactType').value;const m=document.getElementById('contactMsg').value.trim();
   if(!t||!m){showToast('Preencha todos os campos','error');return;}
-  showToast('Mensagem enviada à administração ✅');
-  document.getElementById('contactMsg').value='';
-  closeContactAdmin();
+  if(window.API && API.post){
+    API.post('/contacts',{type:t,message:m})
+      .then(function(){ showToast('Mensagem enviada à administração ✅'); document.getElementById('contactMsg').value=''; var ct=document.getElementById('contactType'); if(ct) ct.value=''; closeContactAdmin(); })
+      .catch(function(e){ showToast((e&&e.message)||'Erro ao enviar','error'); });
+  } else {
+    showToast('Indisponível no momento','error');
+  }
 }
 
 // ─── SEND MESSAGE ────────────────────────────────────────────────────────────

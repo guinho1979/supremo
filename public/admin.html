@@ -2308,9 +2308,12 @@ function pvEspiarRenderGrid() {
 
 
 function limparContatos() {
-  var body = document.getElementById('contatosBody');
-  if (body) { body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:20px;font-size:11px">Nenhuma mensagem.</td></tr>'; }
-  toast('Todas as mensagens foram excluídas ✅');
+  if(!confirm('Excluir TODAS as mensagens de contato?')) return;
+  if(window.API && API.delete){
+    API.delete('/admin/contacts')
+      .then(function(){ toast('Mensagens de contato excluídas ✅'); if(typeof loadContatos==='function') loadContatos(); })
+      .catch(function(e){ toast((e&&e.message)||'Erro ao excluir','error'); });
+  }
 }
 
 // Init monitor state on page load
@@ -3144,6 +3147,31 @@ window.show = function(id, el){
     API.admin.resolveReport(id).then(function(){ T('Denúncia resolvida'); var tr=btn.closest('tr'); if(tr) tr.remove(); }).catch(function(e){ T(e.message||'Erro','err'); });
   };
 
+  window.loadContatos=function(){
+    var tb=document.getElementById('contatosBody'); if(!tb) return;
+    Promise.all([
+      API.get('/admin/contacts').catch(function(){return {contacts:[]};}),
+      (API.admin&&API.admin.getReports?API.admin.getReports():Promise.resolve({reports:[]})).catch(function(){return {reports:[]};})
+    ]).then(function(res){
+      var contacts=(res[0].contacts||[]).map(function(c){ return {kind:'c',id:c.id,nick:c.nick,type:c.type,msg:c.message,at:c.created_at}; });
+      var reports=(res[1].reports||[]).map(function(x){ return {kind:'r',id:x.id,nick:x.target_nick,by:x.reporter_nick,msg:x.reason,at:x.created_at}; });
+      var all=contacts.concat(reports).sort(function(a,b){ return new Date(b.at||0)-new Date(a.at||0); });
+      if(!all.length){ tb.innerHTML='<tr><td colspan="5" style="text-align:center;opacity:.6;padding:18px">Nenhuma mensagem.</td></tr>'; return; }
+      tb.innerHTML=all.map(function(m){
+        var h=m.at?new Date(m.at).toLocaleString('pt-BR'):'';
+        if(m.kind==='c'){
+          var tp=(m.type||'contato').toUpperCase();
+          return '<tr><td><strong>'+E(m.nick||'?')+'</strong></td><td><span class="badge b-vip">'+E(tp)+'</span></td><td>'+E(m.msg||'—')+'</td><td>'+E(h)+'</td><td><button class="abtn abtn-spy" onclick="tcDelContato('+m.id+',this)">🗑 Excluir</button></td></tr>';
+        }
+        return '<tr><td><strong>'+E(m.nick||'?')+'</strong><br><span style="font-size:10px;opacity:.6">por '+E(m.by||'?')+'</span></td><td><span class="badge b-admin" style="background:#7f1d1d;color:#fca5a5">DENÚNCIA</span></td><td>'+E(m.msg||'—')+'</td><td>'+E(h)+'</td><td><button class="abtn abtn-spy" onclick="tcResolveReport('+m.id+',this)">✓ Resolver</button></td></tr>';
+      }).join('');
+    }).catch(function(){ tb.innerHTML='<tr><td colspan="5" style="opacity:.6">Erro ao carregar.</td></tr>'; });
+  };
+  window.tcDelContato=function(id,btn){
+    if(!confirm('Excluir esta mensagem de contato?')) return;
+    API.delete('/admin/contacts/'+id).then(function(){ var tr=btn.closest('tr'); if(tr) tr.remove(); T('Mensagem excluída'); }).catch(function(e){ T((e&&e.message)||'Erro','err'); });
+  };
+
   window.loadSpyRooms=function(){
     var g=document.getElementById('spyRoomGrid'); if(!g) return;
     API.getRooms().then(function(d){
@@ -3157,7 +3185,7 @@ window.show = function(id, el){
     }).catch(function(){ g.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text3);font-size:11px">Erro ao carregar salas.</div>'; });
   };
 
-  setTimeout(function(){ loadBanned(); loadReports(); loadSpyRooms(); }, 0);
+  setTimeout(function(){ loadBanned(); loadContatos(); loadSpyRooms(); }, 0);
   // recarrega ao navegar (se houver função show)
   if(typeof window.show==='function'){
     var _show=window.show;
@@ -3290,6 +3318,13 @@ window.show = function(id, el){
   var _show4=window.show;
   if(typeof _show4==='function'){ window.show=function(p,el){ _show4(p,el); if(p==='seguranca') loadSecToggles(); }; }
   setTimeout(loadSecToggles,500);
+})();
+</script>
+<script>
+/* Recarrega contatos ao abrir a aba Contatos */
+(function(){
+  var _show5=window.show;
+  if(typeof _show5==='function'){ window.show=function(p,el){ _show5(p,el); if(p==='contatos' && typeof loadContatos==='function') loadContatos(); }; }
 })();
 </script>
 </body>
