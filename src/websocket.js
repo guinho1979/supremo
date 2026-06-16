@@ -3,6 +3,20 @@ const WebSocket = require('ws');
 const jwt       = require('jsonwebtoken');
 const db        = require('./db');
 
+// Cache leve de flags de sistema (atualiza a cada 15s) — evita consulta por mensagem
+let _sysFlags = {}, _sysFlagsAt = 0;
+async function getSysFlags() {
+  if (Date.now() - _sysFlagsAt < 15000) return _sysFlags;
+  try {
+    const { rows } = await db.query(
+      "SELECT key, value FROM system_config WHERE key IN ('members_only','antiflood')"
+    );
+    const c = {}; rows.forEach(r => c[r.key] = r.value);
+    _sysFlags = c; _sysFlagsAt = Date.now();
+  } catch (e) {}
+  return _sysFlags;
+}
+
 // Mapa de conexões: socket_id → { ws, nick, role, userId, roomSlug }
 const clients = new Map();
 
@@ -225,15 +239,24 @@ function setupWebSocket(server) {
           return;
         }
 
+        // Flags de sistema (cache)
+        const _flags = await getSysFlags();
+
         // Modo "somente membros": visitante não envia nenhuma mensagem
-        if (client.type === 'guest') {
-          const { rows: moRows } = await db.query(
-            "SELECT value FROM system_config WHERE key = 'members_only'"
-          ).catch(() => ({ rows: [] }));
-          if (moRows.length && moRows[0].value === 'true') {
-            ws.send(JSON.stringify({ event: 'error', data: { message: 'Somente membros podem enviar mensagens no momento.' } }));
+        if (client.type === 'guest' && _flags.members_only === 'true') {
+          ws.send(JSON.stringify({ event: 'error', data: { message: 'Somente membros podem enviar mensagens no momento.' } }));
+          return;
+        }
+
+        // Anti-flood (ligado por padrão; só desliga se antiflood === 'false')
+        if (_flags.antiflood !== 'false') {
+          const _now = Date.now();
+          client._msgTimes = (client._msgTimes || []).filter(t => _now - t < 7000);
+          if (client._msgTimes.length >= 5) {
+            ws.send(JSON.stringify({ event: 'error', data: { message: 'Você está enviando mensagens rápido demais. Aguarde alguns segundos.' } }));
             return;
           }
+          client._msgTimes.push(_now);
         }
 
         // Anti-Spam: substituir palavras bloqueadas por ***
