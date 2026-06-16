@@ -762,9 +762,8 @@ tr:hover td{background:var(--surface2)}
       <div class="page-title">🛡 Segurança</div>
       <div class="section">
         <div class="section-title">Configurações</div>
-        <div class="toggle-row"><div class="toggle-info">Detectar VPN/Proxy</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div class="toggle-row"><div class="toggle-info">Anti-flood</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div class="toggle-row"><div class="toggle-info">Anti-spam</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="toggle-row"><div class="toggle-info">Detectar VPN/Proxy<small>Bloqueia entrada por VPN, proxy ou datacenter</small></div><div class="toggle" id="vpnToggle" onclick="toggleVpnBlock(this)"></div></div>
+        <div class="toggle-row"><div class="toggle-info">Anti-flood<small>Limita mensagens muito rápidas (5 a cada 7s)</small></div><div class="toggle on" id="antifloodToggle" onclick="toggleAntiflood(this)"></div></div>
       </div>
       <div class="section">
         <div class="section-title">🚫 Blacklist de IPs</div>
@@ -772,9 +771,7 @@ tr:hover td{background:var(--surface2)}
           <input id="ipInput" placeholder="ex: 192.168.1.100" style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--text);font-size:11px;outline:none"/>
           <button class="btn-danger" style="padding:7px 12px" onclick="addIP()">Bloquear</button>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:5px" id="ipList">
-          <span class="ip-tag" style="cursor:pointer;padding:3px 8px" onclick="this.remove()">45.33.32.156 ✕</span>
-        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px" id="ipList"></div>
       </div>
       <div class="section">
         <div class="section-title">🔤 Palavras Bloqueadas</div>
@@ -1494,7 +1491,7 @@ function _renderUserCard(nick,u){
       var lEl=document.getElementById('moderLocal');
       var aEl=document.getElementById('moderAsn');
       if(!g||g.ok===false){ if(lEl) lEl.textContent='—'; return; }
-      if(lEl) lEl.textContent=g.local||'—';
+      if(lEl) lEl.innerHTML=(g.local||'—')+(g.vpn?' <span style="color:#ef4444;font-weight:700">· 🚨 '+(g.connType||'VPN/Proxy')+'</span>':(g.connType?' <span style="color:#10b981">· '+g.connType+'</span>':''));
       if(aEl) aEl.textContent=(g.asn?(g.asn+(g.isp?(' · '+g.isp):'')):(g.isp||'—'));
     }).catch(function(){ var lEl=document.getElementById('moderLocal'); if(lEl) lEl.textContent='—'; });
   })();
@@ -3228,6 +3225,71 @@ window.show = function(id, el){
   var _show2=window.show;
   if(typeof _show2==='function'){ window.show=function(p,el){ _show2(p,el); if(p==='acesso') loadControlStates(); }; }
   setTimeout(loadControlStates,300);
+})();
+</script>
+<script>
+/* === SEGURANÇA: Blacklist de IPs real === */
+(function(){
+  if(typeof API==='undefined' || !API.post) return;
+  function T(m,t){ if(typeof toast==='function') toast(m,t); }
+  function ipTag(ip){
+    var s=document.createElement('span');
+    s.className='ip-tag'; s.style.cssText='cursor:pointer;padding:3px 8px';
+    s.textContent=ip+' ✕'; s.title='Clique para desbloquear';
+    s.onclick=function(){
+      if(!confirm('Desbloquear o IP '+ip+'?')) return;
+      API.delete('/admin/ip-block/'+encodeURIComponent(ip))
+        .then(function(){ s.remove(); T('IP desbloqueado'); })
+        .catch(function(e){ T((e&&e.message)||'Erro','err'); });
+    };
+    return s;
+  }
+  window.addIP=function(){
+    var inp=document.getElementById('ipInput'); var v=(inp.value||'').trim();
+    if(!v){ T('Digite um IP','err'); return; }
+    API.post('/admin/ip-block',{ip:v})
+      .then(function(r){ document.getElementById('ipList').appendChild(ipTag(v)); inp.value=''; T((r&&r.message)||'IP bloqueado'); })
+      .catch(function(e){ T((e&&e.message)||'Erro ao bloquear','err'); });
+  };
+  function loadIpBlocks(){
+    var list=document.getElementById('ipList'); if(!list) return;
+    API.get('/admin/ip-block').then(function(d){
+      list.innerHTML=''; (d.ips||[]).forEach(function(ip){ list.appendChild(ipTag(ip)); });
+    }).catch(function(){});
+  }
+  var _show3=window.show;
+  if(typeof _show3==='function'){ window.show=function(p,el){ _show3(p,el); if(p==='seguranca') loadIpBlocks(); }; }
+  setTimeout(loadIpBlocks,400);
+})();
+</script>
+<script>
+/* === SEGURANÇA: Anti-flood + Detectar VPN/Proxy === */
+(function(){
+  if(typeof API==='undefined' || !API.admin || !API.admin.setSystem) return;
+  function T(m,t){ if(typeof toast==='function') toast(m,t); }
+  window.toggleAntiflood=function(el){
+    el.classList.toggle('on'); var on=el.classList.contains('on');
+    API.admin.setSystem('antiflood', on?'true':'false')
+      .then(function(){ T('Anti-flood '+(on?'ativado':'desativado'), on?'ok':'err'); })
+      .catch(function(e){ el.classList.toggle('on'); T((e&&e.message)||'Erro','err'); });
+  };
+  window.toggleVpnBlock=function(el){
+    el.classList.toggle('on'); var on=el.classList.contains('on');
+    API.admin.setSystem('block_vpn', on?'true':'false')
+      .then(function(){ T(on?'🚫 Bloqueio de VPN/Proxy ativado':'Bloqueio de VPN/Proxy desativado', on?'err':'ok'); })
+      .catch(function(e){ el.classList.toggle('on'); T((e&&e.message)||'Erro','err'); });
+  };
+  function loadSecToggles(){
+    if(!API.getSystemConfig) return;
+    API.getSystemConfig().then(function(r){
+      var c=(r&&r.config)||{};
+      var af=document.getElementById('antifloodToggle'); if(af){ (c.antiflood==='false')?af.classList.remove('on'):af.classList.add('on'); }
+      var vp=document.getElementById('vpnToggle'); if(vp){ (c.block_vpn==='true')?vp.classList.add('on'):vp.classList.remove('on'); }
+    }).catch(function(){});
+  }
+  var _show4=window.show;
+  if(typeof _show4==='function'){ window.show=function(p,el){ _show4(p,el); if(p==='seguranca') loadSecToggles(); }; }
+  setTimeout(loadSecToggles,500);
 })();
 </script>
 </body>
