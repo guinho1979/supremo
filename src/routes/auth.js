@@ -60,6 +60,11 @@ router.post('/register', async (req, res) => {
     if (cfg[0]?.value === 'true')
       return res.status(403).json({ error: 'Cadastro está fechado pelo administrador.' });
 
+    // Site em manutenção bloqueia novos cadastros
+    const { rows: mnt } = await db.query("SELECT value FROM system_config WHERE key = 'maintenance'");
+    if (mnt[0]?.value === 'true')
+      return res.status(503).json({ error: 'Site em manutenção. Tente mais tarde.' });
+
     // Nick já existe?
     const { rows: exists } = await db.query(
       'SELECT id FROM users WHERE LOWER(nick) = LOWER($1)', [nick]
@@ -121,12 +126,11 @@ router.post('/login', async (req, res) => {
     if (await isIpBanned(getClientIp(req)))
       return res.status(403).json({ error: 'Seu acesso foi bloqueado por um administrador.' });
 
-    // Checar sistema
-    const { rows: cfg } = await db.query(
-      "SELECT value FROM system_config WHERE key = 'maintenance'"
+    // Flags de sistema (aplicadas após validar a senha; admin sempre entra)
+    const { rows: sysCfg } = await db.query(
+      "SELECT key, value FROM system_config WHERE key IN ('maintenance','registered_blocked')"
     );
-    if (cfg[0]?.value === 'true')
-      return res.status(503).json({ error: 'Site em manutenção. Tente mais tarde.' });
+    const sysMap = {}; sysCfg.forEach(r => sysMap[r.key] = r.value);
 
     // Buscar usuário
     const { rows } = await db.query(
@@ -156,6 +160,14 @@ router.post('/login', async (req, res) => {
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid)
       return res.status(401).json({ error: 'Nick ou senha incorretos.' });
+
+    // Bloqueios de sistema (admin sempre consegue entrar)
+    if (user.role !== 'admin') {
+      if (sysMap.maintenance === 'true')
+        return res.status(503).json({ error: 'Site em manutenção. Tente mais tarde.' });
+      if (sysMap.registered_blocked === 'true')
+        return res.status(403).json({ error: 'Entrada de usuários está temporariamente fechada.' });
+    }
 
     // Atualizar last_seen + IP/dispositivo
     await db.query(
@@ -219,6 +231,11 @@ router.post('/guest', async (req, res) => {
     );
     if (cfg[0]?.value === 'true')
       return res.status(403).json({ error: 'Entrada de visitantes está fechada.' });
+
+    // Site em manutenção bloqueia visitantes
+    const { rows: mntG } = await db.query("SELECT value FROM system_config WHERE key = 'maintenance'");
+    if (mntG[0]?.value === 'true')
+      return res.status(503).json({ error: 'Site em manutenção. Tente mais tarde.' });
 
     // Nick em uso por usuário registrado?
     const { rows: taken } = await db.query(

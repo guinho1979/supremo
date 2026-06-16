@@ -205,6 +205,27 @@ router.patch('/users/:id/role', requireRole('supervisor'), async (req, res) => {
   }
 });
 
+// ─── DELETE /api/admin/users/:id — excluir cadastro (só admin) ─
+router.delete('/users/:id', requireRole('admin'), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (!id) return res.status(400).json({ error: 'ID inválido.' });
+
+    const { rows: [u] } = await db.query('SELECT nick, role FROM users WHERE id = $1', [id]);
+    if (!u) return res.status(404).json({ error: 'Usuário não encontrado.' });
+    if (u.role === 'admin') return res.status(403).json({ error: 'Não é possível excluir um administrador.' });
+
+    // Sessões fora; o resto é removido por ON DELETE CASCADE / SET NULL
+    await db.query('DELETE FROM sessions WHERE user_id = $1', [id]);
+    await db.query('DELETE FROM users WHERE id = $1', [id]);
+
+    res.json({ ok: true, message: `Cadastro de ${u.nick} excluído.` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao excluir cadastro.' });
+  }
+});
+
 // ─── PATCH /api/admin/users/:id/nick ─────────────────────────
 router.patch('/users/:id/nick', requireRole('supervisor'), async (req, res) => {
   try {
@@ -241,7 +262,7 @@ router.get('/bans', async (req, res) => {
 router.patch('/system', requireRole('admin'), async (req, res) => {
   try {
     const { key, value } = req.body;
-    const ALLOWED = ['register_blocked','guest_blocked','notice_warn','notice_danger','maintenance','logo_url','radio_chat','radio_priv','radio_global'];
+    const ALLOWED = ['register_blocked','guest_blocked','registered_blocked','members_only','bingo_enabled','msg_limit','msg_ttl','notice_warn','notice_danger','maintenance','logo_url','radio_chat','radio_priv','radio_global'];
     if (!ALLOWED.includes(key)) return res.status(400).json({ error: 'Configuração inválida.' });
 
     await db.query(`
