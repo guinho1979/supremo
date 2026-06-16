@@ -1416,7 +1416,7 @@ setTimeout(loadAdminUsers, 0);
 
 function renderDropdown(list){
   const dd=document.getElementById('userDropdown');
-  dd.innerHTML=list.length?list.map(u=>`<div onclick="selecionarUsuario('${u.nick}')" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''"><span style="font-size:16px">${u.av}</span><span style="font-size:12px;font-weight:700;flex:1">${u.nick}</span><span class="badge ${u.badge}">${u.role}</span></div>`).join('')
+  dd.innerHTML=list.length?list.map(u=>`<div onmousedown="event.preventDefault();selecionarUsuario('${u.nick}')" onclick="selecionarUsuario('${u.nick}')" style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''"><span style="font-size:16px">${u.av}</span><span style="font-size:12px;font-weight:700;flex:1">${u.nick}</span><span class="badge ${u.badge}">${u.role}</span></div>`).join('')
   :'<div style="padding:10px 12px;font-size:11px;color:var(--text3);text-align:center">Nenhum usuário encontrado</div>';
   dd.style.display='block';
 }
@@ -1443,35 +1443,44 @@ function selecionarUsuario(nick){
   const card=document.getElementById('userCard');
   document.getElementById('userDropdown').style.display='none';
   if(!nick){card.style.display='none';return;}
-  const u=USERS_DATA[nick];
-  if(!u){card.style.display='none';return;}
-  document.getElementById('userSearchInput').value=nick;
-  const sel=document.getElementById('userSelectedBadge');
-  document.getElementById('userSelectedAv').textContent=u.av;
-  document.getElementById('userSelectedName').textContent=u.nick;
-  const re=document.getElementById('userSelectedBadgeRole');
-  re.className='badge '+u.badge;re.textContent=u.role.toUpperCase();
-  sel.style.display='flex';
-  document.getElementById('cardTitle').innerHTML=
-    `<span style="font-size:18px">${u.av}</span>`+
-    `<span style="color:${u.color}">${u.nick}</span>`+
-    `<span class="badge ${u.badge}">${u.role.toUpperCase()}</span>`+
-    `<button onclick="usarNickMod('${u.nick}')" title="Enviar para Ação Manual" `+
-    `style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;border:none;`+
-    `background:#1e3a5f;color:#93c5fd;font-size:10px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;`+
-    `transition:.15s;white-space:nowrap" `+
-    `onmouseover="this.style.background='#2563eb';this.style.color='#fff'" `+
-    `onmouseout="this.style.background='#1e3a5f';this.style.color='#93c5fd'">⚡ Moderar</button>`;
-  const fields=[['📍 Localização',`<span id="moderLocal">${u.local}</span>`],['🖥 Dispositivo',`<span style="font-size:10px;font-family:monospace;word-break:break-all;color:var(--text2)">${u.device.icon} ${u.device.label}</span><br><span style="font-size:9px;font-family:monospace;color:var(--text3);word-break:break-all">${u.device.ua}</span>`],['🌐 IP',`<span class="ip-tag">${u.ip}</span>`],['📡 ASN',`<span id="moderAsn" class="ip-tag">${u.asn}</span>`],['💬 Status',u.status],['🕒 Último login',u.login],['📨 Mensagens',u.msgs],['📅 Cadastro',u.registrado]];
-  document.getElementById('cardGrid').innerHTML=fields.map(([l,v])=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 10px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:3px">${l}</div><div style="font-size:11px;font-weight:600">${v}</div></div>`).join('');
-  document.getElementById('cardActions').innerHTML=u.acoes.map(a=>ACOES_MAP[a]?ACOES_MAP[a](nick):'').join('');
-  card.style.display='block';
-  // Geo-IP real (cidade, país, ASN) — assíncrono
+  var u=USERS_DATA[nick];
+  if(u){ _renderUserCard(nick,u); return; }
+  // Não está em memória — busca no servidor antes de mostrar
+  if(window.API&&API.admin&&API.admin.getUsers){
+    API.admin.getUsers(nick).then(function(d){
+      var found=(d.users||[]).find(function(x){return String(x.nick).toLowerCase()===String(nick).toLowerCase();});
+      if(found){ USERS_DATA[found.nick]=_mkUser(found); _renderUserCard(found.nick,USERS_DATA[found.nick]); }
+      else { if(typeof toast==='function') toast('Usuário não encontrado','err'); card.style.display='none'; }
+    }).catch(function(){ if(typeof toast==='function') toast('Erro ao carregar usuário','err'); card.style.display='none'; });
+  } else { card.style.display='none'; }
+}
+
+function _renderUserCard(nick,u){
+  const card=document.getElementById('userCard');
+  try{
+    document.getElementById('userSearchInput').value=nick;
+    var dev=(u.device&&typeof u.device==='object')?u.device:{icon:'🖥',label:'não registrado',ua:'—'};
+    const sel=document.getElementById('userSelectedBadge');
+    document.getElementById('userSelectedAv').textContent=u.av;
+    document.getElementById('userSelectedName').textContent=u.nick;
+    const re=document.getElementById('userSelectedBadgeRole');
+    re.className='badge '+u.badge; re.textContent=String(u.role).toUpperCase();
+    sel.style.display='flex';
+    card.style.display='block';
+    document.getElementById('cardTitle').innerHTML=
+      '<span style="font-size:18px">'+u.av+'</span>'+
+      '<span style="color:'+u.color+'">'+u.nick+'</span>'+
+      '<span class="badge '+u.badge+'">'+String(u.role).toUpperCase()+'</span>'+
+      '<button onclick="usarNickMod(\''+u.nick+'\')" title="Enviar para Ação Manual" style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;border:none;background:#1e3a5f;color:#93c5fd;font-size:10px;font-weight:700;cursor:pointer;font-family:Syne,sans-serif;transition:.15s;white-space:nowrap" onmouseover="this.style.background=\'#2563eb\';this.style.color=\'#fff\'" onmouseout="this.style.background=\'#1e3a5f\';this.style.color=\'#93c5fd\'">⚡ Moderar</button>';
+    var fields=[['📍 Localização','<span id="moderLocal">'+u.local+'</span>'],['🖥 Dispositivo','<span style="font-size:10px;font-family:monospace;word-break:break-all;color:var(--text2)">'+dev.icon+' '+dev.label+'</span><br><span style="font-size:9px;font-family:monospace;color:var(--text3);word-break:break-all">'+dev.ua+'</span>'],['🌐 IP','<span class="ip-tag">'+u.ip+'</span>'],['📡 ASN','<span id="moderAsn" class="ip-tag">'+u.asn+'</span>'],['💬 Status',u.status],['🕒 Último login',u.login],['📨 Mensagens',u.msgs],['📅 Cadastro',u.registrado]];
+    document.getElementById('cardGrid').innerHTML=fields.map(function(f){return '<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 10px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:3px">'+f[0]+'</div><div style="font-size:11px;font-weight:600">'+f[1]+'</div></div>';}).join('');
+    document.getElementById('cardActions').innerHTML=u.acoes.map(function(a){return ACOES_MAP[a]?ACOES_MAP[a](nick):'';}).join('');
+  }catch(e){ card.style.display='block'; if(typeof toast==='function') toast('Erro ao montar card: '+(e.message||e),'err'); }
+  // Geo-IP real (cidade, país, ASN)
   (function(){
     var ip=u.ip;
     if(!ip || ip==='não registrado' || ip==='—') return;
     var locEl=document.getElementById('moderLocal');
-    var asnEl=document.getElementById('moderAsn');
     if(locEl) locEl.textContent='🔍 buscando...';
     if(!window.API||!API.get) return;
     API.get('/admin/geoip?ip='+encodeURIComponent(ip)).then(function(g){
