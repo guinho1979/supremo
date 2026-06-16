@@ -50,7 +50,16 @@ app.use('/api/auth/register', authLimiter);
 
 // ── Servir arquivos estáticos do frontend ─────────────────────
 // Coloque seus arquivos HTML na pasta 'public'
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public'), {
+  setHeaders: (res, filePath) => {
+    // HTML e JS sempre revalidados — evita o navegador mostrar versão antiga (cache)
+    if (filePath.endsWith('.html') || filePath.endsWith('.js')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 
 // ── Rotas da API ──────────────────────────────────────────────
 app.use('/api/auth',  authRoutes);
