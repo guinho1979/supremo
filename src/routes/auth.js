@@ -55,10 +55,12 @@ router.post('/register', async (req, res) => {
 
     // Criar usuário
     const { rows: [user] } = await db.query(
-      `INSERT INTO users (nick, password_hash, birthday)
-       VALUES ($1, $2, $3)
+      `INSERT INTO users (nick, password_hash, birthday, last_ip, last_user_agent, last_seen)
+       VALUES ($1, $2, $3, $4, $5, NOW())
        RETURNING id, nick, role, avatar`,
-      [nick, hash, birthday || null]
+      [nick, hash, birthday || null,
+       (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '',
+       req.headers['user-agent'] || '']
     );
 
     // Gerar JWT
@@ -131,8 +133,11 @@ router.post('/login', async (req, res) => {
     if (!valid)
       return res.status(401).json({ error: 'Nick ou senha incorretos.' });
 
-    // Atualizar last_seen
-    await db.query('UPDATE users SET last_seen = NOW() WHERE id = $1', [user.id]);
+    // Atualizar last_seen + IP/dispositivo
+    await db.query(
+      'UPDATE users SET last_seen = NOW(), last_ip = $2, last_user_agent = $3 WHERE id = $1',
+      [user.id, (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '', req.headers['user-agent'] || '']
+    );
 
     // JWT
     const jwt_token = jwt.sign(
