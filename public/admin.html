@@ -1389,10 +1389,17 @@ const ACOES_MAP={
 };
 let USERS_LIST = [];
 function _mkUser(u){
+  function fmtD(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('pt-BR'); }catch(e){ return '—'; } }
+  function fmtDT(d){ if(!d) return '—'; try{ return new Date(d).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return '—'; } }
+  var stMap={online:'🟢 Online',away:'🟡 Ausente',busy:'🔴 Ocupado'};
+  var statusTxt = u.is_banned ? ('🚫 Banido'+(u.ban_reason?(' — '+u.ban_reason):'')) : (stMap[u.status]||'⚪ Offline');
   return { nick:u.nick, av:u.avatar||'👤', role:u.role, badge:'b-'+u.role, color:'#9ca3af',
     id:u.id, banned:!!u.is_banned,
-    ip:'—', asn:'—', local:'—', device:(typeof parseDevice==='function'?parseDevice(''):'—'),
-    login:'—', status:(u.is_banned?'🚫 Banido':'—'), msgs:'—', registrado:'—',
+    ip:(u.last_ip||'não registrado'), asn:'—', local:'—',
+    device:(typeof parseDevice==='function'?parseDevice(u.last_user_agent||''):{icon:'🖥',label:'não registrado',ua:'—'}),
+    login: fmtDT(u.last_seen), status: statusTxt,
+    msgs: (u.msg_count!=null ? String(u.msg_count) : '—'),
+    registrado: fmtD(u.created_at),
     acoes:(u.role==='guest'?['kick','ban']:['mutar','kick','ban','shadow','cargo','nick']) };
 }
 async function loadAdminUsers(){
@@ -1413,7 +1420,22 @@ function renderDropdown(list){
   :'<div style="padding:10px 12px;font-size:11px;color:var(--text3);text-align:center">Nenhum usuário encontrado</div>';
   dd.style.display='block';
 }
-function filtrarUsuarios(q){renderDropdown(q.trim()===''?USERS_LIST:USERS_LIST.filter(u=>u.nick.toLowerCase().includes(q.toLowerCase())));}
+var _modSearchTimer=null;
+function filtrarUsuarios(q){
+  var ql=(q||'').trim().toLowerCase();
+  var local=(ql==='')?USERS_LIST:USERS_LIST.filter(function(u){return u.nick.toLowerCase().includes(ql);});
+  renderDropdown(local);
+  if(_modSearchTimer) clearTimeout(_modSearchTimer);
+  _modSearchTimer=setTimeout(function(){
+    if(!window.API||!API.admin||!API.admin.getUsers) return;
+    API.admin.getUsers(q||'').then(function(d){
+      (d.users||[]).forEach(function(u){ USERS_DATA[u.nick]=_mkUser(u); });
+      USERS_LIST=Object.values(USERS_DATA).map(function(u){return {nick:u.nick,av:u.av,role:String(u.role).toUpperCase(),badge:u.badge};});
+      var l2=(ql==='')?USERS_LIST:USERS_LIST.filter(function(u){return u.nick.toLowerCase().includes(ql);});
+      renderDropdown(l2);
+    }).catch(function(){});
+  }, 250);
+}
 function abrirDropdown(){filtrarUsuarios(document.getElementById('userSearchInput').value);}
 function fecharDropdown(){document.getElementById('userDropdown').style.display='none';}
 function limparUserSelect(){document.getElementById('userSearchInput').value='';document.getElementById('userDropdown').style.display='none';document.getElementById('userCard').style.display='none';document.getElementById('userSelectedBadge').style.display='none';}
@@ -1440,10 +1462,26 @@ function selecionarUsuario(nick){
     `transition:.15s;white-space:nowrap" `+
     `onmouseover="this.style.background='#2563eb';this.style.color='#fff'" `+
     `onmouseout="this.style.background='#1e3a5f';this.style.color='#93c5fd'">⚡ Moderar</button>`;
-  const fields=[['📍 Localização',u.local],['🖥 Dispositivo',`<span style="font-size:10px;font-family:monospace;word-break:break-all;color:var(--text2)">${u.device.icon} ${u.device.label}</span><br><span style="font-size:9px;font-family:monospace;color:var(--text3);word-break:break-all">${u.device.ua}</span>`],['🌐 IP',`<span class="ip-tag">${u.ip}</span>`],['📡 ASN',`<span class="ip-tag">${u.asn}</span>`],['💬 Status',u.status],['🕒 Último login',u.login],['📨 Mensagens',u.msgs],['📅 Cadastro',u.registrado]];
+  const fields=[['📍 Localização',`<span id="moderLocal">${u.local}</span>`],['🖥 Dispositivo',`<span style="font-size:10px;font-family:monospace;word-break:break-all;color:var(--text2)">${u.device.icon} ${u.device.label}</span><br><span style="font-size:9px;font-family:monospace;color:var(--text3);word-break:break-all">${u.device.ua}</span>`],['🌐 IP',`<span class="ip-tag">${u.ip}</span>`],['📡 ASN',`<span id="moderAsn" class="ip-tag">${u.asn}</span>`],['💬 Status',u.status],['🕒 Último login',u.login],['📨 Mensagens',u.msgs],['📅 Cadastro',u.registrado]];
   document.getElementById('cardGrid').innerHTML=fields.map(([l,v])=>`<div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 10px"><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:3px">${l}</div><div style="font-size:11px;font-weight:600">${v}</div></div>`).join('');
   document.getElementById('cardActions').innerHTML=u.acoes.map(a=>ACOES_MAP[a]?ACOES_MAP[a](nick):'').join('');
   card.style.display='block';
+  // Geo-IP real (cidade, país, ASN) — assíncrono
+  (function(){
+    var ip=u.ip;
+    if(!ip || ip==='não registrado' || ip==='—') return;
+    var locEl=document.getElementById('moderLocal');
+    var asnEl=document.getElementById('moderAsn');
+    if(locEl) locEl.textContent='🔍 buscando...';
+    if(!window.API||!API.get) return;
+    API.get('/admin/geoip?ip='+encodeURIComponent(ip)).then(function(g){
+      var lEl=document.getElementById('moderLocal');
+      var aEl=document.getElementById('moderAsn');
+      if(!g||g.ok===false){ if(lEl) lEl.textContent='—'; return; }
+      if(lEl) lEl.textContent=g.local||'—';
+      if(aEl) aEl.textContent=(g.asn?(g.asn+(g.isp?(' · '+g.isp):'')):(g.isp||'—'));
+    }).catch(function(){ var lEl=document.getElementById('moderLocal'); if(lEl) lEl.textContent='—'; });
+  })();
 }
 
 function usarNickMod(nick){

@@ -281,6 +281,7 @@ const ME={
   nick:  LS.get('tc_nick','Usuário'),
   role:  LS.get('tc_role','user'),
   av:    LS.get('tc_avatar','😊'),
+  photo: LS.get('tc_photo',''),
 };
 
 const BADGE_C={admin:'#10b981',supervisor:'#ef4444',mod:'#6b7280',premium:'#f59e0b',dj:'#a855f7'};
@@ -360,7 +361,8 @@ let mediaName = '';
 let ytId = '';
 
 // Init header
-document.getElementById('compAv').textContent = ME.av;
+(function(){ var ca=document.getElementById('compAv'); if(ME.photo){ ca.innerHTML='<img src="'+ME.photo+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">'; ca.style.overflow='hidden'; } else { ca.textContent = ME.av; } })();
+try{ API.me().then(function(u){ if(u&&u.photo_url){ ME.photo=u.photo_url; LS.set('tc_photo',u.photo_url); var ca=document.getElementById('compAv'); if(ca){ ca.innerHTML='<img src="'+u.photo_url+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover">'; ca.style.overflow='hidden'; } } }).catch(function(){}); }catch(e){}
   // Visitante: bloquear todo o composer
   const IS_GUEST_REC = ME.role === 'guest';
   if(IS_GUEST_REC){
@@ -620,7 +622,7 @@ function renderFeed(){
         </div>
         <!-- Caixa de novo comentário -->
         <div style="padding:10px 16px;border-top:1px solid var(--border);background:#f8fbff;display:flex;align-items:center;gap:8px">
-          <div style="width:28px;height:28px;border-radius:50%;background:#e8f2ff;border:1.5px solid #2563eb;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${ME.av}</div>
+          <div style="width:28px;height:28px;border-radius:50%;background:#e8f2ff;border:1.5px solid #2563eb;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden">${ME.photo?`<img src="${ME.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`:ME.av}</div>
           <input id="cmtInput_${p.id}" placeholder="${IS_GUEST_REC ? '🔒 Faça login para comentar' : 'Escreva um comentário...'}" maxlength="300"
             onkeydown="if(event.key==='Enter')comentar(${p.id})"
             ${IS_GUEST_REC ? 'disabled style="flex:1;background:#f0f6fc;border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:13px;font-family:DM Sans,sans-serif;color:var(--text3);outline:none;cursor:not-allowed;opacity:.6"' : 'style="flex:1;background:#ffffff;border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:13px;font-family:DM Sans,sans-serif;color:var(--text);outline:none"'}/>

@@ -318,7 +318,7 @@ function render(logins){
     var now=Date.now();
     var logins=(d.users||[]).map(function(u){
       var mins=u.last_seen?Math.max(0,Math.round((now-Date.parse(u.last_seen))/60000)):0;
-      return { nick:u.nick, av:(u.nick_emoji||u.avatar||'😊'), role:u.role||'user', color:RC[u.role]||'#7a90b0', avBg:BG[u.role]||'#e8f2ff', tsAgo:mins };
+      return { nick:u.nick, av:(u.nick_emoji||u.avatar||'😊'), photo:u.photo_url||'', role:u.role||'user', color:RC[u.role]||'#7a90b0', avBg:BG[u.role]||'#e8f2ff', tsAgo:mins };
     });
     render(logins); // sobrescreve o conteúdo demo com dados reais
   }).catch(function(){});
