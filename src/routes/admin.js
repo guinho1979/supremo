@@ -31,6 +31,25 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// ─── Estatísticas do Dashboard ───────────────────────────────
+router.get('/stats', requireRole('supervisor'), async (req, res) => {
+  try {
+    const q = async (sql) => { try { const { rows } = await db.query(sql); return parseInt(rows[0].c) || 0; } catch (e) { return 0; } };
+    const [users, rooms, bansToday, msgsToday, contacts, guests, ipBlocks] = await Promise.all([
+      q("SELECT COUNT(*) c FROM users"),
+      q("SELECT COUNT(*) c FROM rooms"),
+      q("SELECT COUNT(*) c FROM bans WHERE created_at::date = CURRENT_DATE"),
+      q("SELECT COUNT(*) c FROM messages WHERE created_at::date = CURRENT_DATE"),
+      q("SELECT COUNT(*) c FROM contacts"),
+      q("SELECT COUNT(DISTINCT token) c FROM sessions WHERE user_type = 'guest'"),
+      q("SELECT COUNT(DISTINCT ip_address) c FROM bans WHERE ip_address IS NOT NULL")
+    ]);
+    let online = 0;
+    try { online = ws.onlineCount ? ws.onlineCount() : 0; } catch (e) {}
+    res.json({ users, online, rooms, bansToday, msgsToday, contacts, guests, ipBlocks });
+  } catch (err) { res.json({}); }
+});
+
 // ─── GET /api/admin/geoip?ip=X — geolocalização + VPN/Proxy ──
 router.get('/geoip', async (req, res) => {
   try {
@@ -332,6 +351,56 @@ router.get('/files/:id', requireRole('supervisor'), async (req, res) => {
     if (!m) return res.status(404).json({ error: 'Não encontrado.' });
     res.json({ media_url: m.media_url, msg_type: m.msg_type, nick: m.nick });
   } catch (err) { res.status(500).json({ error: 'Erro.' }); }
+});
+
+// ─── Anúncio (aviso para todas as salas, em tempo real) ──────
+router.post('/announce', requireRole('supervisor'), async (req, res) => {
+  try {
+    const message = (req.body.message || '').toString().trim().slice(0, 500);
+    const color = (req.body.color || 'blue').toString().slice(0, 20);
+    if (!message) return res.status(400).json({ error: 'Mensagem obrigatória.' });
+    const payload = JSON.stringify({ message, color, at: Date.now(), by: req.user.nick });
+    await db.query(
+      `INSERT INTO system_config (key, value, updated_at) VALUES ('announcement', $1, NOW())
+       ON CONFLICT (key) DO UPDATE SET value = $1, updated_at = NOW()`, [payload]
+    );
+    try { ws.broadcastAll({ event: 'announcement', data: { message, color } }); } catch (e) {}
+    res.json({ ok: true });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao publicar.' }); }
+});
+router.delete('/announce', requireRole('supervisor'), async (req, res) => {
+  try {
+    await db.query("DELETE FROM system_config WHERE key = 'announcement'");
+    try { ws.broadcastAll({ event: 'announcement_clear', data: {} }); } catch (e) {}
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erro.' }); }
+});
+
+// ─── Logs do sistema (acessos + moderação) ───────────────────
+router.get('/logs', requireRole('mod'), async (req, res) => {
+  try {
+    const logins = await db.query(
+      `SELECT nick, kind, ip, created_at FROM login_logs ORDER BY created_at DESC LIMIT 60`
+    ).catch(() => ({ rows: [] }));
+    const bans = await db.query(
+      `SELECT nick, banned_by, reason, ban_type, ip_address, created_at FROM bans ORDER BY created_at DESC LIMIT 40`
+    ).catch(() => ({ rows: [] }));
+    const out = [];
+    logins.rows.forEach(l => out.push({
+      type: 'login', at: l.created_at,
+      text: `<strong>${l.nick}</strong> entrou (${l.kind === 'guest' ? 'visitante' : 'cadastrado'})` + (l.ip ? ` — <span class="ip-tag">${l.ip}</span>` : '')
+    }));
+    bans.rows.forEach(b => out.push({
+      type: 'ban', at: b.created_at,
+      text: `<strong>${b.banned_by || 'Sistema'}</strong> baniu <strong>${b.nick}</strong>` + (b.ban_type === 'temporary' ? ' (temporário)' : '') + (b.ip_address ? ` · IP <span class="ip-tag">${b.ip_address}</span>` : '') + (b.reason ? ` — ${b.reason}` : '')
+    }));
+    out.sort((a, b) => new Date(b.at) - new Date(a.at));
+    res.json({ logs: out.slice(0, 80) });
+  } catch (err) { res.json({ logs: [] }); }
+});
+router.delete('/logs', requireRole('admin'), async (req, res) => {
+  try { await db.query('DELETE FROM login_logs'); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: 'Erro ao limpar.' }); }
 });
 
 // ─── DELETE /api/admin/recados/:id ───────────────────────────
