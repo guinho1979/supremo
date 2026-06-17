@@ -5596,125 +5596,9 @@ function isAdminOrSup(){
   return ['admin','supervisor'].includes(ME.role);
 }
 
-// ─── ENQUETE ─────────────────────────────────────────────────────
-let enqueteAtual = null;
-let enqueteVotou = false;  // se este usuário já votou
-
-function getEnquete(){
-  try{ return JSON.parse(localStorage.getItem(ENQUETE_LS_KEY)||'null'); }
-  catch(e){ return null; }
-}
-function saveEnquete(e){
-  localStorage.setItem(ENQUETE_LS_KEY, e ? JSON.stringify(e) : 'null');
-}
-
-// Processar comando @enquete na mensagem do chat
-function processarComandoEnquete(texto){
-  const permitidos = JSON.parse(localStorage.getItem(ENQUETE_PERM_KEY)||'[]');
-  if(!isAdminOrSup() && !permitidos.includes(ME.nick)) return false;
-  if(texto.trim().toLowerCase() !== '@enquete') return false;
-  const enquete = getEnquete();
-  if(!enquete || !enquete.ativa){
-    showToast('❌ Nenhuma enquete ativa no momento','error'); return true;
-  }
-  // Mostrar a enquete no chat
-  renderEnqueteNoChat(enquete);
-  return true;
-}
-
-// Renderizar card de enquete no chat
-function renderEnqueteNoChat(enq){
-  const feed = document.getElementById('feed');
-  if(!feed) return;
-  const jaVotou = localStorage.getItem('tc_enquete_votou_'+enq.id) === '1';
-  const totalVotos = enq.opcoes.reduce((s,o)=>s+(o.votos||0),0);
-
-  const div = document.createElement('div');
-  div.className='msg-group enquete-msg';
-  div.dataset.enqueteId = enq.id;
-  div.innerHTML = `
-    <div class="enquete-card">
-      <div class="enquete-title">📊 ENQUETE</div>
-      <div class="enquete-q">${enq.pergunta}</div>
-      <div class="enquete-opts">
-        ${enq.opcoes.map((op,i)=>{
-          const pct = totalVotos ? Math.round((op.votos||0)/totalVotos*100) : 0;
-          return `<div class="enquete-opt${jaVotou?' voted':''}" onclick="votarEnquete('${enq.id}',${i})" data-idx="${i}">
-            <div class="enquete-opt-bar" style="width:${jaVotou?pct:0}%"></div>
-            <span class="enquete-opt-text">${op.texto}</span>
-            ${jaVotou?`<span class="enquete-opt-pct">${pct}%</span>`:''}
-          </div>`;
-        }).join('')}
-      </div>
-      <div class="enquete-footer">
-        <span>👥 ${totalVotos} voto${totalVotos!==1?'s':''}</span>
-        ${jaVotou?'<span style="color:#10b981;font-weight:700">✅ Você votou</span>':''}
-        ${isAdminOrSup()?`<button class="enquete-ver-btn" onclick="verResultadoEnquete('${enq.id}')">Ver detalhe</button>`:''}
-      </div>
-    </div>
-  `;
-  feed.appendChild(div);
-  feed.scrollTop = feed.scrollHeight;
-}
-
-function votarEnquete(enqueteId, opcaoIdx){
-  const lsKey = 'tc_enquete_votou_'+enqueteId;
-  if(localStorage.getItem(lsKey)==='1'){
-    showToast('Você já votou nesta enquete','error'); return;
-  }
-  const enq = getEnquete();
-  if(!enq || enq.id !== enqueteId){ showToast('Enquete não encontrada','error'); return; }
-  if(!enq.ativa){ showToast('Esta enquete já foi encerrada','error'); return; }
-
-  // Registrar voto
-  enq.opcoes[opcaoIdx].votos = (enq.opcoes[opcaoIdx].votos||0)+1;
-  enq.votos_por_nick = enq.votos_por_nick||{};
-  enq.votos_por_nick[ME.nick] = opcaoIdx;
-  saveEnquete(enq);
-  localStorage.setItem(lsKey,'1');
-
-  // Atualizar UI
-  const cards = document.querySelectorAll(`.enquete-msg[data-enquete-id="${enqueteId}"]`);
-  cards.forEach(card => {
-    const newEnq = getEnquete();
-    const total = newEnq.opcoes.reduce((s,o)=>s+(o.votos||0),0);
-    card.querySelectorAll('.enquete-opt').forEach((opt, i)=>{
-      const pct = total ? Math.round((newEnq.opcoes[i].votos||0)/total*100) : 0;
-      opt.classList.add('voted');
-      opt.querySelector('.enquete-opt-bar').style.width = pct+'%';
-      if(!opt.querySelector('.enquete-opt-pct')){
-        const span = document.createElement('span');
-        span.className='enquete-opt-pct';
-        span.textContent = pct+'%';
-        opt.appendChild(span);
-      } else {
-        opt.querySelector('.enquete-opt-pct').textContent = pct+'%';
-      }
-    });
-    const fVotos = card.querySelector('.enquete-footer span');
-    if(fVotos) fVotos.textContent = `👥 ${total} voto${total!==1?'s':''}`;
-  });
-  showToast('✅ Voto registrado!');
-}
-
-function verResultadoEnquete(enqueteId){
-  if(!isAdminOrSup()){ showToast('Acesso restrito','error'); return; }
-  const enq = getEnquete();
-  if(!enq || enq.id !== enqueteId) return;
-  const total = enq.opcoes.reduce((s,o)=>s+(o.votos||0),0);
-  let txt = `📊 RESULTADO — ${enq.pergunta}\n\n`;
-  enq.opcoes.forEach((op,i)=>{
-    const pct = total ? Math.round((op.votos||0)/total*100) : 0;
-    txt += `${i+1}. ${op.texto}: ${op.votos||0} votos (${pct}%)\n`;
-  });
-  if(enq.votos_por_nick && Object.keys(enq.votos_por_nick).length){
-    txt += `\n👤 Votos por usuário:\n`;
-    Object.entries(enq.votos_por_nick).forEach(([nick,idx])=>{
-      txt += `  ${nick}: Opção ${idx+1} (${enq.opcoes[idx].texto})\n`;
-    });
-  }
-  alert(txt);
-}
+// ─── ENQUETE (legado) — sistema real está em tcRenderPoll/interactive.js ──
+// Comando @enquete desativado; enquetes/quiz são criados pelo painel admin.
+function processarComandoEnquete(texto){ return false; }
 
 // ─── QUIZ ─────────────────────────────────────────────────────────
 let quizAtual = null;
@@ -8433,15 +8317,31 @@ function processSmileKeywords(text){
   window.tcHandleCommand=function(text){
     var t=(text||'').trim();
     if(/^@enquete\b/i.test(t)){
-      var body=t.replace(/^@enquete\s*/i,''); var parts=body.split('|').map(function(x){return x.trim();}).filter(Boolean);
-      if(parts.length<3){ tip('Use: @enquete Pergunta? | op\u00e7\u00e3o 1 | op\u00e7\u00e3o 2','error'); return true; }
+      var body=t.replace(/^@enquete\s*/i,'').trim();
+      if(!body){
+        API.polls.active(room()).then(function(d){
+          if(d&&d.poll){ pollState[d.poll.id]={poll:d.poll,counts:d.counts||[],myVote:d.my_vote,closed:false}; tcRenderPoll(d.poll,d.counts,d.my_vote,false); }
+          else tip('Nenhuma enquete ativa. Ative no painel admin primeiro.','info');
+        }).catch(function(e){ tip(e.message||'Erro','error'); });
+        return true;
+      }
+      var parts=body.split('|').map(function(x){return x.trim();}).filter(Boolean);
+      if(parts.length<3){ tip('Digite @enquete sozinho p/ mostrar a ativa, ou @enquete Pergunta? | opção 1 | opção 2','error'); return true; }
       var question=parts.shift();
       API.polls.create({room_slug:room(),question:question,options:parts}).then(function(){ tip('Enquete criada!'); }).catch(function(e){ tip(e.message||'Erro','error'); });
       return true;
     }
     if(/^@quiz\b/i.test(t)){
-      var b2=t.replace(/^@quiz\s*/i,''); var ps=b2.split('|').map(function(x){return x.trim();}).filter(Boolean);
-      if(ps.length<3){ tip('Use: @quiz Pergunta? | op\u00e7\u00e3o | *correta | op\u00e7\u00e3o (marque a certa com *)','error'); return true; }
+      var b2=t.replace(/^@quiz\s*/i,'').trim();
+      if(!b2){
+        API.quizzes.active(room()).then(function(d){
+          if(d&&d.quiz){ quizState[d.quiz.id]={quiz:d.quiz,answered:d.answered,myAnswer:d.my_answer,closed:false}; tcRenderQuiz(d.quiz,{answered:d.answered,myAnswer:d.my_answer}); }
+          else tip('Nenhum quiz ativo. Ative no painel admin primeiro.','info');
+        }).catch(function(e){ tip(e.message||'Erro','error'); });
+        return true;
+      }
+      var ps=b2.split('|').map(function(x){return x.trim();}).filter(Boolean);
+      if(ps.length<3){ tip('Digite @quiz sozinho p/ mostrar o ativo, ou @quiz Pergunta? | opção | *correta | opção','error'); return true; }
       var quest=ps.shift(); var ci=ps.findIndex(function(o){return o.indexOf('*')===0;});
       if(ci<0){ tip('Marque a op\u00e7\u00e3o correta com * (ex.: *Brasil)','error'); return true; }
       ps=ps.map(function(o){return o.replace(/^\*/,'');});
