@@ -229,23 +229,14 @@ tr:hover td{background:var(--surface2)}
     <div class="page active" id="page-dashboard">
       <div class="page-title">Dashboard</div>
       <div class="stats-grid">
-        <div class="stat"><div class="stat-num" style="color:#60a5fa">127</div><div class="stat-lbl">Usuários</div></div>
-        <div class="stat"><div class="stat-num" style="color:#10b981">42</div><div class="stat-lbl">Online</div></div>
-        <div class="stat"><div class="stat-num" style="color:#60a5fa">8</div><div class="stat-lbl">Salas ativas</div></div>
-        <div class="stat"><div class="stat-num" style="color:#fbbf24">3</div><div class="stat-lbl">Bans hoje</div></div>
-        <div class="stat"><div class="stat-num" style="color:#f472b6">1.4k</div><div class="stat-lbl">Msgs hoje</div></div>
-        <div class="stat"><div class="stat-num" style="color:#f87171">5</div><div class="stat-lbl">VPNs bloq.</div></div>
-        <div class="stat"><div class="stat-num" style="color:#60a5fa">14</div><div class="stat-lbl">Visitantes</div></div>
-        <div class="stat"><div class="stat-num" style="color:#fbbf24">8</div><div class="stat-lbl">Contatos</div></div>
-      </div>
-      <div class="section" id="secAcoesRapidas">
-        <div class="section-title">⚡ Ações rápidas</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn-primary" onclick="show('anuncio',null)">📢 Novo anúncio</button>
-          <button class="btn-primary" onclick="show('acesso',null)">🚪 Controle acesso</button>
-          <button class="btn-primary" onclick="show('moderacao',null)">⚡ Moderar</button>
-          <button class="btn-secondary" onclick="show('dj',null)">🎧 Painel DJ</button>
-        </div>
+        <div class="stat"><div class="stat-num" id="stUsers" style="color:#60a5fa">—</div><div class="stat-lbl">Usuários</div></div>
+        <div class="stat"><div class="stat-num" id="stOnline" style="color:#10b981">—</div><div class="stat-lbl">Online</div></div>
+        <div class="stat"><div class="stat-num" id="stRooms" style="color:#60a5fa">—</div><div class="stat-lbl">Salas ativas</div></div>
+        <div class="stat"><div class="stat-num" id="stBans" style="color:#fbbf24">—</div><div class="stat-lbl">Bans hoje</div></div>
+        <div class="stat"><div class="stat-num" id="stMsgs" style="color:#f472b6">—</div><div class="stat-lbl">Msgs hoje</div></div>
+        <div class="stat"><div class="stat-num" id="stIpBlocks" style="color:#f87171">—</div><div class="stat-lbl">IPs bloq.</div></div>
+        <div class="stat"><div class="stat-num" id="stGuests" style="color:#60a5fa">—</div><div class="stat-lbl">Visitantes</div></div>
+        <div class="stat"><div class="stat-num" id="stContacts" style="color:#fbbf24">—</div><div class="stat-lbl">Contatos</div></div>
       </div>
       <div class="section" id="secLogoChat">
         <div class="section-title">🖼 Logo do Chat</div>
@@ -2425,7 +2416,7 @@ async function applyNickChange(){
 }
 
 // ── LOGS ───────────────────────────────────────────────────────
-function limparLogs(){if(!confirm('Limpar logs?'))return;const el=document.getElementById('logsList');if(el)el.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">📋 Nenhum log.</div>';toast('Logs limpos ✅');}
+function limparLogs(){if(!confirm('Limpar logs de acesso?'))return;if(window.API&&API.delete){API.delete('/admin/logs').then(function(){toast('Logs limpos ✅');if(typeof loadLogs==='function')loadLogs();}).catch(function(e){toast((e&&e.message)||'Erro','err');});}}
 
 // ── IP / SPAM ──────────────────────────────────────────────────
 function addIP(){const v=document.getElementById('ipInput').value.trim();if(!v)return;const s=document.createElement('span');s.className='ip-tag';s.style.cssText='cursor:pointer;padding:3px 8px';s.textContent=v+' ✕';s.onclick=()=>s.remove();document.getElementById('ipList').appendChild(s);document.getElementById('ipInput').value='';toast('IP bloqueado');}
@@ -2498,8 +2489,23 @@ function toggleBingo(el){
 // ── ANÚNCIO ───────────────────────────────────────────────────
 document.getElementById('annMsg').addEventListener('input',function(){document.getElementById('annPreviewText').textContent=this.value||'Pré-visualização...';});
 document.getElementById('annColor').addEventListener('change',function(){document.getElementById('annPreview').className='ann-preview '+this.value;});
-function publishAnnouncement(){const msg=document.getElementById('annMsg').value.trim();if(!msg){toast('Escreva a mensagem','err');return;}toast('Anúncio publicado 📢');}
-function clearAnnouncement(){document.getElementById('annMsg').value='';document.getElementById('annPreviewText').textContent='Pré-visualização...';toast('Anúncio removido');}
+function publishAnnouncement(){
+  const msg=document.getElementById('annMsg').value.trim();
+  if(!msg){toast('Escreva a mensagem','err');return;}
+  const color=(document.getElementById('annColor')||{}).value||'purple';
+  if(window.API&&API.post){
+    API.post('/admin/announce',{message:msg,color:color})
+      .then(function(){ toast('Anúncio publicado para todos 📢'); })
+      .catch(function(e){ toast((e&&e.message)||'Erro ao publicar','err'); });
+  }
+}
+function clearAnnouncement(){
+  if(window.API&&API.delete){
+    API.delete('/admin/announce').then(function(){ toast('Anúncio removido'); }).catch(function(){});
+  }
+  document.getElementById('annMsg').value='';
+  var pv=document.getElementById('annPreviewText'); if(pv) pv.textContent='Pré-visualização...';
+}
 
 // ── MASSA ─────────────────────────────────────────────────────
 function expulsarTodosChat(sala){if(!confirm('Expulsar de '+sala+'?'))return;const msg=document.getElementById('expulsarMsg');if(msg){msg.style.display='block';msg.textContent='✅ Expulsos de '+sala+'!';msg.style.color='#10b981';setTimeout(()=>msg.style.display='none',4000);}toast('Expulsos de '+sala);}
@@ -3386,6 +3392,45 @@ window.show = function(id, el){
 
   var _show6=window.show;
   if(typeof _show6==='function'){ window.show=function(p,el){ _show6(p,el); if(p==='arquivos') loadArquivos(); }; }
+})();
+</script>
+<script>
+/* === DASHBOARD: estatísticas reais === */
+(function(){
+  if(typeof API==='undefined' || !API.get) return;
+  window.loadStats=function(){
+    API.get('/admin/stats').then(function(s){
+      function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=(v==null?'—':v); }
+      function k(n){ n=n||0; return n>=1000?(Math.round(n/100)/10)+'k':String(n); }
+      set('stUsers',k(s.users)); set('stOnline',s.online||0); set('stRooms',s.rooms||0);
+      set('stBans',s.bansToday||0); set('stMsgs',k(s.msgsToday)); set('stIpBlocks',s.ipBlocks||0);
+      set('stGuests',s.guests||0); set('stContacts',s.contacts||0);
+    }).catch(function(){});
+  };
+  var _show7=window.show;
+  if(typeof _show7==='function'){ window.show=function(p,el){ _show7(p,el); if(p==='dashboard') loadStats(); }; }
+  setTimeout(loadStats,300);
+})();
+</script>
+<script>
+/* === LOGS reais === */
+(function(){
+  if(typeof API==='undefined' || !API.get) return;
+  window.loadLogs=function(){
+    var el=document.getElementById('logsList'); if(!el) return;
+    el.innerHTML='<div style="text-align:center;padding:18px;font-size:12px;color:var(--text3)">Carregando…</div>';
+    API.get('/admin/logs').then(function(d){
+      var logs=(d&&d.logs)||[];
+      if(!logs.length){ el.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">📋 Nenhum log ainda.</div>'; return; }
+      el.innerHTML=logs.map(function(l){
+        var t=l.at?new Date(l.at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+        var icon=l.type==='ban'?'🔨':'🔑';
+        return '<div class="log-entry"><div class="log-time">'+t+'</div><div class="log-text">'+icon+' '+l.text+'</div></div>';
+      }).join('');
+    }).catch(function(){ el.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">Erro ao carregar.</div>'; });
+  };
+  var _show8=window.show;
+  if(typeof _show8==='function'){ window.show=function(p,el){ _show8(p,el); if(p==='logs') loadLogs(); }; }
 })();
 </script>
 </body>
