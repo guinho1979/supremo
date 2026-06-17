@@ -9,7 +9,7 @@ router.use(authMiddleware);
 
 const isStaff = role => ['mod', 'supervisor', 'admin'].includes(role);
 const canHost = role => ['dj', 'mod', 'supervisor', 'admin'].includes(role); // quem pode criar
-function bcast(room, event, data) { try { ws.broadcastToRoom(room, { event, data }); } catch (e) {} }
+function bcast(room, event, data) { try { ws.broadcastAll({ event, data }); } catch (e) {} }
 
 // ════════════════ ENQUETES ════════════════
 
@@ -17,13 +17,14 @@ function bcast(room, event, data) { try { ws.broadcastToRoom(room, { event, data
 router.post('/polls', async (req, res) => {
   if (!req.user.user_id) return res.status(403).json({ error: 'Visitantes não podem criar enquetes.' });
   if (!canHost(req.user.role)) return res.status(403).json({ error: 'Sem permissão para criar enquetes.' });
-  const { room_slug, question } = req.body;
+  const room_slug = req.body.room_slug || 'global';
+  const { question } = req.body;
   let options = req.body.options;
-  if (!room_slug || !question || !Array.isArray(options) || options.length < 2)
+  if (!question || !Array.isArray(options) || options.length < 2)
     return res.status(400).json({ error: 'Pergunta e pelo menos 2 opções são obrigatórias.' });
-  options = options.map(o => String(o).slice(0, 100)).slice(0, 8);
+  options = options.map(o => String(o).slice(0, 100)).filter(Boolean).slice(0, 8);
   try {
-    await db.query("UPDATE polls SET is_active = FALSE, closed_at = NOW() WHERE room_slug = $1 AND is_active = TRUE", [room_slug]);
+    await db.query("UPDATE polls SET is_active = FALSE, closed_at = NOW() WHERE is_active = TRUE");
     const { rows: [p] } = await db.query(
       "INSERT INTO polls (room_slug, question, options, created_by) VALUES ($1,$2,$3,$4) RETURNING *",
       [room_slug, question.slice(0, 200), JSON.stringify(options), req.user.nick]
@@ -37,7 +38,7 @@ router.post('/polls', async (req, res) => {
 router.get('/polls/active', async (req, res) => {
   try {
     const { rows: [p] } = await db.query(
-      "SELECT * FROM polls WHERE room_slug = $1 AND is_active = TRUE ORDER BY id DESC LIMIT 1", [req.query.room || '']
+      "SELECT * FROM polls WHERE is_active = TRUE ORDER BY id DESC LIMIT 1"
     );
     if (!p) return res.json({ poll: null });
     const counts = await pollCounts(p.id, p.options.length);
@@ -81,6 +82,31 @@ router.post('/polls/:id/close', async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao encerrar.' }); }
 });
 
+// POST /api/polls/close — encerra a enquete ativa (painel admin, sem id)
+router.post('/polls/close', async (req, res) => {
+  if (!isStaff(req.user.role)) return res.status(403).json({ error: 'Sem permissão.' });
+  try {
+    const { rows: [p] } = await db.query("SELECT * FROM polls WHERE is_active=TRUE ORDER BY id DESC LIMIT 1");
+    if (p) {
+      await db.query("UPDATE polls SET is_active=FALSE, closed_at=NOW() WHERE id=$1", [p.id]);
+      const counts = await pollCounts(p.id, p.options.length);
+      bcast(p.room_slug, 'poll_closed', { id: p.id, counts });
+    }
+    res.json({ ok: true });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao encerrar.' }); }
+});
+
+// DELETE /api/polls — zera todas as enquetes (painel admin)
+router.delete('/polls', async (req, res) => {
+  if (!isStaff(req.user.role)) return res.status(403).json({ error: 'Sem permissão.' });
+  try {
+    const { rows: [p] } = await db.query("SELECT * FROM polls WHERE is_active=TRUE ORDER BY id DESC LIMIT 1");
+    if (p) { const counts = await pollCounts(p.id, p.options.length); bcast(p.room_slug, 'poll_closed', { id: p.id, counts }); }
+    await db.query("DELETE FROM polls");
+    res.json({ ok: true });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao zerar.' }); }
+});
+
 async function pollCounts(pollId, n) {
   const { rows } = await db.query("SELECT option_index, COUNT(*)::int AS c FROM poll_votes WHERE poll_id=$1 GROUP BY option_index", [pollId]);
   const counts = new Array(n).fill(0);
@@ -94,15 +120,16 @@ async function pollCounts(pollId, n) {
 router.post('/quizzes', async (req, res) => {
   if (!req.user.user_id) return res.status(403).json({ error: 'Visitantes não podem criar quizzes.' });
   if (!canHost(req.user.role)) return res.status(403).json({ error: 'Sem permissão para criar quizzes.' });
-  const { room_slug, question, correct_index } = req.body;
+  const room_slug = req.body.room_slug || 'global';
+  const { question, correct_index } = req.body;
   let options = req.body.options;
-  if (!room_slug || !question || !Array.isArray(options) || options.length < 2)
+  if (!question || !Array.isArray(options) || options.length < 2)
     return res.status(400).json({ error: 'Pergunta e pelo menos 2 opções são obrigatórias.' });
   const ci = parseInt(correct_index);
   if (isNaN(ci) || ci < 0 || ci >= options.length) return res.status(400).json({ error: 'Resposta correta inválida.' });
-  options = options.map(o => String(o).slice(0, 100)).slice(0, 8);
+  options = options.map(o => String(o).slice(0, 100)).filter(Boolean).slice(0, 8);
   try {
-    await db.query("UPDATE quizzes SET is_active=FALSE, closed_at=NOW() WHERE room_slug=$1 AND is_active=TRUE", [room_slug]);
+    await db.query("UPDATE quizzes SET is_active=FALSE, closed_at=NOW() WHERE is_active=TRUE");
     const { rows: [q] } = await db.query(
       "INSERT INTO quizzes (room_slug, question, options, correct_index, created_by) VALUES ($1,$2,$3,$4,$5) RETURNING *",
       [room_slug, question.slice(0, 200), JSON.stringify(options), ci, req.user.nick]
@@ -117,7 +144,7 @@ router.post('/quizzes', async (req, res) => {
 router.get('/quizzes/active', async (req, res) => {
   try {
     const { rows: [q] } = await db.query(
-      "SELECT * FROM quizzes WHERE room_slug=$1 AND is_active=TRUE ORDER BY id DESC LIMIT 1", [req.query.room || '']
+      "SELECT * FROM quizzes WHERE is_active=TRUE ORDER BY id DESC LIMIT 1"
     );
     if (!q) return res.json({ quiz: null });
     let answered = false, myAnswer = null;
