@@ -68,7 +68,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100dvh;dis
 <body>
 <div class="bg-glow"></div>
 <!-- Admin badge top right -->
-<a href="admin.html" id="adminLoginLink" style="display:none;position:fixed;top:12px;right:14px;background:#d1fae5;border:1px solid #10b98155;color:#065f46;font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;text-decoration:none;font-family:'Syne',sans-serif;z-index:10;box-shadow:0 0 8px #10b98130">⚙ Painel Admin</a>
+<a href="admin.html" id="adminLoginLink" style="display:none"></a>
 <div class="wrap">
 
   <div class="logo">
@@ -157,7 +157,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100dvh;dis
   <!-- Online counter -->
   <div style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;margin-bottom:12px;box-shadow:0 2px 12px rgba(124,58,237,.06)">
     <div style="width:9px;height:9px;border-radius:50%;background:#10b981;animation:blink 1.5s infinite;flex-shrink:0"></div>
-    <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text)"><span id="onlineCount">247</span> usuários online agora</span>
+    <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text)"><span id="onlineCount" style="color:#ef4444;font-weight:800">247</span> usuários online agora</span>
   </div>
 
   <!-- Last 10 logins -->
@@ -179,15 +179,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100dvh;dis
   function upd(){ if(!el) return; API.getOnline().then(function(r){ el.textContent=r.count; }).catch(function(){}); }
   upd(); setInterval(upd, 15000);
 })();
-// Show admin badge if admin session is active
-(function(){
-  const role=localStorage.getItem('tc_role');
-  const token=localStorage.getItem('tc_token');
-  if(token&&['admin','supervisor','mod'].includes(role)){
-    const el=document.getElementById('adminLoginLink');
-    if(el)el.style.display='block';
-  }
-})();
+// (link do painel admin removido da tela de login)
 var SYSTEM = {};
 (async function initConfig(){
   try{

@@ -8423,7 +8423,20 @@ function processSmileKeywords(text){
   if(!window.tcSocket) return;
   tcSocket.on('kicked', function(d){ try{ if(typeof showToast==='function') showToast('Você foi removido da sala'+(d&&d.by?(' por '+d.by):'')+'.','error'); else alert('Você foi removido da sala.'); }catch(e){} setTimeout(function(){ location.href='salas.html'; }, 800); });
   tcSocket.on('room_cleared', function(){ var a=document.getElementById('msgArea'); if(a) a.innerHTML=''; if(typeof showToast==='function') showToast('As mensagens desta sala foram limpas.','info'); });
-  tcSocket.on('session_replaced', function(){ if(Date.now()-(window._tcConnAt||0) < 6000) return; try{ if(typeof showToast==='function') showToast('Sua conta entrou em outro dispositivo. Esta sessão foi encerrada.','error'); }catch(e){} setTimeout(function(){ location.href='login.html'; }, 1400); });
+  tcSocket.on('session_replaced', function(){
+    // Logo após conectar (refresh/reconexão), ignora — é corrida, não outro dispositivo
+    if(Date.now()-(window._tcConnAt||0) < 10000) return;
+    // Primeira vez: pode ser instabilidade/refresh — tenta reconectar 1x em vez de deslogar
+    if(!window._tcReplacedOnce){
+      window._tcReplacedOnce = true;
+      setTimeout(function(){ window._tcReplacedOnce = false; }, 15000);
+      setTimeout(function(){ try{ tcSocket.connect(); }catch(e){} }, 2000);
+      return;
+    }
+    // Substituído de novo em sequência → realmente é outro dispositivo
+    try{ if(typeof showToast==='function') showToast('Sua conta entrou em outro dispositivo. Esta sessão foi encerrada.','error'); }catch(e){}
+    setTimeout(function(){ location.href='login.html'; }, 1600);
+  });
   window.addEventListener('pageshow', function(e){ if(e.persisted){ location.reload(); } });
 })();
 </script>
