@@ -504,4 +504,101 @@ router.post('/bot/chat', authMiddleware, async (req, res) => {
   }
 });
 
+// ─── ENQUETES (polls) em tempo real ──────────────────────────
+async function pollCounts(id, optLen) {
+  const { rows } = await db.query(
+    'SELECT option_idx, COUNT(*)::int AS n FROM poll_votes WHERE poll_id = $1 GROUP BY option_idx', [id]
+  );
+  const counts = new Array(optLen).fill(0);
+  rows.forEach(r => { if (r.option_idx >= 0 && r.option_idx < optLen) counts[r.option_idx] = r.n; });
+  return counts;
+}
+
+// criar / ativar enquete (encerra a anterior)
+router.post('/polls', requireRole('supervisor'), async (req, res) => {
+  try {
+    const question = (req.body.question || '').toString().trim().slice(0, 300);
+    let options = Array.isArray(req.body.options) ? req.body.options : [];
+    options = options.map(o => (o || '').toString().trim().slice(0, 120)).filter(Boolean).slice(0, 8);
+    if (!question || options.length < 2)
+      return res.status(400).json({ error: 'Informe a pergunta e pelo menos 2 opções.' });
+    await db.query('UPDATE polls SET active = FALSE, closed_at = NOW() WHERE active = TRUE');
+    const { rows: [p] } = await db.query(
+      'INSERT INTO polls (question, options, created_by) VALUES ($1, $2, $3) RETURNING id',
+      [question, JSON.stringify(options), req.user.nick]
+    );
+    try { ws.broadcastAll({ event: 'poll_created', data: { id: p.id, question, options } }); } catch (e) {}
+    res.json({ ok: true, id: p.id });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao criar enquete.' }); }
+});
+
+// votar (um voto por usuário)
+router.post('/polls/:id/vote', authMiddleware, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const idx = parseInt(req.body.option_index, 10);
+    const { rows: [p] } = await db.query('SELECT active, options FROM polls WHERE id = $1', [id]);
+    if (!p || !p.active) return res.status(400).json({ error: 'Enquete encerrada.' });
+    const optLen = (p.options || []).length;
+    if (isNaN(idx) || idx < 0 || idx >= optLen) return res.status(400).json({ error: 'Opção inválida.' });
+    await db.query(
+      'INSERT INTO poll_votes (poll_id, voter, option_idx) VALUES ($1, $2, $3) ON CONFLICT (poll_id, voter) DO NOTHING',
+      [id, req.user.nick, idx]
+    );
+    const { rows: [mv] } = await db.query('SELECT option_idx FROM poll_votes WHERE poll_id = $1 AND voter = $2', [id, req.user.nick]);
+    const counts = await pollCounts(id, optLen);
+    try { ws.broadcastAll({ event: 'poll_update', data: { id, counts } }); } catch (e) {}
+    res.json({ ok: true, counts, my_vote: mv ? mv.option_idx : idx });
+  } catch (err) { res.status(500).json({ error: 'Erro ao votar.' }); }
+});
+
+// enquete ativa + voto do usuário (para quem entra depois)
+router.get('/polls/active', authMiddleware, async (req, res) => {
+  try {
+    const { rows: [p] } = await db.query('SELECT id, question, options FROM polls WHERE active = TRUE ORDER BY id DESC LIMIT 1');
+    if (!p) return res.json({ poll: null });
+    const counts = await pollCounts(p.id, (p.options || []).length);
+    const { rows: [mv] } = await db.query('SELECT option_idx FROM poll_votes WHERE poll_id = $1 AND voter = $2', [p.id, req.user.nick]);
+    res.json({ poll: { id: p.id, question: p.question, options: p.options }, counts, my_vote: mv ? mv.option_idx : null });
+  } catch (err) { res.json({ poll: null }); }
+});
+
+// encerrar enquete por id
+router.post('/polls/:id/close', requireRole('supervisor'), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { rows: [p] } = await db.query('SELECT options FROM polls WHERE id = $1', [id]);
+    await db.query('UPDATE polls SET active = FALSE, closed_at = NOW() WHERE id = $1', [id]);
+    const counts = p ? await pollCounts(id, (p.options || []).length) : [];
+    try { ws.broadcastAll({ event: 'poll_closed', data: { id, counts } }); } catch (e) {}
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erro.' }); }
+});
+
+// encerrar a enquete ativa (sem id — usado pelo painel admin)
+router.post('/polls/close', requireRole('supervisor'), async (req, res) => {
+  try {
+    const { rows: [p] } = await db.query('SELECT id, options FROM polls WHERE active = TRUE ORDER BY id DESC LIMIT 1');
+    if (p) {
+      await db.query('UPDATE polls SET active = FALSE, closed_at = NOW() WHERE id = $1', [p.id]);
+      const counts = await pollCounts(p.id, (p.options || []).length);
+      try { ws.broadcastAll({ event: 'poll_closed', data: { id: p.id, counts } }); } catch (e) {}
+    }
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erro.' }); }
+});
+
+// zerar (remove todas as enquetes)
+router.delete('/polls', requireRole('admin'), async (req, res) => {
+  try {
+    const { rows: [p] } = await db.query('SELECT id, options FROM polls WHERE active = TRUE ORDER BY id DESC LIMIT 1');
+    if (p) {
+      const counts = await pollCounts(p.id, (p.options || []).length);
+      try { ws.broadcastAll({ event: 'poll_closed', data: { id: p.id, counts } }); } catch (e) {}
+    }
+    await db.query('DELETE FROM polls');
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erro.' }); }
+});
+
 module.exports = router;
