@@ -923,6 +923,8 @@ tr:hover td{background:var(--surface2)}
         <div class="field"><label>Pergunta</label><input id="enqPergunta" type="text" placeholder="Ex: Qual é o melhor time?"/></div>
         <div class="field"><label>Opção 1</label><input type="text" class="enq-opt" placeholder="Opção A"/></div>
         <div class="field"><label>Opção 2</label><input type="text" class="enq-opt" placeholder="Opção B"/></div>
+        <div id="enqExtraOpts"></div>
+        <button type="button" class="btn-secondary" id="enqAddBtn" onclick="addEnqOption()" style="font-size:12px;padding:6px 12px;margin-top:2px">➕ Adicionar opção</button>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
           <button class="btn-primary" onclick="ativarEnquete()">✅ Ativar</button>
           <button class="btn-secondary" onclick="encerrarEnquete()">⛔ Encerrar</button>
@@ -2542,9 +2544,32 @@ function excluirMensagensSala(){
 function excluirTodasSalasPrivadas(){if(!confirm('Excluir TODAS as salas privadas?'))return;localStorage.removeItem('tc_private_rooms');const msg=document.getElementById('privMsg');if(msg){msg.style.display='block';msg.textContent='✅ Todas as salas privadas excluídas!';msg.style.color='#10b981';setTimeout(()=>msg.style.display='none',4000);}toast('Salas privadas excluídas');}
 
 // ── ENQUETE ───────────────────────────────────────────────────
-function ativarEnquete(){const p=document.getElementById('enqPergunta').value.trim();if(!p){toast('Digite a pergunta','err');return;}const el=document.getElementById('enqStatus');el.style.display='block';el.style.background='#10b98122';el.style.color='#10b981';el.textContent='✅ Enquete ativada!';}
-function encerrarEnquete(){const el=document.getElementById('enqStatus');el.style.display='block';el.style.background='#ef444422';el.style.color='#ef4444';el.textContent='⛔ Enquete encerrada.';}
-function zerarEnquete(){const el=document.getElementById('enqStatus');el.style.display='block';el.style.background='#37415122';el.style.color='#9ca3af';el.textContent='🗑 Enquete zerada.';}
+function ativarEnquete(){
+  var p=document.getElementById('enqPergunta').value.trim();
+  var opts=[].slice.call(document.querySelectorAll('.enq-opt')).map(function(i){return i.value.trim();}).filter(Boolean);
+  if(!p){toast('Digite a pergunta','err');return;}
+  if(opts.length<2){toast('Preencha pelo menos 2 opções','err');return;}
+  var el=document.getElementById('enqStatus');
+  API.post('/polls',{question:p,options:opts}).then(function(){
+    el.style.display='block';el.style.background='#10b98122';el.style.color='#10b981';el.textContent='✅ Enquete ativada e enviada para o chat!';
+  }).catch(function(e){ el.style.display='block';el.style.background='#ef444422';el.style.color='#ef4444';el.textContent=(e&&e.message)||'Erro ao ativar.'; });
+}
+function encerrarEnquete(){
+  var el=document.getElementById('enqStatus');
+  API.post('/polls/close',{}).then(function(){
+    el.style.display='block';el.style.background='#ef444422';el.style.color='#ef4444';el.textContent='⛔ Enquete encerrada (resultado final no chat).';
+  }).catch(function(e){ toast((e&&e.message)||'Erro','err'); });
+}
+function zerarEnquete(){
+  if(!confirm('Apagar a enquete e todos os votos?'))return;
+  var el=document.getElementById('enqStatus');
+  API.delete('/polls').then(function(){
+    document.getElementById('enqPergunta').value='';
+    document.querySelectorAll('.enq-opt').forEach(function(i){i.value='';});
+    var _ex=document.getElementById('enqExtraOpts'); if(_ex) _ex.innerHTML=''; if(typeof renumberEnqOpts==='function') renumberEnqOpts();
+    el.style.display='block';el.style.background='#37415122';el.style.color='#9ca3af';el.textContent='🗑 Enquete zerada.';
+  }).catch(function(e){ toast((e&&e.message)||'Erro','err'); });
+}
 
 // ── QUIZ ──────────────────────────────────────────────────────
 function ativarQuiz(){const el=document.getElementById('quizStatus');el.style.display='block';el.style.background='#7c3aed22';el.style.color='#a78bfa';el.textContent='✅ Quiz ativado!';}
@@ -3432,6 +3457,29 @@ window.show = function(id, el){
   var _show8=window.show;
   if(typeof _show8==='function'){ window.show=function(p,el){ _show8(p,el); if(p==='logs') loadLogs(); }; }
 })();
+</script>
+<script>
+/* === ENQUETE: opções extras sob demanda === */
+function addEnqOption(){
+  var total=document.querySelectorAll('.enq-opt').length;
+  if(total>=8){ if(typeof toast==='function') toast('Máximo de 8 opções','err'); return; }
+  var box=document.getElementById('enqExtraOpts'); if(!box) return;
+  var row=document.createElement('div');
+  row.className='field enq-extra';
+  row.style.cssText='display:flex;gap:6px;align-items:flex-end';
+  row.innerHTML='<div style="flex:1"><label>Opção '+(total+1)+'</label><input type="text" class="enq-opt" placeholder="Opção '+String.fromCharCode(64+total+1)+'"/></div>'
+    +'<button type="button" onclick="this.closest(\'.enq-extra\').remove();renumberEnqOpts();" style="background:#7f1d1d;color:#fca5a5;border:none;border-radius:8px;padding:9px 13px;cursor:pointer;font-weight:700;margin-bottom:2px">✕</button>';
+  box.appendChild(row);
+  renumberEnqOpts();
+  var inp=row.querySelector('input'); if(inp) inp.focus();
+}
+function renumberEnqOpts(){
+  document.querySelectorAll('#enqExtraOpts .enq-extra').forEach(function(row,i){
+    var lab=row.querySelector('label'); if(lab) lab.textContent='Opção '+(i+3);
+  });
+  var btn=document.getElementById('enqAddBtn');
+  if(btn) btn.style.display = (document.querySelectorAll('.enq-opt').length>=8) ? 'none' : '';
+}
 </script>
 </body>
 </html>
