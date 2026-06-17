@@ -491,3 +491,4 @@ module.exports.isNickOnline = isNickOnline;
 module.exports.setModFlags = setModFlags;
 module.exports.broadcastToRoom = broadcast;
 module.exports.broadcastAll    = broadcastAll;
+module.exports.onlineCount     = () => clients.size;
