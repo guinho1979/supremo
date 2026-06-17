@@ -233,10 +233,14 @@ function setupWebSocket(server) {
           return;
         }
 
-        // Visitantes não podem enviar mídia
+        // Visitantes podem enviar áudio, gif e desenho — demais mídias bloqueadas
         if (client.type === 'guest' && msg_type !== 'text') {
-          ws.send(JSON.stringify({ event: 'error', data: { message: 'Visitantes não podem enviar mídia.' } }));
-          return;
+          var _gtype = String(msg_type).replace('media:', '');
+          var _gallow = ['audio', 'gif', 'draw', 'drawing', 'desenho'];
+          if (_gallow.indexOf(_gtype) === -1) {
+            ws.send(JSON.stringify({ event: 'error', data: { message: 'Visitantes só podem enviar áudio, gif e desenho.' } }));
+            return;
+          }
         }
 
         // Flags de sistema (cache)
