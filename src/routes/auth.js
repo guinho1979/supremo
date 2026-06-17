@@ -10,6 +10,9 @@ const { authMiddleware } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Preferências de visitantes (em memória — sessão temporária, reseta no restart)
+const guestPrefs = {};
+
 // Retorna o IP real do cliente (Render usa proxy)
 function getClientIp(req) {
   return (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
@@ -300,7 +303,10 @@ router.post('/logout', authMiddleware, async (req, res) => {
 // ─── GET /api/auth/me ─────────────────────────────────────────
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    if (!req.user.user_id) return res.json({ user: req.user });
+    if (!req.user.user_id) {
+      const gp = guestPrefs[req.user.nick] || {};
+      return res.json({ user: { ...req.user, ...gp } });
+    }
     const { rows: [u] } = await db.query(
       `SELECT id, nick, role, avatar, photo_url, nick_color, msg_color, nick_gradient,
               status, birthday, bio, city, age, gender, job, interests,
@@ -318,9 +324,22 @@ router.get('/me', authMiddleware, async (req, res) => {
 router.patch('/me', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.user_id;
-    if (!userId) return res.status(403).json({ error: 'Visitantes não podem atualizar perfil.' });
-
     const b = req.body;
+
+    // Visitante: guarda preferências em memória (sessão temporária)
+    if (!userId) {
+      const nick = req.user.nick;
+      if (nick) {
+        const gp = guestPrefs[nick] || { _guest: true };
+        ['photo_url','avatar','nick_color','msg_color','nick_gradient','nick_effect',
+         'nick_emoji','status','bio','city','age','gender','job','interests'].forEach(k => {
+          if (b[k] !== undefined) gp[k] = b[k];
+        });
+        guestPrefs[nick] = gp;
+      }
+      return res.json({ ok: true, guest: true });
+    }
+
     if (b.photo_url && b.photo_url.length > 3 * 1024 * 1024)
       return res.status(400).json({ error: 'Foto muito grande. Máximo 2MB.' });
     if (b.profile_audio && b.profile_audio.length > 10 * 1024 * 1024)
@@ -449,6 +468,19 @@ router.get('/colors', authMiddleware, async (req, res) => {
         photo: u.photo_url || '',
         emoji: u.nick_emoji || '',
         status: u.status || 'online'
+      };
+    });
+    // mescla preferências de visitantes (em memória)
+    Object.keys(guestPrefs).forEach(nick => {
+      const g = guestPrefs[nick];
+      colors[nick] = {
+        color: g.nick_color || '',
+        gradient: g.nick_gradient || '',
+        effect: g.nick_effect || '',
+        avatar: g.avatar || '👤',
+        photo: g.photo_url || '',
+        emoji: g.nick_emoji || '',
+        status: g.status || 'online'
       };
     });
     res.json({ colors });
