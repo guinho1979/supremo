@@ -1308,7 +1308,7 @@ function buildColorSwatches(){
   // Start Supra bot
   botIniciar();
   // Guest: block media buttons
-  if(isGuest()){['btnFile','btnMic'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.add('guest-blocked');});}  // Room name bar
+  if(isGuest()){['btnFile'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.add('guest-blocked');});}  // Room name bar
   // Detect spy mode (via URL param ou localStorage)
   const urlParams=new URLSearchParams(window.location.search);
   const isSpy=(urlParams.get('spy')==='1')||(LS.get('tc_spy_mode')==='1');
@@ -3597,7 +3597,7 @@ function renderAv(av){return av&&av.startsWith('http')?`<img src="${av}" alt="av
 // ─── MEDIA UPLOAD / MESSAGES ─────────────────────────────────────────────────
 let mediaAccept={image:'image/*',audio:'audio/*',video:'video/*',gif:'image/gif'};
 function triggerMedia(type){
-  if(isGuest()&&['image','audio','video'].includes(type)){showToast('Visitantes não podem enviar arquivos','error');return;}
+  if(isGuest()&&['image','video'].includes(type)){showToast('Visitantes podem enviar áudio, gif e desenho','error');return;}
   const inp=document.getElementById('fileInput');
   inp.accept=mediaAccept[type]||'*/*';inp.dataset.type=type;inp.click();
 }
@@ -3852,6 +3852,20 @@ function _pushArquivo(type, url, name) {
 }
 
 function addMediaMessage(type,src,name){
+  // blob: é local do navegador (some ao atualizar e não chega aos outros).
+  // Converte em data URL (base64) antes de enviar — conserta imagem/áudio/vídeo sumindo.
+  if(typeof src==='string' && src.indexOf('blob:')===0){
+    fetch(src).then(function(r){return r.blob();}).then(function(b){
+      var fr=new FileReader();
+      fr.onload=function(){ try{URL.revokeObjectURL(src);}catch(e){} _sendMedia(type, fr.result, name); };
+      fr.onerror=function(){ _sendMedia(type, src, name); };
+      fr.readAsDataURL(b);
+    }).catch(function(){ _sendMedia(type, src, name); });
+    return;
+  }
+  _sendMedia(type, src, name);
+}
+function _sendMedia(type,src,name){
   // Save to admin archive
   saveToArquivos(type, src, name);
   if(window.tcSocket && tcSocket.connected){ tcSocket.message(name||'', {msg_type:'media:'+type, media_url:src}); return; }
@@ -8175,8 +8189,12 @@ function processSmileKeywords(text){
     var badge=(typeof getBadgeHtml==='function')?getBadgeHtml(d.role||'user'):'';
     var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1';
     var mediaBlock;
-    if(type==='gif'){
-      mediaBlock='<img src="'+src+'" alt="GIF" loading="lazy" style="max-width:220px;max-height:220px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="this.requestFullscreen&amp;&amp;this.requestFullscreen()">';
+    if(type==='image'||type==='gif'){
+      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:240px;max-height:260px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
+    } else if(type==='video'){
+      mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
+    } else if(type==='audio'){
+      mediaBlock='<audio src="'+src+'" controls preload="metadata" style="display:block;margin-top:4px;max-width:240px;width:240px"></audio>';
     } else {
       mediaBlock='<div class="media-msg" onclick="'+cfg.onclick.replace(/"/g,'&quot;')+'"><span class="media-icon">'+cfg.icon+'</span>'
         +'<div class="media-info"><div class="media-name">'+name+'</div><div class="media-meta">'+(cfg.label||'')+'</div></div></div>';
@@ -8187,6 +8205,15 @@ function processSmileKeywords(text){
       +'</div></div>';
     area.appendChild(div); area.scrollTop=area.scrollHeight;
   }
+  window.tcMediaFull=function(imgEl){
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px';
+    ov.onclick=function(){ ov.remove(); };
+    var im=document.createElement('img');
+    im.src=imgEl.src; im.style.cssText='max-width:96vw;max-height:90vh;object-fit:contain;border-radius:8px';
+    ov.appendChild(im);
+    document.body.appendChild(ov);
+  };
   function renderOnline(){
     var nicks=Object.keys(roomRoles);
     var cnt=document.getElementById('onlineCount'); if(cnt) cnt.textContent=nicks.length;
@@ -8195,14 +8222,16 @@ function processSmileKeywords(text){
     if(el){
       el.innerHTML = nicks.map(function(n){
         var role=(roomRoles[n]||'user');
+        var isG = role==='guest';
         var _cp=(typeof _nickColorParts==='function')?_nickColorParts(n):{cls:'',style:''};
         var info=(window._nickColors&&window._nickColors[n])||{};
         var av = info.photo
           ? '<img src="'+info.photo+'" style="width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0">'
-          : '<span style="width:26px;height:26px;border-radius:50%;background:#22304a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(info.avatar||'😊')+'</span>';
+          : '<span style="width:26px;height:26px;border-radius:50%;background:#22304a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(isG ? '👤' : (info.avatar||'😊'))+'</span>';
         var emo = info.emoji ? '<span style="flex-shrink:0;font-size:14px">'+info.emoji+'</span>' : '';
         var SHOW_BADGE=['dj','premium','mod','supervisor','admin'];
-        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '';
+        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>'
+                    : (isG ? '<span class="badge b-guest" style="background:#9ca3af;color:#fff;font-size:9px">VISITANTE</span>' : '');
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
         var dot='<span title="'+(info.status||'online')+'" style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
         return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span>'+dot+badge+'</div>';
