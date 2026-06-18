@@ -314,7 +314,7 @@ function setupWebSocket(server) {
           ws.send(JSON.stringify(payload));            // só o próprio autor vê
           broadcastSpy(client.roomSlug, payload.data); // staff ainda vê no espião
         } else {
-          broadcast(client.roomSlug, payload);
+          broadcast(client.roomSlug, payload, socketId);
           broadcastSpy(client.roomSlug, payload.data);
           ws.send(JSON.stringify(payload)); // eco para o próprio usuário
         }
