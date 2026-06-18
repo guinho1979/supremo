@@ -4201,9 +4201,23 @@ function ctxBan(){
     showToast(`Banindo ${ctxTarget} — selecione o tempo no painel`);
   }, 100);
 }
-function ctxKick(){showToast(`${ctxTarget} kickado 👢`,'error');closeCtx();}
-function ctxMute(){showToast(`${ctxTarget} mutado 🔇`);closeCtx();}
-function ctxShadow(){showToast(`${ctxTarget} em shadowban 👻`);closeCtx();}
+function ctxKick(){
+  if(!ctxTarget) return; closeCtx();
+  if(typeof canDeleteMsg==='function' && !canDeleteMsg() && !['mod','supervisor','admin'].includes(ME.role)){ showToast('Sem permissão','error'); return; }
+  try{ tcSocket.kick(ctxTarget); showToast(`${ctxTarget} foi kickado 👢`,'error'); }catch(e){ showToast('Falha ao kickar','error'); }
+}
+function ctxMute(){
+  if(!ctxTarget) return; closeCtx();
+  if(!['mod','supervisor','admin'].includes(ME.role)){ showToast('Sem permissão','error'); return; }
+  var min=parseInt(prompt('Mutar '+ctxTarget+' por quantos minutos?','10'),10);
+  if(!min||min<=0) return;
+  API.admin.mute(ctxTarget, min).then(function(){ showToast(`${ctxTarget} mutado por ${min} min 🔇`); }).catch(function(){ showToast('Falha ao mutar','error'); });
+}
+function ctxShadow(){
+  if(!ctxTarget) return; closeCtx();
+  if(!['mod','supervisor','admin'].includes(ME.role)){ showToast('Sem permissão','error'); return; }
+  API.admin.shadow(ctxTarget, true).then(function(){ showToast(`${ctxTarget} em shadowban 👻`); }).catch(function(){ showToast('Falha no shadowban','error'); });
+}
 
 function banFromMsg(nick){showToast(`${nick} banido 🔨`,'error');}
 
@@ -4240,7 +4254,7 @@ function toggleFan(nick){
 }
 
 function openProfile(nick){
-  const u=USERS[nick]||{color:'#4a4070',av:'😊',avBg:'#edf2ff',avColor:'#2563eb',bio:'Usuário do Chat Supremo.',role:'user'};
+  const u=USERS[nick]||{color:'#4a4070',av:'😊',avBg:'#edf2ff',avColor:'#2563eb',bio:'',role:'user'};
   state.currentUser=nick;
   document.getElementById('profTitle').innerHTML=`👤 Perfil ${getBadgeHtml(u.role)}`;
   const avHtml=renderAv(u.photo||u.av);
@@ -4263,7 +4277,7 @@ function openProfile(nick){
     </div>
     <div class="prof-nick" style="text-align:center;font-size:18px;margin-bottom:8px;color:#1a202c">${nick}</div>
     ${fanBtnHtml}
-    <div class="prof-bio">${u.bio||'Sem bio.'}</div>
+    ${u.bio ? '<div class="prof-bio">'+u.bio+'</div>' : ''}
     ${fieldsHtml}`;
   const adminDiv=document.getElementById('profAdminActions');
   adminDiv.style.display=(canMonitor()&&nick!==ME.nick)?'block':'none';
@@ -4388,7 +4402,35 @@ function executarExcluirCadastroChat(){
   setTimeout(()=>{ window.location.href='login.html'; }, 1500);
 }
 function sendPrivFromProfile(){closeProfile();if(state.currentUser&&state.currentUser!==ME.nick)openPrivateWindow(state.currentUser);}
-function adminAct(action){const m={ban:'banido 🔨',kick:'kickado 👢',mute:'mutado 🔇',shadow:'em shadowban 👻'};showToast(`${state.currentUser} ${m[action]}`,'error');closeProfile();}
+function adminAct(action){
+  var nick = state.currentUser;
+  if(!nick) return;
+  if(!['mod','supervisor','admin'].includes(ME.role)){ showToast('Sem permissão','error'); return; }
+  if(action==='ban'){
+    closeProfile();
+    abrirPainel();
+    setTimeout(function(){
+      try{ show('moderacao', document.querySelector('#adminSidebar .nav-moderacao')); }catch(e){}
+      var mn=document.getElementById('modNick'); if(mn){ mn.value=nick; mn.focus(); }
+      var ma=document.getElementById('modAction'); if(ma){ ma.value='ban'; }
+      showToast('Banindo '+nick+' — selecione o tempo no painel');
+    },100);
+    return;
+  }
+  if(action==='kick'){
+    try{ tcSocket.kick(nick); showToast(`${nick} foi kickado 👢`,'error'); }catch(e){ showToast('Falha ao kickar','error'); }
+    closeProfile(); return;
+  }
+  if(action==='mute'){
+    var min=parseInt(prompt('Mutar '+nick+' por quantos minutos?','10'),10);
+    if(min&&min>0){ API.admin.mute(nick,min).then(function(){ showToast(`${nick} mutado por ${min} min 🔇`); }).catch(function(){ showToast('Falha ao mutar','error'); }); }
+    closeProfile(); return;
+  }
+  if(action==='shadow'){
+    API.admin.shadow(nick,true).then(function(){ showToast(`${nick} em shadowban 👻`); }).catch(function(){ showToast('Falha no shadowban','error'); });
+    closeProfile(); return;
+  }
+}
 
 // ─── DJ ───────────────────────────────────────────────────────────────────────
 function openDJ(){document.getElementById('djOverlay').classList.add('show');}
@@ -7290,6 +7332,16 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
 
   msgContent.appendChild(bubble);
   d.appendChild(msgContent);
+  try{
+    var _canDelPv = isMine || (typeof canDeleteMsg==='function' && canDeleteMsg());
+    if(_canDelPv){
+      bubble.style.position='relative';
+      var _xb=document.createElement('button');
+      _xb.className='del-x-btn'; _xb.title='Apagar mensagem'; _xb.textContent='✕';
+      _xb.onclick=function(ev){ ev.stopPropagation(); d.remove(); };
+      bubble.appendChild(_xb);
+    }
+  }catch(e){}
   area.appendChild(d);
   area.scrollTop = area.scrollHeight;
 }
@@ -8172,13 +8224,43 @@ function processSmileKeywords(text){
     if(!d || d.msg_type==='system') return;
     if(typeof blockedUsers!=='undefined' && blockedUsers.has(d.nick)) return;
     var key=sig(d); if(seen.has(key)) return; seen.add(key);
-    if(d.msg_type && d.msg_type.indexOf('media:')===0){ renderMediaMsg(d); return; }
-    if(typeof addChatMessage!=='function') return;
-    addChatMessage({ nick:d.nick, text:d.content, role:d.role, av:'', isPrivate:false, targetNick:null,
-      isMine:(d.nick===meNick()), ts:(d.created_at?Date.parse(d.created_at):Date.now()),
-      replyTo:d.quoted_nick||null, quotedNick:d.quoted_nick||null, quotedText:d.quoted_text||null, quotedDepth:d.quoted_depth||0 });
-    if(d.id){ var _a=document.getElementById('msgArea'); if(_a&&_a.lastElementChild) _a.lastElementChild.dataset.msgId=d.id; }
+    var _a=document.getElementById('msgArea');
+    if(d.msg_type && d.msg_type.indexOf('media:')===0){ renderMediaMsg(d); }
+    else {
+      if(typeof addChatMessage!=='function') return;
+      addChatMessage({ nick:d.nick, text:d.content, role:d.role, av:'', isPrivate:false, targetNick:null,
+        isMine:(d.nick===meNick()), ts:(d.created_at?Date.parse(d.created_at):Date.now()),
+        replyTo:d.quoted_nick||null, quotedNick:d.quoted_nick||null, quotedText:d.quoted_text||null, quotedDepth:d.quoted_depth||0 });
+    }
+    if(_a && _a.lastElementChild){
+      var el=_a.lastElementChild;
+      if(d.id) el.dataset.msgId=d.id;
+      tcAddDelX(el, d);
+    }
   }
+  function tcAddDelX(el, d){
+    try{
+      if(!el || el.querySelector('.del-x-btn')) return;
+      var mine = (d && d.nick===meNick());
+      var canDel = (typeof canDeleteMsg==='function' && canDeleteMsg());
+      if(!mine && !canDel) return;
+      var bub = el.querySelector('.msg-bubble') || el;
+      bub.style.position='relative';
+      var b=document.createElement('button');
+      b.className='del-x-btn'; b.title='Apagar mensagem'; b.textContent='✕';
+      b.onclick=function(ev){
+        ev.stopPropagation();
+        var id=el.dataset.msgId;
+        if(id){
+          API.delMessage(id).then(function(){ el.remove(); }).catch(function(){ if(typeof showToast==='function') showToast('Não foi possível apagar','error'); });
+        } else {
+          el.remove();
+        }
+      };
+      bub.appendChild(b);
+    }catch(e){}
+  }
+  try{ window.tcAddDelX = tcAddDelX; }catch(e){}
   function renderMediaMsg(d){
     var area=document.getElementById('msgArea'); if(!area) return;
     var type=d.msg_type.slice(6), src=d.media_url||'', name=d.content||'';
@@ -8267,6 +8349,13 @@ function processSmileKeywords(text){
     var bar=bubble.querySelector('.tc-react-sum');
     if(!bar){ bar=document.createElement('div'); bar.className='tc-react-sum'; bar.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-top:4px'; bubble.appendChild(bar); }
     bar.innerHTML=(d.summary||[]).map(function(r){ return '<span style="background:#e7f0fd;border:1px solid #c0d8f8;border-radius:10px;padding:1px 7px;font-size:11px;color:#1877f2;font-weight:700">'+r.emoji+' '+r.count+'</span>'; }).join('');
+  });
+  tcSocket.on('message_deleted', function(d){
+    try{
+      if(!d || d.id==null) return;
+      var g=document.querySelector('.msg-group[data-msg-id="'+d.id+'"]');
+      if(g) g.remove();
+    }catch(e){}
   });
   if(tcSocket.connected) tcSocket.join(curRoom()); else tcSocket.connect();
   // enviar "digitando" enquanto escreve
