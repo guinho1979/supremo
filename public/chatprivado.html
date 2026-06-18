@@ -1230,7 +1230,7 @@ function buildColorSwatches(){
   }catch(e){}
   // Bot Supra desativado nesta página (sala privada)
   // Guest: block media buttons
-  if(isGuest()){['btnFile','btnMic'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.add('guest-blocked');});}  // Room name bar
+  if(isGuest()){['btnFile'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.add('guest-blocked');});}  // visitante pode áudio e gif; bloqueia só arquivos/imagem/vídeo
   // Detect spy mode (via URL param ou localStorage)
   const urlParams=new URLSearchParams(window.location.search);
   const isSpy=(urlParams.get('spy')==='1')||(LS.get('tc_spy_mode')==='1');
@@ -2950,7 +2950,7 @@ function renderAv(av){return av&&av.startsWith('http')?`<img src="${av}" alt="av
 // ─── MEDIA UPLOAD / MESSAGES ─────────────────────────────────────────────────
 let mediaAccept={image:'image/*',audio:'audio/*',video:'video/*',gif:'image/gif'};
 function triggerMedia(type){
-  if(isGuest()&&['image','audio','video'].includes(type)){showToast('Visitantes não podem enviar arquivos','error');return;}
+  if(isGuest()&&['image','video'].includes(type)){showToast('Visitantes podem enviar áudio e gif','error');return;}
   const inp=document.getElementById('fileInput');
   inp.accept=mediaAccept[type]||'*/*';inp.dataset.type=type;inp.click();
 }
@@ -2971,6 +2971,32 @@ function handleFileUpload(inp){
   inp.value='';
 }
 function addMediaMessage(type,src,name){
+  if(typeof src==='string' && src.indexOf('blob:')===0){
+    if(type==='image'){ _downscaleImage(src, function(u){ _sendMediaPV(type,u,name); }); return; }
+    fetch(src).then(function(r){return r.blob();}).then(function(b){
+      var fr=new FileReader();
+      fr.onload=function(){ try{URL.revokeObjectURL(src);}catch(e){} _sendMediaPV(type, fr.result, name); };
+      fr.onerror=function(){ _sendMediaPV(type, src, name); };
+      fr.readAsDataURL(b);
+    }).catch(function(){ _sendMediaPV(type, src, name); });
+    return;
+  }
+  _sendMediaPV(type, src, name);
+}
+function _downscaleImage(src, cb){
+  try{
+    var img=new Image();
+    img.onload=function(){ try{
+      var MAX=1280,w=img.width,h=img.height;
+      if(w>MAX||h>MAX){ if(w>=h){ h=Math.round(h*MAX/w); w=MAX; } else { w=Math.round(w*MAX/h); h=MAX; } }
+      var c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
+      var out=c.toDataURL('image/jpeg',0.72); try{URL.revokeObjectURL(src);}catch(e){} cb(out);
+    }catch(e){ cb(src); } };
+    img.onerror=function(){ fetch(src).then(function(r){return r.blob();}).then(function(b){ var fr=new FileReader(); fr.onload=function(){cb(fr.result);}; fr.onerror=function(){cb(src);}; fr.readAsDataURL(b); }).catch(function(){ cb(src); }); };
+    img.src=src;
+  }catch(e){ cb(src); }
+}
+function _sendMediaPV(type,src,name){
   if(window.tcSocket && tcSocket.connected){ tcSocket.message(name||'', {msg_type:'media:'+type, media_url:src}); return; }
   const area=document.getElementById('msgArea');
   const avHtml=renderAv(ME.photo||ME.av);
@@ -2978,12 +3004,9 @@ function addMediaMessage(type,src,name){
   const d=document.createElement('div');
   d.className='msg-group';d.dataset.user=ME.nick;d.dataset.mine='1';
   d.innerHTML=`<div class="msg-av" style="background:#064e3b;color:#6ee7b7;border-color:#10b981">${avHtml}</div>
-  <div class="msg-content"><div class="msg-bubble">
+  <div class="msg-content"><div class="msg-bubble" style="position:relative">
     <div class="msg-head"><span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${getBadgeHtml(ME.role)}</div>
-    <div class="media-msg" onclick="${onclick}">
-      <span class="media-icon">${icon}</span>
-      <div class="media-info"><div class="media-name">${name}${type==='yt'?'<span class="yt-badge">YT</span>':type==='tiktok'?'<span class="yt-badge" style="background:#ff0050">TK</span>':type==='instagram'?'<span class="yt-badge" style="background:linear-gradient(45deg,#f09433,#dc2743,#bc1888)">IG</span>':''}</div><div class="media-meta">${label}</div></div>
-    </div>
+    <div class="media-msg" onclick="${onclick}"><span class="media-icon">${icon}</span><div class="media-info"><div class="media-name">${name}</div><div class="media-meta">${label}</div></div></div>
     <div class="msg-footer"><span class="msg-time">${nowTime()}</span></div>
     <button class="del-x-btn" onclick="this.closest('.msg-group').remove()" title="Apagar mensagem">✕</button>
   </div></div>`;
@@ -3178,12 +3201,13 @@ function deleteMsg(btn){
   const group=btn.closest('.msg-group');
   const isMine=group.dataset.mine==='1';
   const CAN_DELETE=['admin','supervisor','mod'];
-  if(isMine||CAN_DELETE.includes(ME.role)){
+  if(!(isMine||CAN_DELETE.includes(ME.role))){ showToast('Sem permissão para apagar','error'); return; }
+  const id=group.dataset.msgId;
+  if(id && window.API && API.delMessage){
+    API.delMessage(id).then(function(){ group.remove(); }).catch(function(){ showToast('Não foi possível apagar','error'); });
+  } else {
     group.style.opacity='0';group.style.transition='opacity .3s';
     setTimeout(()=>group.remove(),300);
-    showToast('Mensagem apagada');
-  } else {
-    showToast('Sem permissão para apagar','error');
   }
 }
 
@@ -5717,25 +5741,67 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
     var cfg=getMediaConfig(type,src,name); var mine=(d.nick===meNick());
     var avHtml=(typeof renderAv==='function')?renderAv(mine?((typeof ME!=='undefined'&&(ME.photo||ME.av))||d.nick):d.nick):'😊';
     var badge=(typeof getBadgeHtml==='function')?getBadgeHtml(d.role||'user'):'';
-    var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1';
-    div.innerHTML='<div class="msg-av">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble">'
+    var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1'; if(d.id) div.dataset.msgId=d.id;
+    var mediaBlock;
+    if(type==='image'||type==='gif'){
+      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:240px;max-height:260px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
+    } else if(type==='video'){
+      mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
+    } else if(type==='audio'){
+      mediaBlock='<div class="media-msg" onclick="'+String(cfg.onclick).replace(/"/g,'&quot;')+'"><span class="media-icon">'+cfg.icon+'</span><div class="media-info"><div class="media-name">'+(name||'Áudio')+'</div><div class="media-meta">Toque para ouvir</div></div></div>';
+    } else {
+      mediaBlock='<div class="media-msg" onclick="'+cfg.onclick.replace(/"/g,'&quot;')+'"><span class="media-icon">'+cfg.icon+'</span><div class="media-info"><div class="media-name">'+name+'</div><div class="media-meta">'+(cfg.label||'')+'</div></div></div>';
+    }
+    var canDel=(mine||(typeof canDeleteMsg==='function'&&canDeleteMsg()));
+    div.innerHTML='<div class="msg-av">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble" style="position:relative">'
       +'<div class="msg-head"><span class="msg-nick">'+d.nick+'</span>'+badge+'</div>'
-      +'<div class="media-msg" onclick="'+cfg.onclick.replace(/"/g,'&quot;')+'"><span class="media-icon">'+cfg.icon+'</span>'
-      +'<div class="media-info"><div class="media-name">'+name+'</div><div class="media-meta">'+(cfg.label||'')+'</div></div></div>'
+      +mediaBlock
+      +(canDel?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'')
       +'</div></div>';
     area.appendChild(div); area.scrollTop=area.scrollHeight;
   }
+  window.tcMediaFull=function(imgEl){
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px';
+    ov.onclick=function(){ ov.remove(); };
+    var im=document.createElement('img'); im.src=imgEl.src; im.style.cssText='max-width:96vw;max-height:90vh;object-fit:contain;border-radius:8px';
+    ov.appendChild(im); document.body.appendChild(ov);
+  };
   function renderOnline(){
     var nicks=Object.keys(roomRoles);
     var cnt=document.getElementById('onlineCount'); if(cnt) cnt.textContent=nicks.length;
     if(typeof onlineUsers!=='undefined'){ try{ onlineUsers.clear(); nicks.forEach(function(n){onlineUsers.add(n);}); }catch(e){} }
     var el=document.getElementById('onlineList');
-    if(el){ el.innerHTML=nicks.map(function(n){ var role=(roomRoles[n]||'user'); return '<div class="ou" style="display:flex;align-items:center;gap:8px;padding:6px 4px"><span class="ou-nick" style="flex:1;font-weight:700;font-size:13px">'+n+'</span><span class="badge">'+role.toUpperCase()+'</span></div>'; }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>'; }
+    if(el){
+      el.innerHTML = nicks.map(function(n){
+        var role=(roomRoles[n]||'user'); var isG=role==='guest';
+        var info=(window._nickColors&&window._nickColors[n])||{};
+        var av = info.photo
+          ? '<img src="'+info.photo+'" style="width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0">'
+          : '<span style="width:26px;height:26px;border-radius:50%;background:#22304a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(isG?'👤':(info.avatar||'😊'))+'</span>';
+        var emo = info.emoji ? '<span style="flex-shrink:0;font-size:14px">'+info.emoji+'</span>' : '';
+        var SHOW_BADGE=['dj','premium','mod','supervisor','admin'];
+        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>'
+                    : (isG ? '<span class="badge b-guest" style="background:#9ca3af;color:#fff;font-size:9px">VISITANTE</span>' : '');
+        var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
+        var dot='<span style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
+        var col=info.color||'';
+        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px;cursor:pointer" onclick="if(typeof openProfile===\'function\')openProfile(\''+n.replace(/'/g,"\\'")+'\')">'+av+emo+'<span class="ou-nick" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+(col?'color:'+col:'')+'">'+n+'</span>'+dot+badge+'</div>';
+      }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
+    }
   }
+  try{ window.renderOnline=renderOnline; }catch(e){}
+  // Busca cores/avatars reais (igual ao chat.html)
+  try{
+    fetch((location.protocol+'//'+location.host+'/api')+'/auth/colors',{headers:{'Authorization':'Bearer '+(localStorage.getItem('tc_token')||'')}})
+      .then(function(r){ return r.ok?r.json():{colors:{}}; })
+      .then(function(d){ window._nickColors=(d&&d.colors)||{}; renderOnline(); }).catch(function(){});
+  }catch(e){}
   tcSocket.offAll();
   tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
-  tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
+  tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){} }); });
   tcSocket.on('message', incoming);
+  tcSocket.on('message_deleted', function(d){ try{ if(!d||d.id==null) return; var g=document.querySelector('.msg-group[data-msg-id="'+d.id+'"]'); if(g) g.remove(); }catch(e){} });
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
   tcSocket.on('user_left', function(d){ delete roomRoles[d.nick]; renderOnline(); });

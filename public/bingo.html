@@ -748,7 +748,12 @@ function showToast(msg){
   tcSocket.on('error', function(d){ if(d&&d.message&&typeof showToast==='function') showToast(d.message); });
 
   // staff = operador (o servidor valida de qualquer forma)
-  if(['admin','supervisor','mod'].indexOf(ME.role)>=0){ isOperator=true; isAdmin=true; if(typeof updateBadge==='function') updateBadge(); }
+  if(['admin','supervisor','mod'].indexOf(ME.role)>=0){
+    isOperator=true; isAdmin=true;
+    if(typeof updateBadge==='function') updateBadge();
+    try{ document.getElementById('opStrip').classList.add('show'); }catch(e){}
+    try{ var _bo=document.getElementById('btnOpPanel'); if(_bo) _bo.style.display=''; }catch(e){}
+  }
 
   if(tcSocket.connected){ tcSocket.join('bingo'); setTimeout(loadState,300); } else tcSocket.connect();
 })();

@@ -3589,8 +3589,9 @@ function initHistoryButton(){
 
   area.insertBefore(btn, wrap);
 }
-// Chama imediatamente após a definição — sem depender de hoisting
-initHistoryButton();
+// Botão "O que eu perdi?" desativado: o histórico REAL da sala já é carregado
+// ao entrar (evento 'history'), então o botão demo era redundante e sumia ao recarregar.
+// initHistoryButton();
 
 const STATUS_DOT_CLASS={online:'s-online',away:'s-away',busy:'s-busy',offline:'s-offline'};
 function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE',guest:'b-guest VISITANTE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';}
@@ -3857,6 +3858,11 @@ function addMediaMessage(type,src,name){
   // blob: é local do navegador (some ao atualizar e não chega aos outros).
   // Converte em data URL (base64) antes de enviar — conserta imagem/áudio/vídeo sumindo.
   if(typeof src==='string' && src.indexOf('blob:')===0){
+    if(type==='image'){
+      // Reduz a imagem (máx 1280px, JPEG) — evita data URL gigante que derruba a conexão e some com as mensagens.
+      _downscaleImage(src, function(dataUrl){ _sendMedia(type, dataUrl, name); });
+      return;
+    }
     fetch(src).then(function(r){return r.blob();}).then(function(b){
       var fr=new FileReader();
       fr.onload=function(){ try{URL.revokeObjectURL(src);}catch(e){} _sendMedia(type, fr.result, name); };
@@ -3866,6 +3872,26 @@ function addMediaMessage(type,src,name){
     return;
   }
   _sendMedia(type, src, name);
+}
+function _downscaleImage(src, cb){
+  try{
+    var img=new Image();
+    img.onload=function(){
+      try{
+        var MAX=1280, w=img.width, h=img.height;
+        if(w>MAX||h>MAX){ if(w>=h){ h=Math.round(h*MAX/w); w=MAX; } else { w=Math.round(w*MAX/h); h=MAX; } }
+        var c=document.createElement('canvas'); c.width=w; c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        var out=c.toDataURL('image/jpeg', 0.72);
+        try{URL.revokeObjectURL(src);}catch(e){}
+        cb(out);
+      }catch(e){ cb(src); }
+    };
+    img.onerror=function(){
+      fetch(src).then(function(r){return r.blob();}).then(function(b){ var fr=new FileReader(); fr.onload=function(){ cb(fr.result); }; fr.onerror=function(){ cb(src); }; fr.readAsDataURL(b); }).catch(function(){ cb(src); });
+    };
+    img.src=src;
+  }catch(e){ cb(src); }
 }
 function _sendMedia(type,src,name){
   // Save to admin archive
@@ -8252,8 +8278,9 @@ function processSmileKeywords(text){
     if(d.msg_type && d.msg_type.indexOf('media:')===0){ renderMediaMsg(d); }
     else {
       if(typeof addChatMessage!=='function') return;
+      var _mc=(d.nick===meNick())?(state.msgColor||ME.msgColor||''):((window._nickColors&&window._nickColors[d.nick]&&window._nickColors[d.nick].msg_color)||'');
       addChatMessage({ nick:d.nick, text:d.content, role:d.role, av:'', isPrivate:false, targetNick:null,
-        isMine:(d.nick===meNick()), ts:(d.created_at?Date.parse(d.created_at):Date.now()),
+        isMine:(d.nick===meNick()), msgColor:_mc, ts:(d.created_at?Date.parse(d.created_at):Date.now()),
         replyTo:d.quoted_nick||null, quotedNick:d.quoted_nick||null, quotedText:d.quoted_text||null, quotedDepth:d.quoted_depth||0 });
     }
     if(_a && _a.lastElementChild){
@@ -8300,7 +8327,7 @@ function processSmileKeywords(text){
     } else if(type==='video'){
       mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
     } else if(type==='audio'){
-      mediaBlock='<audio src="'+src+'" controls preload="metadata" style="display:block;margin-top:4px;max-width:240px;width:240px"></audio>';
+      mediaBlock='<div class="media-msg" onclick="'+String(cfg.onclick).replace(/"/g,'&quot;')+'"><span class="media-icon">'+cfg.icon+'</span><div class="media-info"><div class="media-name">'+(name||'Áudio')+'</div><div class="media-meta">Toque para ouvir</div></div></div>';
     } else {
       mediaBlock='<div class="media-msg" onclick="'+cfg.onclick.replace(/"/g,'&quot;')+'"><span class="media-icon">'+cfg.icon+'</span>'
         +'<div class="media-info"><div class="media-name">'+name+'</div><div class="media-meta">'+(cfg.label||'')+'</div></div></div>';
@@ -8349,7 +8376,7 @@ function processSmileKeywords(text){
   tcSocket.offAll();
   tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ if(tcSocket.status) tcSocket.status(LS.get('tc_status','online')); }catch(e){} try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
   tcSocket.on('user_status', function(d){ try{ if(d&&d.nick){ if(!window._nickColors) window._nickColors={}; if(!window._nickColors[d.nick]) window._nickColors[d.nick]={}; window._nickColors[d.nick].status=d.status; if(typeof window.renderOnline==='function') window.renderOnline(); } }catch(e){} });
-  tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(incoming); });
+  tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){ console.warn('msg render falhou', e); } }); });
   tcSocket.on('private', function(d){
     if(!d || !d.from_nick) return;
     try{

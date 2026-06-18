@@ -331,7 +331,7 @@ function renderSalas(){
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button onclick="entrarSala('${s.id}')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;background:${s.cor};color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:12px">Entrar →</button>
         ${s.isOwner?`<button onclick="abrirModalConvidar('${s.id}')" style="padding:8px 12px;border-radius:8px;border:1.5px solid #c8d8f5;background:#f0f6fc;color:#2563eb;cursor:pointer;font-weight:700;font-size:12px;font-family:'Syne',sans-serif">📨 Convidar</button>
-        <button onclick="confirmarDeletar(${s.dbId})" style="padding:8px 12px;border-radius:8px;border:1.5px solid #fecaca;background:#fef2f2;color:#ef4444;cursor:pointer;font-weight:700;font-size:12px">🗑</button>`:''}
+        <button onclick="confirmarDeletar(${s.dbId})" style="padding:8px 14px;border-radius:8px;border:1.5px solid #fecaca;background:#fef2f2;color:#ef4444;cursor:pointer;font-weight:700;font-size:12px;font-family:'Syne',sans-serif">Excluir</button>`:''}
       </div>
     </div>`;
   }).join('');
@@ -824,34 +824,36 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <!-- ═══════════ MODAL CONVIDAR USUÁRIO ═══════════ -->
 <div class="modal-overlay" id="convidarModal" style="display:none;align-items:center;justify-content:center">
-  <div class="modal" style="max-width:420px;width:95%">
+  <div class="modal" style="max-width:420px;width:95%;background:#0e2038;padding:0;overflow:hidden;border:1px solid #1e3a5f">
 
     <!-- Header do modal -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div style="padding:14px 16px;border-bottom:1px solid #1e3a5f;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#0f1f3d,#1d4ed8)">
       <div>
-        <div class="modal-title" style="margin-bottom:2px">📨 Convidar para Sala Privada</div>
-        <div id="convidarSalaNome" style="font-size:11px;color:#7a90b0"></div>
+        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#e8edf5">📨 Convidar para Sala Privada</div>
+        <div id="convidarSalaNome" style="font-size:11px;color:#8aafd4;margin-top:2px"></div>
       </div>
-      <button onclick="fecharModalConvidar()" style="background:none;border:none;font-size:22px;color:#7a90b0;cursor:pointer;line-height:1">✕</button>
+      <button onclick="fecharModalConvidar()" style="background:none;border:none;font-size:20px;color:#8aafd4;cursor:pointer;line-height:1">✕</button>
     </div>
 
+    <div style="padding:14px">
     <!-- Etapa 1: Selecionar sala pública para buscar usuários -->
     <div id="convidarStep1">
-      <div style="font-size:11px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">① Escolha uma sala para buscar usuários</div>
+      <div style="font-size:10px;font-weight:700;color:#8aafd4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">① Escolha uma sala para buscar usuários</div>
       <div id="convidarSalasGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
     </div>
 
     <!-- Etapa 2: Lista de usuários online na sala escolhida -->
     <div id="convidarStep2" style="display:none">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <button onclick="voltarStep1()" style="background:#f0f6fc;border:1px solid #c8d8f5;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;color:#374d6e;cursor:pointer;font-family:Syne,sans-serif">← Voltar</button>
-        <div style="font-size:11px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.5px">② Selecione um usuário para convidar</div>
+        <button onclick="voltarStep1()" style="background:#1a1d24;border:1px solid #2a3244;border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;color:#8aafd4;cursor:pointer;font-family:Syne,sans-serif">← Voltar</button>
+        <div style="font-size:10px;font-weight:700;color:#8aafd4;text-transform:uppercase;letter-spacing:.5px">② Selecione um usuário para convidar</div>
       </div>
-      <div style="font-size:11px;color:#7a90b0;margin-bottom:8px" id="convidarSalaEscolhida"></div>
+      <div style="font-size:11px;color:#8aafd4;margin-bottom:8px" id="convidarSalaEscolhida"></div>
       <div id="convidarOnlineList" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto"></div>
     </div>
 
-    <button onclick="fecharModalConvidar()" class="btn-cancel" style="width:100%;margin-top:14px">Fechar</button>
+    <button onclick="fecharModalConvidar()" style="width:100%;margin-top:14px;padding:10px;border-radius:8px;border:1px solid #2a3244;background:#1a2a40;color:#8aafd4;font-weight:700;font-size:12px;cursor:pointer;font-family:'Syne',sans-serif">Fechar</button>
+    </div>
   </div>
 </div>
 

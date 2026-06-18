@@ -906,7 +906,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
       <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
         <button onclick="excluirTodosArquivos()" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">🗑 Excluir todos</button>
       </div>
-      <div id="arquivosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px"></div>
+      <div id="arquivosGrid" style="display:flex;flex-direction:column;gap:6px"></div>
       <div id="arquivosVazio" style="text-align:center;padding:40px;color:var(--text3);font-size:13px">📂 Nenhum arquivo ainda.</div>
     </div>
 
@@ -1216,10 +1216,21 @@ function irParaUsuario(nick){
 
 function loginClearData(){
   if(!confirm('Limpar todo o histórico de logins?')) return;
-  localStorage.removeItem(LOGIN_LS_KEY);
-  loginCurrentPage = 1;
-  renderLoginTable();
-  toast('Histórico de logins limpo ✅');
+  if(window.API && API.delete){
+    API.delete('/admin/logins').then(function(){
+      window._tcLogins = [];
+      try{ localStorage.removeItem(LOGIN_LS_KEY); }catch(e){}
+      loginCurrentPage = 1;
+      if(typeof renderLoginTable==='function') renderLoginTable();
+      toast('Histórico de logins limpo ✅');
+    }).catch(function(e){ toast((e&&e.message)||'Erro ao limpar','err'); });
+  } else {
+    window._tcLogins = [];
+    try{ localStorage.removeItem(LOGIN_LS_KEY); }catch(e){}
+    loginCurrentPage = 1;
+    renderLoginTable();
+    toast('Histórico de logins limpo ✅');
+  }
 }
 
 // Registra novo login (chamado pelo sistema de auth)
@@ -2579,8 +2590,15 @@ function zerarEnquete(){
 }
 
 // ── QUIZ ──────────────────────────────────────────────────────
-function ativarQuiz(){const el=document.getElementById('quizStatus');el.style.display='block';el.style.background='#7c3aed22';el.style.color='#a78bfa';el.textContent='✅ Quiz ativado!';}
-function desativarQuiz(){const el=document.getElementById('quizStatus');el.style.display='block';el.style.background='#ef444422';el.style.color='#ef4444';el.textContent='⛔ Quiz desativado.';}
+function ativarQuiz(){
+  var cat=(document.getElementById('quizCategoria')&&document.getElementById('quizCategoria').value)||'Geral';
+  try{ localStorage.setItem('tc_quiz_ativo', JSON.stringify({ativa:true,categoria:cat,rodando:false,perguntaAtual:null})); }catch(e){}
+  const el=document.getElementById('quizStatus');el.style.display='block';el.style.background='#7c3aed22';el.style.color='#a78bfa';el.textContent='✅ Quiz ativado! Categoria: '+cat+'. Use @quiz no chat para sortear uma pergunta.';
+}
+function desativarQuiz(){
+  try{ localStorage.setItem('tc_quiz_ativo','null'); }catch(e){}
+  const el=document.getElementById('quizStatus');el.style.display='block';el.style.background='#ef444422';el.style.color='#ef4444';el.textContent='⛔ Quiz desativado.';
+}
 function zerarPontuacao(){document.getElementById('quizRanking').textContent='Nenhum ponto registrado.';toast('Pontuação zerada');}
 
 // ── CONTROLE DE MENSAGENS ────────────────────────────────────
@@ -3394,23 +3412,28 @@ window.show = function(id, el){
       if(vazio) vazio.style.display='none';
       grid.innerHTML=files.map(function(f){
         var type=String(f.msg_type||'').replace('media:','');
-        var when=f.created_at?new Date(f.created_at).toLocaleString('pt-BR'):'';
+        var when=f.created_at?new Date(f.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'}):'';
         var icon=type==='video'?'🎬':type==='audio'?'🎵':type==='gif'?'🎞':'🖼';
         var thumb;
         if(type==='image'||type==='gif'){
-          thumb='<div class="arquivo-thumb" data-fileid="'+f.id+'" onclick="abrirArquivo('+f.id+',\''+type+'\')" style="display:flex;align-items:center;justify-content:center;font-size:26px">⏳</div>';
+          thumb='<div class="arquivo-thumb" data-fileid="'+f.id+'" onclick="abrirArquivo('+f.id+',\''+type+'\')" style="width:50px;height:50px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;background:#0d1b2e;overflow:hidden;cursor:pointer">⏳</div>';
         } else {
-          thumb='<div class="arquivo-thumb" onclick="abrirArquivo('+f.id+',\''+type+'\')" style="display:flex;align-items:center;justify-content:center;font-size:42px">'+icon+'</div>';
+          thumb='<div class="arquivo-thumb" onclick="abrirArquivo('+f.id+',\''+type+'\')" style="width:50px;height:50px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:26px;background:#0d1b2e;cursor:pointer">'+icon+'</div>';
         }
-        return '<div class="arquivo-card" style="position:relative">'
-          +'<button onclick="excluirArquivo('+f.id+',this)" title="Excluir" style="position:absolute;top:4px;right:4px;z-index:5;width:22px;height:22px;border:2px solid #fff;border-radius:50%;background:#dc2626;color:#fff;font-size:11px;font-weight:900;cursor:pointer;line-height:1;padding:0">✕</button>'
-          +thumb+'<div class="arquivo-info"><div class="arquivo-nick">'+esc(f.nick||'?')+'</div><div class="arquivo-meta">'+icon+' '+esc(type)+' · '+esc(when)+'</div></div></div>';
+        return '<div class="arquivo-row" style="display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 10px">'
+          +thumb
+          +'<div style="flex:1;min-width:0;overflow:hidden">'
+            +'<div class="arquivo-nick" style="font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(f.nick||'?')+'</div>'
+            +'<div class="arquivo-meta" style="font-size:12px;color:var(--text3)">'+icon+' '+esc(type)+' · '+esc(when)+'</div>'
+          +'</div>'
+          +'<button onclick="excluirArquivo('+f.id+',this)" title="Excluir" style="flex-shrink:0;width:26px;height:26px;border:2px solid #fff;border-radius:50%;background:#dc2626;color:#fff;font-size:12px;font-weight:900;cursor:pointer;line-height:1;padding:0">✕</button>'
+        +'</div>';
       }).join('');
       var thumbs=grid.querySelectorAll('.arquivo-thumb[data-fileid]');
       function loadThumb(el){
         var id=el.getAttribute('data-fileid');
         API.get('/admin/files/'+id).then(function(r){
-          if(r&&r.media_url){ el.innerHTML='<img src="'+r.media_url+'" style="width:100%;height:100%;object-fit:cover">'; }
+          if(r&&r.media_url){ el.innerHTML='<img src="'+r.media_url+'" onerror="this.parentNode.textContent=\'⚠\'" style="width:100%;height:100%;object-fit:cover">'; }
           else el.textContent='🖼';
         }).catch(function(){ el.textContent='🖼'; });
       }

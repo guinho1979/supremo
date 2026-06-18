@@ -536,7 +536,7 @@ function renderCmtPage(p, page){
         <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px">
           <span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:${cbc||'var(--text)'}">${c.autor}</span>${cbadge}
           <span style="font-size:9px;color:var(--text3);margin-left:4px">${c.hora}</span>
-          ${c.autor===ME.nick||['admin','supervisor','mod'].includes(ME.role)?`<button onclick="deletarComentario(${p.id},${c.id})" style="background:none;border:none;cursor:pointer;color:#ef4444;font-size:11px;margin-left:auto;padding:0">✕</button>`:''}
+          ${c.autor===ME.nick||['admin','supervisor','mod'].includes(ME.role)?`<button onclick="deletarComentario(${p.id},${c.id})" title="Excluir" style="background:#dc2626;border:none;cursor:pointer;color:#fff;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:900;line-height:1;padding:0;margin-left:auto;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>`:''}
         </div>
         <div style="font-size:13px;color:var(--text);line-height:1.5">${c.texto}</div>
       </div>
@@ -595,7 +595,7 @@ function renderFeed(){
           </div>
           <div class="post-meta">${p.data} · ${p.hora} · <span style="color:${diasRestantes<=1?'#ef4444':'var(--text3)'}">expira em ${diasRestantes}d</span></div>
         </div>
-        ${canDel?`<button class="del-btn" onclick="deletar(${p.id})" title="Excluir">🗑</button>`:''}
+        ${canDel?`<button onclick="deletar(${p.id})" title="Excluir" style="background:#dc2626;border:none;cursor:pointer;color:#fff;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:900;line-height:1;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>`:''}
       </div>
       ${media}
       ${p.texto?`<div class="post-text" style="color:${p.fontColor||'var(--text)'}">${p.texto}</div>`:''}
