@@ -2,6 +2,7 @@
 const express = require('express');
 const db      = require('../db');
 const ws      = require('../websocket');
+const { logAction } = require('../modlog');
 const { authMiddleware, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
@@ -368,7 +369,7 @@ router.post('/messages/:id/react', authMiddleware, async (req, res) => {
 router.delete('/messages/:id', authMiddleware, async (req, res) => {
   try {
     const { rows: [m] } = await db.query(
-      'SELECT room_slug, user_id, nick FROM messages WHERE id = $1 AND is_deleted = FALSE', [req.params.id]
+      'SELECT room_slug, user_id, nick, content, msg_type FROM messages WHERE id = $1 AND is_deleted = FALSE', [req.params.id]
     );
     if (!m) return res.status(404).json({ error: 'Mensagem não encontrada.' });
     const isStaff = ['mod', 'supervisor', 'admin'].includes(req.user.role);
@@ -381,6 +382,12 @@ router.delete('/messages/:id', authMiddleware, async (req, res) => {
         data: { id: Number(req.params.id), by: req.user.nick, by_role: req.user.role, target: m.nick }
       });
     } catch (e) {}
+    if (isStaff && !isAuthor) {
+      const what = String(m.msg_type || '').indexOf('media:') === 0
+        ? '[' + m.msg_type.replace('media:', '') + ']'
+        : (m.content || '').slice(0, 120);
+      logAction({ actor_nick: req.user.nick, actor_role: req.user.role, action: 'delete_msg', target_nick: m.nick, detail: what });
+    }
     res.json({ ok: true, id: Number(req.params.id) });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao apagar mensagem.' }); }
 });
@@ -523,6 +530,44 @@ router.post('/bot/chat', authMiddleware, async (req, res) => {
     console.error('bot/chat error:', err);
     res.status(500).json({ error: 'Erro interno.' });
   }
+});
+
+// ─── Pedidos ao DJ ───────────────────────────────────────────
+router.post('/dj/requests', authMiddleware, async (req, res) => {
+  try {
+    const song = (req.body.song || '').toString().trim().slice(0, 120);
+    const artist = (req.body.artist || '').toString().trim().slice(0, 120);
+    const dedica = (req.body.dedica || '').toString().trim().slice(0, 60);
+    if (!song) return res.status(400).json({ error: 'Informe a música.' });
+    const { rows: [r] } = await db.query(
+      `INSERT INTO dj_requests (nick, song, artist, dedica) VALUES ($1,$2,$3,$4) RETURNING id`,
+      [req.user.nick, song, artist, dedica]
+    );
+    res.json({ ok: true, id: r.id });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao enviar pedido.' }); }
+});
+router.get('/dj/requests', authMiddleware, async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT id, nick, song, artist, dedica, status, created_at
+       FROM dj_requests ORDER BY created_at DESC LIMIT 120`
+    );
+    res.json({ requests: rows });
+  } catch (err) { res.json({ requests: [] }); }
+});
+router.post('/dj/requests/:id/played', authMiddleware, async (req, res) => {
+  if (!['dj', 'mod', 'supervisor', 'admin'].includes(req.user.role)) return res.status(403).json({ error: 'Apenas DJ/staff.' });
+  try {
+    await db.query('UPDATE dj_requests SET status = $1 WHERE id = $2', [req.body.status === 'fila' ? 'fila' : 'tocado', parseInt(req.params.id, 10)]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erro.' }); }
+});
+router.delete('/dj/requests/:id', authMiddleware, async (req, res) => {
+  if (!['dj', 'mod', 'supervisor', 'admin'].includes(req.user.role)) return res.status(403).json({ error: 'Apenas DJ/staff.' });
+  try {
+    await db.query('DELETE FROM dj_requests WHERE id = $1', [parseInt(req.params.id, 10)]);
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Erro.' }); }
 });
 
 module.exports = router;

@@ -4,6 +4,7 @@ const bcrypt  = require('bcrypt');
 const db      = require('../db');
 const geoip   = require('../geoip');
 const ws      = require('../websocket');
+const { logAction } = require('../modlog');
 const { authMiddleware, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
@@ -128,6 +129,7 @@ router.post('/ban', requireRole('mod'), async (req, res) => {
     if (ban_ip) {
       msg += ipToBan ? ` IP ${ipToBan} também bloqueado.` : ' (IP não registrado ainda — só o nick foi bloqueado.)';
     }
+    logAction({ actor_nick: req.user.nick, actor_role: req.user.role, action: 'ban', target_nick: nick, detail: (reason || '') + (ban_type ? ' ['+ban_type+']' : '') });
     res.json({ ok: true, message: msg, ip_banned: !!ipToBan });
   } catch (err) {
     console.error(err);
@@ -352,6 +354,25 @@ router.get('/files/:id', requireRole('supervisor'), async (req, res) => {
     res.json({ media_url: m.media_url, msg_type: m.msg_type, nick: m.nick });
   } catch (err) { res.status(500).json({ error: 'Erro.' }); }
 });
+// Excluir TODOS os arquivos (mídia) — precisa vir antes de /files/:id no DELETE
+router.delete('/files', requireRole('supervisor'), async (req, res) => {
+  try {
+    await db.query(`UPDATE messages SET is_deleted = TRUE WHERE msg_type LIKE 'media:%' AND is_deleted = FALSE`);
+    logAction({ actor_nick: req.user.nick, actor_role: req.user.role, action: 'delete_file', target_nick: '', detail: 'todos os arquivos' });
+    res.json({ ok: true });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao excluir.' }); }
+});
+router.delete('/files/:id', requireRole('supervisor'), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { rows: [m] } = await db.query('SELECT room_slug, nick, msg_type FROM messages WHERE id = $1', [id]);
+    if (!m) return res.status(404).json({ error: 'Não encontrado.' });
+    await db.query('UPDATE messages SET is_deleted = TRUE WHERE id = $1', [id]);
+    try { ws.broadcastToRoom(m.room_slug, { event: 'message_deleted', data: { id } }); } catch (e) {}
+    logAction({ actor_nick: req.user.nick, actor_role: req.user.role, action: 'delete_file', target_nick: m.nick, detail: String(m.msg_type || '').replace('media:', '') });
+    res.json({ ok: true, id });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao excluir.' }); }
+});
 
 // ─── Anúncio (aviso para todas as salas, em tempo real) ──────
 router.post('/announce', requireRole('supervisor'), async (req, res) => {
@@ -379,27 +400,28 @@ router.delete('/announce', requireRole('supervisor'), async (req, res) => {
 // ─── Logs do sistema (acessos + moderação) ───────────────────
 router.get('/logs', requireRole('mod'), async (req, res) => {
   try {
-    const logins = await db.query(
-      `SELECT nick, kind, ip, created_at FROM login_logs ORDER BY created_at DESC LIMIT 60`
+    const { rows } = await db.query(
+      `SELECT actor_nick, actor_role, action, target_nick, detail, created_at
+       FROM mod_actions ORDER BY created_at DESC LIMIT 120`
     ).catch(() => ({ rows: [] }));
-    const bans = await db.query(
-      `SELECT nick, banned_by, reason, ban_type, ip_address, created_at FROM bans ORDER BY created_at DESC LIMIT 40`
-    ).catch(() => ({ rows: [] }));
-    const out = [];
-    logins.rows.forEach(l => out.push({
-      type: 'login', at: l.created_at,
-      text: `<strong>${l.nick}</strong> entrou (${l.kind === 'guest' ? 'visitante' : 'cadastrado'})` + (l.ip ? ` — <span class="ip-tag">${l.ip}</span>` : '')
-    }));
-    bans.rows.forEach(b => out.push({
-      type: 'ban', at: b.created_at,
-      text: `<strong>${b.banned_by || 'Sistema'}</strong> baniu <strong>${b.nick}</strong>` + (b.ban_type === 'temporary' ? ' (temporário)' : '') + (b.ip_address ? ` · IP <span class="ip-tag">${b.ip_address}</span>` : '') + (b.reason ? ` — ${b.reason}` : '')
-    }));
-    out.sort((a, b) => new Date(b.at) - new Date(a.at));
-    res.json({ logs: out.slice(0, 80) });
+    const VERB = {
+      ban: 'baniu 🔨', kick: 'kickou 👢', mute: 'mutou 🔇', unmute: 'desmutou 🔊',
+      shadow: 'aplicou shadowban 👻', delete_msg: 'apagou mensagem de 🗑',
+      delete_file: 'apagou arquivo de 🗑', clear_room: 'limpou a sala 🧹'
+    };
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const out = rows.map(a => {
+      const verb = VERB[a.action] || a.action;
+      let text = `<strong>${esc(a.actor_nick)}</strong> ${verb}`;
+      if (a.target_nick) text += ` <strong>${esc(a.target_nick)}</strong>`;
+      if (a.detail) text += ` — <span style="opacity:.8">${esc(a.detail)}</span>`;
+      return { type: a.action, at: a.created_at, text };
+    });
+    res.json({ logs: out });
   } catch (err) { res.json({ logs: [] }); }
 });
 router.delete('/logs', requireRole('admin'), async (req, res) => {
-  try { await db.query('DELETE FROM login_logs'); res.json({ ok: true }); }
+  try { await db.query('DELETE FROM mod_actions'); res.json({ ok: true }); }
   catch (err) { res.status(500).json({ error: 'Erro ao limpar.' }); }
 });
 
@@ -511,6 +533,7 @@ router.post('/mute', requireRole('mod'), async (req, res) => {
     const { rows } = await db.query('UPDATE users SET muted_until = $1 WHERE LOWER(nick)=LOWER($2) RETURNING nick', [until, nick]);
     if (!rows.length) return res.status(404).json({ error: 'Usuário não encontrado.' });
     try { ws.setModFlags(rows[0].nick, { mutedUntil: until }); } catch (e) {}
+    logAction({ actor_nick: req.user.nick, actor_role: req.user.role, action: 'mute', target_nick: rows[0].nick, detail: minutes + ' min' });
     res.json({ ok: true, until });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao silenciar.' }); }
 });
@@ -532,6 +555,7 @@ router.post('/shadow', requireRole('supervisor'), async (req, res) => {
     const { rows } = await db.query('UPDATE users SET shadow_banned = $1 WHERE LOWER(nick)=LOWER($2) RETURNING nick', [on, nick]);
     if (!rows.length) return res.status(404).json({ error: 'Usuário não encontrado.' });
     try { ws.setModFlags(rows[0].nick, { shadowBanned: on }); } catch (e) {}
+    logAction({ actor_nick: req.user.nick, actor_role: req.user.role, action: 'shadow', target_nick: rows[0].nick, detail: on ? 'ativado' : 'removido' });
     res.json({ ok: true, on });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro.' }); }
 });
