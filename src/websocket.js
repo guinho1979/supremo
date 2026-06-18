@@ -2,6 +2,7 @@
 const WebSocket = require('ws');
 const jwt       = require('jsonwebtoken');
 const db        = require('./db');
+const { logAction } = require('./modlog');
 
 // Cache leve de flags de sistema (atualiza a cada 15s) — evita consulta por mensagem
 let _sysFlags = {}, _sysFlagsAt = 0;
@@ -433,6 +434,7 @@ function setupWebSocket(server) {
             c.ws.close(4002, 'Kicked by moderator');
           }
         });
+        try { logAction({ actor_nick: client.nick, actor_role: client.role, action: 'kick', target_nick: target_nick || '', detail: '' }); } catch (e) {}
         return;
       }
     });
