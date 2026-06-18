@@ -16,7 +16,7 @@ const radioRoutes        = require('./routes/radio');
 const bingoRoutes        = require('./routes/bingo');
 
 const app    = express();
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 
 // ── CORS ──────────────────────────────────────────────────────
