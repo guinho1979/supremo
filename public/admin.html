@@ -192,6 +192,17 @@ tr:hover td{background:var(--surface2)}
 .msg-text{font-size:16px;font-weight:700;color:#1a2d42;line-height:1.5;word-break:break-word}
 .msg-footer{display:flex;align-items:center;gap:8px;margin-top:3px}
 .msg-time{font-size:10px;color:#6a8aaa}
+/* === Ajuste: fonte maior (+2px) e negrito === */
+body{font-size:18px}
+body, body *{font-weight:700 !important}
+.logo{font-size:18px}.admin-badge{font-size:11px}.back-btn{font-size:13px}
+.nav-item{font-size:14px}.nav-icon{font-size:15px}
+.page-title{font-size:20px}.stat-num{font-size:26px}.stat-lbl{font-size:12px}
+.section-title{font-size:14px}.toggle-info{font-size:14px}.toggle-info small{font-size:12px}
+th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
+.field label{font-size:12px}.field input,.field select,.field textarea{font-size:14px}
+.btn-primary,.btn-danger,.btn-secondary{font-size:14px}
+.arquivo-nick{font-size:14px}.arquivo-meta{font-size:12px}.ip-tag{font-size:11px}
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
@@ -892,7 +903,10 @@ tr:hover td{background:var(--surface2)}
     <!-- ══ ARQUIVOS ══ -->
     <div class="page" id="page-arquivos">
       <div class="page-title">🖼 Arquivos Enviados</div>
-      <div id="arquivosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px"></div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+        <button onclick="excluirTodosArquivos()" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer">🗑 Excluir todos</button>
+      </div>
+      <div id="arquivosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px"></div>
       <div id="arquivosVazio" style="text-align:center;padding:40px;color:var(--text3);font-size:13px">📂 Nenhum arquivo ainda.</div>
     </div>
 
@@ -3388,7 +3402,9 @@ window.show = function(id, el){
         } else {
           thumb='<div class="arquivo-thumb" onclick="abrirArquivo('+f.id+',\''+type+'\')" style="display:flex;align-items:center;justify-content:center;font-size:42px">'+icon+'</div>';
         }
-        return '<div class="arquivo-card">'+thumb+'<div class="arquivo-info"><div class="arquivo-nick">'+esc(f.nick||'?')+'</div><div class="arquivo-meta">'+icon+' '+esc(type)+' · '+esc(when)+'</div></div></div>';
+        return '<div class="arquivo-card" style="position:relative">'
+          +'<button onclick="excluirArquivo('+f.id+',this)" title="Excluir" style="position:absolute;top:4px;right:4px;z-index:5;width:22px;height:22px;border:2px solid #fff;border-radius:50%;background:#dc2626;color:#fff;font-size:11px;font-weight:900;cursor:pointer;line-height:1;padding:0">✕</button>'
+          +thumb+'<div class="arquivo-info"><div class="arquivo-nick">'+esc(f.nick||'?')+'</div><div class="arquivo-meta">'+icon+' '+esc(type)+' · '+esc(when)+'</div></div></div>';
       }).join('');
       var thumbs=grid.querySelectorAll('.arquivo-thumb[data-fileid]');
       function loadThumb(el){
@@ -3417,6 +3433,15 @@ window.show = function(id, el){
       ov.innerHTML='<div onclick="event.stopPropagation()">'+inner+'<div style="text-align:center;margin-top:10px"><a href="'+d.media_url+'" download style="color:#93c5fd;font-size:13px;text-decoration:none">⬇ Baixar</a></div></div>';
       document.body.appendChild(ov);
     }).catch(function(){ T('Erro ao abrir','err'); });
+  };
+
+  window.excluirArquivo=function(id, btn){
+    if(!confirm('Excluir este arquivo?')) return;
+    API.delete('/admin/files/'+id).then(function(){ var c=btn&&btn.closest('.arquivo-card'); if(c) c.remove(); T('Arquivo excluído'); }).catch(function(){ T('Erro ao excluir','err'); });
+  };
+  window.excluirTodosArquivos=function(){
+    if(!confirm('Excluir TODOS os arquivos enviados? Esta ação não pode ser desfeita.')) return;
+    API.delete('/admin/files').then(function(){ loadArquivos(); T('Todos os arquivos foram excluídos'); }).catch(function(){ T('Erro ao excluir','err'); });
   };
 
   var _show6=window.show;

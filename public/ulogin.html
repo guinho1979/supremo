@@ -293,7 +293,7 @@ function render(logins){
 
   const logins = (saved && Array.isArray(saved) && saved.length > 0)
     ? saved.slice(0, 30)
-    : DEMO_LOGINS;
+    : [];
 
   // Inject nickEmoji from localStorage for the current user (first entry)
   try {

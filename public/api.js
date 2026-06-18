@@ -93,6 +93,12 @@ var API = {
   changePassword: function (current, new_password) { return API.patch('/auth/password', { current: current, new_password: new_password }); },
   reactMessage:  function (id, emoji) { return API.post('/messages/' + id + '/react', { emoji: emoji }); },
   delMessage:    function (id) { return API.delete('/messages/' + id); },
+  dj: {
+    request: function (song, artist, dedica) { return API.post('/dj/requests', { song: song, artist: artist, dedica: dedica }); },
+    list:    function () { return API.get('/dj/requests'); },
+    played:  function (id, status) { return API.post('/dj/requests/' + id + '/played', { status: status || 'tocado' }); },
+    remove:  function (id) { return API.delete('/dj/requests/' + id); }
+  },
   getUserProfile:function (nick)  { return API.get('/users/' + encodeURIComponent(nick)); },
   toggleFan:     function (nick)  { return API.post('/users/' + encodeURIComponent(nick) + '/fan'); },
   getRecentOnline:function ()     { return API.get('/users/recent'); },
