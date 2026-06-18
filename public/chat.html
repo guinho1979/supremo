@@ -1337,8 +1337,8 @@ function buildColorSwatches(){
   // Rainbow only applied to messages and online panel (not offcanvas nick display)
   // Announcement — show on entry, auto-hide after 5 min
   const SYS=JSON.parse(LS.get('tc_system')||'{}');
-  // Demo: show a sample announcement if none set
-  const annMsg = SYS.announcement || '🎉 Bem-vindos ao Chat Supremo! Respeite as regras da sala. Divirta-se! 🎮🎵⚽';
+  // Mostra APENAS anúncio real (sem demo). Sem anúncio = barra escondida.
+  const annMsg = SYS.announcement || '';
   const annColor = SYS.annColor || 'purple';
   if(annMsg){
     const b=document.getElementById('annBar');
@@ -3528,7 +3528,7 @@ const HISTORY_DEMO = [
 
 // Badge inline — não depende de getBadgeHtml (evita erro de ordem de definição)
 function _histBadge(role){
-  const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE',guest:'b-guest VISITANTE'};
+  const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};
   const v=m[role];
   return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';
 }
@@ -3594,7 +3594,7 @@ function initHistoryButton(){
 // initHistoryButton();
 
 const STATUS_DOT_CLASS={online:'s-online',away:'s-away',busy:'s-busy',offline:'s-offline'};
-function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE',guest:'b-guest VISITANTE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';}
+function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';}
 function renderAv(av){return av&&av.startsWith('http')?`<img src="${av}" alt="av"/>`:av||'😊';}
 
 // ─── MEDIA UPLOAD / MESSAGES ─────────────────────────────────────────────────
@@ -3613,6 +3613,12 @@ function triggerFile(){
 function handleFileUpload(inp){
   const f=inp.files[0];if(!f)return;
   inp.value='';
+
+  // Áudio/vídeo muito grande vira um "data URL" gigante que sobrecarrega a conexão e some.
+  // Imagem é reduzida automaticamente, então não precisa de limite.
+  if((f.type.startsWith('audio/')||f.type.startsWith('video/')) && f.size > 5*1024*1024){
+    showToast('Áudio/vídeo muito grande (máx. 5MB). Envie um arquivo menor.','error'); return;
+  }
 
   // Verifica se a sala é pública (não privada)
   const currentRoomId = LS.get('tc_room') || '';
@@ -3858,7 +3864,7 @@ function addMediaMessage(type,src,name){
   // blob: é local do navegador (some ao atualizar e não chega aos outros).
   // Converte em data URL (base64) antes de enviar — conserta imagem/áudio/vídeo sumindo.
   if(typeof src==='string' && src.indexOf('blob:')===0){
-    if(type==='image'){
+    if(type==='image'||type==='draw'){
       // Reduz a imagem (máx 1280px, JPEG) — evita data URL gigante que derruba a conexão e some com as mensagens.
       _downscaleImage(src, function(dataUrl){ _sendMedia(type, dataUrl, name); });
       return;
@@ -8322,7 +8328,7 @@ function processSmileKeywords(text){
     var badge=(typeof getBadgeHtml==='function')?getBadgeHtml(d.role||'user'):'';
     var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1';
     var mediaBlock;
-    if(type==='image'||type==='gif'){
+    if(type==='image'||type==='gif'||type==='draw'||type==='desenho'||type==='drawing'){
       mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:240px;max-height:260px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
     } else if(type==='video'){
       mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
@@ -8363,8 +8369,7 @@ function processSmileKeywords(text){
           : '<span style="width:26px;height:26px;border-radius:50%;background:#22304a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(isG ? '👤' : (info.avatar||'😊'))+'</span>';
         var emo = info.emoji ? '<span style="flex-shrink:0;font-size:14px">'+info.emoji+'</span>' : '';
         var SHOW_BADGE=['dj','premium','mod','supervisor','admin'];
-        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>'
-                    : (isG ? '<span class="badge b-guest" style="background:#9ca3af;color:#fff;font-size:9px">VISITANTE</span>' : '');
+        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '';
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
         var dot='<span title="'+(info.status||'online')+'" style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
         return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span>'+dot+badge+'</div>';
@@ -8502,7 +8507,9 @@ function processSmileKeywords(text){
     }
     if(/^@quiz\b/i.test(t)){
       var b2=t.replace(/^@quiz\s*/i,'').trim();
+      // Se há um quiz LOCAL ativo (painel admin com categorias), deixa o handler local cuidar
       if(!b2){
+        try{ var _lq=(typeof getQuiz==='function')?getQuiz():null; if(_lq&&_lq.ativa){ if(typeof processarComandoQuiz==='function') processarComandoQuiz('@quiz'); return true; } }catch(e){}
         API.quizzes.active(room()).then(function(d){
           if(d&&d.quiz){ quizState[d.quiz.id]={quiz:d.quiz,answered:d.answered,myAnswer:d.my_answer,closed:false}; tcRenderQuiz(d.quiz,{answered:d.answered,myAnswer:d.my_answer}); }
           else tip('Nenhum quiz ativo. Ative no painel admin primeiro.','info');
@@ -8885,7 +8892,7 @@ function sendMainPaintDrawing(){
     if(!blob) return;
     // Envia direto como imagem, sem passar pela moderação NSFW (desenho feito pelo próprio usuário)
     var url=URL.createObjectURL(blob);
-    addMediaMessage('image', url, 'desenho.png');
+    addMediaMessage('draw', url, 'desenho.png');
   },'image/png');
 }
 </script>

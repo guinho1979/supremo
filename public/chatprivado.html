@@ -691,7 +691,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div style="padding:14px 16px;border-bottom:1px solid #1e3a5f;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#0f1f3d,#1d4ed8)">
       <span style="font-size:20px">📨</span>
       <div style="flex:1">
-        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#e8edf5">Convidar para a sala</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#e8edf5">Convidar para sala</div>
         <div id="convidarPrivSalaNome" style="font-size:10px;color:#8aafd4;margin-top:1px"></div>
       </div>
       <button onclick="fecharConvidarPrivado()" style="background:none;border:none;color:#8aafd4;font-size:18px;cursor:pointer;padding:4px;line-height:1">✕</button>
@@ -2944,7 +2944,7 @@ function addChatMessage(msg){
 
 
 const STATUS_DOT_CLASS={online:'s-online',away:'s-away',busy:'s-busy',offline:'s-offline'};
-function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE',guest:'b-guest VISITANTE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';}
+function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';}
 function renderAv(av){return av&&av.startsWith('http')?`<img src="${av}" alt="av"/>`:av||'😊';}
 
 // ─── MEDIA UPLOAD / MESSAGES ─────────────────────────────────────────────────
@@ -5781,8 +5781,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
           : '<span style="width:26px;height:26px;border-radius:50%;background:#22304a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(isG?'👤':(info.avatar||'😊'))+'</span>';
         var emo = info.emoji ? '<span style="flex-shrink:0;font-size:14px">'+info.emoji+'</span>' : '';
         var SHOW_BADGE=['dj','premium','mod','supervisor','admin'];
-        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>'
-                    : (isG ? '<span class="badge b-guest" style="background:#9ca3af;color:#fff;font-size:9px">VISITANTE</span>' : '');
+        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '';
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
         var dot='<span style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
         var col=info.color||'';

@@ -406,13 +406,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
           <div style="display:flex;gap:8px;align-items:center">
             <select id="expulsarSalaSelect" style="flex:1;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;outline:none">
               <option value="">— Selecione a sala —</option>
-              <option value="geral">💬 Geral</option>
-              <option value="games">🎮 Games</option>
-              <option value="musica">🎵 Música</option>
-              <option value="esportes">⚽ Esportes</option>
-              <option value="vip">⭐ VIP Lounge</option>
-              <option value="premium">👑 Premium</option>
-              <option value="dj">🎧 Sala DJ</option>
+
             </select>
             <button onclick="expulsarSalaSelecionada()" style="white-space:nowrap;background:#ef4444;border:none;color:#fff;font-size:11px;font-weight:700;padding:9px 14px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">🚪 Expulsar todos</button>
           </div>
@@ -427,13 +421,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
           <div style="display:flex;gap:8px;align-items:center">
             <select id="excluirMsgSalaSelect" style="flex:1;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;outline:none">
               <option value="">— Selecione a sala —</option>
-              <option value="geral">💬 Geral</option>
-              <option value="games">🎮 Games</option>
-              <option value="musica">🎵 Música</option>
-              <option value="esportes">⚽ Esportes</option>
-              <option value="vip">⭐ VIP Lounge</option>
-              <option value="premium">👑 Premium</option>
-              <option value="dj">🎧 Sala DJ</option>
+
             </select>
             <button onclick="excluirMensagensSala()" style="white-space:nowrap;background:#ef4444;border:none;color:#fff;font-size:11px;font-weight:700;padding:9px 14px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">🗑 Excluir mensagens</button>
           </div>
@@ -3084,6 +3072,24 @@ window.show = function(id, el){
 /* === Ações em massa (expulsar todos / limpar mensagens) === */
 (function(){
   if(typeof API==='undefined' || !window.tcSocket) return;
+  function popularSelectsSalas(){
+    if(!API.getRooms) return;
+    API.getRooms().then(function(d){
+      var rooms=(d&&d.rooms)||d||[];
+      ['expulsarSalaSelect','excluirMsgSalaSelect'].forEach(function(id){
+        var sel=document.getElementById(id); if(!sel) return;
+        var cur=sel.value;
+        sel.innerHTML='<option value="">— Selecione a sala —</option>'+rooms.map(function(r){
+          return '<option value="'+r.slug+'">'+(r.icon||'💬')+' '+r.name+'</option>';
+        }).join('');
+        if(cur) sel.value=cur;
+      });
+    }).catch(function(){});
+  }
+  window.popularSelectsSalas=popularSelectsSalas;
+  var _showMass=window.show;
+  if(typeof _showMass==='function'){ window.show=function(p,el){ _showMass(p,el); if(p==='salas'||p==='controle'||p==='acesso') popularSelectsSalas(); }; }
+  setTimeout(popularSelectsSalas, 300);
   window.expulsarSalaSelecionada=function(){
     var sel=document.getElementById('expulsarSalaSelect'); var sala=sel&&sel.value;
     if(!sala){ toast('Selecione uma sala primeiro','w'); return; }
@@ -3460,7 +3466,7 @@ window.show = function(id, el){
 
   window.excluirArquivo=function(id, btn){
     if(!confirm('Excluir este arquivo?')) return;
-    API.delete('/admin/files/'+id).then(function(){ var c=btn&&btn.closest('.arquivo-card'); if(c) c.remove(); T('Arquivo excluído'); }).catch(function(){ T('Erro ao excluir','err'); });
+    API.delete('/admin/files/'+id).then(function(){ var c=btn&&btn.closest('.arquivo-row, .arquivo-card'); if(c) c.remove(); T('Arquivo excluído'); }).catch(function(){ T('Erro ao excluir','err'); });
   };
   window.excluirTodosArquivos=function(){
     if(!confirm('Excluir TODOS os arquivos enviados? Esta ação não pode ser desfeita.')) return;
