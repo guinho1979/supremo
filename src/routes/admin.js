@@ -486,6 +486,14 @@ router.get('/logins', async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao buscar acessos.' }); }
 });
 
+// ─── DELETE /api/admin/logins — limpar histórico de acessos ──
+router.delete('/logins', requireRole('admin'), async (req, res) => {
+  try {
+    await db.query('DELETE FROM login_logs');
+    res.json({ ok: true });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao limpar acessos.' }); }
+});
+
 // ─── DELETE /api/admin/rooms/:slug/messages — limpar sala ────
 router.delete('/rooms/:slug/messages', requireRole('admin'), async (req, res) => {
   try {

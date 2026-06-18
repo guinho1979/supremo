@@ -455,13 +455,14 @@ router.post('/faceid/login', async (req, res) => {
 router.get('/colors', authMiddleware, async (req, res) => {
   try {
     const { rows } = await db.query(
-      `SELECT nick, nick_color, nick_gradient, nick_effect, avatar, photo_url, nick_emoji, status
+      `SELECT nick, nick_color, msg_color, nick_gradient, nick_effect, avatar, photo_url, nick_emoji, status
        FROM users WHERE nick IS NOT NULL`
     );
     const colors = {};
     rows.forEach(u => {
       colors[u.nick] = {
         color: u.nick_color || '',
+        msg_color: u.msg_color || '',
         gradient: u.nick_gradient || '',
         effect: u.nick_effect || '',
         avatar: u.avatar || '😊',
@@ -475,6 +476,7 @@ router.get('/colors', authMiddleware, async (req, res) => {
       const g = guestPrefs[nick];
       colors[nick] = {
         color: g.nick_color || '',
+        msg_color: g.msg_color || '',
         gradient: g.nick_gradient || '',
         effect: g.nick_effect || '',
         avatar: g.avatar || '👤',
