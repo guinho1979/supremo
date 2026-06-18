@@ -364,6 +364,27 @@ router.post('/messages/:id/react', authMiddleware, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao reagir.' }); }
 });
 
+// ─── Apagar mensagem (autor ou staff) ────────────────────────
+router.delete('/messages/:id', authMiddleware, async (req, res) => {
+  try {
+    const { rows: [m] } = await db.query(
+      'SELECT room_slug, user_id, nick FROM messages WHERE id = $1 AND is_deleted = FALSE', [req.params.id]
+    );
+    if (!m) return res.status(404).json({ error: 'Mensagem não encontrada.' });
+    const isStaff = ['mod', 'supervisor', 'admin'].includes(req.user.role);
+    const isAuthor = req.user.user_id && m.user_id && Number(req.user.user_id) === Number(m.user_id);
+    if (!isStaff && !isAuthor) return res.status(403).json({ error: 'Sem permissão para apagar esta mensagem.' });
+    await db.query('UPDATE messages SET is_deleted = TRUE WHERE id = $1', [req.params.id]);
+    try {
+      ws.broadcastToRoom(m.room_slug, {
+        event: 'message_deleted',
+        data: { id: Number(req.params.id), by: req.user.nick, by_role: req.user.role, target: m.nick }
+      });
+    } catch (e) {}
+    res.json({ ok: true, id: Number(req.params.id) });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao apagar mensagem.' }); }
+});
+
 // ─── Bloqueio de usuários ────────────────────────────────────
 router.get('/blocks', authMiddleware, async (req, res) => {
   if (!req.user.user_id) return res.json({ blocks: [] });
