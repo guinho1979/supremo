@@ -5820,7 +5820,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
     var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1'; if(d.id) div.dataset.msgId=d.id;
     var mediaBlock;
     if(type==='image'||type==='gif'){
-      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:200px;max-height:200px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
+      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:150px;max-height:150px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
     } else if(type==='video'){
       mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
     } else if(type==='audio'){
