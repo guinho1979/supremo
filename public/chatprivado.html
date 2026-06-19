@@ -791,8 +791,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;animation:blink 1s infinite;flex-shrink:0"></div>
     <span style="font-size:12px;font-weight:700;color:#c0392b">Gravando...</span>
     <span id="micTimer" style="font-size:12px;font-weight:700;color:#c0392b;margin-left:2px">0:00</span>
-    <button onclick="stopMicRecording(true)" style="margin-left:auto;background:#ef4444;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">⏹ Enviar</button>
-    <button onclick="stopMicRecording(false)" style="background:#fee2e2;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕</button>
+    <button onclick="stopMicRecording()" style="margin-left:auto;background:#ef4444;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">⏹ Parar</button>
+    <button onclick="cancelMicRecording()" style="background:#fee2e2;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕</button>
+  </div>
+  <!-- MIC PREVIEW BAR (listen before sending) -->
+  <div id="micPreviewBar" style="display:none;align-items:center;gap:8px;background:#f4f0ff;border:1.5px solid #ddd6fe;padding:6px 10px;border-radius:10px;margin-bottom:6px">
+    <button id="micPreviewPlayBtn" onclick="toggleMicPreviewPlayback()" style="width:26px;height:26px;border-radius:50%;background:#7c3aed;border:none;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">▶</button>
+    <span id="micPreviewTime" style="font-size:11px;font-weight:600;color:#7c3aed;min-width:32px">0:00</span>
+    <button onclick="cancelMicRecording()" style="margin-left:auto;background:#fff;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕ Cancelar</button>
+    <button onclick="sendMicPreview()" style="background:#7c3aed;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">➤ Enviar</button>
   </div>
   <!-- HIDDEN INPUTS (fileInput moved to body level for reliable .click()) -->
   <!-- INPUT ROW WITH + BUTTON -->
@@ -3369,10 +3376,19 @@ let micRecorder = null;
 let micChunks = [];
 let micTimerInterval = null;
 let micSeconds = 0;
+let micDiscard = false;
+let micPreviewBlob = null;
+let micPreviewUrl = null;
+let micPreviewAudio = null;
+let micPreviewPlaying = false;
 
 async function toggleMicRecording(){
   if(micRecorder && micRecorder.state === 'recording'){
-    stopMicRecording(true);
+    stopMicRecording();
+    return;
+  }
+  if(micPreviewBlob){
+    // Already have a recording waiting to be heard — use Cancelar/Enviar on the preview bar
     return;
   }
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
@@ -3382,10 +3398,26 @@ async function toggleMicRecording(){
   try{
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
     micChunks = [];
+    micDiscard = false;
     micRecorder = new MediaRecorder(stream);
     micRecorder.ondataavailable = e => { if(e.data.size > 0) micChunks.push(e.data); };
     micRecorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
+      clearInterval(micTimerInterval);
+      document.getElementById('micBar').style.display = 'none';
+      const btn = document.getElementById('btnMic');
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+      btn.textContent = '🎤 Gravar';
+      if(micDiscard || !micChunks.length){
+        micChunks = [];
+        return;
+      }
+      micPreviewBlob = new Blob(micChunks, {type:'audio/webm'});
+      micPreviewUrl = URL.createObjectURL(micPreviewBlob);
+      micChunks = [];
+      showMicPreviewBar();
     };
     micRecorder.start();
 
@@ -3397,6 +3429,7 @@ async function toggleMicRecording(){
     btn.style.color = '#fff';
     btn.style.borderColor = '#ef4444';
     btn.textContent = '⏹ Parar';
+    if(typeof closePlusMenu === 'function') closePlusMenu();
 
     // Timer
     micSeconds = 0;
@@ -3407,7 +3440,7 @@ async function toggleMicRecording(){
       const s = String(micSeconds % 60).padStart(2,'0');
       document.getElementById('micTimer').textContent = `${m}:${s}`;
       // Auto-stop at 5 minutes
-      if(micSeconds >= 300) stopMicRecording(true);
+      if(micSeconds >= 300) stopMicRecording();
     }, 1000);
 
   } catch(err){
@@ -3415,56 +3448,99 @@ async function toggleMicRecording(){
   }
 }
 
-function stopMicRecording(send){
+// Stops the recording and shows the listen-before-sending preview bar.
+function stopMicRecording(){
   if(!micRecorder) return;
-  clearInterval(micTimerInterval);
-
-  // Hide recording bar
-  document.getElementById('micBar').style.display = 'none';
-  const btn = document.getElementById('btnMic');
-  btn.style.background = '';
-  btn.style.color = '';
-  btn.style.borderColor = '';
-  btn.textContent = '🎤 Gravar';
-
-  micRecorder.onstop = async () => {
-    if(send && micChunks.length){
-      const webmBlob = new Blob(micChunks, {type:'audio/webm'});
-      try{
-        const arrayBuf = await webmBlob.arrayBuffer();
-        const audioCTX = new (window.AudioContext || window.webkitAudioContext)();
-        const decoded = await audioCTX.decodeAudioData(arrayBuf);
-        audioCTX.close();
-        const sampleRate = decoded.sampleRate;
-        const left = decoded.getChannelData(0);
-        const right = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : left;
-        const mp3enc = new lamejs.Mp3Encoder(2, sampleRate, 128);
-        const blockSize = 1152;
-        const mp3Data = [];
-        for(let i = 0; i < left.length; i += blockSize){
-          const l = toInt16(left.subarray(i, i + blockSize));
-          const r = toInt16(right.subarray(i, i + blockSize));
-          const chunk = mp3enc.encodeBuffer(l, r);
-          if(chunk.length) mp3Data.push(new Int8Array(chunk));
-        }
-        const end = mp3enc.flush();
-        if(end.length) mp3Data.push(new Int8Array(end));
-        const mp3Blob = new Blob(mp3Data, {type:'audio/mp3'});
-        const url = URL.createObjectURL(mp3Blob);
-        const name = 'audio_' + nowTime().replace(':','') + '.mp3';
-        addMediaMessage('audio', url, name);
-      } catch(err){
-        console.warn('MP3 conversion failed, using webm:', err);
-        const url = URL.createObjectURL(webmBlob);
-        const name = 'audio_' + nowTime().replace(':','') + '.webm';
-        addMediaMessage('audio', url, name);
-      }
-    }
-    micChunks = [];
-  };
-
+  micDiscard = false;
   if(micRecorder.state !== 'inactive') micRecorder.stop();
   micRecorder = null;
+}
+
+// Discards either an in-progress recording or a pending preview.
+function cancelMicRecording(){
+  if(micRecorder && micRecorder.state === 'recording'){
+    micDiscard = true;
+    micRecorder.stop();
+    micRecorder = null;
+    return;
+  }
+  resetMicPreview();
+}
+
+function showMicPreviewBar(){
+  document.getElementById('micPreviewBar').style.display = 'flex';
+  document.getElementById('micPreviewTime').textContent = '0:00';
+  micPreviewPlaying = false;
+  document.getElementById('micPreviewPlayBtn').textContent = '▶';
+  if(micPreviewAudio){ try{ micPreviewAudio.pause(); }catch(_e){} }
+  micPreviewAudio = new Audio(micPreviewUrl);
+  micPreviewAudio.addEventListener('timeupdate', ()=>{
+    const t = Math.floor(micPreviewAudio.currentTime);
+    const m = Math.floor(t / 60), s = String(t % 60).padStart(2,'0');
+    document.getElementById('micPreviewTime').textContent = `${m}:${s}`;
+  });
+  micPreviewAudio.addEventListener('ended', ()=>{
+    micPreviewPlaying = false;
+    document.getElementById('micPreviewPlayBtn').textContent = '▶';
+    document.getElementById('micPreviewTime').textContent = '0:00';
+  });
+}
+
+function toggleMicPreviewPlayback(){
+  if(!micPreviewAudio) return;
+  const btn = document.getElementById('micPreviewPlayBtn');
+  if(micPreviewPlaying){
+    micPreviewAudio.pause();
+    micPreviewPlaying = false;
+    btn.textContent = '▶';
+  } else {
+    micPreviewAudio.play();
+    micPreviewPlaying = true;
+    btn.textContent = '⏸';
+  }
+}
+
+function resetMicPreview(){
+  document.getElementById('micPreviewBar').style.display = 'none';
+  if(micPreviewAudio){ try{ micPreviewAudio.pause(); }catch(_e){} micPreviewAudio = null; }
+  if(micPreviewUrl){ try{ URL.revokeObjectURL(micPreviewUrl); }catch(_e){} micPreviewUrl = null; }
+  micPreviewBlob = null;
+  micPreviewPlaying = false;
+}
+
+async function sendMicPreview(){
+  if(!micPreviewBlob) return;
+  const webmBlob = micPreviewBlob;
+  try{
+    const arrayBuf = await webmBlob.arrayBuffer();
+    const audioCTX = new (window.AudioContext || window.webkitAudioContext)();
+    const decoded = await audioCTX.decodeAudioData(arrayBuf);
+    audioCTX.close();
+    const sampleRate = decoded.sampleRate;
+    const left = decoded.getChannelData(0);
+    const right = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : left;
+    const mp3enc = new lamejs.Mp3Encoder(2, sampleRate, 128);
+    const blockSize = 1152;
+    const mp3Data = [];
+    for(let i = 0; i < left.length; i += blockSize){
+      const l = toInt16(left.subarray(i, i + blockSize));
+      const r = toInt16(right.subarray(i, i + blockSize));
+      const chunk = mp3enc.encodeBuffer(l, r);
+      if(chunk.length) mp3Data.push(new Int8Array(chunk));
+    }
+    const end = mp3enc.flush();
+    if(end.length) mp3Data.push(new Int8Array(end));
+    const mp3Blob = new Blob(mp3Data, {type:'audio/mp3'});
+    const url = URL.createObjectURL(mp3Blob);
+    const name = 'audio_' + nowTime().replace(':','') + '.mp3';
+    addMediaMessage('audio', url, name);
+  } catch(err){
+    console.warn('MP3 conversion failed, using webm:', err);
+    const url = URL.createObjectURL(webmBlob);
+    const name = 'audio_' + nowTime().replace(':','') + '.webm';
+    addMediaMessage('audio', url, name);
+  }
+  resetMicPreview();
 }
 
 function toInt16(floatArr){
@@ -5785,7 +5861,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
         var dot='<span style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
         var col=info.color||'';
-        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px;cursor:pointer" onclick="if(typeof openProfile===\'function\')openProfile(\''+n.replace(/'/g,"\\'")+'\')">'+av+emo+'<span class="ou-nick" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+(col?'color:'+col:'')+'">'+n+'</span>'+badge+dot+'</div>';
+        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px;cursor:pointer" onclick="if(typeof openProfile===\'function\')openProfile(\''+n.replace(/'/g,"\\'")+'\')">'+av+emo+'<span class="ou-nick" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+(col?'color:'+col:'')+'">'+n+'</span>'+dot+badge+'</div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
   }
