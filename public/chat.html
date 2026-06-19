@@ -158,8 +158,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .msg-time{font-size:10px;color:#6a8aaa}
 .msg-actions{display:flex;gap:4px;flex-wrap:wrap}
 .act-btn{background:#1E90FF;border:none;color:#ffffff;font-size:8px;padding:3px 7px;border-radius:5px;cursor:pointer;font-weight:700}
-.msg-shield-btn{background:#dc2626;border:none;color:#fff;font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer;font-weight:700;line-height:1;display:inline-flex;align-items:center;justify-content:center}
-.msg-shield-btn:hover{background:#b91c1c}
+.msg-shield-btn{background:#16a34a;border:none;color:#fff;font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer;font-weight:700;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.msg-shield-btn:hover{background:#15803d}
 .act-btn:hover{background:#1a7fd4;color:#ffffff}
 .act-btn.red{background:#fde8e8;color:#c0392b}
 .act-btn.red:hover{background:#f5c0c0}
@@ -7812,8 +7812,9 @@ window.msgMod=function(action){
   var nick=window._msgModTarget; var m=document.getElementById('msgModMenu'); if(m) m.style.display='none';
   if(!nick || !window._isStaffMod()) return;
   if(action==='ban'){
-    if(typeof abrirPainel==='function') abrirPainel();
-    setTimeout(function(){ try{ show('moderacao', document.querySelector('#adminSidebar .nav-moderacao')); }catch(e){} var mn=document.getElementById('modNick'); if(mn){ mn.value=nick; mn.focus(); } var ma=document.getElementById('modAction'); if(ma) ma.value='ban'; showToast('Banindo '+nick+' — selecione o tempo no painel'); },100);
+    try{ localStorage.setItem('tc_mod_ban_nick', nick); }catch(e){}
+    showToast('Abrindo painel para banir '+nick+'…');
+    setTimeout(function(){ window.location.href='admin.html?mod='+encodeURIComponent(nick); }, 250);
     return;
   }
   if(action==='kick'){ try{ tcSocket.kick(nick); showToast(nick+' foi kickado 👢','error'); }catch(e){ showToast('Falha ao kickar','error'); } return; }

@@ -2375,6 +2375,18 @@ function espiarSala(roomId,roomName){
 
 // ── MODERAÇÃO ──────────────────────────────────────────────────
 function banirUsuarioPainel(nick){const nav=document.querySelector('.nav-item[onclick*="moderacao"]');show('moderacao',nav);setTimeout(()=>{document.getElementById('modNick').value=nick;document.getElementById('modAction').value='ban';toast('Selecione a duração do ban para '+nick);},100);}
+// Abre a moderação com o nick já selecionado quando vem do botão escudo do chat (admin.html?mod=nick)
+(function(){
+  function _autoModBan(){
+    try{
+      var n=''; try{ n=new URLSearchParams(location.search).get('mod')||''; }catch(_e){}
+      if(!n){ try{ n=localStorage.getItem('tc_mod_ban_nick')||''; }catch(_e){} }
+      if(n){ try{ localStorage.removeItem('tc_mod_ban_nick'); }catch(_e){} if(typeof banirUsuarioPainel==='function'){ banirUsuarioPainel(n); } }
+    }catch(e){}
+  }
+  if(document.readyState==='loading'){ window.addEventListener('load', function(){ setTimeout(_autoModBan, 700); }); }
+  else { setTimeout(_autoModBan, 700); }
+})();
 function setModDur(h,btn){document.getElementById('modDuration').value=h;document.querySelectorAll('[onclick^="setModDur"]').forEach(b=>{b.style.background='var(--surface2)';b.style.borderColor='#3d35a0';b.style.color='#a78bfa';});btn.style.background=h===0?'#7f1d1d':'#7c3aed';btn.style.borderColor=h===0?'#ef4444':'#7c3aed';btn.style.color=h===0?'#fca5a5':'#fff';document.getElementById('modDurLabel').textContent=h===0?'🔒 Ban permanente':'⏱ Ban de '+h+'h';}
 async function doMod(){
   const n=document.getElementById('modNick').value.trim();
