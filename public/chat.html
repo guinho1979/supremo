@@ -306,7 +306,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .online-panel{position:fixed;top:0;left:0;width:200px;height:100dvh;background:#dce8f5;border-right:1px solid #c8d8f5;padding:10px 8px;overflow-y:auto;transition:opacity .25s ease,visibility .25s ease;z-index:60;box-shadow:4px 0 20px rgba(0,0,0,.15);opacity:0;visibility:hidden;pointer-events:none;flex-shrink:0}
 .online-panel.open{opacity:1;visibility:visible;pointer-events:auto}
 .online-panel::-webkit-scrollbar{display:none}
-.op-header{font-size:15px;color:#fff;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;padding:8px 10px;border-bottom:1px solid #5b21b6;background:#0f1f3d;display:flex;align-items:center;gap:4px;margin:-10px -8px 10px -8px;border-radius:0}
+.op-header{font-size:10px;color:#fff;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;padding:8px 10px;border-bottom:1px solid #5b21b6;background:#0f1f3d;display:flex;align-items:center;gap:4px;margin:-10px -8px 10px -8px;border-radius:0}
 .ou{display:flex;align-items:center;gap:6px;padding:8px 6px;cursor:pointer;border-radius:12px;transition:.15s;background:#c8d8f5;margin-bottom:6px}
 .ou:hover{background:#b8caf0}
 .ou-av{width:28px;height:28px;border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;overflow:hidden}
@@ -550,7 +550,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
     <!-- Status -->
     <div class="oc-section-block">
-      <div class="oc-sect" style="font-size:16px">Status</div>
+      <div class="oc-sect">Status</div>
       <div class="status-selector">
         <button class="sts-btn active-status" data-s="online" onclick="setStatus('online',this)" style="color:#10b981">🟢 Online</button>
         <button class="sts-btn" data-s="away"   onclick="setStatus('away',this)" style="color:#f59e0b">🟡 Ausente</button>
@@ -559,55 +559,68 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     </div>
 
     <!-- Navegação: Perfil + Cores -->
-    <div class="oc-section-block">
-      <a href="perfil.html" class="toggle-row" style="text-decoration:none;cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">👤</span> Editar Perfil</span>
-        <span style="color:#374d6e">›</span>
+    <div class="oc-section-block" style="display:flex;flex-direction:column;gap:8px">
+
+      <!-- Editar Perfil -->
+      <a href="perfil.html" style="display:flex;align-items:center;gap:12px;background:#0f1f3d;border:1px solid #1e3a5f;border-radius:14px;padding:13px 15px;text-decoration:none;transition:.2s;width:100%;box-sizing:border-box" onmouseover="this.style.background='#1a2f53';this.style.borderColor='#2d5a8a';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 14px rgba(0,0,0,.5)'" onmouseout="this.style.background='#0f1f3d';this.style.borderColor='#1e3a5f';this.style.transform='';this.style.boxShadow=''">
+        <div style="width:36px;height:36px;border-radius:10px;background:#1a3a5f;border:1px solid #2d5a8a;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">👤</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#fff;letter-spacing:.3px">Editar Perfil</div>
+          <div style="font-size:10px;color:#8aafd4;margin-top:2px;letter-spacing:.1px">Nick, bio, dados e senha</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8aafd4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
-      <a href="nickcor.html" class="toggle-row" style="text-decoration:none;cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">🎨</span> Editar Cores</span>
-        <span style="color:#374d6e">›</span>
+
+      <!-- Editar Cores -->
+      <a href="nickcor.html" style="display:flex;align-items:center;gap:12px;background:#0f1f3d;border:1px solid #1e3a5f;border-radius:14px;padding:13px 15px;text-decoration:none;transition:.2s;width:100%;box-sizing:border-box" onmouseover="this.style.background='#1a2f53';this.style.borderColor='#2d5a8a';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 14px rgba(0,0,0,.5)'" onmouseout="this.style.background='#0f1f3d';this.style.borderColor='#1e3a5f';this.style.transform='';this.style.boxShadow=''">
+        <div style="width:36px;height:36px;border-radius:10px;background:#1a3a5f;border:1px solid #2d5a8a;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🎨</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#fff;letter-spacing:.3px">Editar Cores</div>
+          <div style="font-size:10px;color:#8aafd4;margin-top:2px;letter-spacing:.1px">Gradiente, efeitos e cores sólidas</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8aafd4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
+
     </div>
 
     <!-- Privacidade -->
     <div class="oc-section-block">
-      <div class="oc-sect" style="font-size:16px">Privacidade</div>
+      <div class="oc-sect">Privacidade</div>
       <div class="toggle-row">
-        <span class="toggle-label" style="font-size:16px;font-weight:700">Mensagens privadas</span>
+        <span class="toggle-label">Receber PV</span>
         <div class="toggle on" id="pvToggle" onclick="this.classList.toggle('on');if(!this.classList.contains('on'))togglePVModal()"></div>
       </div>
       <div class="toggle-row">
-        <span class="toggle-label" style="font-size:16px;font-weight:700">Notificações</span>
+        <span class="toggle-label">Notificações</span>
         <div class="toggle on" onclick="this.classList.toggle('on')"></div>
       </div>
       <div class="toggle-row">
-        <span class="toggle-label" style="font-size:16px;font-weight:700">Salas privadas</span>
+        <span class="toggle-label">Receber convites de salas privadas</span>
         <div class="toggle" id="toggleConvites" onclick="toggleNoConvites(this)"></div>
       </div>
-      <div class="toggle-row" onclick="togglePVModal()" style="cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">🔓</span> Gerenciar privados</span>
-        <span style="color:#374d6e">›</span>
-      </div>
-      <div class="toggle-row" onclick="openBlockedModal()" style="cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">🚫</span> Gerenciar Bloqueados</span>
-        <span style="color:#374d6e">›</span>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:10px">
+        <button onclick="togglePVModal()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 13px;background:#0f1f3d;border:1px solid #1e3a5f;border-radius:10px;color:#fff;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;letter-spacing:.2px;box-sizing:border-box" onmouseover="this.style.background='#1a2f53';this.style.borderColor='#2d5a8a'" onmouseout="this.style.background='#0f1f3d';this.style.borderColor='#1e3a5f'"><span style="font-size:13px">🔓</span> Gerenciar lista de PV</button>
+        <button onclick="openBlockedModal()" style="display:flex;align-items:center;gap:8px;width:100%;padding:9px 13px;background:#0f1f3d;border:1px solid #1e3a5f;border-radius:10px;color:#fff;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;letter-spacing:.2px;box-sizing:border-box" onmouseover="this.style.background='#1a2f53';this.style.borderColor='#2d5a8a'" onmouseout="this.style.background='#0f1f3d';this.style.borderColor='#1e3a5f'"><span style="font-size:13px">🚫</span> Gerenciar Bloqueados</button>
       </div>
     </div>
 
     <!-- Contato / Reclamação -->
     <div class="oc-section-block">
-      <div class="toggle-row" onclick="openContactAdmin()" style="cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">✉</span> Contato / Reclamação</span>
-        <span style="color:#374d6e">›</span>
-      </div>
+      <button onclick="openContactAdmin()" style="display:flex;align-items:center;gap:10px;width:100%;padding:11px 15px;background:#0f1f3d;border:1px solid #1e3a5f;border-radius:12px;color:#fff;font-size:11px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:.2s;letter-spacing:.3px;box-sizing:border-box" onmouseover="this.style.background='#1a2f53';this.style.borderColor='#2d5a8a';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#0f1f3d';this.style.borderColor='#1e3a5f';this.style.transform=''">
+        <div style="width:28px;height:28px;border-radius:8px;background:#1a3a5f;border:1px solid #2d5a8a;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">✉</div>
+        <span>Contato / Reclamação</span>
+      </button>
     </div>
 
     <!-- Seja Premium -->
     <div class="oc-section-block">
-      <a href="status.html" class="toggle-row" style="text-decoration:none;cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">⭐</span> Seja Premium</span>
-        <span style="color:#374d6e">›</span>
+      <a href="status.html" style="display:flex;align-items:center;gap:12px;background:#0f1f3d;border:1px solid #1e3a5f;border-radius:14px;padding:13px 15px;text-decoration:none;transition:.2s;width:100%;box-sizing:border-box" onmouseover="this.style.background='#1a2f53';this.style.borderColor='#2d5a8a';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 14px rgba(0,0,0,.5)'" onmouseout="this.style.background='#0f1f3d';this.style.borderColor='#1e3a5f';this.style.transform='';this.style.boxShadow=''">
+        <div style="width:36px;height:36px;border-radius:10px;background:#1a3a5f;border:1px solid #2d5a8a;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⭐</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#fff;letter-spacing:.3px">Seja Premium</div>
+          <div style="font-size:10px;color:#8aafd4;margin-top:2px;letter-spacing:.1px">Desbloqueie efeitos e recursos exclusivos</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8aafd4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
     </div>
 
@@ -712,7 +725,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
   <!-- ONLINE PANEL -->
   <div class="online-panel" id="onlinePanel">
-    <div class="op-header">Usuários online<button onclick="toggleRight()" style="margin-left:auto;background:none;border:none;color:#fff;cursor:pointer;font-size:14px;padding:0;line-height:1">✕</button></div>
+    <div class="op-header">Online · <span id="onlineNum">0</span><button onclick="toggleRight()" style="margin-left:auto;background:none;border:none;color:#fff;cursor:pointer;font-size:14px;padding:0;line-height:1">✕</button></div>
     <div id="onlineList">
     </div>
   </div>
@@ -749,15 +762,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;animation:blink 1s infinite;flex-shrink:0"></div>
     <span style="font-size:12px;font-weight:700;color:#c0392b">Gravando...</span>
     <span id="micTimer" style="font-size:12px;font-weight:700;color:#c0392b;margin-left:2px">0:00</span>
-    <button onclick="stopMicRecording()" style="margin-left:auto;background:#ef4444;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">⏹ Parar</button>
-    <button onclick="cancelMicRecording()" style="background:#fee2e2;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕</button>
-  </div>
-  <!-- MIC PREVIEW BAR (listen before sending) -->
-  <div id="micPreviewBar" style="display:none;align-items:center;gap:8px;background:#f4f0ff;border:1.5px solid #ddd6fe;padding:6px 10px;border-radius:10px;margin-bottom:6px">
-    <button id="micPreviewPlayBtn" onclick="toggleMicPreviewPlayback()" style="width:26px;height:26px;border-radius:50%;background:#7c3aed;border:none;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">▶</button>
-    <span id="micPreviewTime" style="font-size:11px;font-weight:600;color:#7c3aed;min-width:32px">0:00</span>
-    <button onclick="cancelMicRecording()" style="margin-left:auto;background:#fff;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕ Cancelar</button>
-    <button onclick="sendMicPreview()" style="background:#7c3aed;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">➤ Enviar</button>
+    <button onclick="stopMicRecording(true)" style="margin-left:auto;background:#ef4444;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">⏹ Enviar</button>
+    <button onclick="stopMicRecording(false)" style="background:#fee2e2;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕</button>
   </div>
   <!-- HIDDEN INPUTS (fileInput moved to body level for reliable .click()) -->
   <!-- INPUT ROW WITH + BUTTON -->
@@ -1782,22 +1788,43 @@ const DEMO_ONLINE_SPY = [
 const SPY_BADGE_COLORS = {admin:'#10b981',supervisor:'#ef4444',mod:'#6b7280',vip:'#3b82f6',premium:'#f59e0b',dj:'#a855f7',user:''};
 
 window._spyMsgHtml=function(m, canDel){
-  var SPYBC={admin:'#34d399',supervisor:'#f59e0b',mod:'#3b82f6',dj:'#c084fc',premium:'#fbbf24',vip:'#60a5fa'};
-  var mrole=m.role||'user';
-  var bc=SPYBC[mrole];
-  var badge=bc?'<span style="font-size:8px;padding:2px 5px;border-radius:20px;background:'+bc+'22;color:'+bc+';font-weight:700;margin-left:4px">'+mrole.toUpperCase()+'</span>':'';
   var ci=(window._nickColors&&window._nickColors[m.nick])||{};
-  var av=ci.photo?'<img src="'+ci.photo+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">':'<div style="width:32px;height:32px;border-radius:50%;background:#1a1735;border:2px solid '+(ci.color||'#3a6fa8')+';display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(ci.avatar||'😊')+'</div>';
-  var when=m.created_at?new Date(m.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  var body;
+  var nickColor=ci.color||'#0a1628';
+  var avHtml=(typeof renderAv==='function')?renderAv(ci.photo||ci.avatar||'\u{1F60A}'):(ci.avatar||'\u{1F60A}');
+  var badgeHtml=(typeof getBadgeHtml==='function')?getBadgeHtml(m.role||'user'):'';
+  var sc=(typeof STATUS_DOT_CLASS!=='undefined')?(STATUS_DOT_CLASS['online']||''):'';
+  var when=m.created_at?new Date(m.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):((typeof nowTime==='function')?nowTime():'');
+  var nq=String(m.nick||'').replace(/'/g,"\\'");
+  var bodyHtml;
   if(m.msg_type&&String(m.msg_type).indexOf('media:')===0){
     var _mt=String(m.msg_type).slice(6), _mu=m.media_url||'';
-    if(_mt==='image'||_mt==='gif'||_mt==='draw'||_mt==='desenho') body='<img src="'+_mu+'" style="max-width:100px;max-height:100px;border-radius:8px;display:block;cursor:pointer" onclick="window.open(\''+_mu+'\',\'_blank\')">';
-    else if(_mt==='video') body='<video src="'+_mu+'" controls style="max-width:200px;border-radius:8px;display:block"></video>';
-    else if(_mt==='audio') body='<audio src="'+_mu+'" controls style="max-width:200px;display:block"></audio>';
-    else body='📎 ['+_mt+']';
-  } else { body=String(m.content||'').replace(/</g,'&lt;'); }
-  return '<div style="display:flex;gap:8px;align-items:flex-start">'+av+'<div style="flex:1;min-width:0"><div style="background:#ffffff;border:0.5px solid #b8d0e8;border-radius:0 12px 12px 12px;padding:8px 12px;width:100%"><div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="font-size:12px;font-weight:800;color:'+(ci.color||'#1a1735')+';font-family:Syne,sans-serif;cursor:pointer" onclick="insertNick(\''+m.nick+'\')" title="Inserir nick">'+m.nick+'</span>'+badge+'</div><div style="font-size:14px;font-weight:700;color:#1a1735;word-break:break-word">'+body+'</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><span style="font-size:10px;color:#8aafd4">'+when+'</span><div style="display:flex;gap:3px;flex-wrap:wrap">'+(canDel?'<button onclick="spyAction(\'ban\',\''+m.nick+'\')" style="background:#7f1d1d;border:none;color:#fca5a5;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔨 Banir</button><button onclick="spyAction(\'kick\',\''+m.nick+'\')" style="background:#1e3a5f;border:none;color:#93c5fd;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">👢 Kick</button><button onclick="spyAction(\'mute\',\''+m.nick+'\')" style="background:#1c1c2e;border:none;color:#d1d5db;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔇 Mutar</button>':'')+'</div></div></div></div></div>';
+    if(['image','gif','draw','desenho','drawing'].indexOf(_mt)>-1) bodyHtml='<img src="'+_mu+'" style="max-width:240px;max-height:260px;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="window.open(\''+_mu+'\',\'_blank\')">';
+    else if(_mt==='video') bodyHtml='<video src="'+_mu+'" controls style="max-width:240px;border-radius:12px;display:block;margin-top:4px"></video>';
+    else if(_mt==='audio') bodyHtml='<audio src="'+_mu+'" controls style="max-width:240px;display:block;margin-top:4px"></audio>';
+    else bodyHtml='\u{1F4CE} '+((typeof escHtml==='function')?escHtml(m.content||_mt):(m.content||_mt));
+  } else {
+    var t=(typeof escHtml==='function')?escHtml(m.content||''):String(m.content||'');
+    if(typeof highlightMentions==='function') t=highlightMentions(t);
+    if(typeof animateEmojis==='function') t=animateEmojis(t);
+    bodyHtml=t;
+  }
+  var delX = canDel ? '<button class="del-x-btn" onclick="_spyDel(this,'+(m.id||'null')+')" title="Apagar mensagem">\u2715</button>' : '';
+  return '<div class="msg-group" data-user="'+nq+'" data-msg-id="'+(m.id||'')+'">'+
+    '<div class="msg-av" style="background:#1e1635;color:'+nickColor+';border-color:'+nickColor+'">'+avHtml+'</div>'+
+    '<div class="msg-content"><div class="msg-bubble">'+
+      '<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick" style="color:'+nickColor+';cursor:pointer" onclick="openOuMenu(event,\''+nq+'\')">'+nq+'</span>'+badgeHtml+'</div>'+
+      '<div class="msg-text" style="color:#0a1628">'+bodyHtml+'</div>'+
+      '<div class="msg-footer"><span class="msg-time">'+when+'</span>'+
+      '<div class="msg-actions"><button class="act-btn" onclick="insertNick(\''+nq+'\')">\u21A9 Reply</button></div></div>'+
+      delX+
+    '</div></div></div>';
+};
+window._spyDel=function(btn,id){
+  try{
+    var g=btn&&btn.closest('.msg-group');
+    if(id!=null && window.API && API.delMessage){ API.delMessage(id).then(function(){ if(g) g.remove(); if(typeof showToast==='function') showToast('Mensagem apagada'); }).catch(function(){ if(typeof showToast==='function') showToast('Falha ao apagar','error'); }); }
+    else if(g){ g.remove(); }
+  }catch(e){}
 };
 function espiarSala(roomId, roomName){
   const role = ME.role;
@@ -4637,19 +4664,10 @@ let micRecorder = null;
 let micChunks = [];
 let micTimerInterval = null;
 let micSeconds = 0;
-let micDiscard = false;
-let micPreviewBlob = null;
-let micPreviewUrl = null;
-let micPreviewAudio = null;
-let micPreviewPlaying = false;
 
 async function toggleMicRecording(){
   if(micRecorder && micRecorder.state === 'recording'){
-    stopMicRecording();
-    return;
-  }
-  if(micPreviewBlob){
-    // Already have a recording waiting to be heard — use Cancelar/Enviar on the preview bar
+    stopMicRecording(true);
     return;
   }
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
@@ -4659,26 +4677,10 @@ async function toggleMicRecording(){
   try{
     const stream = await navigator.mediaDevices.getUserMedia({audio:true});
     micChunks = [];
-    micDiscard = false;
     micRecorder = new MediaRecorder(stream);
     micRecorder.ondataavailable = e => { if(e.data.size > 0) micChunks.push(e.data); };
     micRecorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
-      clearInterval(micTimerInterval);
-      document.getElementById('micBar').style.display = 'none';
-      const btn = document.getElementById('btnMic');
-      btn.style.background = '';
-      btn.style.color = '';
-      btn.style.borderColor = '';
-      btn.textContent = '🎤 Gravar';
-      if(micDiscard || !micChunks.length){
-        micChunks = [];
-        return;
-      }
-      micPreviewBlob = new Blob(micChunks, {type:'audio/webm'});
-      micPreviewUrl = URL.createObjectURL(micPreviewBlob);
-      micChunks = [];
-      showMicPreviewBar();
     };
     micRecorder.start();
 
@@ -4690,7 +4692,6 @@ async function toggleMicRecording(){
     btn.style.color = '#fff';
     btn.style.borderColor = '#ef4444';
     btn.textContent = '⏹ Parar';
-    if(typeof closePlusMenu === 'function') closePlusMenu();
 
     // Timer
     micSeconds = 0;
@@ -4701,7 +4702,7 @@ async function toggleMicRecording(){
       const s = String(micSeconds % 60).padStart(2,'0');
       document.getElementById('micTimer').textContent = `${m}:${s}`;
       // Auto-stop at 5 minutes
-      if(micSeconds >= 300) stopMicRecording();
+      if(micSeconds >= 300) stopMicRecording(true);
     }, 1000);
 
   } catch(err){
@@ -4709,99 +4710,56 @@ async function toggleMicRecording(){
   }
 }
 
-// Stops the recording and shows the listen-before-sending preview bar.
-function stopMicRecording(){
+function stopMicRecording(send){
   if(!micRecorder) return;
-  micDiscard = false;
+  clearInterval(micTimerInterval);
+
+  // Hide recording bar
+  document.getElementById('micBar').style.display = 'none';
+  const btn = document.getElementById('btnMic');
+  btn.style.background = '';
+  btn.style.color = '';
+  btn.style.borderColor = '';
+  btn.textContent = '🎤 Gravar';
+
+  micRecorder.onstop = async () => {
+    if(send && micChunks.length){
+      const webmBlob = new Blob(micChunks, {type:'audio/webm'});
+      try{
+        const arrayBuf = await webmBlob.arrayBuffer();
+        const audioCTX = new (window.AudioContext || window.webkitAudioContext)();
+        const decoded = await audioCTX.decodeAudioData(arrayBuf);
+        audioCTX.close();
+        const sampleRate = decoded.sampleRate;
+        const left = decoded.getChannelData(0);
+        const right = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : left;
+        const mp3enc = new lamejs.Mp3Encoder(2, sampleRate, 128);
+        const blockSize = 1152;
+        const mp3Data = [];
+        for(let i = 0; i < left.length; i += blockSize){
+          const l = toInt16(left.subarray(i, i + blockSize));
+          const r = toInt16(right.subarray(i, i + blockSize));
+          const chunk = mp3enc.encodeBuffer(l, r);
+          if(chunk.length) mp3Data.push(new Int8Array(chunk));
+        }
+        const end = mp3enc.flush();
+        if(end.length) mp3Data.push(new Int8Array(end));
+        const mp3Blob = new Blob(mp3Data, {type:'audio/mp3'});
+        const url = URL.createObjectURL(mp3Blob);
+        const name = 'audio_' + nowTime().replace(':','') + '.mp3';
+        addMediaMessage('audio', url, name);
+      } catch(err){
+        console.warn('MP3 conversion failed, using webm:', err);
+        const url = URL.createObjectURL(webmBlob);
+        const name = 'audio_' + nowTime().replace(':','') + '.webm';
+        addMediaMessage('audio', url, name);
+      }
+    }
+    micChunks = [];
+  };
+
   if(micRecorder.state !== 'inactive') micRecorder.stop();
   micRecorder = null;
-}
-
-// Discards either an in-progress recording or a pending preview.
-function cancelMicRecording(){
-  if(micRecorder && micRecorder.state === 'recording'){
-    micDiscard = true;
-    micRecorder.stop();
-    micRecorder = null;
-    return;
-  }
-  resetMicPreview();
-}
-
-function showMicPreviewBar(){
-  document.getElementById('micPreviewBar').style.display = 'flex';
-  document.getElementById('micPreviewTime').textContent = '0:00';
-  micPreviewPlaying = false;
-  document.getElementById('micPreviewPlayBtn').textContent = '▶';
-  if(micPreviewAudio){ try{ micPreviewAudio.pause(); }catch(_e){} }
-  micPreviewAudio = new Audio(micPreviewUrl);
-  micPreviewAudio.addEventListener('timeupdate', ()=>{
-    const t = Math.floor(micPreviewAudio.currentTime);
-    const m = Math.floor(t / 60), s = String(t % 60).padStart(2,'0');
-    document.getElementById('micPreviewTime').textContent = `${m}:${s}`;
-  });
-  micPreviewAudio.addEventListener('ended', ()=>{
-    micPreviewPlaying = false;
-    document.getElementById('micPreviewPlayBtn').textContent = '▶';
-    document.getElementById('micPreviewTime').textContent = '0:00';
-  });
-}
-
-function toggleMicPreviewPlayback(){
-  if(!micPreviewAudio) return;
-  const btn = document.getElementById('micPreviewPlayBtn');
-  if(micPreviewPlaying){
-    micPreviewAudio.pause();
-    micPreviewPlaying = false;
-    btn.textContent = '▶';
-  } else {
-    micPreviewAudio.play();
-    micPreviewPlaying = true;
-    btn.textContent = '⏸';
-  }
-}
-
-function resetMicPreview(){
-  document.getElementById('micPreviewBar').style.display = 'none';
-  if(micPreviewAudio){ try{ micPreviewAudio.pause(); }catch(_e){} micPreviewAudio = null; }
-  if(micPreviewUrl){ try{ URL.revokeObjectURL(micPreviewUrl); }catch(_e){} micPreviewUrl = null; }
-  micPreviewBlob = null;
-  micPreviewPlaying = false;
-}
-
-async function sendMicPreview(){
-  if(!micPreviewBlob) return;
-  const webmBlob = micPreviewBlob;
-  try{
-    const arrayBuf = await webmBlob.arrayBuffer();
-    const audioCTX = new (window.AudioContext || window.webkitAudioContext)();
-    const decoded = await audioCTX.decodeAudioData(arrayBuf);
-    audioCTX.close();
-    const sampleRate = decoded.sampleRate;
-    const left = decoded.getChannelData(0);
-    const right = decoded.numberOfChannels > 1 ? decoded.getChannelData(1) : left;
-    const mp3enc = new lamejs.Mp3Encoder(2, sampleRate, 128);
-    const blockSize = 1152;
-    const mp3Data = [];
-    for(let i = 0; i < left.length; i += blockSize){
-      const l = toInt16(left.subarray(i, i + blockSize));
-      const r = toInt16(right.subarray(i, i + blockSize));
-      const chunk = mp3enc.encodeBuffer(l, r);
-      if(chunk.length) mp3Data.push(new Int8Array(chunk));
-    }
-    const end = mp3enc.flush();
-    if(end.length) mp3Data.push(new Int8Array(end));
-    const mp3Blob = new Blob(mp3Data, {type:'audio/mp3'});
-    const url = URL.createObjectURL(mp3Blob);
-    const name = 'audio_' + nowTime().replace(':','') + '.mp3';
-    addMediaMessage('audio', url, name);
-  } catch(err){
-    console.warn('MP3 conversion failed, using webm:', err);
-    const url = URL.createObjectURL(webmBlob);
-    const name = 'audio_' + nowTime().replace(':','') + '.webm';
-    addMediaMessage('audio', url, name);
-  }
-  resetMicPreview();
 }
 
 function toInt16(floatArr){
@@ -5636,7 +5594,7 @@ tr:hover td{background:var(--surface2)}
   <!-- Chat area + online panel -->
   <div style="display:flex;flex:1;overflow:hidden;min-height:0">
     <!-- Messages area identical to chat -->
-    <div id="spyMsgArea" style="flex:1;overflow-y:auto;padding:12px 14px;background:#dce8f5;display:flex;flex-direction:column;gap:5px">
+    <div id="spyMsgArea" class="messages" style="flex:1;overflow-y:auto;padding:12px 14px;background:#c8daf0;display:flex;flex-direction:column;gap:5px">
       <div style="text-align:center;font-size:11px;color:#6a8aaa;padding:5px 12px;background:#1a1735;border-radius:20px;margin:0 auto">👁 Modo espião — você está invisível para todos</div>
     </div>
     <!-- Online panel identical to chat -->
@@ -6845,170 +6803,45 @@ function openPrivateWindow(nick) {
   var pvRecStream = null;
   var pvRecSeconds = 0;
   var pvRecTimerInterval = null;
-  var pvRecMime = 'audio/webm';
-  var pvPreviewBlob = null;
-  var pvPreviewUrl = null;
-  var pvPreviewAudio = null;
-  var pvPreviewPlaying = false;
-
-  // Recording / preview bar — same visual language as the main mic player
-  var recBar = document.createElement('div');
-  recBar.id = 'pvrecbar_' + nick;
-  recBar.style.cssText = 'display:none;align-items:center;gap:8px;padding:6px 10px;flex-shrink:0;border-top:1px solid #cccccc;background:#fee2e2';
-
-  function pvSetRecBarRecording() {
-    recBar.innerHTML = '';
-    recBar.style.background = '#fee2e2';
-    recBar.style.border = 'none';
-    var dot = document.createElement('div');
-    dot.style.cssText = 'width:9px;height:9px;border-radius:50%;background:#ef4444;animation:blink 1s infinite;flex-shrink:0';
-    var label = document.createElement('span');
-    label.style.cssText = 'font-size:11px;font-weight:700;color:#c0392b';
-    label.textContent = 'Gravando...';
-    var timer = document.createElement('span');
-    timer.id = 'pvrectimer_' + nick;
-    timer.style.cssText = 'font-size:11px;font-weight:700;color:#c0392b';
-    timer.textContent = '0:00';
-    var stopBtn = document.createElement('button');
-    stopBtn.style.cssText = 'margin-left:auto;background:#ef4444;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer';
-    stopBtn.textContent = '⏹ Parar';
-    stopBtn.addEventListener('click', function(e) { e.stopPropagation(); if (pvMediaRec && pvMediaRec.state === 'recording') pvMediaRec.stop(); });
-    var cancelBtn = document.createElement('button');
-    cancelBtn.style.cssText = 'background:#fee2e2;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer';
-    cancelBtn.textContent = '✕';
-    cancelBtn.addEventListener('click', function(e) { e.stopPropagation(); pvCancelRecording(); });
-    recBar.appendChild(dot);
-    recBar.appendChild(label);
-    recBar.appendChild(timer);
-    recBar.appendChild(stopBtn);
-    recBar.appendChild(cancelBtn);
-    recBar.style.display = 'flex';
-  }
-
-  function pvSetRecBarPreview() {
-    recBar.innerHTML = '';
-    recBar.style.background = '#f4f0ff';
-    recBar.style.border = '1.5px solid #ddd6fe';
-    var playBtn = document.createElement('button');
-    playBtn.style.cssText = 'width:26px;height:26px;border-radius:50%;background:#7c3aed;border:none;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0';
-    playBtn.innerHTML = '▶';
-    var timeLbl = document.createElement('span');
-    timeLbl.style.cssText = 'font-size:11px;font-weight:600;color:#7c3aed;min-width:32px';
-    timeLbl.textContent = '0:00';
-
-    pvPreviewAudio = new Audio(pvPreviewUrl);
-    pvPreviewAudio.addEventListener('timeupdate', function() {
-      var t = Math.floor(pvPreviewAudio.currentTime);
-      var m = Math.floor(t / 60), s = String(t % 60).padStart(2, '0');
-      timeLbl.textContent = m + ':' + s;
-    });
-    pvPreviewAudio.addEventListener('ended', function() {
-      pvPreviewPlaying = false;
-      playBtn.innerHTML = '▶';
-      timeLbl.textContent = '0:00';
-    });
-    playBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      if (pvPreviewPlaying) { pvPreviewAudio.pause(); pvPreviewPlaying = false; playBtn.innerHTML = '▶'; }
-      else { pvPreviewAudio.play(); pvPreviewPlaying = true; playBtn.innerHTML = '⏸'; }
-    });
-
-    var cancelBtn = document.createElement('button');
-    cancelBtn.style.cssText = 'margin-left:auto;background:#fff;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer';
-    cancelBtn.textContent = '✕ Cancelar';
-    cancelBtn.addEventListener('click', function(e) { e.stopPropagation(); pvCancelRecording(); });
-
-    var sendBtn = document.createElement('button');
-    sendBtn.style.cssText = 'background:#7c3aed;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer';
-    sendBtn.textContent = '➤ Enviar';
-    sendBtn.addEventListener('click', function(e) { e.stopPropagation(); pvSendRecording(); });
-
-    recBar.appendChild(playBtn);
-    recBar.appendChild(timeLbl);
-    recBar.appendChild(cancelBtn);
-    recBar.appendChild(sendBtn);
-    recBar.style.display = 'flex';
-  }
-
-  function pvResetRecState() {
-    recBar.style.display = 'none';
-    recBar.innerHTML = '';
-    recBar.style.border = 'none';
-    if (pvPreviewAudio) { try { pvPreviewAudio.pause(); } catch (_e) {} pvPreviewAudio = null; }
-    if (pvPreviewUrl) { try { URL.revokeObjectURL(pvPreviewUrl); } catch (_e) {} pvPreviewUrl = null; }
-    pvPreviewBlob = null;
-    pvPreviewPlaying = false;
-    pvRecording = false;
-    pvRecChunks = [];
-    recBtn.style.background = '#f4f0ff';
-    recBtn.querySelector('span').textContent = '🎙️';
-  }
-
-  function pvCancelRecording() {
-    if (pvMediaRec && pvMediaRec.state === 'recording') {
-      pvMediaRec._discard = true;
-      pvMediaRec.stop();
-    } else {
-      pvResetRecState();
-    }
-  }
-
-  function pvSendRecording() {
-    if (!pvPreviewBlob) return;
-    var blob = pvPreviewBlob;
-    var durSec = pvRecSeconds || Math.max(1, Math.round(blob.size / 6000));
-    var m = Math.floor(durSec / 60), s = String(durSec % 60).padStart(2, '0');
-    var msgText = '🎙️ Áudio (' + m + ':' + s + ')';
-    var sendUrl = URL.createObjectURL(blob);
-    var rdr = new FileReader();
-    rdr.onload = function(ev) { pvHistoryPush(nick, ME.nick, msgText, true, null, 'audio', ev.target.result); };
-    rdr.readAsDataURL(blob);
-    renderPvNotifBadge();
-    addPrivateMsgToWindow(nick, ME.nick, msgText, true, null, 'audio', sendUrl);
-    pvResetRecState();
-    plusMenu.style.display = 'none';
-  }
-
   var recBtn = makePlusBtn('🎙️', 'Gravar', function() {
-    if (pvRecording) {
+    if (!pvRecording) {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { showToast('Microfone não disponível', 'error'); return; }
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+        pvRecStream = stream;
+        pvRecording = true;
+        pvRecChunks = [];
+        pvRecSeconds = 0;
+        var mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+        pvMediaRec = new MediaRecorder(stream, { mimeType: mimeType });
+        pvMediaRec.ondataavailable = function(e) { if (e.data && e.data.size > 0) pvRecChunks.push(e.data); };
+        pvMediaRec.onstop = function() {
+          if (pvRecStream) { pvRecStream.getTracks().forEach(function(t){ t.stop(); }); pvRecStream = null; }
+          clearInterval(pvRecTimerInterval);
+          if (!pvRecChunks.length) { pvRecording = false; recBtn.style.background = '#f4f0ff'; recBtn.querySelector('span').textContent = '🎙️'; return; }
+          var blob = new Blob(pvRecChunks, { type: mimeType });
+          var url = URL.createObjectURL(blob);
+          var durSec = pvRecSeconds || Math.max(1, Math.round(blob.size / 6000));
+          var m = Math.floor(durSec / 60), s = String(durSec % 60).padStart(2,'0');
+          var msgText = '🎙️ Áudio (' + m + ':' + s + ')';
+          var rdr = new FileReader();
+          rdr.onload = function(ev) { pvHistoryPush(nick, ME.nick, msgText, true, null, 'audio', ev.target.result); };
+          rdr.readAsDataURL(blob);
+          renderPvNotifBadge();
+          addPrivateMsgToWindow(nick, ME.nick, msgText, true, null, 'audio', url);
+          pvRecording = false;
+          pvRecChunks = [];
+          recBtn.style.background = '#f4f0ff';
+          recBtn.querySelector('span').textContent = '🎙️';
+          plusMenu.style.display = 'none';
+        };
+        pvMediaRec.start(100);
+        recBtn.style.background = '#fee2e2';
+        recBtn.querySelector('span').textContent = '⏹️';
+        pvRecTimerInterval = setInterval(function(){ pvRecSeconds++; if(pvRecSeconds >= 300){ if(pvMediaRec && pvMediaRec.state==='recording') pvMediaRec.stop(); } }, 1000);
+      }).catch(function(err){ console.warn('Mic error:', err); showToast('Permissão de microfone negada', 'error'); });
+    } else {
       if (pvMediaRec && pvMediaRec.state === 'recording') pvMediaRec.stop();
-      return;
     }
-    if (pvPreviewBlob) return; // already have a pending recording — use Cancelar/Enviar
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { showToast('Microfone não disponível', 'error'); return; }
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
-      pvRecStream = stream;
-      pvRecording = true;
-      pvRecChunks = [];
-      pvRecSeconds = 0;
-      pvRecMime = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
-      pvMediaRec = new MediaRecorder(stream, { mimeType: pvRecMime });
-      pvMediaRec._discard = false;
-      pvMediaRec.ondataavailable = function(e) { if (e.data && e.data.size > 0) pvRecChunks.push(e.data); };
-      pvMediaRec.onstop = function() {
-        if (pvRecStream) { pvRecStream.getTracks().forEach(function(t) { t.stop(); }); pvRecStream = null; }
-        clearInterval(pvRecTimerInterval);
-        var discard = pvMediaRec && pvMediaRec._discard;
-        if (!pvRecChunks.length || discard) { pvResetRecState(); return; }
-        pvPreviewBlob = new Blob(pvRecChunks, { type: pvRecMime });
-        pvPreviewUrl = URL.createObjectURL(pvPreviewBlob);
-        pvRecording = false;
-        recBtn.style.background = '#f4f0ff';
-        recBtn.querySelector('span').textContent = '🎙️';
-        pvSetRecBarPreview();
-      };
-      pvMediaRec.start(100);
-      recBtn.style.background = '#fee2e2';
-      recBtn.querySelector('span').textContent = '⏹️';
-      plusMenu.style.display = 'none';
-      pvSetRecBarRecording();
-      pvRecTimerInterval = setInterval(function() {
-        pvRecSeconds++;
-        var timerEl = document.getElementById('pvrectimer_' + nick);
-        if (timerEl) { var m = Math.floor(pvRecSeconds / 60), s = String(pvRecSeconds % 60).padStart(2, '0'); timerEl.textContent = m + ':' + s; }
-        if (pvRecSeconds >= 300) { if (pvMediaRec && pvMediaRec.state === 'recording') pvMediaRec.stop(); }
-      }, 1000);
-    }).catch(function(err) { console.warn('Mic error:', err); showToast('Permissão de microfone negada', 'error'); });
   });
   plusMenu.appendChild(recBtn);
 
@@ -7146,7 +6979,6 @@ function openPrivateWindow(nick) {
   win.appendChild(msgs);
   win.appendChild(emojiPicker);
   win.appendChild(plusMenu);
-  win.appendChild(recBar);
   win.appendChild(inputRow);
   document.body.appendChild(win);
   makePvWindowDraggable(win);
@@ -8560,7 +8392,7 @@ function processSmileKeywords(text){
     var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1';
     var mediaBlock;
     if(type==='image'||type==='gif'||type==='draw'||type==='desenho'||type==='drawing'){
-      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:100px;max-height:100px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
+      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:240px;max-height:260px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
     } else if(type==='video'){
       mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
     } else if(type==='audio'){
