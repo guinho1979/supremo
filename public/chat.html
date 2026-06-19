@@ -1792,7 +1792,7 @@ window._spyMsgHtml=function(m, canDel){
   var body;
   if(m.msg_type&&String(m.msg_type).indexOf('media:')===0){
     var _mt=String(m.msg_type).slice(6), _mu=m.media_url||'';
-    if(_mt==='image'||_mt==='gif'||_mt==='draw'||_mt==='desenho') body='<img src="'+_mu+'" style="max-width:180px;max-height:180px;border-radius:8px;display:block;cursor:pointer" onclick="window.open(\''+_mu+'\',\'_blank\')">';
+    if(_mt==='image'||_mt==='gif'||_mt==='draw'||_mt==='desenho') body='<img src="'+_mu+'" style="max-width:200px;max-height:200px;border-radius:8px;display:block;cursor:pointer" onclick="window.open(\''+_mu+'\',\'_blank\')">';
     else if(_mt==='video') body='<video src="'+_mu+'" controls style="max-width:200px;border-radius:8px;display:block"></video>';
     else if(_mt==='audio') body='<audio src="'+_mu+'" controls style="max-width:200px;display:block"></audio>';
     else body='📎 ['+_mt+']';
@@ -8560,7 +8560,7 @@ function processSmileKeywords(text){
     var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1';
     var mediaBlock;
     if(type==='image'||type==='gif'||type==='draw'||type==='desenho'||type==='drawing'){
-      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:240px;max-height:260px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
+      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:200px;max-height:200px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
     } else if(type==='video'){
       mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
     } else if(type==='audio'){
