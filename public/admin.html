@@ -927,6 +927,11 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
         </div>
         <div id="enqStatus" style="margin-top:12px;padding:10px;border-radius:8px;font-size:12px;display:none"></div>
       </div>
+      <div class="section" style="margin-top:14px">
+        <div class="section-title">📈 Resultados da enquete</div>
+        <button class="btn-secondary" onclick="carregarResultadosEnquete()" style="font-size:12px;padding:7px 14px">🔄 Ver resultados</button>
+        <div id="enqResultados" style="margin-top:12px"></div>
+      </div>
     </div>
 
     <!-- ══ QUIZ ══ -->
@@ -2550,6 +2555,33 @@ function excluirMensagensSala(){
 function excluirTodasSalasPrivadas(){if(!confirm('Excluir TODAS as salas privadas?'))return;localStorage.removeItem('tc_private_rooms');const msg=document.getElementById('privMsg');if(msg){msg.style.display='block';msg.textContent='✅ Todas as salas privadas excluídas!';msg.style.color='#10b981';setTimeout(()=>msg.style.display='none',4000);}toast('Salas privadas excluídas');}
 
 // ── ENQUETE ───────────────────────────────────────────────────
+function carregarResultadosEnquete(){
+  var box=document.getElementById('enqResultados'); if(!box) return;
+  box.innerHTML='<div style="opacity:.6;font-size:12px">Carregando…</div>';
+  API.get('/polls/active').then(function(d){
+    if(!d || !d.poll){ box.innerHTML='<div style="opacity:.6;font-size:12px">Nenhuma enquete ativa.</div>'; return; }
+    var p=d.poll, counts=d.counts||[], total=counts.reduce(function(a,b){return a+(b||0);},0);
+    var html='<div style="font-weight:800;font-size:14px;margin-bottom:10px">'+esc(p.question)+'</div>';
+    (p.options||[]).forEach(function(opt,i){
+      var c=counts[i]||0, pct=total?Math.round(c*100/total):0;
+      html+='<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:3px"><span>'+esc(opt)+'</span><span>'+c+' ('+pct+'%)</span></div><div style="height:8px;background:var(--surface3);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7c3aed,#2563eb)"></div></div></div>';
+    });
+    html+='<div style="font-size:11px;color:var(--text3);margin:6px 0 10px">Total de votos: '+total+'</div>';
+    html+='<button class="btn-secondary" style="font-size:12px;padding:6px 12px" onclick="mostrarVotantes('+p.id+')">👥 Mostrar quem votou</button><div id="enqVotantes" style="margin-top:10px"></div>';
+    box.innerHTML=html;
+  }).catch(function(){ box.innerHTML='<div style="color:#ef4444;font-size:12px">Erro ao carregar.</div>'; });
+}
+function mostrarVotantes(id){
+  var v=document.getElementById('enqVotantes'); if(!v) return;
+  v.innerHTML='<div style="opacity:.6;font-size:12px">Carregando…</div>';
+  API.get('/polls/'+id+'/voters').then(function(d){
+    var list=(d&&d.voters)||[];
+    if(!list.length){ v.innerHTML='<div style="opacity:.6;font-size:12px">Ninguém votou ainda.</div>'; return; }
+    v.innerHTML='<div style="display:flex;flex-direction:column;gap:4px">'+list.map(function(x){
+      return '<div style="display:flex;justify-content:space-between;gap:8px;font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 8px"><span style="font-weight:700">'+esc(x.nick)+'</span><span style="color:var(--text3)">'+esc(x.option)+'</span></div>';
+    }).join('')+'</div>';
+  }).catch(function(){ v.innerHTML='<div style="color:#ef4444;font-size:12px">Erro ao carregar votantes.</div>'; });
+}
 function ativarEnquete(){
   var p=document.getElementById('enqPergunta').value.trim();
   var opts=[].slice.call(document.querySelectorAll('.enq-opt')).map(function(i){return i.value.trim();}).filter(Boolean);

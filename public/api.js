@@ -212,7 +212,9 @@ TCSocket.prototype.connect = function () {
   var self = this, token = API.token();
   if (!token) return;
   this.intentional = false;
-  this.ws = new WebSocket(window.TC_WS_URL + '?token=' + encodeURIComponent(token));
+  var tab = '';
+  try { tab = sessionStorage.getItem('tc_tab') || ''; if(!tab){ tab = Math.random().toString(36).slice(2) + Date.now(); sessionStorage.setItem('tc_tab', tab); } } catch (e) {}
+  this.ws = new WebSocket(window.TC_WS_URL + '?token=' + encodeURIComponent(token) + (tab ? ('&tab=' + encodeURIComponent(tab)) : ''));
   this.ws.onopen = function () {
     self.connected = true; self.delay = 2000;
     self.ping = setInterval(function () { self.send('ping'); }, 30000);
@@ -223,7 +225,7 @@ TCSocket.prototype.connect = function () {
     self.connected = false; clearInterval(self.ping);
     self._emit('disconnected', { code: e.code });
     if (e.code === 4005) self._emit('session_replaced', {});
-    if (!self.intentional && e.code !== 4001 && e.code !== 4002 && e.code !== 4005) {
+    if (!self.intentional && e.code !== 4001 && e.code !== 4002 && e.code !== 4005 && e.code !== 4006) {
       setTimeout(function () { self.connect(); }, self.delay);
       self.delay = Math.min(self.delay * 1.5, 30000);
     }
