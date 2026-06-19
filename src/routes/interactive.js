@@ -53,20 +53,38 @@ router.get('/polls/active', async (req, res) => {
 
 // POST /api/polls/:id/vote  { option_index }
 router.post('/polls/:id/vote', async (req, res) => {
-  if (!req.user.user_id) return res.status(403).json({ error: 'Visitantes não podem votar.' });
   try {
     const { rows: [p] } = await db.query("SELECT * FROM polls WHERE id=$1 AND is_active=TRUE", [req.params.id]);
     if (!p) return res.status(404).json({ error: 'Enquete encerrada ou inexistente.' });
     const idx = parseInt(req.body.option_index);
     if (isNaN(idx) || idx < 0 || idx >= p.options.length) return res.status(400).json({ error: 'Opção inválida.' });
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
+    const isGuest = !req.user.user_id;
+    const voterKey = isGuest ? ('ip:' + (ip || req.user.nick || Math.random())) : ('u:' + req.user.user_id);
+    const nick = req.user.nick || 'Visitante';
     await db.query(
-      "INSERT INTO poll_votes (poll_id, user_id, option_index) VALUES ($1,$2,$3) ON CONFLICT (poll_id, user_id) DO UPDATE SET option_index = EXCLUDED.option_index",
-      [p.id, req.user.user_id, idx]
+      `INSERT INTO poll_votes (poll_id, user_id, option_index, nick, voter_ip, voter_key)
+       VALUES ($1,$2,$3,$4,$5,$6)
+       ON CONFLICT (poll_id, voter_key) DO UPDATE SET option_index = EXCLUDED.option_index, nick = EXCLUDED.nick`,
+      [p.id, req.user.user_id || null, idx, nick, ip, voterKey]
     );
     const counts = await pollCounts(p.id, p.options.length);
     bcast(p.room_slug, 'poll_update', { id: p.id, counts });
     res.json({ counts, my_vote: idx });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao votar.' }); }
+});
+
+// GET /api/polls/:id/voters — lista quem votou e em qual opção (staff)
+router.get('/polls/:id/voters', async (req, res) => {
+  if (!isStaff(req.user.role)) return res.status(403).json({ error: 'Sem permissão.' });
+  try {
+    const { rows: [p] } = await db.query("SELECT options FROM polls WHERE id=$1", [req.params.id]);
+    const { rows } = await db.query(
+      "SELECT nick, option_index FROM poll_votes WHERE poll_id=$1 ORDER BY created_at ASC", [req.params.id]
+    );
+    const opts = (p && p.options) || [];
+    res.json({ voters: rows.map(v => ({ nick: v.nick || '?', option_index: v.option_index, option: opts[v.option_index] || ('#' + v.option_index) })) });
+  } catch (err) { res.json({ voters: [] }); }
 });
 
 // POST /api/polls/:id/close
