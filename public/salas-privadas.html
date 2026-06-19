@@ -269,7 +269,10 @@ const CAN_PREM = ['admin','supervisor','mod','premium','dj'].includes(ME.role);
 const IS_ADMIN_SUP = ['admin','supervisor'].includes(ME.role);
 
 // Header
-document.getElementById('headerAv').textContent = ME.av||'😊';
+(function(){ var _hav=document.getElementById('headerAv'); var _ph=LS.get('tc_photo','');
+  if(_hav){ if(_ph){ _hav.innerHTML='<img src="'+_ph+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:block">'; } else { _hav.textContent = ME.av||'😊'; } }
+  if(IS_LOGGED && window.API && API.get){ try{ API.get('/auth/me').then(function(d){ var u=(d&&d.user)?d.user:d; if(u&&_hav){ if(u.photo_url){LS.set('tc_photo',u.photo_url); _hav.innerHTML='<img src="'+u.photo_url+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;display:block">';} } }).catch(function(){}); }catch(e){} }
+})();
 document.getElementById('headerNick').textContent = IS_LOGGED ? (ME.nick||'Usuário') : 'Visitante';
 const hb = document.getElementById('headerBadge');
 hb.className='badge-chip '+(BADGE_MAP[ME.role]||'b-guest');

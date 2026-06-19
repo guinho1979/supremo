@@ -5785,7 +5785,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
         var dot='<span style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
         var col=info.color||'';
-        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px;cursor:pointer" onclick="if(typeof openProfile===\'function\')openProfile(\''+n.replace(/'/g,"\\'")+'\')">'+av+emo+'<span class="ou-nick" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+(col?'color:'+col:'')+'">'+n+'</span>'+dot+badge+'</div>';
+        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px;cursor:pointer" onclick="if(typeof openProfile===\'function\')openProfile(\''+n.replace(/'/g,"\\'")+'\')">'+av+emo+'<span class="ou-nick" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+(col?'color:'+col:'')+'">'+n+'</span>'+badge+dot+'</div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
   }

@@ -840,13 +840,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   <div class="ctx-item" onclick="ctxReply()">↩ Responder (mensagem aberta)</div>
   <div class="ctx-item" onclick="ctxPrivate()">🔒 Mensagem privada</div>
   <hr class="ctx-sep"/>
+  <div class="ctx-item" onclick="ctxReportar()" style="color:#f59e0b">🚩 Reportar mensagem</div>
+  <div class="ctx-item danger" onclick="ctxBlock()">🚫 Bloquear</div>
+  <hr class="ctx-sep admin-only"/>
   <div class="ctx-item admin-only" onclick="ctxBan()">🔨 Banir</div>
   <div class="ctx-item admin-only" onclick="ctxKick()">👢 Kickar</div>
   <div class="ctx-item admin-only" onclick="ctxMute()">🔇 Mutar</div>
   <div class="ctx-item admin-only" onclick="ctxShadow()">👻 Shadowban</div>
-  <hr class="ctx-sep admin-only"/>
-  <div class="ctx-item" onclick="ctxReportar()" style="color:#f59e0b">🚩 Reportar mensagem</div>
-  <div class="ctx-item danger" onclick="ctxBlock()">🚫 Bloquear</div>
 </div>
 
 <!-- EMOJI ANIMADO PICKER -->
@@ -1738,6 +1738,7 @@ function savePVSettings(){
 }
 
 function fecharEspiar(){
+  try{ window._spyRoom=''; if(window.tcSocket) tcSocket.send('spy_join',{room:''}); }catch(e){}
   LS.set('tc_spy_mode','0');
   LS.set('tc_spy_room','');
   LS.set('tc_spy_room_name','');
@@ -1786,6 +1787,24 @@ const DEMO_ONLINE_SPY = [
 ];
 const SPY_BADGE_COLORS = {admin:'#10b981',supervisor:'#ef4444',mod:'#6b7280',vip:'#3b82f6',premium:'#f59e0b',dj:'#a855f7',user:''};
 
+window._spyMsgHtml=function(m, canDel){
+  var SPYBC={admin:'#34d399',supervisor:'#f59e0b',mod:'#3b82f6',dj:'#c084fc',premium:'#fbbf24',vip:'#60a5fa'};
+  var mrole=m.role||'user';
+  var bc=SPYBC[mrole];
+  var badge=bc?'<span style="font-size:8px;padding:2px 5px;border-radius:20px;background:'+bc+'22;color:'+bc+';font-weight:700;margin-left:4px">'+mrole.toUpperCase()+'</span>':'';
+  var ci=(window._nickColors&&window._nickColors[m.nick])||{};
+  var av=ci.photo?'<img src="'+ci.photo+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">':'<div style="width:32px;height:32px;border-radius:50%;background:#1a1735;border:2px solid '+(ci.color||'#3a6fa8')+';display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(ci.avatar||'😊')+'</div>';
+  var when=m.created_at?new Date(m.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  var body;
+  if(m.msg_type&&String(m.msg_type).indexOf('media:')===0){
+    var _mt=String(m.msg_type).slice(6), _mu=m.media_url||'';
+    if(_mt==='image'||_mt==='gif'||_mt==='draw'||_mt==='desenho') body='<img src="'+_mu+'" style="max-width:180px;max-height:180px;border-radius:8px;display:block;cursor:pointer" onclick="window.open(\''+_mu+'\',\'_blank\')">';
+    else if(_mt==='video') body='<video src="'+_mu+'" controls style="max-width:200px;border-radius:8px;display:block"></video>';
+    else if(_mt==='audio') body='<audio src="'+_mu+'" controls style="max-width:200px;display:block"></audio>';
+    else body='📎 ['+_mt+']';
+  } else { body=String(m.content||'').replace(/</g,'&lt;'); }
+  return '<div style="display:flex;gap:8px;align-items:flex-start">'+av+'<div style="flex:1;min-width:0"><div style="background:#ffffff;border:0.5px solid #b8d0e8;border-radius:0 12px 12px 12px;padding:8px 12px;width:100%"><div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="font-size:12px;font-weight:800;color:'+(ci.color||'#1a1735')+';font-family:Syne,sans-serif;cursor:pointer" onclick="insertNick(\''+m.nick+'\')" title="Inserir nick">'+m.nick+'</span>'+badge+'</div><div style="font-size:14px;font-weight:700;color:#1a1735;word-break:break-word">'+body+'</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><span style="font-size:10px;color:#8aafd4">'+when+'</span><div style="display:flex;gap:3px;flex-wrap:wrap">'+(canDel?'<button onclick="spyAction(\'ban\',\''+m.nick+'\')" style="background:#7f1d1d;border:none;color:#fca5a5;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔨 Banir</button><button onclick="spyAction(\'kick\',\''+m.nick+'\')" style="background:#1e3a5f;border:none;color:#93c5fd;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">👢 Kick</button><button onclick="spyAction(\'mute\',\''+m.nick+'\')" style="background:#1c1c2e;border:none;color:#d1d5db;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔇 Mutar</button>':'')+'</div></div></div></div></div>';
+};
 function espiarSala(roomId, roomName){
   const role = ME.role;
   const allowed = ['admin','supervisor','mod','premium'];
@@ -1812,24 +1831,10 @@ function espiarSala(roomId, roomName){
     if(!Array.isArray(msgs)) msgs=[];
     var lo=document.getElementById('spyLoading'); if(lo) lo.remove();
     if(!msgs.length){ area.innerHTML += '<div style="text-align:center;color:#8aafd4;font-size:12px;padding:20px">Nenhuma mensagem recente nesta sala.</div>'; return; }
-    msgs.forEach(function(m){
-      var mrole=m.role||'user';
-      var bc=SPY_BADGE_COLORS[mrole];
-      var badge=bc?'<span style="font-size:8px;padding:2px 5px;border-radius:20px;background:'+bc+'22;color:'+bc+';font-weight:700;margin-left:4px">'+mrole.toUpperCase()+'</span>':'';
-      var ci=(window._nickColors&&window._nickColors[m.nick])||{};
-      var av=ci.photo?'<img src="'+ci.photo+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">':'<div style="width:32px;height:32px;border-radius:50%;background:#1a1735;border:2px solid '+(ci.color||'#3a6fa8')+';display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(ci.avatar||'😊')+'</div>';
-      var when=m.created_at?new Date(m.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
-      var body;
-      if(m.msg_type&&String(m.msg_type).indexOf('media:')===0){
-        var _mt=String(m.msg_type).slice(6), _mu=m.media_url||'';
-        if(_mt==='image'||_mt==='gif') body='<img src="'+_mu+'" style="max-width:180px;max-height:180px;border-radius:8px;display:block;cursor:pointer" onclick="window.open(\''+_mu+'\',\'_blank\')">';
-        else if(_mt==='video') body='<video src="'+_mu+'" controls style="max-width:200px;border-radius:8px;display:block"></video>';
-        else if(_mt==='audio') body='<audio src="'+_mu+'" controls style="max-width:200px;display:block"></audio>';
-        else body='📎 ['+_mt+']';
-      } else { body=String(m.content||'').replace(/</g,'&lt;'); }
-      area.innerHTML += '<div style="display:flex;gap:8px;align-items:flex-start">'+av+'<div style="flex:1;min-width:0"><div style="background:#ffffff;border:0.5px solid #b8d0e8;border-radius:0 12px 12px 12px;padding:8px 12px;width:100%"><div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><span style="font-size:12px;font-weight:800;color:'+(ci.color||'#1a1735')+';font-family:Syne,sans-serif;cursor:pointer" onclick="insertNick(\''+m.nick+'\')" title="Inserir nick">'+m.nick+'</span>'+badge+'</div><div style="font-size:14px;font-weight:700;color:#1a1735;word-break:break-word">'+body+'</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><span style="font-size:10px;color:#8aafd4">'+when+'</span><div style="display:flex;gap:3px;flex-wrap:wrap">'+(canDel?'<button onclick="spyAction(\'ban\',\''+m.nick+'\')" style="background:#7f1d1d;border:none;color:#fca5a5;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔨 Banir</button><button onclick="spyAction(\'kick\',\''+m.nick+'\')" style="background:#1e3a5f;border:none;color:#93c5fd;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">👢 Kick</button><button onclick="spyAction(\'mute\',\''+m.nick+'\')" style="background:#1c1c2e;border:none;color:#d1d5db;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔇 Mutar</button>':'')+'</div></div></div></div></div>';
-    });
+    msgs.forEach(function(m){ area.insertAdjacentHTML('beforeend', window._spyMsgHtml(m, canDel)); });
     setTimeout(function(){ area.scrollTop=area.scrollHeight; }, 50);
+    // Tempo real: assina o feed da sala (staff fica invisível)
+    try{ window._spyRoom = roomId; tcSocket.send('spy_join', { room: roomId }); }catch(e){}
   }).catch(function(){ var lo=document.getElementById('spyLoading'); if(lo) lo.textContent='Erro ao carregar mensagens.'; });
 
   // Usuários online reais
@@ -3595,7 +3600,7 @@ function initHistoryButton(){
 
 const STATUS_DOT_CLASS={online:'s-online',away:'s-away',busy:'s-busy',offline:'s-offline'};
 function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';}
-function renderAv(av){return av&&av.startsWith('http')?`<img src="${av}" alt="av"/>`:av||'😊';}
+function renderAv(av){return av&&(av.indexOf('http')===0||av.indexOf('data:')===0)?`<img src="${av}" alt="av"/>`:av||'😊';}
 
 // ─── MEDIA UPLOAD / MESSAGES ─────────────────────────────────────────────────
 let mediaAccept={image:'image/*',audio:'audio/*',video:'video/*',gif:'image/gif'};
@@ -4288,7 +4293,15 @@ function toggleFan(nick){
 }
 
 function openProfile(nick){
-  const u=USERS[nick]||{color:'#4a4070',av:'😊',avBg:'#edf2ff',avColor:'#2563eb',bio:'',role:'user'};
+  const ci=(window._nickColors&&window._nickColors[nick])||{};
+  const isOwn=(nick===ME.nick);
+  const u=Object.assign({color:'#4a4070',av:'😊',avBg:'#edf2ff',avColor:'#2563eb',bio:'',role:'user'}, USERS[nick]||{}, {
+    photo: isOwn ? (ME.photo||ci.photo||'') : (ci.photo||''),
+    av:    isOwn ? (ME.av||ci.avatar||'😊') : (ci.avatar||(USERS[nick]&&USERS[nick].av)||'😊'),
+    color: ci.color || (USERS[nick]&&USERS[nick].color) || '#4a4070',
+    role:  (typeof roomRoles!=='undefined'&&roomRoles[nick]) || (USERS[nick]&&USERS[nick].role) || (isOwn?ME.role:'user'),
+    bio:   isOwn ? (LS.get('tc_bio','')||((USERS[nick]||{}).bio)||'') : ((USERS[nick]||{}).bio||'')
+  });
   state.currentUser=nick;
   document.getElementById('profTitle').innerHTML=`👤 Perfil ${getBadgeHtml(u.role)}`;
   const avHtml=renderAv(u.photo||u.av);
@@ -6014,7 +6027,7 @@ async function processarComandoQuiz(texto){
 
 // Renderizar card de quiz
 function renderQuizNoChat(pergObj, categoria){
-  const feed = document.getElementById('feed');
+  const feed = document.getElementById('msgArea') || document.getElementById('feed');
   if(!feed) return;
   const quizId = pergObj.id;
   quizRespondeu = false;
@@ -8372,7 +8385,7 @@ function processSmileKeywords(text){
         var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '';
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
         var dot='<span title="'+(info.status||'online')+'" style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
-        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span>'+dot+badge+'</div>';
+        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span>'+badge+dot+'</div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
     if(typeof updateDJOnlineName==='function'){ try{ updateDJOnlineName(); }catch(e){} }
@@ -8405,6 +8418,16 @@ function processSmileKeywords(text){
     var bar=bubble.querySelector('.tc-react-sum');
     if(!bar){ bar=document.createElement('div'); bar.className='tc-react-sum'; bar.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-top:4px'; bubble.appendChild(bar); }
     bar.innerHTML=(d.summary||[]).map(function(r){ return '<span style="background:#e7f0fd;border:1px solid #c0d8f8;border-radius:10px;padding:1px 7px;font-size:11px;color:#1877f2;font-weight:700">'+r.emoji+' '+r.count+'</span>'; }).join('');
+  });
+  tcSocket.on('spy_message', function(d){
+    try{
+      if(!d || !window._spyRoom || d.room_slug!==window._spyRoom) return;
+      var ov=document.getElementById('spyOverlay'); if(!ov || ov.style.display==='none') return;
+      var area=document.getElementById('spyMsgArea'); if(!area) return;
+      var canDel=['admin','supervisor','mod'].includes(ME.role);
+      area.insertAdjacentHTML('beforeend', window._spyMsgHtml(d, canDel));
+      area.scrollTop=area.scrollHeight;
+    }catch(e){}
   });
   tcSocket.on('message_deleted', function(d){
     try{
