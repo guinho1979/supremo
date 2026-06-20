@@ -5833,8 +5833,9 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
     var badge=(typeof getBadgeHtml==='function')?getBadgeHtml(d.role||'user'):'';
     var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1'; if(d.id) div.dataset.msgId=d.id;
     var mediaBlock;
-    if(type==='image'||type==='gif'){
-      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:100px;max-height:100px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
+    var _imgName=name||(type==='gif'?'GIF':'Imagem');
+    if(type==='image'||type==='gif'||type==='draw'||type==='desenho'||type==='drawing'){
+      mediaBlock='<div class="media-msg" data-img-chip="1" style="cursor:pointer"><span class="media-icon">'+(cfg&&cfg.icon||'🖼️')+'</span><div class="media-info"><div class="media-name">'+_imgName+'</div><div class="media-meta">Toque para ver a imagem</div></div></div>';
     } else if(type==='video'){
       mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
     } else if(type==='audio'){
@@ -5859,6 +5860,9 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
       +(canDel?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'')
       +'</div></div>';
     area.appendChild(div); area.scrollTop=area.scrollHeight;
+    if(type==='image'||type==='gif'||type==='draw'||type==='desenho'||type==='drawing'){
+      try{ var _chip=div.querySelector('[data-img-chip]'); if(_chip){ _chip.addEventListener('click', function(){ if(typeof openImageModal==='function') openImageModal(src, _imgName); }); } }catch(e){}
+    }
   }
   window.tcMediaFull=function(imgEl){
     var ov=document.createElement('div');

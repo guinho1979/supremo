@@ -4292,7 +4292,8 @@ function openProfile(nick){
   });
   state.currentUser=nick;
   document.getElementById('profTitle').innerHTML=`👤 Perfil ${getBadgeHtml(u.role)}`;
-  const avHtml=renderAv(u.photo||u.av);
+  const _photoUrl = u.photo || ((u.av && (u.av.indexOf('http')===0||u.av.indexOf('data:')===0)) ? u.av : '');
+  const avHtml = _photoUrl ? `<img src="${_photoUrl}" alt="foto" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>` : (u.av||'😊');
   const fieldMap=[
     {type:'age',label:'Idade',value:u.age?u.age+' anos':null},
     {type:'city',label:'Cidade',value:u.city||null},
@@ -6074,127 +6075,133 @@ async function processarComandoQuiz(texto){
 
   // Marcar como rodando
   quiz.rodando = true;
-  quiz.perguntaAtual = {...pergunta, id: Date.now()};
+  var qid = Date.now();
+  quiz.perguntaAtual = {...pergunta, id: qid};
   saveQuiz(quiz);
 
-  // Mostrar no chat
-  renderQuizNoChat(quiz.perguntaAtual, quiz.categoria);
+  // Transmitir para a sala via WebSocket (todos veem a mesma pergunta)
+  var _payload={ id:qid, pergunta:pergunta.pergunta, opcoes:pergunta.opcoes, correta:pergunta.correta, categoria:quiz.categoria, dur:15 };
+  if(window.tcSocket && tcSocket.connected){ try{ tcSocket.send('quiz_start', _payload); }catch(e){ renderQuizFromData(_payload); } }
+  else { renderQuizFromData(_payload); }
   return true;
 }
 
-// Renderizar card de quiz
+// Renderizar card de quiz (compat) — agora usa renderQuizFromData
 function renderQuizNoChat(pergObj, categoria){
-  const feed = document.getElementById('msgArea') || document.getElementById('feed');
-  if(!feed) return;
-  const quizId = pergObj.id;
-  quizRespondeu = false;
+  renderQuizFromData({ id: pergObj.id, pergunta: pergObj.pergunta, opcoes: pergObj.opcoes, correta: pergObj.correta, categoria: categoria, dur: 15 });
+}
 
+// Renderiza a partir dos dados transmitidos (WS) — a resposta certa NÃO é exibida
+function renderQuizFromData(d){
+  const feed = document.getElementById('msgArea') || document.getElementById('feed');
+  if(!feed || !d || d.id==null) return;
+  const quizId = d.id;
+  if(feed.querySelector('.quiz-msg[data-quiz-id="'+quizId+'"]')) return; // evita duplicar
+  window._quizCorrectIdx = window._quizCorrectIdx || {};
+  window._quizCorrectIdx[quizId] = d.correta;
+  window._quizCorrect = window._quizCorrect || {};
+  window._quizCorrect[quizId] = [];
+  window._quizAnswered = window._quizAnswered || {};
+  window._quizAnswered[quizId] = false;
+
+  const dur = d.dur || 15;
   const div = document.createElement('div');
   div.className='msg-group quiz-msg';
   div.dataset.quizId = quizId;
   div.innerHTML = `
     <div class="quiz-card">
       <div class="quiz-title">🧠 QUIZ</div>
-      <div class="quiz-categoria">${categoria||'Geral'}</div>
-      <div class="quiz-q">${pergObj.pergunta}</div>
+      <div class="quiz-categoria">${d.categoria||'Geral'}</div>
+      <div class="quiz-q">${d.pergunta}</div>
       <div class="quiz-opts">
-        ${pergObj.opcoes.map((op,i)=>`
+        ${(d.opcoes||[]).map((op,i)=>`
           <div class="quiz-opt" onclick="responderQuiz(${quizId},${i})" data-idx="${i}">
             <div class="quiz-opt-letter">${String.fromCharCode(65+i)}</div>
             <span class="quiz-opt-text">${op}</span>
           </div>
         `).join('')}
       </div>
-      <div class="quiz-timer" id="quiz-timer-${quizId}">⏱ 15</div>
+      <div class="quiz-timer" id="quiz-timer-${quizId}">⏱ ${dur}</div>
       <div class="quiz-result" id="quiz-result-${quizId}" style="display:none"></div>
     </div>
   `;
   feed.appendChild(div);
   feed.scrollTop = feed.scrollHeight;
 
-  // Timer regressivo 15s
-  let seg = 15;
+  let seg = dur;
   const timerEl = document.getElementById(`quiz-timer-${quizId}`);
-  quizTimer = setInterval(()=>{
+  window._quizTimers = window._quizTimers || {};
+  window._quizTimers[quizId] = setInterval(()=>{
     seg--;
     if(timerEl) timerEl.textContent = `⏱ ${seg}`;
-    if(seg <= 0){
-      clearInterval(quizTimer);
-      revelarRespostaQuiz(quizId, null, pergObj);
-    }
+    if(seg <= 0){ clearInterval(window._quizTimers[quizId]); finalizarQuiz(quizId); }
   }, 1000);
 }
 
+// Usuário responde — NÃO revela a opção certa, só marca a escolhida e envia
 function responderQuiz(quizId, opcaoIdx){
-  if(quizRespondeu){ showToast('Você já respondeu!','error'); return; }
-  clearInterval(quizTimer);
-  quizRespondeu = true;
+  if(window._quizAnswered && window._quizAnswered[quizId]){ showToast('Você já respondeu!','error'); return; }
+  window._quizAnswered = window._quizAnswered || {};
+  window._quizAnswered[quizId] = true;
 
-  const quiz = getQuiz();
-  if(!quiz || !quiz.perguntaAtual || quiz.perguntaAtual.id !== quizId) return;
+  const card = document.querySelector(`.quiz-msg[data-quiz-id="${quizId}"]`);
+  if(card){
+    card.querySelectorAll('.quiz-opt').forEach((opt,i)=>{
+      opt.classList.add('answered'); opt.style.cursor='default';
+      if(i===opcaoIdx){ opt.style.borderColor='#a78bfa'; opt.style.background='#7c3aed25'; }
+    });
+  }
+  const correctIdx = (window._quizCorrectIdx||{})[quizId];
+  const acertou = (opcaoIdx === correctIdx);
 
-  revelarRespostaQuiz(quizId, opcaoIdx, quiz.perguntaAtual);
+  // envia a resposta para a sala (apenas se acertou ou não — sem revelar a certa)
+  if(window.tcSocket && tcSocket.connected){ try{ tcSocket.send('quiz_answer', {id:quizId, correct:acertou}); }catch(e){} }
 
-  // Pontuar se acertou
-  if(opcaoIdx === quiz.perguntaAtual.correta){
+  if(acertou){
+    window._quizCorrect = window._quizCorrect || {};
+    window._quizCorrect[quizId] = window._quizCorrect[quizId] || [];
+    if(window._quizCorrect[quizId].indexOf(ME.nick)<0) window._quizCorrect[quizId].push(ME.nick);
     const scores = JSON.parse(localStorage.getItem(QUIZ_SCORE_KEY)||'{}');
     scores[ME.nick] = (scores[ME.nick]||0) + 1;
     localStorage.setItem(QUIZ_SCORE_KEY, JSON.stringify(scores));
-    showToast(`🎉 Correto! +1 ponto! Total: ${scores[ME.nick]}`, 'success');
-  } else {
-    showToast('❌ Errou! A resposta correta foi revelada abaixo.', 'error');
   }
+  showToast('✅ Resposta enviada! Aguarde o fim do tempo.', 'info');
 
-  // Marcar quiz como não rodando
-  quiz.rodando = false;
-  saveQuiz(quiz);
+  const quiz = getQuiz();
+  if(quiz){ quiz.rodando=false; saveQuiz(quiz); }
 }
 
-function revelarRespostaQuiz(quizId, respostaUsuario, pergObj){
+// Recebe respostas de outros usuários (WS)
+function registrarAcertoQuiz(d){
+  if(!d || d.id==null) return;
+  if(!d.correct) return;
+  window._quizCorrect = window._quizCorrect || {};
+  window._quizCorrect[d.id] = window._quizCorrect[d.id] || [];
+  if(window._quizCorrect[d.id].indexOf(d.nick)<0) window._quizCorrect[d.id].push(d.nick);
+}
+
+// Fim do tempo — mostra quem acertou, SEM revelar a resposta
+function finalizarQuiz(quizId){
   const card = document.querySelector(`.quiz-msg[data-quiz-id="${quizId}"]`);
   if(!card) return;
-
   const timer = document.getElementById(`quiz-timer-${quizId}`);
   if(timer) timer.style.display='none';
+  card.querySelectorAll('.quiz-opt').forEach((opt)=>{ opt.classList.add('answered'); opt.style.cursor='default'; opt.setAttribute('onclick',''); });
 
-  // Colorir opções
-  card.querySelectorAll('.quiz-opt').forEach((opt,i)=>{
-    opt.classList.add('answered');
-    if(i === pergObj.correta){
-      opt.classList.add('correct');
-    } else if(respostaUsuario !== null && i === respostaUsuario){
-      opt.classList.add('wrong');
-    }
-    opt.style.cursor='default';
-  });
-
-  // Mostrar resultado
   const resultEl = document.getElementById(`quiz-result-${quizId}`);
   if(resultEl){
     resultEl.style.display='block';
-    if(respostaUsuario === null){
-      resultEl.innerHTML = `⏰ Tempo esgotado! Resposta: <strong style="color:#10b981">${String.fromCharCode(65+pergObj.correta)}) ${pergObj.opcoes[pergObj.correta]}</strong>`;
-    } else if(respostaUsuario === pergObj.correta){
-      resultEl.innerHTML = `✅ <span style="color:#10b981">Correto!</span> ${pergObj.explicacao||''}`;
+    const acertaram = (window._quizCorrect||{})[quizId] || [];
+    if(acertaram.length){
+      resultEl.innerHTML = `🏆 <span style="color:#10b981">Acertaram (+1 ponto cada):</span><br><span style="font-size:12px;color:#e2e0f0">${acertaram.map(n=>'✅ '+n).join('  ·  ')}</span>`;
     } else {
-      resultEl.innerHTML = `❌ Incorreto! Certo: <strong style="color:#10b981">${String.fromCharCode(65+pergObj.correta)}) ${pergObj.opcoes[pergObj.correta]}</strong><br><span style="font-size:11px;color:#93b4d8">${pergObj.explicacao||''}</span>`;
-    }
-
-    // Mostrar ranking
-    const scores = JSON.parse(localStorage.getItem(QUIZ_SCORE_KEY)||'{}');
-    const top = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    if(top.length){
-      const rankDiv = document.createElement('div');
-      rankDiv.className='quiz-score';
-      rankDiv.innerHTML = `🏆 Ranking: ${top.map(([n,p],i)=>`${i+1}º ${n} (${p}pts)`).join(' · ')}`;
-      resultEl.parentElement.appendChild(rankDiv);
+      resultEl.innerHTML = `<span style="color:#f59e0b">⏰ Tempo esgotado! Ninguém acertou.</span>`;
     }
   }
-
-  // Marcar quiz como não rodando
   const quiz = getQuiz();
-  if(quiz){ quiz.rodando = false; saveQuiz(quiz); }
+  if(quiz){ quiz.rodando=false; saveQuiz(quiz); }
 }
+
 
 // ─── Interceptar envio de mensagem ───────────────────────────────
 const _origSendMsg = window.sendMessage;
@@ -8599,8 +8606,9 @@ function processSmileKeywords(text){
     var badge=(typeof getBadgeHtml==='function')?getBadgeHtml(d.role||'user'):'';
     var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1';
     var mediaBlock;
+    var _imgName=name||(type==='gif'?'GIF':'Imagem');
     if(type==='image'||type==='gif'||type==='draw'||type==='desenho'||type==='drawing'){
-      mediaBlock='<img src="'+src+'" alt="'+(type==='gif'?'GIF':'imagem')+'" loading="lazy" style="max-width:100px;max-height:100px;width:auto;border-radius:12px;display:block;margin-top:4px;cursor:pointer" onclick="tcMediaFull(this)">';
+      mediaBlock='<div class="media-msg" data-img-chip="1" style="cursor:pointer"><span class="media-icon">'+(cfg&&cfg.icon||'🖼️')+'</span><div class="media-info"><div class="media-name">'+_imgName+'</div><div class="media-meta">Toque para ver a imagem</div></div></div>';
     } else if(type==='video'){
       mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
     } else if(type==='audio'){
@@ -8625,6 +8633,9 @@ function processSmileKeywords(text){
       +_footer+_delX
       +'</div></div>';
     area.appendChild(div); area.scrollTop=area.scrollHeight;
+    if(type==='image'||type==='gif'||type==='draw'||type==='desenho'||type==='drawing'){
+      try{ var _chip=div.querySelector('[data-img-chip]'); if(_chip){ _chip.addEventListener('click', function(){ if(typeof openImageModal==='function') openImageModal(src, _imgName); }); } }catch(e){}
+    }
   }
   window.tcMediaFull=function(imgEl){
     var ov=document.createElement('div');
@@ -8681,6 +8692,8 @@ function processSmileKeywords(text){
     }catch(e){}
   });
   tcSocket.on('message', incoming);
+  tcSocket.on('quiz_start', function(d){ try{ if(typeof renderQuizFromData==='function') renderQuizFromData(d); }catch(e){} });
+  tcSocket.on('quiz_answer', function(d){ try{ if(typeof registrarAcertoQuiz==='function') registrarAcertoQuiz(d); }catch(e){} });
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
   tcSocket.on('user_left', function(d){ delete roomRoles[d.nick]; renderOnline(); });

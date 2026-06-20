@@ -2604,9 +2604,12 @@ function carregarResultadosEnquete(){
   box.innerHTML='<div style="opacity:.6;font-size:12px">Carregando…</div>';
   API.get('/polls/active').then(function(d){
     if(!d || !d.poll){ box.innerHTML='<div style="opacity:.6;font-size:12px">Nenhuma enquete ativa.</div>'; return; }
-    var p=d.poll, counts=d.counts||[], total=counts.reduce(function(a,b){return a+(b||0);},0);
+    var p=d.poll, counts=d.counts||[];
+    var opts=p.options; if(typeof opts==='string'){ try{ opts=JSON.parse(opts); }catch(e){ opts=[]; } } if(!Array.isArray(opts)) opts=[];
+    if(typeof counts==='string'){ try{ counts=JSON.parse(counts); }catch(e){ counts=[]; } } if(!Array.isArray(counts)) counts=[];
+    var total=counts.reduce(function(a,b){return a+(b||0);},0);
     var html='<div style="font-weight:800;font-size:14px;margin-bottom:10px">'+esc(p.question)+'</div>';
-    (p.options||[]).forEach(function(opt,i){
+    opts.forEach(function(opt,i){
       var c=counts[i]||0, pct=total?Math.round(c*100/total):0;
       html+='<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:3px"><span>'+esc(opt)+'</span><span>'+c+' ('+pct+'%)</span></div><div style="height:8px;background:var(--surface3);border-radius:5px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#7c3aed,#2563eb)"></div></div></div>';
     });
