@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/"+(location.search||""));}catch(e){}</script>
+  <script>try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp)window.__SPY__=_sp;}catch(e){}try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/"+(location.search||""));}catch(e){}</script>
 <script>
 (function(){
   try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
@@ -1241,7 +1241,8 @@ function buildColorSwatches(){
   // Detect spy mode (via URL param ou localStorage)
   const urlParams=new URLSearchParams(window.location.search);
   // Novo modo espião = ?spy=<sala> (somente leitura, idêntico). Não dispara o overlay antigo.
-  const _newSpyMode = !!(urlParams.get('spy') && urlParams.get('spy')!=='1');
+  const _spyParam = window.__SPY__ || urlParams.get('spy') || '';
+  const _newSpyMode = !!(_spyParam && _spyParam!=='1');
   const isSpy=!_newSpyMode && ((urlParams.get('spy')==='1')||(LS.get('tc_spy_mode')==='1'));
   const spyRoom=urlParams.get('room')||LS.get('tc_spy_room')||'esportes';
   const spyRoomNameStored=LS.get('tc_spy_room_name',spyRoom);
@@ -1256,7 +1257,7 @@ function buildColorSwatches(){
   }
   // Set room — no novo modo espião usa a sala espiada (?spy=<sala>)
   const savedRoom = LS.get('tc_room','geral');
-  const roomId = _newSpyMode ? urlParams.get('spy') : (isSpy ? spyRoom : savedRoom);
+  const roomId = _newSpyMode ? _spyParam : (isSpy ? spyRoom : savedRoom);
   LS.set('tc_room', roomId);
   const rd = ROOM_DATA[roomId] || {name: LS.get('tc_room_name', roomId), icon: roomId.startsWith('priv_') ? '🔒' : '💬'};
   document.getElementById('roomIcon').textContent = rd.icon || '💬';
@@ -5911,7 +5912,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
       .then(function(d){ window._nickColors=(d&&d.colors)||{}; renderOnline(); }).catch(function(){});
   }catch(e){}
   tcSocket.offAll();
-  window._SPY_MODE = (function(){ try{ return new URLSearchParams(location.search).get('spy')||''; }catch(e){ return ''; } })();
+  window._SPY_MODE = (function(){ try{ return window.__SPY__ || new URLSearchParams(location.search).get('spy') || ''; }catch(e){ return window.__SPY__||''; } })();
   tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); if(window._SPY_MODE){ tcSocket.send('spy_join',{room:window._SPY_MODE}); } else { tcSocket.join(curRoom()); } try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
   tcSocket.on('spy_history', function(d){ if(!window._SPY_MODE) return; var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; try{ seen=new Set(); }catch(e){} (d&&d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){} });
     try{ if(API.roomUsers){ API.roomUsers(window._SPY_MODE).then(function(r){ var us=(r&&(r.users||r.online))||(Array.isArray(r)?r:[]); if(typeof roomRoles!=='undefined'){ try{ Object.keys(roomRoles).forEach(function(k){ delete roomRoles[k]; }); }catch(e){} us.forEach(function(u){ roomRoles[u.nick]=u.role||'user'; }); } if(typeof renderOnline==='function') renderOnline(); }).catch(function(){}); } }catch(e){}
