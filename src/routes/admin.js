@@ -32,6 +32,21 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// ─── GET /api/admin/private-rooms — todas as salas privadas (para espiar) ──
+router.get('/private-rooms', async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT id, slug, name, icon, color, owner_nick
+       FROM private_rooms
+       WHERE is_active = TRUE
+       ORDER BY created_at DESC`
+    );
+    res.json({ rooms: rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao listar salas privadas.' });
+  }
+});
+
 // ─── Estatísticas do Dashboard ───────────────────────────────
 router.get('/stats', requireRole('supervisor'), async (req, res) => {
   try {
