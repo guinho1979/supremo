@@ -10,7 +10,7 @@
 
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Chat Supremo — Últimos Online</title>
+<title>Últimos usuários online</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -132,7 +132,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <!-- HEADER -->
 <div class="page-header">
   <button class="back-btn" onclick="history.back()" title="Voltar">‹</button>
-  <span class="page-title">🕐 Últimos Online</span>
+  <span class="page-title">Últimos usuários online</span>
   <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:36px;object-fit:contain;flex-shrink:0"/>
 </div>
 
@@ -141,7 +141,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <!-- INFO -->
   <div class="info-banner">
     <span class="info-icon">ℹ️</span>
-    <span>Exibe os últimos <strong>30 usuários</strong> que fizeram login no chat, com o tempo decorrido desde o acesso.</span>
+    <span>Usuários que estiveram online na <strong>última hora</strong>.</span>
   </div>
 
   <!-- LISTA -->
@@ -320,7 +320,8 @@ function render(logins){
       var mins=u.last_seen?Math.max(0,Math.round((now-Date.parse(u.last_seen))/60000)):0;
       return { nick:u.nick, av:(u.nick_emoji||u.avatar||'😊'), photo:u.photo_url||'', role:u.role||'user', color:RC[u.role]||'#7a90b0', avBg:BG[u.role]||'#e8f2ff', tsAgo:mins };
     });
-    render(logins); // sobrescreve o conteúdo demo com dados reais
+    logins=logins.filter(function(x){ return x.tsAgo<=60; });
+    render(logins); // só última hora; sobrescreve demo
   }).catch(function(){});
 })();
 </script>

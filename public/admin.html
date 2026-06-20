@@ -58,7 +58,7 @@ tr:hover td{background:var(--surface2)}
 .badge{font-size:8px;padding:2px 6px;border-radius:10px;font-weight:700;font-family:'Syne',sans-serif}
 .b-admin{background:#064e3b;color:#6ee7b7;box-shadow:0 0 6px #10b98130}
 .b-sup{background:#7f1d1d;color:#fca5a5;box-shadow:0 0 6px #ef444430}
-.b-mod{background:#1c1c2e;color:#d1d5db}
+.b-mod{background:#2563eb;color:#ffffff}
 .b-vip{background:#1e3a5f;color:#93c5fd;box-shadow:0 0 6px #3b82f630}
 .b-prem{background:#451a03;color:#fde68a;box-shadow:0 0 6px #f59e0b30}
 .b-dj{background:#0d2a5e;color:#d8b4fe;box-shadow:0 0 6px #a855f730}
@@ -2116,13 +2116,13 @@ function escHtml(s) {
 
 // ── Cores por role ───────────────────────────────────────────────────────────
 var PV_ROLE_COLORS = {
-  admin:'#10b981', supervisor:'#ef4444', mod:'#9ca3af',
+  admin:'#10b981', supervisor:'#ef4444', mod:'#2563eb',
   vip:'#60a5fa', premium:'#fbbf24', dj:'#a855f7',
   user:'#4f6ef7', guest:'#6b7280'
 };
 // Nick color por role (igual ao chat real)
 var PV_NICK_COLORS = {
-  admin:'#10b981', supervisor:'#ef4444', mod:'#9ca3af',
+  admin:'#10b981', supervisor:'#ef4444', mod:'#2563eb',
   vip:'#3b82f6', premium:'#f59e0b', dj:'#a855f7',
   user:'#1a237e', guest:'#6b7280'
 };
@@ -2634,6 +2634,7 @@ function excluirTodasSalasPrivadas(){if(!confirm('Excluir TODAS as salas privada
 
 // ── ENQUETE ───────────────────────────────────────────────────
 function carregarResultadosEnquete(){
+  var esc=(typeof escHtml==='function')?escHtml:function(x){return String(x==null?'':x);};
   var box=document.getElementById('enqResultados'); if(!box) return;
   box.innerHTML='<div style="opacity:.6;font-size:12px">Carregando…</div>';
   API.get('/polls/active').then(function(d){
@@ -2653,6 +2654,7 @@ function carregarResultadosEnquete(){
   }).catch(function(){ box.innerHTML='<div style="color:#ef4444;font-size:12px">Erro ao carregar.</div>'; });
 }
 function mostrarVotantes(id){
+  var esc=(typeof escHtml==='function')?escHtml:function(x){return String(x==null?'':x);};
   var v=document.getElementById('enqVotantes'); if(!v) return;
   v.innerHTML='<div style="opacity:.6;font-size:12px">Carregando…</div>';
   API.get('/polls/'+id+'/voters').then(function(d){
