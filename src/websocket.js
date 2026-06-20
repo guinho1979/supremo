@@ -185,13 +185,13 @@ function setupWebSocket(server) {
         }
 
         // Config de mensagens (limite / expiração) definida no painel admin
-        let msgLimit = 50, msgTtl = 0;
+        let msgLimit = 30, msgTtl = 0;
         try {
           const { rows: mc } = await db.query(
             "SELECT key, value FROM system_config WHERE key IN ('msg_limit','msg_ttl')"
           );
           mc.forEach(r => {
-            if (r.key === 'msg_limit') msgLimit = Math.min(Math.max(parseInt(r.value) || 50, 10), 500);
+            if (r.key === 'msg_limit') msgLimit = Math.min(Math.max(parseInt(r.value) || 30, 10), 500);
             if (r.key === 'msg_ttl')   msgTtl   = Math.max(parseInt(r.value) || 0, 0);
           });
         } catch (e) {}
@@ -463,17 +463,28 @@ function setupWebSocket(server) {
     ws.on('close', async () => {
       const client = clients.get(socketId);
       if (client) {
-        if (client.roomSlug) {
-          broadcast(client.roomSlug, {
-            event: 'user_left',
-            data: { nick: client.nick, role: client.role }
-          }, socketId);
-        }
-        if (client.userId) {
-          await db.query('DELETE FROM online_presence WHERE user_id = $1', [client.userId]).catch(() => {});
-          await db.query('UPDATE users SET last_seen = NOW() WHERE id = $1', [client.userId]).catch(() => {});
-        }
         clients.delete(socketId);
+        // Se ainda existe OUTRA conexão aberta do mesmo usuário (ex.: refresh/reconexão
+        // da mesma aba), o usuário continua online: NÃO avisa saída nem apaga a presença.
+        let stillOnline = false;
+        if (!client.isSpyConn && client.nick) {
+          const n = String(client.nick).toLowerCase();
+          for (const c of clients.values()) {
+            if (c.nick && String(c.nick).toLowerCase() === n && c.ws && c.ws.readyState === WebSocket.OPEN) { stillOnline = true; break; }
+          }
+        }
+        if (!stillOnline) {
+          if (client.roomSlug) {
+            broadcast(client.roomSlug, {
+              event: 'user_left',
+              data: { nick: client.nick, role: client.role }
+            }, socketId);
+          }
+          if (client.userId) {
+            await db.query('DELETE FROM online_presence WHERE user_id = $1', [client.userId]).catch(() => {});
+            await db.query('UPDATE users SET last_seen = NOW() WHERE id = $1', [client.userId]).catch(() => {});
+          }
+        }
       }
       sendOnlineCount();
     });
