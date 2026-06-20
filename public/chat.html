@@ -8718,7 +8718,7 @@ function processSmileKeywords(text){
   tcSocket.on('quiz_answer', function(d){ try{ if(typeof registrarAcertoQuiz==='function') registrarAcertoQuiz(d); }catch(e){} });
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
-  tcSocket.on('user_left', function(d){ delete roomRoles[d.nick]; renderOnline(); });
+  tcSocket.on('user_left', function(d){ if(d&&d.nick&&d.nick===ME.nick) return; delete roomRoles[d.nick]; renderOnline(); });
   tcSocket.on('typing', function(d){ var t=document.getElementById('typingIndicator'); if(t){ t.textContent=(d.nick||'')+' está digitando…'; clearTimeout(window._tcTypTo); window._tcTypTo=setTimeout(function(){t.textContent='';},2500);} });
   tcSocket.on('error', function(d){ if(typeof showToast==='function') showToast((d&&d.message)||'Erro','error'); });
   tcSocket.on('message_reaction', function(d){
@@ -8933,20 +8933,18 @@ function processSmileKeywords(text){
   tcSocket.on('kicked', function(d){ try{ if(typeof showToast==='function') showToast('Você foi removido da sala'+(d&&d.by?(' por '+d.by):'')+'.','error'); else alert('Você foi removido da sala.'); }catch(e){} setTimeout(function(){ location.href='salas.html'; }, 800); });
   tcSocket.on('room_cleared', function(){ var a=document.getElementById('msgArea'); if(a) a.innerHTML=''; if(typeof showToast==='function') showToast('As mensagens desta sala foram limpas.','info'); });
   tcSocket.on('session_replaced', function(){
-    // Logo após conectar (refresh/reconexão), ignora — é corrida, não outro dispositivo
-    if(Date.now()-(window._tcConnAt||0) < 10000) return;
-    // Primeira vez: pode ser instabilidade/refresh — tenta reconectar 1x em vez de deslogar
-    if(!window._tcReplacedOnce){
-      window._tcReplacedOnce = true;
-      setTimeout(function(){ window._tcReplacedOnce = false; }, 15000);
-      setTimeout(function(){ try{ tcSocket.connect(); }catch(e){} }, 2000);
-      return;
-    }
-    // Substituído de novo em sequência → realmente é outro dispositivo
-    try{ if(typeof showToast==='function') showToast('Sua conta entrou em outro dispositivo. Esta sessão foi encerrada.','error'); }catch(e){}
-    setTimeout(function(){ location.href='login.html'; }, 1600);
+    // NUNCA desloga automaticamente. Refresh/reconexão jamais devem mandar para o login.
+    // Apenas tenta reconectar em silêncio.
+    setTimeout(function(){ try{ if(!tcSocket.connected) tcSocket.connect(); }catch(e){} }, 1200);
   });
-  window.addEventListener('pageshow', function(e){ if(e.persisted){ location.reload(); } });
+  // Garante reconexão se a página voltar do cache (bfcache) sem recarregar tudo
+  window.addEventListener('pageshow', function(e){
+    setTimeout(function(){ try{ if(!tcSocket.connected) tcSocket.connect(); }catch(e){} }, 300);
+  });
+  // Reconecta ao voltar o foco/visibilidade se a conexão tiver caído
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState==='visible'){ setTimeout(function(){ try{ if(!tcSocket.connected) tcSocket.connect(); }catch(e){} }, 300); }
+  });
 })();
 </script>
 <script>

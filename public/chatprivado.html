@@ -5955,7 +5955,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
   tcSocket.on('message_deleted', function(d){ try{ if(!d||d.id==null) return; var g=document.querySelector('.msg-group[data-msg-id="'+d.id+'"]'); if(g) g.remove(); }catch(e){} });
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
-  tcSocket.on('user_left', function(d){ delete roomRoles[d.nick]; renderOnline(); });
+  tcSocket.on('user_left', function(d){ if(d&&d.nick&&typeof ME!=='undefined'&&d.nick===ME.nick) return; delete roomRoles[d.nick]; renderOnline(); });
   tcSocket.on('typing', function(d){ var t=document.getElementById('typingIndicator'); if(t){ t.textContent=(d.nick||'')+' está digitando…'; clearTimeout(window._tcTyp); window._tcTyp=setTimeout(function(){t.textContent='';},2500);} });
   // PV (mensagem direta a um nick)
   tcSocket.on('private', function(d){ if(typeof addChatMessage==='function') addChatMessage({nick:d.from_nick,text:d.content,role:d.role,isPrivate:true,targetNick:meNick(),isMine:false,ts:(d.created_at?Date.parse(d.created_at):Date.now())}); });
@@ -6016,8 +6016,12 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
   if(!window.tcSocket) return;
   tcSocket.on('kicked', function(d){ try{ if(typeof showToast==='function') showToast('Você foi removido da sala'+(d&&d.by?(' por '+d.by):'')+'.','error'); else alert('Você foi removido da sala.'); }catch(e){} setTimeout(function(){ location.href='salas.html'; }, 800); });
   tcSocket.on('room_cleared', function(){ var a=document.getElementById('msgArea'); if(a) a.innerHTML=''; if(typeof showToast==='function') showToast('As mensagens desta sala foram limpas.','info'); });
-  tcSocket.on('session_replaced', function(){ if(Date.now()-(window._tcConnAt||0) < 6000) return; try{ if(typeof showToast==='function') showToast('Sua conta entrou em outro dispositivo. Esta sessão foi encerrada.','error'); }catch(e){} setTimeout(function(){ location.href='login.html'; }, 1400); });
-  window.addEventListener('pageshow', function(e){ if(e.persisted){ location.reload(); } });
+  tcSocket.on('session_replaced', function(){
+    // NUNCA desloga no refresh — apenas reconecta em silêncio.
+    setTimeout(function(){ try{ if(!tcSocket.connected) tcSocket.connect(); }catch(e){} }, 1200);
+  });
+  window.addEventListener('pageshow', function(e){ setTimeout(function(){ try{ if(!tcSocket.connected) tcSocket.connect(); }catch(e){} }, 300); });
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible'){ setTimeout(function(){ try{ if(!tcSocket.connected) tcSocket.connect(); }catch(e){} }, 300); } });
 })();
 </script>
 <script>
