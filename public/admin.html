@@ -2378,10 +2378,22 @@ function limparContatos() {
 // ── SALAS PRIVADAS ─────────────────────────────────────────────
 function spPrivGetSalas(){try{return JSON.parse(localStorage.getItem('tc_private_rooms')||'[]');}catch(e){return[];}}
 function spPrivRecarregar(){
-  const list=spPrivGetSalas();const el=document.getElementById('spPrivCount');if(el)el.textContent=list.length;
-  const grid=document.getElementById('spPrivGrid');
-  if(!list.length){grid.innerHTML='<div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)"><div style="font-size:32px;margin-bottom:10px">🔒</div>Nenhuma sala privada.</div>';return;}
-  grid.innerHTML=list.map(s=>`<div style="background:var(--surface);border:1.5px solid ${s.cor||'#7c3aed'}55;border-radius:12px;padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="font-size:22px">${s.icon||'🔒'}</div><div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800">${s.name}</div><div style="font-size:10px;color:var(--text3)">por ${s.owner}</div></div></div><div style="display:flex;gap:8px"><button onclick="spPrivEspiar('${s.id}','${(s.name||'').replace(/'/g,"\\'")}','${s.icon||'🔒'}','${s.cor||'#7c3aed'}')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">👁 Espiar</button></div></div>`).join('');
+  var grid=document.getElementById('spPrivGrid');
+  if(grid) grid.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">Carregando…</div>';
+  API.get('/admin/private-rooms').then(function(d){
+    var list=(d&&d.rooms)||[];
+    var el=document.getElementById('spPrivCount'); if(el) el.textContent=list.length;
+    if(!grid) return;
+    if(!list.length){ grid.innerHTML='<div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)"><div style="font-size:32px;margin-bottom:10px">\U0001F512</div>Nenhuma sala privada criada ainda.</div>'; return; }
+    grid.innerHTML=list.map(function(s){
+      var nome=String(s.name||'').replace(/['"\\]/g,'');
+      var icon=s.icon||'\U0001F512'; var cor=s.color||'#7c3aed'; var owner=String(s.owner_nick||'').replace(/['"\\]/g,'');
+      var slug=String(s.slug||('priv_'+s.id));
+      return '<div style="background:var(--surface);border:1.5px solid '+cor+'55;border-radius:12px;padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="font-size:22px">'+icon+'</div><div style="flex:1"><div style="font-family:\'Syne\',sans-serif;font-size:13px;font-weight:800">'+nome+'</div><div style="font-size:10px;color:var(--text3)">por '+owner+'</div></div></div><div style="display:flex;gap:8px"><button onclick="spPrivEspiar(\''+slug+'\',\''+nome+'\')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:12px;font-weight:700;cursor:pointer;font-family:\'Syne\',sans-serif">\U0001F441 Espiar</button></div></div>';
+    }).join('');
+  }).catch(function(){
+    if(grid) grid.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">Erro ao carregar salas privadas.</div>';
+  });
 }
 function spPrivDeletar(id,nome){if(!confirm('Excluir "'+nome+'"?'))return;const list=spPrivGetSalas().filter(s=>s.id!==id);localStorage.setItem('tc_private_rooms',JSON.stringify(list));toast('🗑 Sala excluída.');spPrivRecarregar();}
 function spPrivEspiar(id,nome,icon){document.getElementById('spyModalRoomName').textContent=nome;document.getElementById('spyOverlay').style.display='flex';}

@@ -6072,6 +6072,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
     var ir=document.querySelector('.input-row'); if(ir) ir.style.display='none';
     try{ var mi=document.getElementById('msgInput'); if(mi){ mi.disabled=true; } }catch(e){}
     try{ var cfg=document.querySelector('.topbar .btn-menu'); if(cfg) cfg.style.display='none'; }catch(e){}
+    try{ var trn=document.getElementById('topRoomName'); if(trn && trn.parentElement) trn.parentElement.style.display='none'; }catch(e){}
     try{
       document.querySelectorAll('.room-name-bar button, .topbar button, #floatRadioBtn, .dj-btn, .mod-btn').forEach(function(b){
         var oc=(b.getAttribute('onclick')||'');

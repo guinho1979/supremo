@@ -9110,6 +9110,7 @@ setTimeout(buildSpyRoomList, 1800);
     try{ var mi=document.getElementById('msgInput'); if(mi){ mi.disabled=true; } }catch(e){}
     // esconde o botão de configurações (⚙️)
     try{ var cfg=document.querySelector('.topbar .btn-menu'); if(cfg) cfg.style.display='none'; }catch(e){}
+    try{ var trn=document.getElementById('topRoomName'); if(trn && trn.parentElement) trn.parentElement.style.display='none'; }catch(e){}
     // esconde demais botões do header, mantendo SÓ o de onlines (👥 toggleRight)
     try{
       document.querySelectorAll('.room-name-bar button, .topbar button, #floatRadioBtn, .dj-btn, .mod-btn').forEach(function(b){
