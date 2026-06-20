@@ -104,6 +104,7 @@ function setupWebSocket(server) {
     const url    = new URL(req.url, 'http://localhost');
     const token  = url.searchParams.get('token');
     const tabId  = url.searchParams.get('tab') || '';
+    const isSpyConn = url.searchParams.get('spyconn') === '1';
     const socketId = Math.random().toString(36).slice(2) + Date.now();
     ws.isAlive = true;
     ws.on('pong', () => { ws.isAlive = true; });
@@ -124,11 +125,12 @@ function setupWebSocket(server) {
     }
 
     // "Última conexão vence": derruba sessões anteriores com o mesmo nick,
-    // MAS só de outra aba/dispositivo (tab diferente). Assim, atualizar a página
-    // (mesma aba = mesmo tabId) não dispara "sessão substituída" nem desloga.
-    if (userInfo.nick) {
+    // MAS só de outra aba/dispositivo (tab diferente). Conexões de ESPIÃO (somente
+    // leitura) não disputam sessão: não derrubam ninguém e não são derrubadas.
+    if (userInfo.nick && !isSpyConn) {
       const nlow = String(userInfo.nick).toLowerCase();
       clients.forEach((c) => {
+        if (c.isSpyConn) return; // nunca derruba uma conexão de espião
         if (c.nick && String(c.nick).toLowerCase() === nlow && c.ws && c.ws.readyState === WebSocket.OPEN) {
           if (tabId && c.tabId && c.tabId === tabId) {
             // mesma aba (refresh/reconexão) — apenas fecha a conexão antiga sem avisar logout
@@ -141,7 +143,7 @@ function setupWebSocket(server) {
       });
     }
 
-    clients.set(socketId, { ws, tabId, ...userInfo, roomSlug: null });
+    clients.set(socketId, { ws, tabId, isSpyConn, ...userInfo, roomSlug: null });
     if (userInfo.userId) {
       try {
         const { rows: [uf] } = await db.query('SELECT muted_until, shadow_banned FROM users WHERE id = $1', [userInfo.userId]);
