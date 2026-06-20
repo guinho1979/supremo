@@ -3017,15 +3017,16 @@ window.show = function(id, el){
     tcSocket.on('error', function(d){ if(typeof toast==='function' && d && d.message) toast(d.message,'err'); });
   }
   window.espiarSala=function(roomId, roomName){
-    document.getElementById('spyModalRoomName').textContent=roomName||roomId;
-    var p=panel(); if(p) p.innerHTML='<div style="text-align:center;color:#7a90b0;font-size:12px;padding:10px">Conectando ao monitor…</div>';
-    document.getElementById('spyOverlay').style.display='flex';
-    bind(); spyRoom=roomId;
-    if(tcSocket.connected){ tcSocket.spyJoin(roomId); }
-    else { tcSocket.on('connected', function(){ if(spyRoom) tcSocket.spyJoin(spyRoom); }); tcSocket.connect(); }
+    var ov=document.getElementById('spyOverlay'); if(!ov) return;
+    ov.style.display='flex'; ov.style.flexDirection='column'; ov.style.background='#0f0e1a';
+    var page=(String(roomId).indexOf('priv_')===0)?'chatprivado.html':'chat.html';
+    ov.innerHTML='<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:#0f0e1a;color:#fff;flex-shrink:0;font-family:Syne,sans-serif;border-bottom:1px solid #2a2050">'+
+      '<button onclick="fecharEspiar()" title="Fechar" style="background:#7f1d1d;border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">\u2715</button>'+
+      '<span style="font-size:14px;font-weight:800">\uD83D\uDC41 Espiando: '+(roomName||roomId)+'</span></div>'+
+      '<iframe id="spyFrame" src="'+page+'?spy='+encodeURIComponent(roomId)+'" style="flex:1;width:100%;border:none;background:#c8daf0" allow="autoplay"></iframe>';
   };
   window.spPrivEspiar=function(id, nome){ var slug=(String(id).indexOf('priv_')===0)?String(id):('priv_'+id); window.espiarSala(slug, nome||'Sala privada'); };
-  window.fecharEspiar=function(){ try{ tcSocket.spyLeave(); }catch(e){} spyRoom=null; document.getElementById('spyOverlay').style.display='none'; };
+  window.fecharEspiar=function(){ try{ var fr=document.getElementById('spyFrame'); if(fr){ fr.src='about:blank'; fr.remove(); } }catch(e){} var ov=document.getElementById('spyOverlay'); if(ov){ ov.style.display='none'; ov.innerHTML=''; } };
 })();
 </script>
 <script>
