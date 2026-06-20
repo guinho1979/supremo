@@ -376,6 +376,16 @@ function setupWebSocket(server) {
         return;
       }
 
+      // ── QUIZ (host transmite a pergunta; respostas voltam pra sala) ──
+      if (msg.event === 'quiz_start') {
+        broadcast(client.roomSlug, { event: 'quiz_start', data: { ...(msg.data || {}), host: client.nick } });
+        return;
+      }
+      if (msg.event === 'quiz_answer') {
+        broadcast(client.roomSlug, { event: 'quiz_answer', data: { id: (msg.data && msg.data.id), correct: !!(msg.data && msg.data.correct), nick: client.nick } });
+        return;
+      }
+
       // ── PING (keep-alive + atualiza presence) ─────────────
       if (msg.event === 'ping') {
         if (client.userId) {
