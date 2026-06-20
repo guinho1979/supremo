@@ -1447,6 +1447,20 @@ function filtrarUsuarios(q){
 function abrirDropdown(){filtrarUsuarios(document.getElementById('userSearchInput').value);}
 function fecharDropdown(){document.getElementById('userDropdown').style.display='none';}
 function limparUserSelect(){document.getElementById('userSearchInput').value='';document.getElementById('userDropdown').style.display='none';document.getElementById('userCard').style.display='none';document.getElementById('userSelectedBadge').style.display='none';}
+function _guestUserFromLogins(nick){
+  var logs=(window._tcLogins||[]).filter(function(l){ return String(l.nick).toLowerCase()===String(nick).toLowerCase(); });
+  if(!logs.length) return null;
+  logs.sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+  var l=logs[0];
+  return {
+    nick:nick, av:'👤', role:'guest', badge:'b-guest', color:'#9ca3af',
+    local:(l.local&&l.local!=='—')?l.local:'🔍 buscando...',
+    device:(l.device&&typeof l.device==='object')?l.device:{icon:'🖥',label:(l.device||'visitante'),ua:'—'},
+    ip:l.ip||'—', asn:l.asn||'—', status:'👤 Visitante (online recente)',
+    login:((l.data||'')+' '+(l.hora||'')).trim()||'—', msgs:'—', registrado:'Visitante (não cadastrado)',
+    acoes:['ban','kick','mute']
+  };
+}
 function selecionarUsuario(nick){
   const card=document.getElementById('userCard');
   document.getElementById('userDropdown').style.display='none';
@@ -1458,7 +1472,13 @@ function selecionarUsuario(nick){
     API.admin.getUsers(nick).then(function(d){
       var found=(d.users||[]).find(function(x){return String(x.nick).toLowerCase()===String(nick).toLowerCase();});
       if(found){ USERS_DATA[found.nick]=_mkUser(found); _renderUserCard(found.nick,USERS_DATA[found.nick]); }
-      else { if(typeof toast==='function') toast('Usuário não encontrado','err'); card.style.display='none'; }
+      else {
+        var tryGuest=function(){ var g=_guestUserFromLogins(nick); if(g){ USERS_DATA[nick]=g; _renderUserCard(nick,g); return true; } return false; };
+        if(!tryGuest()){
+          if(typeof loadLogins==='function'){ loadLogins().then(function(){ if(!tryGuest()){ if(typeof toast==='function') toast('Usuário não encontrado (sem acesso registrado)','err'); card.style.display='none'; } }).catch(function(){ card.style.display='none'; }); }
+          else { if(typeof toast==='function') toast('Usuário não encontrado','err'); card.style.display='none'; }
+        }
+      }
     }).catch(function(){ if(typeof toast==='function') toast('Erro ao carregar usuário','err'); card.style.display='none'; });
   } else { card.style.display='none'; }
 }
@@ -2381,7 +2401,7 @@ function banirUsuarioPainel(nick){const nav=document.querySelector('.nav-item[on
     try{
       var n=''; try{ n=new URLSearchParams(location.search).get('mod')||''; }catch(_e){}
       if(!n){ try{ n=localStorage.getItem('tc_mod_ban_nick')||''; }catch(_e){} }
-      if(n){ try{ localStorage.removeItem('tc_mod_ban_nick'); }catch(_e){} if(typeof banirUsuarioPainel==='function'){ banirUsuarioPainel(n); } }
+      if(n){ try{ localStorage.removeItem('tc_mod_ban_nick'); }catch(_e){} if(typeof banirUsuarioPainel==='function'){ banirUsuarioPainel(n); } setTimeout(function(){ try{ if(typeof selecionarUsuario==='function') selecionarUsuario(n); }catch(_e){} }, 350); }
     }catch(e){}
   }
   if(document.readyState==='loading'){ window.addEventListener('load', function(){ setTimeout(_autoModBan, 700); }); }
