@@ -7800,12 +7800,15 @@ window.openMsgMod=function(ev,nick){
     m.style.cssText='display:none;position:fixed;background:#1a1735;border:1.5px solid #3a2d6a;border-radius:12px;box-shadow:0 6px 26px rgba(0,0,0,.45);padding:6px;min-width:150px;z-index:100000;font-family:DM Sans,sans-serif';
     m.innerHTML='<div onclick="msgMod(\'ban\')" style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;cursor:pointer" onmouseover="this.style.background=\'#7f1d1d\'" onmouseout="this.style.background=\'transparent\'"><span style="font-size:18px">🔨</span><span style="font-size:13px;font-weight:700;color:#fca5a5">Banir</span></div>'+
       '<div onclick="msgMod(\'kick\')" style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;cursor:pointer" onmouseover="this.style.background=\'#1e3a5f\'" onmouseout="this.style.background=\'transparent\'"><span style="font-size:18px">👢</span><span style="font-size:13px;font-weight:700;color:#93c5fd">Kickar</span></div>'+
-      '<div onclick="msgMod(\'mute\')" style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;cursor:pointer" onmouseover="this.style.background=\'#2a2050\'" onmouseout="this.style.background=\'transparent\'"><span style="font-size:18px">🔇</span><span style="font-size:13px;font-weight:700;color:#fff">Mutar</span></div>';
+      '<div onclick="msgMod(\'mute\')" style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;cursor:pointer" onmouseover="this.style.background=\'#2a2050\'" onmouseout="this.style.background=\'transparent\'"><span style="font-size:18px">🔇</span><span style="font-size:13px;font-weight:700;color:#fff">Mutar</span></div>'+
+      '<div id="msgModShadow" onclick="msgMod(\'shadow\')" style="display:none;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;cursor:pointer" onmouseover="this.style.background=\'#2a2050\'" onmouseout="this.style.background=\'transparent\'"><span style="font-size:18px">👻</span><span style="font-size:13px;font-weight:700;color:#c4b5fd">Shadowban</span></div>';
     document.body.appendChild(m);
   }
+  var shd=document.getElementById('msgModShadow');
+  if(shd) shd.style.display=(['admin','supervisor'].indexOf(ME.role)>-1)?'flex':'none';
   var x=ev?ev.clientX:120, y=ev?ev.clientY:120;
   if(x+165>window.innerWidth) x=window.innerWidth-170;
-  if(y+160>window.innerHeight) y=window.innerHeight-165;
+  if(y+170>window.innerHeight) y=window.innerHeight-175;
   m.style.left=x+'px'; m.style.top=y+'px'; m.style.display='block';
 };
 window.msgMod=function(action){
@@ -7815,6 +7818,11 @@ window.msgMod=function(action){
     try{ localStorage.setItem('tc_mod_ban_nick', nick); }catch(e){}
     showToast('Abrindo painel para banir '+nick+'…');
     setTimeout(function(){ window.location.href='admin.html?mod='+encodeURIComponent(nick); }, 250);
+    return;
+  }
+  if(action==='shadow'){
+    if(['admin','supervisor'].indexOf(ME.role)<0){ showToast('Apenas admin e supervisor','error'); return; }
+    API.admin.shadow(nick,true).then(function(){ showToast(nick+' em shadowban 👻'); }).catch(function(){ showToast('Falha no shadowban','error'); });
     return;
   }
   if(action==='kick'){ try{ tcSocket.kick(nick); showToast(nick+' foi kickado 👢','error'); }catch(e){ showToast('Falha ao kickar','error'); } return; }

@@ -5132,29 +5132,35 @@ if(ME.role !== 'guest') setInterval(verificarConvitesChatPrivado, 5000);
   if(tn) tn.textContent = roomName;
   if(ti) ti.textContent = '🔒';
 
-  // Botão Convidar — mostra para admin/supervisor SEMPRE em sala privada
-  // e para o dono da sala
+  // Botão Convidar — visível APENAS para quem criou a sala
   const isPrivateRoom = roomId.startsWith('priv_');
-  const isAdminSup = ['admin','supervisor'].includes(ME.role);
 
-  let isOwner = isAdminSup; // admin/sup sempre pode convidar
-  if(!isOwner){
-    // Verifica em tc_private_rooms (sem exigir prefixo priv_)
-    try {
-      const salas = JSON.parse(localStorage.getItem('tc_private_rooms')||'[]');
-      const sala  = salas.find(s => s.id === roomId);
-      if(sala && sala.owner === ME.nick) isOwner = true;
-    } catch(e){}
-    // Flag alternativa salva ao criar sala
-    if(!isOwner && localStorage.getItem('tc_room_owner') === ME.nick) isOwner = true;
-  }
+  let isOwner = false; // somente o criador
+  // palpite rápido pelo localStorage (dono no mesmo aparelho)
+  try {
+    const salas = JSON.parse(localStorage.getItem('tc_private_rooms')||'[]');
+    const sala  = salas.find(s => s.id === roomId);
+    if(sala && sala.owner === ME.nick) isOwner = true;
+  } catch(e){}
+  if(!isOwner && localStorage.getItem('tc_room_owner') === ME.nick) isOwner = true;
 
-  // Mostra botão APENAS se é dono OU admin/supervisor (não para membros convidados)
-  if(isOwner){
+  function _setConvidarVisible(v){
     const btn = document.getElementById('btnConvidarPriv');
-    if(btn) btn.style.display = 'inline-flex';
-    const titulo = document.getElementById('convidarPrivSalaNome');
-    if(titulo) titulo.textContent = '🔒 ' + roomName;
+    if(btn) btn.style.display = v ? 'inline-flex' : 'none';
+    if(v){ const titulo = document.getElementById('convidarPrivSalaNome'); if(titulo) titulo.textContent = '🔒 ' + roomName; }
+  }
+  _setConvidarVisible(isOwner);
+
+  // Confirmação autoritativa pelo servidor (is_owner) — vale em qualquer aparelho
+  if(isPrivateRoom && window.API && API.privateRooms && API.privateRooms.get){
+    try{
+      var _rid = roomId.replace('priv_','');
+      API.privateRooms.get(_rid).then(function(d){
+        var r=(d&&d.room)?d.room:d;
+        var owner = !!(r && (r.is_owner || r.isOwner));
+        _setConvidarVisible(owner);
+      }).catch(function(){});
+    }catch(e){}
   }
 
   // Esconde botões antigos do plus menu que não se aplicam aqui
@@ -5807,7 +5813,12 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
     var key=sig(d); if(seen.has(key)) return; seen.add(key);
     if(d.msg_type && d.msg_type.indexOf('media:')===0){ renderMediaMsg(d); return; }
     if(typeof addChatMessage!=='function') return;
-    addChatMessage({nick:d.nick,text:d.content,role:d.role,av:'',isPrivate:false,targetNick:null,isMine:(d.nick===meNick()),ts:(d.created_at?Date.parse(d.created_at):Date.now()),replyTo:d.quoted_nick||null,quotedNick:d.quoted_nick||null,quotedText:d.quoted_text||null,quotedDepth:d.quoted_depth||0});
+    var _ci=(window._nickColors&&window._nickColors[d.nick])||{};
+    var _mine=(d.nick===meNick());
+    var _nc=_mine?(state.nickColor||''):(_ci.color||'');
+    var _mc=_mine?(state.msgColor||''):(_ci.msg_color||'');
+    addChatMessage({nick:d.nick,text:d.content,role:d.role,av:(_ci.photo||_ci.avatar||''),nickColor:_nc,msgColor:_mc,isPrivate:false,targetNick:null,isMine:_mine,ts:(d.created_at?Date.parse(d.created_at):Date.now()),replyTo:d.quoted_nick||null,quotedNick:d.quoted_nick||null,quotedText:d.quoted_text||null,quotedDepth:d.quoted_depth||0});
+    try{ var _el=document.getElementById('msgArea'); var _ne=_el&&_el.lastElementChild&&_el.lastElementChild.querySelector('.msg-nick'); if(_ne&&!_mine){ var _p=_nickColorParts(d.nick); if(_p.cls) _ne.className+=' '+_p.cls; if(_p.style) _ne.setAttribute('style',(_ne.getAttribute('style')||'')+';'+_p.style); } }catch(e){}
     if(d.id){ var _a=document.getElementById('msgArea'); if(_a&&_a.lastElementChild) _a.lastElementChild.dataset.msgId=d.id; }
   }
   function renderMediaMsg(d){
@@ -5829,9 +5840,19 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
       mediaBlock='<div class="media-msg" onclick="'+cfg.onclick.replace(/"/g,'&quot;')+'"><span class="media-icon">'+cfg.icon+'</span><div class="media-info"><div class="media-name">'+name+'</div><div class="media-meta">'+(cfg.label||'')+'</div></div></div>';
     }
     var canDel=(mine||(typeof canDeleteMsg==='function'&&canDeleteMsg()));
-    div.innerHTML='<div class="msg-av">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble" style="position:relative">'
-      +'<div class="msg-head"><span class="msg-nick">'+d.nick+'</span>'+badge+'</div>'
+    var ci=(window._nickColors&&window._nickColors[d.nick])||{};
+    var cp=(typeof _nickColorParts==='function')?_nickColorParts(d.nick):{cls:'',style:''};
+    var sc=(typeof STATUS_DOT_CLASS!=='undefined')?(STATUS_DOT_CLASS['online']||''):'';
+    var nq=String(d.nick).replace(/'/g,"\\'");
+    var REACT=window._REACTIONS||[{e:'👍',l:'Curtir'},{e:'❤️',l:'Amei'},{e:'😂',l:'Haha'},{e:'😮',l:'Uau'},{e:'😢',l:'Triste'},{e:'😡',l:'Grr'}];
+    var _footer='<div class="msg-footer"><span class="msg-time">'+((typeof nowTime==='function')?nowTime():'')+'</span>'+
+      '<div class="msg-actions"><button class="act-btn" onclick="setReply(\''+nq+'\')">↩ Reply</button>'+
+      (!mine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">'+REACT.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>')+
+      '</div></div>';
+    div.innerHTML='<div class="msg-av" style="border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble" style="position:relative">'
+      +'<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="setReply(\''+nq+'\')">'+d.nick+'</span>'+badge+'</div>'
       +mediaBlock
+      +_footer
       +(canDel?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'')
       +'</div></div>';
     area.appendChild(div); area.scrollTop=area.scrollHeight;
@@ -5843,6 +5864,20 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
     var im=document.createElement('img'); im.src=imgEl.src; im.style.cssText='max-width:96vw;max-height:90vh;object-fit:contain;border-radius:8px';
     ov.appendChild(im); document.body.appendChild(ov);
   };
+  function _nickColorParts(nick){
+    var c = window._nickColors && window._nickColors[nick];
+    if(!c) return {cls:'',style:''};
+    if(c.effect && c.effect!=='none') return {cls:'nick-fx-'+c.effect, style:''};
+    var g=c.gradient, c1='', c2='';
+    if(g){
+      if(g.indexOf('{')>-1){ try{ var o=JSON.parse(g); if(o && o.on!==false && o.c1 && o.c2){ c1=o.c1; c2=o.c2; } }catch(e){} }
+      else if(g.indexOf(',')>-1){ var p=g.split(','); c1=(p[0]||'').trim(); c2=(p[1]||'').trim(); }
+    }
+    if(c1 && c2) return {cls:'', style:'background:linear-gradient(90deg,'+c1+','+c2+');-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:800;'};
+    if(c.color) return {cls:'', style:'color:'+c.color+' !important;'};
+    return {cls:'',style:''};
+  }
+  try{ window._nickColorParts=_nickColorParts; }catch(e){}
   function renderOnline(){
     var nicks=Object.keys(roomRoles);
     var cnt=document.getElementById('onlineCount'); if(cnt) cnt.textContent=nicks.length;
@@ -5861,7 +5896,8 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
         var dot='<span style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
         var col=info.color||'';
-        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px;cursor:pointer" onclick="if(typeof openProfile===\'function\')openProfile(\''+n.replace(/'/g,"\\'")+'\')">'+av+emo+'<span class="ou-nick" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+(col?'color:'+col:'')+'">'+n+'</span>'+dot+badge+'</div>';
+        var _cp=_nickColorParts(n);
+        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px;cursor:pointer" onclick="if(typeof openProfile===\'function\')openProfile(\''+n.replace(/'/g,"\\'")+'\')">'+av+emo+'<span class="ou-nick '+(_cp.cls||'')+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+(_cp.style||(col?'color:'+col:''))+'">'+n+'</span>'+badge+dot+'</div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
   }
