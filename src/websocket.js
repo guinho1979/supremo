@@ -450,6 +450,7 @@ function setupWebSocket(server) {
         const { target_nick } = msg.data || {};
         clients.forEach((c, id) => {
           if (c.nick === target_nick && c.ws.readyState === WebSocket.OPEN) {
+            if (['admin','supervisor','mod'].includes(c.role)) return; // não kicka equipe
             c.ws.send(JSON.stringify({ event: 'kicked', data: { by: client.nick } }));
             c.ws.close(4002, 'Kicked by moderator');
           }
