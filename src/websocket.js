@@ -132,12 +132,14 @@ function setupWebSocket(server) {
       clients.forEach((c) => {
         if (c.isSpyConn) return; // nunca derruba uma conexão de espião
         if (c.nick && String(c.nick).toLowerCase() === nlow && c.ws && c.ws.readyState === WebSocket.OPEN) {
-          if (tabId && c.tabId && c.tabId === tabId) {
-            // mesma aba (refresh/reconexão) — apenas fecha a conexão antiga sem avisar logout
-            try { c.ws.close(4006, 'Reconexão da mesma aba'); } catch (e) {}
-          } else {
+          // Só trata como "outro dispositivo" (session_replaced/4005) quando AMBAS as abas
+          // são conhecidas e DIFERENTES. Caso contrário (mesma aba, refresh, ou tab ausente),
+          // fecha em silêncio com 4006 — sem deslogar o usuário.
+          if (tabId && c.tabId && c.tabId !== tabId) {
             try { c.ws.send(JSON.stringify({ event: 'session_replaced', data: {} })); } catch (e) {}
             try { c.ws.close(4005, 'Sessão substituída'); } catch (e) {}
+          } else {
+            try { c.ws.close(4006, 'Reconexão da mesma aba'); } catch (e) {}
           }
         }
       });
