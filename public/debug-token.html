@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Diagnóstico - Chat Supremo</title>
+<style>
+  body{font-family:monospace;background:#0f1117;color:#e8edf5;padding:16px;font-size:14px;line-height:1.6}
+  h1{font-size:16px;color:#8aafd4;margin-bottom:16px}
+  .box{background:#1a1d24;border:1px solid #2a3244;border-radius:8px;padding:14px;margin-bottom:14px;word-break:break-all}
+  .label{color:#4a6080;font-size:11px;text-transform:uppercase;margin-bottom:4px}
+  .val{color:#10b981}
+  .val.empty{color:#ef4444}
+  .ts{color:#f59e0b;font-size:12px;margin-top:4px}
+  button{background:#3a6fa8;color:#fff;border:none;padding:10px 16px;border-radius:6px;font-size:14px;width:100%;margin-top:10px}
+</style>
+</head>
+<body>
+  <h1>🔍 Diagnóstico de Sessão</h1>
+
+  <div class="box">
+    <div class="label">tc_token (localStorage)</div>
+    <div class="val" id="tok"></div>
+  </div>
+
+  <div class="box">
+    <div class="label">tc_tab (sessionStorage)</div>
+    <div class="val" id="tab"></div>
+  </div>
+
+  <div class="box">
+    <div class="label">Hora desta carga da página</div>
+    <div class="ts" id="now"></div>
+  </div>
+
+  <div class="box">
+    <div class="label">Hora da carga ANTERIOR (salva agora)</div>
+    <div class="ts" id="prev"></div>
+  </div>
+
+  <button onclick="location.reload()">🔄 Recarregar (simula F5)</button>
+
+  <script>
+    function show(id, value){
+      var el = document.getElementById(id);
+      if(!value){ el.textContent = '(vazio / null)'; el.classList.add('empty'); }
+      else { el.textContent = value; }
+    }
+    var token = localStorage.getItem('tc_token');
+    var tab = sessionStorage.getItem('tc_tab');
+    show('tok', token);
+    show('tab', tab);
+
+    var now = new Date().toLocaleTimeString('pt-BR');
+    document.getElementById('now').textContent = now;
+
+    var prev = localStorage.getItem('_debug_prev_load');
+    document.getElementById('prev').textContent = prev || '(primeira carga)';
+    localStorage.setItem('_debug_prev_load', now);
+  </script>
+</body>
+</html>
