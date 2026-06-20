@@ -6070,6 +6070,23 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
   function init(){
     var ir=document.querySelector('.input-row'); if(ir) ir.style.display='none';
     try{ var mi=document.getElementById('msgInput'); if(mi){ mi.disabled=true; } }catch(e){}
+    try{ var cfg=document.querySelector('.topbar .btn-menu'); if(cfg) cfg.style.display='none'; }catch(e){}
+    try{
+      document.querySelectorAll('.room-name-bar button, .topbar button, #floatRadioBtn, .dj-btn, .mod-btn').forEach(function(b){
+        var oc=(b.getAttribute('onclick')||'');
+        if(oc.indexOf('toggleRight')>-1) return;
+        b.style.display='none';
+      });
+    }catch(e){}
+    try{
+      var bar=document.querySelector('.room-name-bar .rnb-center')||document.querySelector('.room-name-bar')||document.querySelector('.topbar');
+      if(bar && !document.getElementById('spySairBtn')){
+        var s=document.createElement('button'); s.id='spySairBtn'; s.textContent='✕ Sair';
+        s.style.cssText='margin-left:6px;background:#7f1d1d;border:1px solid #ef4444;color:#fff;font-size:11px;font-weight:800;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:Syne,sans-serif;white-space:nowrap';
+        s.onclick=function(){ try{ if(window.parent && window.parent.fecharEspiar){ window.parent.fecharEspiar(); return; } }catch(e){} try{ if(window.parent){ window.parent.postMessage('tc_spy_close','*'); } }catch(e){} };
+        bar.appendChild(s);
+      }
+    }catch(e){}
     if(!document.getElementById('spyBanner')){
       var b=document.createElement('div'); b.id='spyBanner';
       b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9000;background:linear-gradient(90deg,#7c3aed,#2563eb);color:#fff;font-family:Syne,sans-serif;font-weight:800;font-size:12px;text-align:center;padding:11px;letter-spacing:.5px;box-shadow:0 -2px 12px rgba(0,0,0,.25)';

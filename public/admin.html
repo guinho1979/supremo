@@ -3027,6 +3027,7 @@ window.show = function(id, el){
   };
   window.spPrivEspiar=function(id, nome){ var slug=(String(id).indexOf('priv_')===0)?String(id):('priv_'+id); window.espiarSala(slug, nome||'Sala privada'); };
   window.fecharEspiar=function(){ try{ var fr=document.getElementById('spyFrame'); if(fr){ fr.src='about:blank'; fr.remove(); } }catch(e){} var ov=document.getElementById('spyOverlay'); if(ov){ ov.style.display='none'; ov.innerHTML=''; } };
+  try{ window.addEventListener('message', function(e){ if(e && e.data==='tc_spy_close' && typeof window.fecharEspiar==='function') window.fecharEspiar(); }); }catch(e){}
 })();
 </script>
 <script>
