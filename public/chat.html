@@ -1316,10 +1316,10 @@ function buildColorSwatches(){
   } else {
     LS.set('tc_spy_mode','0');
   }
-  // Set room
+  // Set room — no novo modo espião usa a sala espiada (?spy=<sala>)
   const savedRoom = LS.get('tc_room','geral');
-  LS.set('tc_room', isSpy ? spyRoom : savedRoom);
-  const roomId = isSpy ? spyRoom : savedRoom;
+  const roomId = _newSpyMode ? urlParams.get('spy') : (isSpy ? spyRoom : savedRoom);
+  LS.set('tc_room', roomId);
   const rd = ROOM_DATA[roomId] || {name: LS.get('tc_room_name', roomId), icon: roomId.startsWith('priv_') ? '🔒' : '💬'};
   document.getElementById('roomIcon').textContent = rd.icon || '💬';
   document.getElementById('roomNameLabel').textContent = rd.name || roomId;
