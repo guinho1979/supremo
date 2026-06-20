@@ -375,6 +375,13 @@ router.delete('/messages/:id', authMiddleware, async (req, res) => {
     const isStaff = ['mod', 'supervisor', 'admin'].includes(req.user.role);
     const isAuthor = req.user.user_id && m.user_id && Number(req.user.user_id) === Number(m.user_id);
     if (!isStaff && !isAuthor) return res.status(403).json({ error: 'Sem permissão para apagar esta mensagem.' });
+    // Proteção: não apagar mensagem de membro da equipe (exceto a própria)
+    if (!isAuthor) {
+      const { rows: [au] } = await db.query('SELECT role FROM users WHERE LOWER(nick)=LOWER($1)', [m.nick]);
+      if (au && ['admin','supervisor','mod'].includes(au.role)) {
+        return res.status(403).json({ error: 'Não é possível apagar mensagens de um membro da equipe.' });
+      }
+    }
     await db.query('UPDATE messages SET is_deleted = TRUE WHERE id = $1', [req.params.id]);
     try {
       ws.broadcastToRoom(m.room_slug, {
@@ -406,6 +413,10 @@ router.post('/blocks', authMiddleware, async (req, res) => {
   if (!nick) return res.status(400).json({ error: 'Nick obrigatório.' });
   if (nick.toLowerCase() === String(req.user.nick).toLowerCase()) return res.status(400).json({ error: 'Você não pode se bloquear.' });
   try {
+    const { rows: [tgt] } = await db.query('SELECT role FROM users WHERE LOWER(nick)=LOWER($1)', [nick]);
+    if (tgt && ['admin','supervisor','mod'].includes(tgt.role)) {
+      return res.status(403).json({ error: 'Não é possível bloquear um membro da equipe.' });
+    }
     await db.query('INSERT INTO user_blocks (blocker_id, blocked_nick) VALUES ($1,$2) ON CONFLICT DO NOTHING', [req.user.user_id, nick]);
     res.json({ ok: true });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao bloquear.' }); }

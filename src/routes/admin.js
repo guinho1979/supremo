@@ -116,8 +116,8 @@ router.post('/ban', requireRole('mod'), async (req, res) => {
       'SELECT id, role, last_ip FROM users WHERE LOWER(nick) = LOWER($1)', [nick]
     );
 
-    if (target.length && target[0].role === 'admin') {
-      return res.status(403).json({ error: 'Não é possível banir um administrador.' });
+    if (target.length && ['admin','supervisor','mod'].includes(target[0].role)) {
+      return res.status(403).json({ error: 'Não é possível banir um membro da equipe (mod/supervisor/admin).' });
     }
 
     // Se pediu banir o IP, pega o último IP conhecido do usuário
@@ -552,6 +552,10 @@ router.post('/mute', requireRole('mod'), async (req, res) => {
   let minutes = parseInt(req.body.minutes, 10); if (!Number.isFinite(minutes) || minutes < 1) minutes = 10;
   if (!nick) return res.status(400).json({ error: 'Nick obrigatório.' });
   try {
+    const { rows: tgt } = await db.query('SELECT role FROM users WHERE LOWER(nick)=LOWER($1)', [nick]);
+    if (tgt.length && ['admin','supervisor','mod'].includes(tgt[0].role)) {
+      return res.status(403).json({ error: 'Não é possível silenciar um membro da equipe.' });
+    }
     const until = new Date(Date.now() + minutes * 60000);
     const { rows } = await db.query('UPDATE users SET muted_until = $1 WHERE LOWER(nick)=LOWER($2) RETURNING nick', [until, nick]);
     if (!rows.length) return res.status(404).json({ error: 'Usuário não encontrado.' });
