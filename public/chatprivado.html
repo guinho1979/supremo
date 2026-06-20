@@ -1273,8 +1273,8 @@ function buildColorSwatches(){
   buildColorSwatches();
   // Announcement — show on entry, auto-hide after 5 min
   const SYS=JSON.parse(LS.get('tc_system')||'{}');
-  // Demo: show a sample announcement if none set
-  const annMsg = SYS.announcement || '🎉 Bem-vindos ao Chat Supremo! Respeite as regras da sala. Divirta-se! 🎮🎵⚽';
+  // Só mostra anúncio REAL (sem demo)
+  const annMsg = SYS.announcement || '';
   const annColor = SYS.annColor || 'purple';
   if(annMsg){
     const b=document.getElementById('annBar');

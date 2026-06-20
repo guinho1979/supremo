@@ -211,7 +211,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 <header>
   <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:42px;object-fit:contain">
   <span class="admin-badge">PAINEL ADMIN</span>
-  <button class="back-btn" onclick="window.location.href='chat.html'">← Voltar ao Chat</button>
+  <button class="back-btn" onclick="window.location.href='salas.html'">← Sair</button>
 </header>
 
 <div class="layout">
@@ -428,11 +428,17 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
           <div id="excluirMsgMsg" style="margin-top:6px;font-size:11px;display:none;color:#10b981"></div>
         </div>
 
-        <!-- Salas privadas -->
-        <div style="margin-top:12px;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px">
-          <div style="font-size:11px;font-weight:700;color:var(--purple2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">🔒 Salas Privadas</div>
-          <button onclick="excluirTodasSalasPrivadas()" style="width:100%;background:var(--surface3);border:1px solid var(--border2);color:var(--purple2);font-size:12px;font-weight:700;padding:10px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif">🗑 Excluir Todas as Salas Privadas</button>
-          <div id="privMsg" style="margin-top:8px;font-size:11px;display:none;color:#10b981"></div>
+      </div>
+
+      <!-- ══ SALAS PRIVADAS CRIADAS ══ -->
+      <div class="section" style="margin-top:14px">
+        <div class="section-title">🔒 Salas Privadas Criadas</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:12px;color:var(--text3)">Salas criadas pelos usuários. Admin e supervisor podem excluir.</div>
+          <button onclick="carregarSalasPrivadasAdmin()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--purple2);font-size:11px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap">🔄 Atualizar</button>
+        </div>
+        <div id="salasPrivAdminGrid" style="display:flex;flex-direction:column;gap:10px">
+          <div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">Carregando…</div>
         </div>
       </div>
 
@@ -1254,6 +1260,7 @@ function show(id, el){
   if(pg) pg.classList.add('active');
   if(el) el.classList.add('active');
   if(id==='logins'){ loginCurrentPage=1; renderLoginTable(); }
+  if(id==='salas'){ if(typeof carregarSalasPrivadasAdmin==='function') carregarSalasPrivadasAdmin(); }
   if(id==='gerenciar-usuarios'){ if(typeof GU_USUARIOS!=='undefined') GU_USUARIOS=Object.entries(USERS_DATA).map(([nick,d])=>({...d,nick})); if(typeof guRenderLista==='function') guRenderLista(); }
   if(id==='espiar'){
     const role = localStorage.getItem('tc_role')||'';
@@ -1265,6 +1272,27 @@ function show(id, el){
     if(isPriv && typeof spPrivRecarregar==='function') spPrivRecarregar();
     if(isPriv && typeof pvEspiarRenderGrid==='function') pvEspiarRenderGrid();
   }
+}
+
+// ── Salas privadas criadas (gerenciamento + exclusão) ──
+function carregarSalasPrivadasAdmin(){
+  var grid=document.getElementById('salasPrivAdminGrid'); if(!grid) return;
+  grid.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">Carregando…</div>';
+  API.get('/admin/private-rooms').then(function(d){
+    var list=(d&&d.rooms)||[];
+    if(!list.length){ grid.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)"><div style="font-size:28px;margin-bottom:8px">🔒</div>Nenhuma sala privada criada.</div>'; return; }
+    var role=localStorage.getItem('tc_role')||'';
+    var podeExcluir=['admin','supervisor'].indexOf(role)>-1;
+    grid.innerHTML=list.map(function(s){
+      var nome=String(s.name||'').replace(/['"\\]/g,''); var icon=s.icon||'🔒'; var cor=s.color||'#7c3aed'; var owner=String(s.owner_nick||'').replace(/['"\\]/g,'');
+      var btn=podeExcluir?'<button onclick="excluirSalaPrivadaAdmin('+s.id+',\''+nome+'\')" style="background:#ef4444;border:none;color:#fff;font-size:11px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:\'Syne\',sans-serif;white-space:nowrap">🗑 Excluir</button>':'';
+      return '<div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid '+cor+'55;border-radius:12px;padding:12px 14px"><div style="font-size:22px">'+icon+'</div><div style="flex:1;min-width:0"><div style="font-family:\'Syne\',sans-serif;font-size:13px;font-weight:800">'+nome+'</div><div style="font-size:10px;color:var(--text3)">por '+owner+'</div></div>'+btn+'</div>';
+    }).join('');
+  }).catch(function(){ grid.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">Erro ao carregar.</div>'; });
+}
+function excluirSalaPrivadaAdmin(id, nome){
+  if(!confirm('Excluir a sala privada "'+nome+'"? Esta ação não pode ser desfeita.')) return;
+  API.privateRooms.del(id).then(function(){ if(typeof toast==='function') toast('🗑 Sala "'+nome+'" excluída.'); carregarSalasPrivadasAdmin(); }).catch(function(e){ if(typeof toast==='function') toast((e&&e.message)||'Erro ao excluir','err'); });
 }
 
 function toast(msg,type='ok'){
@@ -2183,13 +2211,14 @@ function pvSpyRenderConv(conv) {
   var avatarEl   = document.getElementById('pvSpyContactAvatarInner');
   var allMsgs    = getPvMonitorMsgs();
 
-  // Select de conversas
+  // Select de conversas (normalizado: A↔B = B↔A)
   var convSet = {};
-  allMsgs.forEach(function(m){ if(m.conv) convSet[m.conv]=true; });
-  pvSpyPopulateSelect(Object.keys(convSet), conv);
+  allMsgs.forEach(function(m){ if(m.conv) convSet[pvNormConv(m.conv)]=true; });
+  pvSpyPopulateSelect(Object.keys(convSet), pvNormConv(conv));
 
-  // Mensagens desta conversa
-  var msgs = conv ? allMsgs.filter(function(m){ return (m.conv||'?')===conv; }) : allMsgs;
+  // Mensagens desta conversa (juntando as duas direções numa só tela)
+  var convN = pvNormConv(conv);
+  var msgs = conv ? allMsgs.filter(function(m){ return pvNormConv(m.conv||'?')===convN; }) : allMsgs;
 
   // Participantes
   var parts  = (conv||'').split('↔').map(function(p){return p.trim();});
@@ -2312,13 +2341,18 @@ function fecharPvSpy() {
   if (overlay) overlay.style.display = 'none';
 }
 
+function pvNormConv(conv){
+  var parts=(conv||'').split('↔').map(function(p){return p.trim();}).filter(Boolean);
+  parts.sort(function(a,b){ return a.toLowerCase()<b.toLowerCase()?-1:(a.toLowerCase()>b.toLowerCase()?1:0); });
+  return parts.join('↔');
+}
 function pvEspiarRenderGrid() {
   var grid = document.getElementById('pvEspiarGrid');
   if (!grid) return;
   var msgs = [];
   try { msgs = JSON.parse(localStorage.getItem(PV_MON_KEY) || '[]'); } catch(e) {}
   var convSet = {};
-  msgs.forEach(function(m){ if(m.conv) convSet[m.conv] = m; });
+  msgs.forEach(function(m){ if(m.conv){ var k=pvNormConv(m.conv); convSet[k] = m; } });
   var convKeys = Object.keys(convSet);
   if (!convKeys.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:24px;font-size:12px;color:var(--text3)"><div style="font-size:28px;margin-bottom:8px">\uD83D\uDD12</div>Nenhuma conversa privada ativa no momento.</div>';
