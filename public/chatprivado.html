@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/"+(location.search||""));}catch(e){}</script>
 <script>
 (function(){
   try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
@@ -1240,7 +1240,9 @@ function buildColorSwatches(){
   if(isGuest()){['btnFile'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.add('guest-blocked');});}  // visitante pode áudio e gif; bloqueia só arquivos/imagem/vídeo
   // Detect spy mode (via URL param ou localStorage)
   const urlParams=new URLSearchParams(window.location.search);
-  const isSpy=(urlParams.get('spy')==='1')||(LS.get('tc_spy_mode')==='1');
+  // Novo modo espião = ?spy=<sala> (somente leitura, idêntico). Não dispara o overlay antigo.
+  const _newSpyMode = !!(urlParams.get('spy') && urlParams.get('spy')!=='1');
+  const isSpy=!_newSpyMode && ((urlParams.get('spy')==='1')||(LS.get('tc_spy_mode')==='1'));
   const spyRoom=urlParams.get('room')||LS.get('tc_spy_room')||'esportes';
   const spyRoomNameStored=LS.get('tc_spy_room_name',spyRoom);
   const SPY_ROLES=['admin','supervisor','mod','premium','vip'];
@@ -1248,14 +1250,14 @@ function buildColorSwatches(){
     LS.set('tc_room',spyRoom);
     LS.set('tc_spy_mode','1');
     // Open full spy overlay directly
-    setTimeout(()=>{ espiarSala(spyRoom, spyRoomNameStored||spyRoom); }, 200);
+    setTimeout(()=>{ if(typeof espiarSala==='function') espiarSala(spyRoom, spyRoomNameStored||spyRoom); }, 200);
   } else {
     LS.set('tc_spy_mode','0');
   }
-  // Set room
+  // Set room — no novo modo espião usa a sala espiada (?spy=<sala>)
   const savedRoom = LS.get('tc_room','geral');
-  LS.set('tc_room', isSpy ? spyRoom : savedRoom);
-  const roomId = isSpy ? spyRoom : savedRoom;
+  const roomId = _newSpyMode ? urlParams.get('spy') : (isSpy ? spyRoom : savedRoom);
+  LS.set('tc_room', roomId);
   const rd = ROOM_DATA[roomId] || {name: LS.get('tc_room_name', roomId), icon: roomId.startsWith('priv_') ? '🔒' : '💬'};
   document.getElementById('roomIcon').textContent = rd.icon || '💬';
   document.getElementById('roomNameLabel').textContent = rd.name || roomId;
@@ -5909,7 +5911,12 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
       .then(function(d){ window._nickColors=(d&&d.colors)||{}; renderOnline(); }).catch(function(){});
   }catch(e){}
   tcSocket.offAll();
-  tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
+  window._SPY_MODE = (function(){ try{ return new URLSearchParams(location.search).get('spy')||''; }catch(e){ return ''; } })();
+  tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); if(window._SPY_MODE){ tcSocket.send('spy_join',{room:window._SPY_MODE}); } else { tcSocket.join(curRoom()); } try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
+  tcSocket.on('spy_history', function(d){ if(!window._SPY_MODE) return; var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; try{ seen=new Set(); }catch(e){} (d&&d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){} });
+    try{ if(API.roomUsers){ API.roomUsers(window._SPY_MODE).then(function(r){ var us=(r&&(r.users||r.online))||(Array.isArray(r)?r:[]); if(typeof roomRoles!=='undefined'){ try{ Object.keys(roomRoles).forEach(function(k){ delete roomRoles[k]; }); }catch(e){} us.forEach(function(u){ roomRoles[u.nick]=u.role||'user'; }); } if(typeof renderOnline==='function') renderOnline(); }).catch(function(){}); } }catch(e){}
+  });
+  tcSocket.on('spy_message', function(d){ if(!window._SPY_MODE) return; try{ incoming(d); }catch(e){} });
   tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){} }); });
   tcSocket.on('message', incoming);
   tcSocket.on('message_deleted', function(d){ try{ if(!d||d.id==null) return; var g=document.querySelector('.msg-group[data-msg-id="'+d.id+'"]'); if(g) g.remove(); }catch(e){} });
@@ -5928,7 +5935,8 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
     if(!bar){ bar=document.createElement('div'); bar.className='tc-react-sum'; bar.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-top:4px'; bubble.appendChild(bar); }
     bar.innerHTML=(d.summary||[]).map(function(r){ return '<span style="background:#e7f0fd;border:1px solid #c0d8f8;border-radius:10px;padding:1px 7px;font-size:11px;color:#1877f2;font-weight:700">'+r.emoji+' '+r.count+'</span>'; }).join('');
   });
-  if(tcSocket.connected) tcSocket.join(curRoom()); else tcSocket.connect();
+  if(window._SPY_MODE){ if(tcSocket.connected) tcSocket.send('spy_join',{room:window._SPY_MODE}); else tcSocket.connect(); }
+  else if(tcSocket.connected) tcSocket.join(curRoom()); else tcSocket.connect();
   document.addEventListener('input', function(e){ if(e.target&&e.target.id==='msgInput'){ var n=Date.now(); if(n-(window._tcLT||0)>1500){ window._tcLT=n; tcSocket.typing(); } } });
 })();
 </script>
@@ -6052,6 +6060,25 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
       if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
     }
   }).catch(function(){});
+})();
+</script>
+<script>
+/* Modo espião: chatprivado.html?spy=<sala> abre a sala privada em SOMENTE LEITURA, idêntica */
+(function(){
+  var spy=''; try{ spy=new URLSearchParams(location.search).get('spy')||''; }catch(e){}
+  if(!spy) return;
+  function init(){
+    var ir=document.querySelector('.input-row'); if(ir) ir.style.display='none';
+    try{ var mi=document.getElementById('msgInput'); if(mi){ mi.disabled=true; } }catch(e){}
+    if(!document.getElementById('spyBanner')){
+      var b=document.createElement('div'); b.id='spyBanner';
+      b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9000;background:linear-gradient(90deg,#7c3aed,#2563eb);color:#fff;font-family:Syne,sans-serif;font-weight:800;font-size:12px;text-align:center;padding:11px;letter-spacing:.5px;box-shadow:0 -2px 12px rgba(0,0,0,.25)';
+      b.textContent='👁 MODO ESPIÃO — somente leitura';
+      document.body.appendChild(b);
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+  try{ window.sendMsg=function(){ return; }; }catch(e){}
 })();
 </script>
 </body>

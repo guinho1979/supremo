@@ -214,7 +214,8 @@ TCSocket.prototype.connect = function () {
   this.intentional = false;
   var tab = '';
   try { tab = sessionStorage.getItem('tc_tab') || ''; if(!tab){ tab = Math.random().toString(36).slice(2) + Date.now(); sessionStorage.setItem('tc_tab', tab); } } catch (e) {}
-  this.ws = new WebSocket(window.TC_WS_URL + '?token=' + encodeURIComponent(token) + (tab ? ('&tab=' + encodeURIComponent(tab)) : ''));
+  var _spyc=''; try{ if(new URLSearchParams(location.search).get('spy')) _spyc='&spyconn=1'; }catch(e){}
+  this.ws = new WebSocket(window.TC_WS_URL + '?token=' + encodeURIComponent(token) + (tab ? ('&tab=' + encodeURIComponent(tab)) : '') + _spyc);
   this.ws.onopen = function () {
     self.connected = true; self.delay = 2000;
     self.ping = setInterval(function () { self.send('ping'); }, 30000);

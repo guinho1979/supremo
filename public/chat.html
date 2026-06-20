@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/"+(location.search||""));}catch(e){}</script>
 <script>
 (function(){
   try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
@@ -1302,7 +1302,9 @@ function buildColorSwatches(){
   if(isGuest()){['btnFile'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.add('guest-blocked');});}  // Room name bar
   // Detect spy mode (via URL param ou localStorage)
   const urlParams=new URLSearchParams(window.location.search);
-  const isSpy=(urlParams.get('spy')==='1')||(LS.get('tc_spy_mode')==='1');
+  // Novo modo espião = ?spy=<sala> (iframe já cuida da renderização). Não dispara o overlay antigo.
+  const _newSpyMode = !!(urlParams.get('spy') && urlParams.get('spy')!=='1');
+  const isSpy=!_newSpyMode && ((urlParams.get('spy')==='1')||(LS.get('tc_spy_mode')==='1'));
   const spyRoom=urlParams.get('room')||LS.get('tc_spy_room')||'esportes';
   const spyRoomNameStored=LS.get('tc_spy_room_name',spyRoom);
   const SPY_ROLES=['admin','supervisor','mod','premium','vip'];
@@ -1734,12 +1736,13 @@ function savePVSettings(){
 }
 
 function fecharEspiar(){
-  try{ window._spyRoom=''; if(window.tcSocket) tcSocket.send('spy_join',{room:''}); }catch(e){}
+  try{ window._spyRoom=''; }catch(e){}
+  try{ var fr=document.getElementById('spyFrame'); if(fr){ fr.src='about:blank'; fr.remove(); } }catch(e){}
   LS.set('tc_spy_mode','0');
   LS.set('tc_spy_room','');
   LS.set('tc_spy_room_name','');
-  document.getElementById('spyOverlay').style.display='none';
-  window.location.href='admin.html';
+  var ov=document.getElementById('spyOverlay');
+  if(ov){ ov.style.display='none'; ov.innerHTML=''; }
 }
 function toggleSpyOnline(){
   const p=document.getElementById('spyOnlinePanel');
@@ -1826,52 +1829,19 @@ function espiarSala(roomId, roomName){
   const allowed = ['admin','supervisor','mod','premium'];
   if(!allowed.includes(role)){ showToast('Sem permissão para espiar salas','error'); return; }
   if(String(roomId).indexOf('priv_')===0 && !['admin','supervisor'].includes(role)){ showToast('Só admin e supervisor podem espiar salas privadas','error'); return; }
-  fecharAdminOverlay();
-  const ROOM_ICONS = {geral:'💬',games:'🎮',musica:'🎵',esportes:'⚽',vip:'⭐',premium:'👑',dj:'🎧',admin:'🛡'};
-  const icon = ROOM_ICONS[roomId] || (roomId && roomId.indexOf('priv_')===0 ? '🔒' : '💬');
-  if(document.getElementById('spyModalRoomName')) document.getElementById('spyModalRoomName').textContent = roomName;
-  const spyIcon = document.getElementById('spyTopRoomIcon'); if(spyIcon) spyIcon.textContent = icon;
-  const spyName = document.getElementById('spyTopRoomName'); if(spyName) spyName.textContent = roomName;
-  const modBtn = document.getElementById('spyModBtn'); if(modBtn) modBtn.style.display = ['admin','supervisor','mod'].includes(role) ? '' : 'none';
-  const canDel = ['admin','supervisor','mod'].includes(role);
-
-  const area = document.getElementById('spyMsgArea');
-  area.innerHTML = '<div style="text-align:center;font-size:11px;color:#6a8aaa;padding:5px 12px;background:#1a1735;border-radius:20px;margin:0 auto 4px">👁 Modo espião · '+roomName+' · Você está invisível</div><div id="spyLoading" style="text-align:center;color:#8aafd4;font-size:12px;padding:20px">Carregando mensagens…</div>';
-
-  const ov = document.getElementById('spyOverlay');
+  if(typeof fecharAdminOverlay==='function'){ try{ fecharAdminOverlay(); }catch(e){} }
+  var ov = document.getElementById('spyOverlay');
+  if(!ov) return;
   ov.style.display = 'flex';
-
-  // Mensagens reais (sem entrar na sala = invisível)
-  API.getMessages(roomId).then(function(d){
-    var msgs = (d && (d.messages||d.msgs)) || (Array.isArray(d)?d:[]);
-    if(!Array.isArray(msgs)) msgs=[];
-    var lo=document.getElementById('spyLoading'); if(lo) lo.remove();
-    if(!msgs.length){ area.innerHTML += '<div style="text-align:center;color:#8aafd4;font-size:12px;padding:20px">Nenhuma mensagem recente nesta sala.</div>'; return; }
-    msgs.forEach(function(m){ area.insertAdjacentHTML('beforeend', window._spyMsgHtml(m, canDel)); });
-    setTimeout(function(){ area.scrollTop=area.scrollHeight; }, 50);
-    // Tempo real: assina o feed da sala (staff fica invisível)
-    try{ window._spyRoom = roomId; tcSocket.send('spy_join', { room: roomId }); }catch(e){}
-  }).catch(function(){ var lo=document.getElementById('spyLoading'); if(lo) lo.textContent='Erro ao carregar mensagens.'; });
-
-  // Usuários online reais
-  const onlineList = document.getElementById('spyOnlineList');
-  if(onlineList){
-    onlineList.innerHTML='<div style="font-size:11px;color:#8aafd4;padding:8px">Carregando…</div>';
-    API.roomUsers(roomId).then(function(d){
-      var users=(d&&(d.users||d.online))||(Array.isArray(d)?d:[]);
-      if(!Array.isArray(users)) users=[];
-      if(!users.length){ onlineList.innerHTML='<div style="font-size:11px;color:#8aafd4;padding:8px">Ninguém online aqui.</div>'; return; }
-      onlineList.innerHTML=users.map(function(u){
-        var urole=u.role||'user';
-        var bc=SPY_BADGE_COLORS[urole];
-        var badge=bc?'<span style="font-size:7px;padding:1px 4px;border-radius:10px;background:'+bc+'22;color:'+bc+';font-weight:700">'+urole.toUpperCase()+'</span>':'';
-        var ci=(window._nickColors&&window._nickColors[u.nick])||{};
-        var av=ci.photo?'<img src="'+ci.photo+'" style="width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0">':'<div style="width:26px;height:26px;border-radius:50%;background:#0f0e1a;border:2px solid '+(ci.color||'#3a6fa8')+';display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">'+(ci.avatar||u.avatar||'😊')+'</div>';
-        var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[ci.status||'online']||'#10b981';
-        return '<div style="display:flex;align-items:center;gap:5px;padding:4px 2px">'+av+'<div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:700;color:'+(ci.color||'#1a1735')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+u.nick+'</div>'+badge+'</div><span style="width:8px;height:8px;border-radius:50%;background:'+stColor+';flex-shrink:0"></span>'+(canDel?'<div style="display:flex;flex-direction:column;gap:2px"><button onclick="spyAction(\'ban\',\''+u.nick+'\')" style="background:#7f1d1d;border:none;color:#fca5a5;font-size:7px;font-weight:700;padding:1px 5px;border-radius:4px;cursor:pointer">Banir</button><button onclick="spyAction(\'kick\',\''+u.nick+'\')" style="background:#1e3a5f;border:none;color:#93c5fd;font-size:7px;font-weight:700;padding:1px 5px;border-radius:4px;cursor:pointer">Kick</button><button onclick="spyAction(\'mute\',\''+u.nick+'\')" style="background:#1c1c2e;border:none;color:#d1d5db;font-size:7px;font-weight:700;padding:1px 5px;border-radius:4px;cursor:pointer">Mutar</button></div>':'')+'</div>';
-      }).join('');
-    }).catch(function(){ onlineList.innerHTML='<div style="font-size:11px;color:#8aafd4;padding:8px">Erro ao carregar.</div>'; });
-  }
+  ov.style.flexDirection = 'column';
+  ov.style.background = '#0f0e1a';
+  // Abre o PRÓPRIO chat.html em modo somente-leitura (idêntico ao chat) dentro de um iframe
+  ov.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:#0f0e1a;color:#fff;flex-shrink:0;font-family:Syne,sans-serif;border-bottom:1px solid #2a2050">'+
+      '<button onclick="fecharEspiar()" title="Fechar" style="background:#7f1d1d;border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">\u2715</button>'+
+      '<span style="font-size:14px;font-weight:800">\uD83D\uDC41 Espiando: '+ (roomName||roomId) +'</span>'+
+    '</div>'+
+    '<iframe id="spyFrame" src="'+(String(roomId).indexOf('priv_')===0?'chatprivado.html':'chat.html')+'?spy='+encodeURIComponent(roomId)+'" style="flex:1;width:100%;border:none;background:#c8daf0" allow="autoplay"></iframe>';
 }
 
 
@@ -8689,7 +8659,12 @@ function processSmileKeywords(text){
   }
   try{ window.renderOnline = renderOnline; }catch(e){}
   tcSocket.offAll();
-  tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); tcSocket.join(curRoom()); try{ if(tcSocket.status) tcSocket.status(LS.get('tc_status','online')); }catch(e){} try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
+  window._SPY_MODE = (function(){ try{ return new URLSearchParams(location.search).get('spy')||''; }catch(e){ return ''; } })();
+  tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); if(window._SPY_MODE){ tcSocket.send('spy_join',{room:window._SPY_MODE}); } else { tcSocket.join(curRoom()); } try{ if(tcSocket.status && !window._SPY_MODE) tcSocket.status(LS.get('tc_status','online')); }catch(e){} try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
+  tcSocket.on('spy_history', function(d){ if(!window._SPY_MODE) return; var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; try{ seen=new Set(); }catch(e){} (d&&d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){} });
+    try{ if(API.roomUsers){ API.roomUsers(window._SPY_MODE).then(function(r){ var us=(r&&(r.users||r.online))||(Array.isArray(r)?r:[]); if(typeof roomRoles!=='undefined'){ try{ Object.keys(roomRoles).forEach(function(k){ delete roomRoles[k]; }); }catch(e){} us.forEach(function(u){ roomRoles[u.nick]=u.role||'user'; }); } if(typeof renderOnline==='function') renderOnline(); }).catch(function(){}); } }catch(e){}
+  });
+  tcSocket.on('spy_message', function(d){ if(!window._SPY_MODE) return; try{ incoming(d); }catch(e){} });
   tcSocket.on('user_status', function(d){ try{ if(d&&d.nick){ if(!window._nickColors) window._nickColors={}; if(!window._nickColors[d.nick]) window._nickColors[d.nick]={}; window._nickColors[d.nick].status=d.status; if(typeof window.renderOnline==='function') window.renderOnline(); } }catch(e){} });
   tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){ console.warn('msg render falhou', e); } }); });
   tcSocket.on('private', function(d){
@@ -8733,7 +8708,8 @@ function processSmileKeywords(text){
       if(g) g.remove();
     }catch(e){}
   });
-  if(tcSocket.connected) tcSocket.join(curRoom()); else tcSocket.connect();
+  if(window._SPY_MODE){ if(tcSocket.connected) tcSocket.send('spy_join',{room:window._SPY_MODE}); else tcSocket.connect(); }
+  else if(tcSocket.connected) tcSocket.join(curRoom()); else tcSocket.connect();
   // enviar "digitando" enquanto escreve
   document.addEventListener('input', function(e){
     if(e.target && e.target.id==='msgInput'){ var now=Date.now(); if(now-(window._tcLastTyp||0)>1500){ window._tcLastTyp=now; tcSocket.typing(); } }
@@ -9120,6 +9096,26 @@ setTimeout(buildSpyRoomList, 1800);
       if(c.announcement){ try{ var a=JSON.parse(c.announcement); if(a&&a.message) showAnnouncement(a.message,a.color); }catch(e){} }
     }).catch(function(){});
   }
+})();
+</script>
+<script>
+/* Modo espião: chat.html?spy=<sala> abre o chat em SOMENTE LEITURA, idêntico ao chat normal */
+(function(){
+  var spy=''; try{ spy=new URLSearchParams(location.search).get('spy')||''; }catch(e){}
+  if(!spy) return;
+  function init(){
+    var ir=document.querySelector('.input-row'); if(ir) ir.style.display='none';
+    try{ var mi=document.getElementById('msgInput'); if(mi){ mi.disabled=true; } }catch(e){}
+    if(!document.getElementById('spyBanner')){
+      var b=document.createElement('div'); b.id='spyBanner';
+      b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9000;background:linear-gradient(90deg,#7c3aed,#2563eb);color:#fff;font-family:Syne,sans-serif;font-weight:800;font-size:12px;text-align:center;padding:11px;letter-spacing:.5px;box-shadow:0 -2px 12px rgba(0,0,0,.25)';
+      b.textContent='👁 MODO ESPIÃO — somente leitura';
+      document.body.appendChild(b);
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+  // garante que nada seja enviado no modo espião
+  try{ var _s=window.sendMsg; window.sendMsg=function(){ return; }; }catch(e){}
 })();
 </script>
 </body>
