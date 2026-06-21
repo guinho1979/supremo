@@ -205,9 +205,18 @@ function setupWebSocket(server) {
           histWhere += ` AND created_at > NOW() - ($${histParams.length} || ' minutes')::interval`;
         }
         // Enviar histórico (últimas N mensagens, dentro da expiração se houver)
+        // Inclui as reações de cada mensagem (emoji + nick de quem reagiu),
+        // para o botão "Ver quem curtiu" funcionar também em mensagens antigas,
+        // não só nas que chegam em tempo real via WebSocket.
         const { rows: histDesc } = await db.query(`
-          SELECT id, nick, role, content, msg_type, media_url, reply_to, created_at
-          FROM messages
+          SELECT m.id, m.nick, m.role, m.content, m.msg_type, m.media_url, m.reply_to, m.created_at,
+                 COALESCE((
+                   SELECT json_agg(json_build_object('emoji', mr.emoji, 'nick', u.nick))
+                   FROM message_reactions mr
+                   JOIN users u ON u.id = mr.user_id
+                   WHERE mr.message_id = m.id
+                 ), '[]') AS reactions
+          FROM messages m
           WHERE ${histWhere}
           ORDER BY created_at DESC
           LIMIT ${msgLimit}
@@ -462,7 +471,7 @@ function setupWebSocket(server) {
       }
     });
 
-    ws.on('close', async (code, reason) => {
+    ws.on('close', async () => {
       const client = clients.get(socketId);
       if (client) {
         clients.delete(socketId);
