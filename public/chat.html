@@ -158,8 +158,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .msg-time{font-size:10px;color:#6a8aaa}
 .msg-actions{display:flex;gap:4px;flex-wrap:wrap}
 .act-btn{background:#1E90FF;border:none;color:#ffffff;font-size:8px;padding:3px 7px;border-radius:5px;cursor:pointer;font-weight:700}
-.msg-shield-btn{background:#16a34a;border:none;color:#fff;font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer;font-weight:700;line-height:1;display:inline-flex;align-items:center;justify-content:center}
-.msg-shield-btn:hover{background:#15803d}
+.msg-shield-btn{background:#064e3b;border:1px solid #10b98155;color:#6ee7b7;font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer;font-weight:700;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.msg-shield-btn:hover{background:#0a5e47}
 .act-btn:hover{background:#1a7fd4;color:#ffffff}
 .act-btn.red{background:#fde8e8;color:#c0392b}
 .act-btn.red:hover{background:#f5c0c0}
@@ -305,7 +305,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .ap-close{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:14px;padding:0}
 
 /* ── ONLINE PANEL ── */
-.online-panel{position:fixed;top:0;left:0;width:200px;height:100dvh;background:#dce8f5;border-right:1px solid #c8d8f5;padding:10px 8px;overflow-y:auto;transition:opacity .25s ease,visibility .25s ease;z-index:60;box-shadow:4px 0 20px rgba(0,0,0,.15);opacity:0;visibility:hidden;pointer-events:none;flex-shrink:0}
+.online-panel{position:fixed;top:0;left:0;width:260px;height:100dvh;background:#dce8f5;border-right:1px solid #c8d8f5;padding:10px 8px;overflow-y:auto;transition:opacity .25s ease,visibility .25s ease;z-index:60;box-shadow:4px 0 20px rgba(0,0,0,.15);opacity:0;visibility:hidden;pointer-events:none;flex-shrink:0}
 .online-panel.open{opacity:1;visibility:visible;pointer-events:auto}
 .online-panel::-webkit-scrollbar{display:none}
 .op-header{font-size:15px;color:#fff;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;padding:8px 10px;border-bottom:1px solid #5b21b6;background:#0f1f3d;display:flex;align-items:center;gap:4px;margin:-10px -8px 10px -8px;border-radius:0}
@@ -488,7 +488,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .admin-top-bar a{background:linear-gradient(90deg,#8aafd4,#60b0ff);;text-decoration:none;margin-left:auto;font-size:11px;font-weight:800}
 
 @media(max-width:500px){
-  .online-panel{width:220px}
+  .online-panel{width:280px}
   .topbar{padding:5px 10px;gap:5px}
   .radio-track{display:none}
   #floatingRadio{max-width:170px!important;min-width:120px!important}
@@ -1813,7 +1813,7 @@ window._spyMsgHtml=function(m, canDel){
     if(typeof animateEmojis==='function') t=animateEmojis(t);
     body=t;
   }
-  var shield=(canDel&&window._shieldBtn)?window._shieldBtn(m.nick,m.role):'';
+  var shield='';
   var delX=(canDel&&!window._isStaffMsg(m.role,m.nick))?'<button class="del-x-btn" onclick="_spyDel(this,'+(m.id||'null')+')" title="Apagar mensagem">✕</button>':'';
   return '<div class="msg-group" data-user="'+nq+'" data-msg-id="'+(m.id||'')+'">'+
     '<div class="msg-av" style="background:#1e1635;border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div>'+
@@ -3455,7 +3455,7 @@ const REACTIONS = window._REACTIONS || (window._REACTIONS = [
     <div class="msg-text" style="color:${msg.msgColor||'#0a1628'}">${renderedText}</div>
     <div class="react-bar" style="margin-top:4px;min-height:0"></div>
     <div class="msg-footer"><span class="msg-time">${nowTime()}</span>
-    <div class="msg-actions"><button class="act-btn" onclick="setReply('${msg.nick}')">↩ Reply</button>${!msg.isMine?`<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">${REACTIONS.map(r=>`<button class="react-emoji-btn" onclick="doReact(event,this,'${r.e}','${r.l}')" title="${r.l}">${r.e}<span class="re-label">${r.l}</span></button>`).join('')}</div></div>`:`<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>`}${window._shieldBtn?window._shieldBtn(msg.nick,msg.role):''}</div></div>
+    <div class="msg-actions"><button class="act-btn" onclick="setReply('${msg.nick}')">↩ Reply</button>${!msg.isMine?`<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">${REACTIONS.map(r=>`<button class="react-emoji-btn" onclick="doReact(event,this,'${r.e}','${r.l}')" title="${r.l}">${r.e}<span class="re-label">${r.l}</span></button>`).join('')}</div></div>`:`<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>`}</div></div>
     ${(msg.isMine||(canDeleteMsg()&&!window._isStaffMsg(msg.role,msg.nick)))&&!msg.monitoredPV?`<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>`:''}
   </div></div>`;
   area.appendChild(d);
@@ -4123,11 +4123,10 @@ function openLikesModalViewer(btn){
 }
 
 function _likeAvHtml(av){
-  av = av || '👤';
   if(typeof av==='string' && (av.indexOf('http')===0 || av.indexOf('data:')===0)){
     return '<img src="'+av+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">';
   }
-  return av;
+  return '👤';
 }
 function _showLikesModal(group, isMine){
   const data = _getReactData(group);
@@ -8665,7 +8664,7 @@ function processSmileKeywords(text){
     var _footer='<div class="msg-footer"><span class="msg-time">'+((typeof nowTime==='function')?nowTime():'')+'</span>'+
       '<div class="msg-actions"><button class="act-btn" onclick="setReply(\''+nq+'\')">↩ Reply</button>'+
       (!mine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">'+REACT.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>')+
-      (window._shieldBtn?window._shieldBtn(d.nick,d.role):'')+'</div></div>';
+      ''+'</div></div>';
     var _delX=((mine||(typeof canDeleteMsg==='function'&&canDeleteMsg()&&!window._isStaffMsg(d.role,d.nick))))?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'';
     div.innerHTML='<div class="msg-av" style="background:#1e1635;border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble">'
       +'<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="if(\''+nq+'\'!==ME.nick)openOuMenu(event,\''+nq+'\')">'+d.nick+'</span>'+badge+'</div>'
@@ -8705,7 +8704,8 @@ function processSmileKeywords(text){
         var badge = (typeof getBadgeHtml==='function') ? getBadgeHtml(role) : (SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '');
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
         var dot='<span title="'+(info.status||'online')+'" style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
-        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span>'+badge+dot+'</div>';
+        var shield=(window._shieldBtn?window._shieldBtn(n, role):'');
+        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+dot+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span>'+badge+shield+'</div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
     if(typeof updateDJOnlineName==='function'){ try{ updateDJOnlineName(); }catch(e){} }
@@ -8719,10 +8719,11 @@ function processSmileKeywords(text){
   });
   tcSocket.on('spy_message', function(d){ if(!window._SPY_MODE) return; try{ incoming(d); }catch(e){} });
   tcSocket.on('user_status', function(d){ try{ if(d&&d.nick){ if(!window._nickColors) window._nickColors={}; if(!window._nickColors[d.nick]) window._nickColors[d.nick]={}; window._nickColors[d.nick].status=d.status; if(typeof window.renderOnline==='function') window.renderOnline(); } }catch(e){} });
-  // Mostra um link fixo "últimas mensagens"; ao clicar, revela as últimas 30 e o link some.
+  // Mostra um link fixo "últimas mensagens"; ao clicar, revela as últimas e o link some.
   window._showHistoryLink=function(){
+    if(window._histShown) return;
+    if(window._SPY_MODE) return;
     var _a=document.getElementById('msgArea'); if(!_a) return;
-    if(!(window._histMsgs&&window._histMsgs.length)) return;
     if(document.getElementById('histLinkWrap')) return;
     var div=document.createElement('div');
     div.id='histLinkWrap';
@@ -8733,13 +8734,27 @@ function processSmileKeywords(text){
   window._revealHistory=function(){
     window._histShown=true;
     var _a=document.getElementById('msgArea'); if(!_a) return;
-    // Limpa (inclui o link) e re-renderiza o histórico do zero — garante a exibição.
-    _a.innerHTML='';
-    try{ seen=new Set(); }catch(e){}
-    window._historyLoaded=true;
-    (window._histMsgs||[]).forEach(function(m){ try{ incoming(m); }catch(e){ console.warn('msg render falhou', e); } });
-    try{ _a.scrollTop=_a.scrollHeight; }catch(e){}
+    var wrap=document.getElementById('histLinkWrap'); if(wrap) wrap.remove();
+    function render(msgs){
+      _a.innerHTML='';
+      try{ seen=new Set(); }catch(e){}
+      window._historyLoaded=true;
+      (msgs||[]).forEach(function(m){ try{ incoming(m); }catch(e){ console.warn('msg render falhou', e); } });
+      try{ _a.scrollTop=_a.scrollHeight; }catch(e){}
+    }
+    if(window._histMsgs && window._histMsgs.length){ render(window._histMsgs); return; }
+    // Histórico ainda não chegou pelo WebSocket: busca do servidor.
+    if(window.API && API.getMessages && typeof curRoom==='function'){
+      _a.innerHTML='<div style="text-align:center;padding:20px;font-size:12px;color:#8aafd4">Carregando\u2026</div>';
+      API.getMessages(curRoom()).then(function(d){
+        var m=(d&&d.messages)||[]; window._histMsgs=m; render(m);
+        if(!m.length && typeof showToast==='function') showToast('Sem mensagens recentes');
+      }).catch(function(){ render(window._histMsgs||[]); });
+    } else { render(window._histMsgs||[]); }
   };
+  // Garante que o link apareça assim que a sala carrega (não depende do histórico chegar).
+  try{ if(!window._SPY_MODE) window._showHistoryLink(); }catch(e){}
+  setTimeout(function(){ try{ if(!window._SPY_MODE && !window._histShown) window._showHistoryLink(); }catch(e){} }, 1200);
   tcSocket.on('history', function(d){
     var _a=document.getElementById('msgArea'); if(!_a) return;
     window._histMsgs=(d.messages||[]);
