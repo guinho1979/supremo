@@ -360,8 +360,18 @@ router.post('/messages/:id/react', authMiddleware, async (req, res) => {
       'SELECT emoji, COUNT(*)::int AS count FROM message_reactions WHERE message_id = $1 GROUP BY emoji ORDER BY count DESC',
       [req.params.id]
     );
-    try { ws.broadcastToRoom(m.room_slug, { event: 'message_reaction', data: { message_id: Number(req.params.id), summary } }); } catch (e) {}
-    res.json({ summary, mine });
+    // Lista detalhada (quem reagiu com quê) — necessária para o modal
+    // "Ver quem curtiu" no front-end. O summary acima só dá a contagem
+    // por emoji, sem identificar as pessoas.
+    const { rows: detail } = await db.query(
+      `SELECT mr.emoji, u.nick
+         FROM message_reactions mr
+         JOIN users u ON u.id = mr.user_id
+        WHERE mr.message_id = $1`,
+      [req.params.id]
+    );
+    try { ws.broadcastToRoom(m.room_slug, { event: 'message_reaction', data: { message_id: Number(req.params.id), summary, detail } }); } catch (e) {}
+    res.json({ summary, detail, mine });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao reagir.' }); }
 });
 
