@@ -4,7 +4,6 @@ const express      = require('express');
 const http         = require('http');
 const cors         = require('cors');
 const path         = require('path');
-const cookieParser = require('cookie-parser');
 const jwt          = require('jsonwebtoken');
 const rateLimit    = require('express-rate-limit');
 const setupWebSocket = require('./websocket');
@@ -30,7 +29,27 @@ app.use(cors({
 // ── Body Parser ───────────────────────────────────────────────
 app.use(express.json({ limit: '12mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+
+// Lê o cabeçalho "Cookie" e popula req.cookies, sem precisar de
+// nenhuma dependência externa (substitui o pacote cookie-parser).
+app.use((req, res, next) => {
+  req.cookies = {};
+  const header = req.headers.cookie;
+  if (header) {
+    header.split(';').forEach((part) => {
+      const idx = part.indexOf('=');
+      if (idx === -1) return;
+      const key = part.slice(0, idx).trim();
+      const val = part.slice(idx + 1).trim();
+      try {
+        req.cookies[key] = decodeURIComponent(val);
+      } catch (e) {
+        req.cookies[key] = val;
+      }
+    });
+  }
+  next();
+});
 
 // ── Rate Limiting ─────────────────────────────────────────────
 const limiter = rateLimit({
