@@ -186,44 +186,10 @@ function setupWebSocket(server) {
           `, [client.userId, client.nick, room, socketId]).catch(() => {});
         }
 
-        // Config de mensagens (limite / expiração) definida no painel admin
-        let msgLimit = 30, msgTtl = 0;
-        try {
-          const { rows: mc } = await db.query(
-            "SELECT key, value FROM system_config WHERE key IN ('msg_limit','msg_ttl')"
-          );
-          mc.forEach(r => {
-            if (r.key === 'msg_limit') msgLimit = Math.min(Math.max(parseInt(r.value) || 30, 10), 500);
-            if (r.key === 'msg_ttl')   msgTtl   = Math.max(parseInt(r.value) || 0, 0);
-          });
-        } catch (e) {}
+        // Histórico NÃO é mais enviado automaticamente ao entrar na sala.
+        // O usuário só vê as últimas mensagens se clicar no link "Últimas
+        // mensagens" (evento 'request_history', tratado mais abaixo).
 
-        let histWhere = 'room_slug = $1 AND is_deleted = FALSE';
-        const histParams = [room];
-        if (msgTtl > 0) {
-          histParams.push(String(msgTtl));
-          histWhere += ` AND created_at > NOW() - ($${histParams.length} || ' minutes')::interval`;
-        }
-        // Enviar histórico (últimas N mensagens, dentro da expiração se houver)
-        // Inclui as reações de cada mensagem (emoji + nick de quem reagiu),
-        // para o botão "Ver quem curtiu" funcionar também em mensagens antigas,
-        // não só nas que chegam em tempo real via WebSocket.
-        const { rows: histDesc } = await db.query(`
-          SELECT m.id, m.nick, m.role, m.content, m.msg_type, m.media_url, m.reply_to, m.created_at,
-                 COALESCE((
-                   SELECT json_agg(json_build_object('emoji', mr.emoji, 'nick', u.nick))
-                   FROM message_reactions mr
-                   JOIN users u ON u.id = mr.user_id
-                   WHERE mr.message_id = m.id
-                 ), '[]') AS reactions
-          FROM messages m
-          WHERE ${histWhere}
-          ORDER BY created_at DESC
-          LIMIT ${msgLimit}
-        `, histParams).catch(() => ({ rows: [] }));
-        const history = histDesc.reverse();
-
-        ws.send(JSON.stringify({ event: 'history', data: { messages: history } }));
 
         // Anunciar entrada
         broadcast(room, {
@@ -239,6 +205,47 @@ function setupWebSocket(server) {
           }
         });
         ws.send(JSON.stringify({ event: 'room_users', data: { users: roomUsers } }));
+        return;
+      }
+
+      // ── REQUEST HISTORY (link "Últimas mensagens") ──────────
+      // Diferente do antigo carregamento automático: só roda quando o
+      // usuário clica explicitamente no link, e sempre na sala atual dele.
+      if (msg.event === 'request_history') {
+        if (!client.roomSlug) return;
+
+        let msgTtl = 0;
+        try {
+          const { rows: mc } = await db.query(
+            "SELECT value FROM system_config WHERE key = 'msg_ttl'"
+          );
+          if (mc.length) msgTtl = Math.max(parseInt(mc[0].value) || 0, 0);
+        } catch (e) {}
+
+        let histWhere = 'room_slug = $1 AND is_deleted = FALSE';
+        const histParams = [client.roomSlug];
+        if (msgTtl > 0) {
+          histParams.push(String(msgTtl));
+          histWhere += ` AND created_at > NOW() - ($${histParams.length} || ' minutes')::interval`;
+        }
+        // Sempre as últimas 30, independente da configuração geral de limite —
+        // é exatamente o que o link "Últimas mensagens" promete mostrar.
+        const { rows: histDesc } = await db.query(`
+          SELECT m.id, m.nick, m.role, m.content, m.msg_type, m.media_url, m.reply_to, m.created_at,
+                 COALESCE((
+                   SELECT json_agg(json_build_object('emoji', mr.emoji, 'nick', u.nick))
+                   FROM message_reactions mr
+                   JOIN users u ON u.id = mr.user_id
+                   WHERE mr.message_id = m.id
+                 ), '[]') AS reactions
+          FROM messages m
+          WHERE ${histWhere}
+          ORDER BY created_at DESC
+          LIMIT 30
+        `, histParams).catch(() => ({ rows: [] }));
+        const history = histDesc.reverse();
+
+        ws.send(JSON.stringify({ event: 'history', data: { messages: history } }));
         return;
       }
 
@@ -302,14 +309,21 @@ function setupWebSocket(server) {
           }
         } catch(e) { /* ignora erro de filtro */ }
 
-        // Salvar no banco
+        // Salvar no banco — inclui visitantes (guests). Antes, só mensagens
+        // de usuários registrados eram salvas (client.userId), então as de
+        // visitantes nunca existiam no banco e "desapareciam" assim que ele
+        // saía da sala. Agora todo mundo é salvo; user_id fica NULL para
+        // visitantes (a coluna aceita NULL), e o nick/role continuam
+        // desnormalizados na própria mensagem, então o histórico funciona
+        // igual para os dois casos. A expiração automática (10 min) cuida
+        // de removê-las depois, como já acontece com as demais mensagens.
         let savedId = null;
-        if (client.userId) {
+        {
           const { rows: [saved] } = await db.query(`
             INSERT INTO messages (room_slug, user_id, nick, role, content, msg_type, media_url, reply_to)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING id
-          `, [client.roomSlug, client.userId, client.nick, client.role, filteredContent, msg_type, media_url, reply_to]).catch(() => ({ rows: [{}] }));
+          `, [client.roomSlug, client.userId || null, client.nick, client.role, filteredContent, msg_type, media_url, reply_to]).catch(() => ({ rows: [{}] }));
           savedId = saved?.id;
         }
 
