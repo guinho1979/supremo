@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script>try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp)window.__SPY__=_sp;}catch(e){}try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/"+(location.search||""));}catch(e){}</script>
+  <script>try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp)window.__SPY__=_sp;}catch(e){}try{document.cookie="tc_last_page=chat.html; path=/; max-age="+(7*24*60*60)+"; SameSite=Lax";}catch(e){}try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/"+(location.search||""));}catch(e){}</script>
 <script>
 (function(){
   try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
@@ -7583,13 +7583,7 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
     bubble.appendChild(_pvAudWrap);
     bubble.appendChild(_audEl);
   } else if (mediaType === 'gif' && mediaUrl) {
-    var _pvGifImg = document.createElement('img');
-    _pvGifImg.src = mediaUrl;
-    _pvGifImg.alt = 'GIF';
-    _pvGifImg.loading = 'lazy';
-    _pvGifImg.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:10px;display:block;margin-top:4px;cursor:pointer;background:#1a1d24';
-    _pvGifImg.addEventListener('click', function(){ openPvMediaModal(mediaUrl, 'image'); });
-    bubble.appendChild(_pvGifImg);
+    _pvIconBtn(_PV_ICO_IMAGE, function(){ openPvMediaModal(mediaUrl, 'image'); });
   } else if ((mediaType === 'tiktok' || mediaType === 'instagram' || mediaType === 'yt') && mediaUrl) {
     var _pvMType = mediaType, _pvMUrl = mediaUrl;
     var _pvSvg = _pvMType==='yt' ? _PV_ICO_YT : _pvMType==='instagram' ? _PV_ICO_IG : _PV_ICO_TK;
@@ -8635,9 +8629,7 @@ function processSmileKeywords(text){
     var div=document.createElement('div'); div.className='msg-group'; div.dataset.user=d.nick; if(mine) div.dataset.mine='1';
     var mediaBlock;
     var _imgName=name||(type==='gif'?'GIF':'Imagem');
-    if(type==='gif'){
-      mediaBlock='<img data-img-chip="1" src="'+src+'" alt="GIF" loading="lazy" style="width:100px;height:100px;object-fit:cover;border-radius:10px;display:block;margin-top:4px;cursor:pointer;background:#0c1322">';
-    } else if(type==='image'||type==='draw'||type==='desenho'||type==='drawing'){
+    if(type==='image'||type==='gif'||type==='draw'||type==='desenho'||type==='drawing'){
       mediaBlock='<div class="media-msg" data-img-chip="1" style="cursor:pointer"><span class="media-icon">'+(cfg&&cfg.icon||'🖼️')+'</span><div class="media-info"><div class="media-name">'+_imgName+'</div><div class="media-meta">Toque para ver a imagem</div></div></div>';
     } else if(type==='video'){
       mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
@@ -8709,7 +8701,26 @@ function processSmileKeywords(text){
   });
   tcSocket.on('spy_message', function(d){ if(!window._SPY_MODE) return; try{ incoming(d); }catch(e){} });
   tcSocket.on('user_status', function(d){ try{ if(d&&d.nick){ if(!window._nickColors) window._nickColors={}; if(!window._nickColors[d.nick]) window._nickColors[d.nick]={}; window._nickColors[d.nick].status=d.status; if(typeof window.renderOnline==='function') window.renderOnline(); } }catch(e){} });
-  tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set(); (d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){ console.warn('msg render falhou', e); } }); });
+  tcSocket.on('history', function(d){
+    var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set();
+    (d.messages||[]).forEach(function(m){
+      try{
+        incoming(m);
+        // Aplica reações salvas (quem curtiu cada mensagem antiga) — sem
+        // isso, "Ver quem curtiu" só funcionava para mensagens recebidas
+        // em tempo real depois de você já estar com o chat aberto.
+        if(m.reactions && m.reactions.length){
+          var g=document.querySelector('.msg-group[data-msg-id="'+m.id+'"]');
+          if(g && typeof _getReactData==='function'){
+            var data=_getReactData(g);
+            data.reacts=m.reactions.map(function(r){ return {emoji:r.emoji, label:'', nick:r.nick, av:'👤'}; });
+            data.myReact=(typeof ME!=='undefined' && data.reacts.find(function(r){return r.nick===ME.nick;}))?data.reacts.find(function(r){return r.nick===ME.nick;}).emoji:null;
+            if(typeof _renderReactSummary==='function') _renderReactSummary(g, data);
+          }
+        }
+      }catch(e){ console.warn('msg render falhou', e); }
+    });
+  });
   tcSocket.on('private', function(d){
     if(!d || !d.from_nick) return;
     try{
@@ -8726,11 +8737,24 @@ function processSmileKeywords(text){
   tcSocket.on('quiz_answer', function(d){ try{ if(typeof registrarAcertoQuiz==='function') registrarAcertoQuiz(d); }catch(e){} });
   tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
-  tcSocket.on('user_left', function(d){ if(d&&d.nick&&d.nick===ME.nick) return; delete roomRoles[d.nick]; renderOnline(); });
+  tcSocket.on('user_left', function(d){ delete roomRoles[d.nick]; renderOnline(); });
   tcSocket.on('typing', function(d){ var t=document.getElementById('typingIndicator'); if(t){ t.textContent=(d.nick||'')+' está digitando…'; clearTimeout(window._tcTypTo); window._tcTypTo=setTimeout(function(){t.textContent='';},2500);} });
   tcSocket.on('error', function(d){ if(typeof showToast==='function') showToast((d&&d.message)||'Erro','error'); });
   tcSocket.on('message_reaction', function(d){
     var g=document.querySelector('.msg-group[data-msg-id="'+d.message_id+'"]'); if(!g) return;
+
+    // Atualiza a lista real de quem reagiu (vinda do servidor), usada
+    // pelo modal "Ver quem curtiu" — antes esse modal só mostrava a
+    // própria reação local, nunca a de outras pessoas.
+    if(typeof _getReactData==='function'){
+      var data=_getReactData(g);
+      data.reacts=(d.detail||[]).map(function(r){
+        return {emoji:r.emoji, label:'', nick:r.nick, av:(window._nickColors&&window._nickColors[r.nick]&&window._nickColors[r.nick].avatar)||'👤'};
+      });
+      data.myReact=(typeof ME!=='undefined' && data.reacts.find(function(r){return r.nick===ME.nick;}))?data.reacts.find(function(r){return r.nick===ME.nick;}).emoji:null;
+      if(typeof _renderReactSummary==='function') _renderReactSummary(g, data);
+    }
+
     var bubble=g.querySelector('.msg-bubble')||g;
     var bar=bubble.querySelector('.tc-react-sum');
     if(!bar){ bar=document.createElement('div'); bar.className='tc-react-sum'; bar.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-top:4px'; bubble.appendChild(bar); }
@@ -8941,18 +8965,20 @@ function processSmileKeywords(text){
   tcSocket.on('kicked', function(d){ try{ if(typeof showToast==='function') showToast('Você foi removido da sala'+(d&&d.by?(' por '+d.by):'')+'.','error'); else alert('Você foi removido da sala.'); }catch(e){} setTimeout(function(){ location.href='salas.html'; }, 800); });
   tcSocket.on('room_cleared', function(){ var a=document.getElementById('msgArea'); if(a) a.innerHTML=''; if(typeof showToast==='function') showToast('As mensagens desta sala foram limpas.','info'); });
   tcSocket.on('session_replaced', function(){
-    // NUNCA desloga automaticamente. Refresh/reconexão jamais devem mandar para o login.
-    // Apenas tenta reconectar em silêncio.
-    setTimeout(function(){ try{ if(!tcSocket.connected) tcSocket.connect(); }catch(e){} }, 1200);
+    // Logo após conectar (refresh/reconexão), ignora — é corrida, não outro dispositivo
+    if(Date.now()-(window._tcConnAt||0) < 10000) return;
+    // Primeira vez: pode ser instabilidade/refresh — tenta reconectar 1x em vez de deslogar
+    if(!window._tcReplacedOnce){
+      window._tcReplacedOnce = true;
+      setTimeout(function(){ window._tcReplacedOnce = false; }, 15000);
+      setTimeout(function(){ try{ tcSocket.connect(); }catch(e){} }, 2000);
+      return;
+    }
+    // Substituído de novo em sequência → realmente é outro dispositivo
+    try{ if(typeof showToast==='function') showToast('Sua conta entrou em outro dispositivo. Esta sessão foi encerrada.','error'); }catch(e){}
+    setTimeout(function(){ location.href='login.html'; }, 1600);
   });
-  // Garante reconexão se a página voltar do cache (bfcache) sem recarregar tudo
-  window.addEventListener('pageshow', function(e){
-    setTimeout(function(){ try{ if(!tcSocket.connected) tcSocket.connect(); }catch(e){} }, 300);
-  });
-  // Reconecta ao voltar o foco/visibilidade se a conexão tiver caído
-  document.addEventListener('visibilitychange', function(){
-    if(document.visibilityState==='visible'){ setTimeout(function(){ try{ if(!tcSocket.connected) tcSocket.connect(); }catch(e){} }, 300); }
-  });
+  window.addEventListener('pageshow', function(e){ if(e.persisted){ location.reload(); } });
 })();
 </script>
 <script>
@@ -9076,6 +9102,12 @@ function _nickColorParts(nick){
 function _applyNickStyle(el, nick){
   if(!el) return;
   var parts=_nickColorParts(nick);
+  // Evita "piscar": só reaplica classes/estilo se algo de fato mudou
+  // desde a última vez (loadNickColors roda a cada 30s e tocava em
+  // TODAS as mensagens na tela, mesmo sem nenhuma alteração real).
+  var sig = (parts.cls||'') + '|' + (parts.style||'');
+  if(el.dataset._nickSig === sig) return;
+  el.dataset._nickSig = sig;
   ['nick-fx-rainbow','nick-fx-fire','nick-fx-galaxy','nick-fx-gold','nick-fx-matrix'].forEach(function(k){ try{el.classList.remove(k);}catch(e){} });
   try{ el.style.background=''; el.style.webkitBackgroundClip=''; el.style.backgroundClip=''; el.style.webkitTextFillColor=''; }catch(e){}
   if(parts.cls){ try{el.classList.add(parts.cls);}catch(e){} }
