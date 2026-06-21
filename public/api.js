@@ -92,6 +92,7 @@ var API = {
   updateProfile: function (patch) { return API.patch('/auth/me', patch); },
   changePassword: function (current, new_password) { return API.patch('/auth/password', { current: current, new_password: new_password }); },
   reactMessage:  function (id, emoji) { return API.post('/messages/' + id + '/react', { emoji: emoji }); },
+  getMessageReactions: function (id) { return API.get('/messages/' + id + '/reactions'); },
   delMessage:    function (id) { return API.delete('/messages/' + id); },
   dj: {
     request: function (song, artist, dedica) { return API.post('/dj/requests', { song: song, artist: artist, dedica: dedica }); },
