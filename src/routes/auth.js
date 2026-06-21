@@ -120,6 +120,13 @@ router.post('/register', async (req, res) => {
     );
     await logLogin(req, user.nick, 'registered');
 
+    res.cookie('tc_session', jwt_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
     res.status(201).json({
       token: jwt_token,
       user: { id: user.id, nick: user.nick, role: user.role, avatar: user.avatar }
@@ -209,6 +216,15 @@ router.post('/login', async (req, res) => {
     );
     await logLogin(req, user.nick, 'registered');
 
+    // Cookie de sessão — usado pelo servidor para saber, no F5 da raiz
+    // mascarada (/), se deve servir o chat ou o login.
+    res.cookie('tc_session', jwt_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias, igual ao JWT
+    });
+
     res.json({
       token: jwt_token,
       user: {
@@ -279,6 +295,13 @@ router.post('/guest', async (req, res) => {
     );
     await logLogin(req, nick, 'guest');
 
+    res.cookie('tc_session', jwt_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24h, igual ao JWT de visitante
+    });
+
     res.json({
       token: jwt_token,
       user: { id: guestId, nick, role: 'guest', avatar: '👤', type: 'guest' }
@@ -294,6 +317,7 @@ router.post('/guest', async (req, res) => {
 router.post('/logout', authMiddleware, async (req, res) => {
   try {
     await db.query('DELETE FROM sessions WHERE token = $1', [req.token]);
+    res.clearCookie('tc_session');
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: 'Erro ao sair.' });
