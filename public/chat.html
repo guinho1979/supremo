@@ -422,8 +422,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .photo-drop{border:2px dashed #3a5068;border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;transition:.15s;margin-bottom:8px}
 .photo-drop:hover{border-color:#A020F0;background:#1a1d24}
 .photo-preview-img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #8aafd4;display:block;margin:0 auto 6px}
-.av-preview-ring{width:56px;height:56px;border-radius:50%;background:#221f42;border:2px solid #3d35a0;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 10px;overflow:hidden;transition:.15s}
-.av-preview-ring img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av-preview-ring{width:56px;height:56px;border-radius:10px;background:#221f42;border:2px solid #3d35a0;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 10px;overflow:hidden;transition:.15s}
+.av-preview-ring img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 
 /* ── PROFILE MODAL ── */
 .prof-grid{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:start;margin-bottom:12px}
@@ -550,7 +550,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
     <!-- Avatar + Nick -->
     <div class="oc-section-block" style="text-align:center;padding-top:20px;padding-bottom:18px">
-      <div id="ocAvRing" style="width:100px;height:100px;border-radius:16px;background:#c8d8f5;border:2px solid #b8d0e8;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px;overflow:hidden">😊</div>
+      <div id="ocAvRing" style="width:100px;height:100px;border-radius:10px;background:#c8d8f5;border:2px solid #b8d0e8;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px;overflow:hidden">😊</div>
       <div class="oc-nick-display" id="ocNickDisplay">–</div>
     </div>
 
@@ -1366,7 +1366,7 @@ function buildColorSwatches(){
 function updateAvPreview(el,av){
   if(!el)return;
   if(av&&(av.startsWith('http')||av.startsWith('data:')||av.startsWith('avatar/')))
-    el.innerHTML=`<img src="${av}" alt="av" style="width:100%;height:100%;object-fit:cover;display:block"/>`;
+    el.innerHTML=`<img src="${av}" alt="av" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px"/>`;
   else el.textContent=av||'😊';
 }
 
@@ -4310,7 +4310,7 @@ function openProfile(nick){
     || (ci.photo||'')
     || ((u.av && (u.av.indexOf('http')===0||u.av.indexOf('data:')===0)) ? u.av : '')
     || ((ci.avatar && (ci.avatar.indexOf('http')===0||ci.avatar.indexOf('data:')===0)) ? ci.avatar : '');
-  const avHtml = _photoUrl ? `<img src="${_photoUrl}" alt="foto" style="width:100%;height:100%;object-fit:cover;display:block">` : `<span style="font-size:54px;line-height:1">${u.av||'😊'}</span>`;
+  const avHtml = _photoUrl ? `<img src="${_photoUrl}" alt="foto" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px">` : `<span style="font-size:54px;line-height:1">${u.av||'😊'}</span>`;
   const ACC = u.color || '#38bdf8';
   const roleLabel = {admin:'ADMINISTRADOR',supervisor:'SUPERVISOR',mod:'MODERADOR',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USUÁRIO',guest:'VISITANTE'}[u.role]||'USUÁRIO';
   const fieldMap=[
@@ -4331,8 +4331,8 @@ function openProfile(nick){
       <div style="position:absolute;inset:0;background:radial-gradient(120px 120px at 50% -10%, ${ACC}33, transparent 70%);pointer-events:none"></div>
       <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:10px">
         <div style="position:relative;width:120px;height:120px">
-          <div style="position:absolute;inset:-3px;border-radius:20px;background:linear-gradient(135deg,${ACC},transparent 60%);filter:blur(.5px)"></div>
-          <div style="position:relative;width:120px;height:120px;border-radius:18px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0c1322;border:2px solid ${ACC};box-shadow:0 0 26px ${ACC}55">${avHtml}</div>
+          <div style="position:absolute;inset:-3px;border-radius:13px;background:linear-gradient(135deg,${ACC},transparent 60%);filter:blur(.5px)"></div>
+          <div style="position:relative;width:120px;height:120px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0c1322;border:2px solid ${ACC};box-shadow:0 0 26px ${ACC}55">${avHtml}</div>
           <span style="position:absolute;right:6px;bottom:6px;width:16px;height:16px;border-radius:50%;background:#22c55e;border:2.5px solid #0a1120;box-shadow:0 0 8px #22c55e"></span>
         </div>
         <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center">
