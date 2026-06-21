@@ -97,6 +97,31 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
+// ── DIAGNÓSTICO TEMPORÁRIO — remover depois de resolver o bug ──
+app.get('/debug-cookies', (req, res) => {
+  let valido = false;
+  let motivoErro = null;
+  const token = req.cookies && req.cookies.tc_session;
+  if (token) {
+    try {
+      jwt.verify(token, process.env.JWT_SECRET);
+      valido = true;
+    } catch (e) {
+      motivoErro = e.message;
+    }
+  }
+  res.json({
+    protocolo_visto_pelo_servidor: req.protocol,
+    header_cookie_bruto: req.headers.cookie || '(nenhum cookie enviado)',
+    cookies_parseados: req.cookies,
+    tem_tc_session: !!token,
+    jwt_valido: valido,
+    motivo_erro_jwt: motivoErro,
+    jwt_secret_definido: !!process.env.JWT_SECRET,
+    node_env: process.env.NODE_ENV || '(não definido)'
+  });
+});
+
 // ── Fallback: decide qual página servir para rotas desconhecidas ──
 // Se existe cookie de sessão com JWT válido, manda para a última página
 // que o usuário visitou (guardada em tc_last_page pelo front-end), ou
