@@ -116,13 +116,18 @@ function setupWebSocket(server) {
         const payload = jwt.verify(token, process.env.JWT_SECRET);
         userInfo = { userId: payload.userId, guestId: payload.guestId || null, nick: payload.nick, role: payload.role, type: payload.type || 'registered' };
       } catch (e) {
+        console.log('[DEBUG-WS] Conexão rejeitada — token inválido/expirado:', e.message);
         ws.close(4001, 'Token inválido');
         return;
       }
     } else {
+      console.log('[DEBUG-WS] Conexão rejeitada — sem token na URL');
       ws.close(4001, 'Token obrigatório');
       return;
     }
+
+    console.log('[DEBUG-WS] Nova conexão: nick=' + userInfo.nick + ' tabId=' + tabId + ' socketId=' + socketId + ' isSpyConn=' + isSpyConn);
+    console.log('[DEBUG-WS] Conexões existentes no momento:', Array.from(clients.entries()).map(([id, c]) => ({ id, nick: c.nick, tabId: c.tabId, isSpyConn: c.isSpyConn, readyState: c.ws ? c.ws.readyState : 'sem ws' })));
 
     // "Última conexão vence": derruba sessões anteriores com o mesmo nick,
     // MAS só de outra aba/dispositivo (tab diferente). Conexões de ESPIÃO (somente
@@ -136,9 +141,11 @@ function setupWebSocket(server) {
           // são conhecidas e DIFERENTES. Caso contrário (mesma aba, refresh, ou tab ausente),
           // fecha em silêncio com 4006 — sem deslogar o usuário.
           if (tabId && c.tabId && c.tabId !== tabId) {
+            console.log('[DEBUG-WS] >>> Disparando session_replaced (4005). tabId novo=' + tabId + ' vs tabId antigo=' + c.tabId);
             try { c.ws.send(JSON.stringify({ event: 'session_replaced', data: {} })); } catch (e) {}
             try { c.ws.close(4005, 'Sessão substituída'); } catch (e) {}
           } else {
+            console.log('[DEBUG-WS] >>> Fechando conexão antiga em silêncio (4006). tabId novo=' + tabId + ' vs tabId antigo=' + c.tabId);
             try { c.ws.close(4006, 'Reconexão da mesma aba'); } catch (e) {}
           }
         }
@@ -146,6 +153,7 @@ function setupWebSocket(server) {
     }
 
     clients.set(socketId, { ws, tabId, isSpyConn, ...userInfo, roomSlug: null });
+    console.log('[DEBUG-WS] Conexão registrada com sucesso: socketId=' + socketId + ' nick=' + userInfo.nick);
     if (userInfo.userId) {
       try {
         const { rows: [uf] } = await db.query('SELECT muted_until, shadow_banned FROM users WHERE id = $1', [userInfo.userId]);
@@ -462,7 +470,8 @@ function setupWebSocket(server) {
       }
     });
 
-    ws.on('close', async () => {
+    ws.on('close', async (code, reason) => {
+      console.log('[DEBUG-WS] Conexão fechada: socketId=' + socketId + ' code=' + code + ' reason=' + reason);
       const client = clients.get(socketId);
       if (client) {
         clients.delete(socketId);
