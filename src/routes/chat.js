@@ -369,7 +369,7 @@ router.post('/messages/:id/react', authMiddleware, async (req, res) => {
 router.get('/messages/:id/reactions', authMiddleware, async (req, res) => {
   try {
     const { rows } = await db.query(
-      `SELECT u.nick, u.avatar, u.role, mr.emoji
+      `SELECT u.nick, u.avatar, u.role, u.photo_url, mr.emoji
        FROM message_reactions mr
        JOIN users u ON u.id = mr.user_id
        WHERE mr.message_id = $1
