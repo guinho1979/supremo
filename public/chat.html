@@ -714,6 +714,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   <!-- Offline user warning (shown when trying to PV offline user) -->
 
   <div class="messages" id="msgArea">
+    <div id="lastMsgsLink" style="text-align:center;padding:8px;cursor:pointer;color:#1877f2;font-size:13px;font-weight:700;border-bottom:1px solid #e2e8f0;background:#f5f9ff" onclick="loadLastMessages()">🕐 Últimas mensagens</div>
   </div>
 
   <!-- ONLINE PANEL -->
@@ -2777,7 +2778,7 @@ function entrarSalaOverlay(id){
   document.title = 'Chat Supremo — '+rd.name;
   syncTopRoomName();
   const area = document.getElementById('msgArea');
-  area.innerHTML = `<div class="sys-msg">Você entrou em <strong>${rd.icon} ${rd.name}</strong></div>`;
+  area.innerHTML = `<div id="lastMsgsLink" style="text-align:center;padding:8px;cursor:pointer;color:#1877f2;font-size:13px;font-weight:700;border-bottom:1px solid #e2e8f0;background:#f5f9ff" onclick="loadLastMessages()">🕐 Últimas mensagens</div><div class="sys-msg">Você entrou em <strong>${rd.icon} ${rd.name}</strong></div>`;
   showToast('Entrando em '+rd.icon+' '+rd.name);
 }
 
@@ -4956,7 +4957,7 @@ function entrarSalaPage(id){
   document.title='Chat Supremo — '+rd.name;
   syncTopRoomName();
   const area=document.getElementById('msgArea');
-  if(area)area.innerHTML=`<div class="sys-msg">Você entrou em <strong>${rd.icon} ${rd.name}</strong></div>`;
+  if(area)area.innerHTML=`<div id="lastMsgsLink" style="text-align:center;padding:8px;cursor:pointer;color:#1877f2;font-size:13px;font-weight:700;border-bottom:1px solid #e2e8f0;background:#f5f9ff" onclick="loadLastMessages()">🕐 Últimas mensagens</div><div class="sys-msg">Você entrou em <strong>${rd.icon} ${rd.name}</strong></div>`;
   showToast('Entrando em '+rd.icon+' '+rd.name);
 }
 function espiarSalaPage(roomId,roomName){
@@ -8702,25 +8703,42 @@ function processSmileKeywords(text){
   tcSocket.on('spy_message', function(d){ if(!window._SPY_MODE) return; try{ incoming(d); }catch(e){} });
   tcSocket.on('user_status', function(d){ try{ if(d&&d.nick){ if(!window._nickColors) window._nickColors={}; if(!window._nickColors[d.nick]) window._nickColors[d.nick]={}; window._nickColors[d.nick].status=d.status; if(typeof window.renderOnline==='function') window.renderOnline(); } }catch(e){} });
   tcSocket.on('history', function(d){
-    var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; seen=new Set();
+    var _a=document.getElementById('msgArea'); if(!_a) return;
+    var linkEl=document.getElementById('lastMsgsLink');
+    var frag=document.createDocumentFragment();
     (d.messages||[]).forEach(function(m){
       try{
+        var beforeCount=_a.children.length;
         incoming(m);
-        // Aplica reações salvas (quem curtiu cada mensagem antiga) — sem
-        // isso, "Ver quem curtiu" só funcionava para mensagens recebidas
-        // em tempo real depois de você já estar com o chat aberto.
-        if(m.reactions && m.reactions.length){
-          var g=document.querySelector('.msg-group[data-msg-id="'+m.id+'"]');
-          if(g && typeof _getReactData==='function'){
-            var data=_getReactData(g);
-            data.reacts=m.reactions.map(function(r){ return {emoji:r.emoji, label:'', nick:r.nick, av:'👤'}; });
-            data.myReact=(typeof ME!=='undefined' && data.reacts.find(function(r){return r.nick===ME.nick;}))?data.reacts.find(function(r){return r.nick===ME.nick;}).emoji:null;
-            if(typeof _renderReactSummary==='function') _renderReactSummary(g, data);
-          }
-        }
+        // incoming() insere direto em msgArea; move o elemento recém-criado
+        // para o fragmento, para depois inserir tudo de uma vez no topo.
+        var added=_a.children[_a.children.length-1];
+        if(added && _a.children.length>beforeCount) frag.appendChild(added);
       }catch(e){ console.warn('msg render falhou', e); }
     });
+    // Insere o bloco de histórico logo após o link (que será removido a seguir)
+    if(linkEl && linkEl.nextSibling) _a.insertBefore(frag, linkEl.nextSibling);
+    else _a.insertBefore(frag, _a.firstChild);
+    if(linkEl) linkEl.remove();
+    // Aplica reações (quem curtiu) depois de tudo já estar no DOM real —
+    // não dá para fazer essa busca enquanto os elementos ainda estavam
+    // só no fragmento desconectado.
+    (d.messages||[]).forEach(function(m){
+      if(!m.reactions || !m.reactions.length) return;
+      var g=document.querySelector('.msg-group[data-msg-id="'+m.id+'"]');
+      if(g && typeof _getReactData==='function'){
+        var data=_getReactData(g);
+        data.reacts=m.reactions.map(function(r){ return {emoji:r.emoji, label:'', nick:r.nick, av:'👤'}; });
+        data.myReact=(typeof ME!=='undefined' && data.reacts.find(function(r){return r.nick===ME.nick;}))?data.reacts.find(function(r){return r.nick===ME.nick;}).emoji:null;
+        if(typeof _renderReactSummary==='function') _renderReactSummary(g, data);
+      }
+    });
   });
+  function loadLastMessages(){
+    var linkEl=document.getElementById('lastMsgsLink');
+    if(linkEl) linkEl.textContent='Carregando…';
+    try{ tcSocket.send('request_history', {}); }catch(e){}
+  }
   tcSocket.on('private', function(d){
     if(!d || !d.from_nick) return;
     try{
