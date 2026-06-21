@@ -214,8 +214,7 @@ CREATE TABLE IF NOT EXISTS online_presence (
 --  SALAS PADRÃO
 -- ─────────────────────────────────────────────────────────────
 INSERT INTO rooms (slug, name, description, icon, category, sort_order) VALUES
-  ('geral',     'Geral',          'Sala principal para todos',           '💬', 'geral',    1),
-  ('musica',    'Música',         'Para os amantes da boa música',       '🎵', 'cultura',  3)
+  ('geral',     'Geral',          'Sala principal para todos',           '💬', 'geral',    1)
 ON CONFLICT (slug) DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────────
