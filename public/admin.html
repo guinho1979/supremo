@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script>try{document.cookie="tc_last_page=admin.html; path=/; max-age="+(7*24*60*60)+"; SameSite=Lax";}catch(e){}try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
+  <script>try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/");}catch(e){}</script>
 <script>
 (function(){
   try{
@@ -1271,6 +1271,11 @@ function show(id, el){
     if(secPV) secPV.style.display = isPriv ? '' : 'none';
     if(isPriv && typeof spPrivRecarregar==='function') spPrivRecarregar();
     if(isPriv && typeof pvEspiarRenderGrid==='function') pvEspiarRenderGrid();
+    // Espiar privados não depende do monitor ao vivo: mostra o seletor e busca os PVs reais do servidor
+    if(isPriv){
+      var _pvJ=document.getElementById('pvJanelaSection'); if(_pvJ) _pvJ.style.display='';
+      if(typeof pvFetchServerPvs==='function'){ pvFetchServerPvs().then(function(){ try{ if(typeof pvAtualizarBtnLabel==='function') pvAtualizarBtnLabel(); }catch(e){} }); }
+    }
   }
 }
 
@@ -1750,6 +1755,38 @@ function clearPvMonitorMsgs() {
 
 var _pvSheetAllConvs = [];
 
+// Busca os PVs reais do servidor e mescla no histórico local (para o painel "espiar privados").
+function pvFetchServerPvs() {
+  return new Promise(function(resolve){
+    if (!(window.API && API.get)) { resolve([]); return; }
+    API.get('/admin/private-messages?limit=400').then(function(d){
+      var rows = (d && d.messages) || [];
+      var mapped = rows.map(function(r){
+        var mt = (r.msg_type && String(r.msg_type).indexOf('media:')===0) ? String(r.msg_type).slice(6) : null;
+        return {
+          from: r.from_nick, to: r.to_nick,
+          conv: (r.from_nick||'?') + '\u2194' + (r.to_nick||'?'),
+          text: r.content || '',
+          isMine: false,
+          ts: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+          mediaType: mt,
+          mediaUrl: r.media_url || null,
+          audioBlobUrl: (mt==='audio' ? (r.media_url||null) : null),
+          fromRole: r.from_role || 'user',
+          toRole: r.to_role || 'user',
+          _srv: 1
+        };
+      });
+      var existing = []; try { existing = JSON.parse(localStorage.getItem(PV_MON_KEY) || '[]'); } catch(e) {}
+      var local = existing.filter(function(m){ return !m._srv; }); // preserva o capturado ao vivo
+      var merged = local.concat(mapped);
+      if (merged.length > 800) merged = merged.slice(-800);
+      try { localStorage.setItem(PV_MON_KEY, JSON.stringify(merged)); } catch(e) {}
+      resolve(mapped);
+    }).catch(function(){ resolve([]); });
+  });
+}
+
 function _pvBuildConvItem(conv, lastMsgMap) {
   var last = lastMsgMap[conv];
   var lastText = last ? escHtml((last.text||'').substring(0,45)+((last.text||'').length>45?'\u2026':'')) : '';
@@ -1785,7 +1822,7 @@ function pvSheetFiltrar() {
   if (!list) return;
   var msgs = getPvMonitorMsgs();
   var lastMsgMap = {};
-  msgs.forEach(function(m){ if(m.conv) lastMsgMap[m.conv] = m; });
+  msgs.forEach(function(m){ if(m.conv){ var k=pvNormConv(m.conv); var prev=lastMsgMap[k]; if(!prev||(m.ts||0)>=(prev.ts||0)) lastMsgMap[k]=m; } });
   var filtered = q ? _pvSheetAllConvs.filter(function(c){ return c.toLowerCase().indexOf(q) !== -1; }) : _pvSheetAllConvs;
   if (!filtered.length) {
     list.innerHTML = '<div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)">Nenhuma conversa encontrada.</div>';
@@ -1794,13 +1831,10 @@ function pvSheetFiltrar() {
   }
 }
 
-function abrirModalPvConvs() {
-  var modal = document.getElementById('pvConvModal');
-  var sheet = document.getElementById('pvConvSheet');
-  if (!modal || !sheet) return;
+function _pvRenderConvSheet() {
   var msgs = getPvMonitorMsgs();
   var convMap = {};
-  msgs.forEach(function(m){ if(m.conv) convMap[m.conv] = m; });
+  msgs.forEach(function(m){ if(m.conv){ var k=pvNormConv(m.conv); var prev=convMap[k]; if(!prev || (m.ts||0)>=(prev.ts||0)) convMap[k]=m; } });
   _pvSheetAllConvs = Object.keys(convMap).sort(function(a,b){
     var ta = convMap[a] && convMap[a].ts ? convMap[a].ts : 0;
     var tb = convMap[b] && convMap[b].ts ? convMap[b].ts : 0;
@@ -1811,15 +1845,26 @@ function abrirModalPvConvs() {
   var search = document.getElementById('pvSheetSearch');
   if (search) search.value = '';
   var list = document.getElementById('pvModalList');
+  if (!list) return;
   if (!_pvSheetAllConvs.length) {
     list.innerHTML = '<div style="text-align:center;padding:40px 16px;font-size:12px;color:var(--text3)"><div style="font-size:32px;margin-bottom:10px">\ud83d\udd12</div>Nenhuma conversa ativa nas \xfaltimas 24h.</div>';
   } else {
     list.innerHTML = _pvSheetAllConvs.map(function(c){ return _pvBuildConvItem(c, convMap); }).join('');
   }
+}
+
+function abrirModalPvConvs() {
+  var modal = document.getElementById('pvConvModal');
+  var sheet = document.getElementById('pvConvSheet');
+  if (!modal || !sheet) return;
+  var list = document.getElementById('pvModalList');
+  if (list) list.innerHTML = '<div style="text-align:center;padding:40px 16px;font-size:12px;color:var(--text3)">Carregando conversas\u2026</div>';
   modal.style.display = 'block';
   requestAnimationFrame(function(){
     requestAnimationFrame(function(){ sheet.style.transform = 'translateY(0)'; });
   });
+  // Busca os PVs reais do servidor e então monta a lista (cada par de usuários como UMA conversa)
+  pvFetchServerPvs().then(function(){ _pvRenderConvSheet(); }).catch(function(){ _pvRenderConvSheet(); });
 }
 
 function fecharModalPvConvs() {
