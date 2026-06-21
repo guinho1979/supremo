@@ -32,6 +32,27 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// ─── GET /api/admin/private-messages — PVs recentes (para espiar) ──
+router.get('/private-messages', requireRole('supervisor'), async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 400, 1), 1000);
+    const { rows } = await db.query(
+      `SELECT pm.from_nick, pm.to_nick, pm.content, pm.msg_type, pm.media_url, pm.created_at,
+              uf.role AS from_role, ut.role AS to_role
+       FROM private_messages pm
+       LEFT JOIN users uf ON uf.id = pm.from_user_id
+       LEFT JOIN users ut ON ut.id = pm.to_user_id
+       WHERE pm.is_deleted = FALSE
+       ORDER BY pm.created_at DESC
+       LIMIT $1`,
+      [limit]
+    );
+    res.json({ messages: rows.reverse() });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao buscar mensagens privadas.' });
+  }
+});
+
 // ─── GET /api/admin/private-rooms — todas as salas privadas (para espiar) ──
 router.get('/private-rooms', async (req, res) => {
   try {
