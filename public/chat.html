@@ -2619,7 +2619,7 @@ function abrirPainelAdmin(){
   openModPanel();
 }
 function openModPanel(){
-  const roleLabels={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MOD',vip:'VIP',premium:'PREMIUM'};
+  const roleLabels={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MODERADOR',vip:'VIP',premium:'PREMIUM'};
   document.getElementById('modRoleBadge').textContent = roleLabels[ME.role]||ME.role.toUpperCase();
   // Restrict "Somente membros" for non-admin/sup
   const membersToggle = document.getElementById('membersOnlyToggle');
@@ -2728,7 +2728,7 @@ async function logoutChat(){ if(window.API){try{await API.logout();}catch(e){}}
 function renderSalasOverlay(){
   // Update user chip
   const BADGE_MAP={admin:'b-admin',supervisor:'b-sup',mod:'b-mod',vip:'b-vip',premium:'b-prem',dj:'b-dj',user:'b-user',guest:'b-guest'};
-  const BADGE_LABEL={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MOD',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USER',guest:'VISITANTE'};
+  const BADGE_LABEL={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MODERADOR',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USER',guest:'VISITANTE'};
   const av = document.getElementById('salasChipAv'); if(av) av.textContent = ME.av;
   const nk = document.getElementById('salasChipNick'); if(nk) nk.textContent = ME.nick;
   const bg = document.getElementById('salasChipBadge');
@@ -3525,9 +3525,9 @@ const HISTORY_DEMO = [
 
 // Badge inline — não depende de getBadgeHtml (evita erro de ordem de definição)
 function _histBadge(role){
-  const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};
+  const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MODERADOR',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};
   const v=m[role];
-  return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';
+  return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ').slice(1).join(' ')}</span>`:'';
 }
 
 function initHistoryButton(){
@@ -3591,7 +3591,7 @@ function initHistoryButton(){
 // initHistoryButton();
 
 const STATUS_DOT_CLASS={online:'s-online',away:'s-away',busy:'s-busy',offline:'s-offline'};
-function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';}
+function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MODERADOR',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ').slice(1).join(' ')}</span>`:'';}
 function renderAv(av){return av&&(av.indexOf('http')===0||av.indexOf('data:')===0)?`<img src="${av}" alt="av"/>`:av||'😊';}
 
 // ─── MEDIA UPLOAD / MESSAGES ─────────────────────────────────────────────────
@@ -4122,6 +4122,13 @@ function openLikesModalViewer(btn){
   _showLikesModal(group, false);
 }
 
+function _likeAvHtml(av){
+  av = av || '👤';
+  if(typeof av==='string' && (av.indexOf('http')===0 || av.indexOf('data:')===0)){
+    return '<img src="'+av+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">';
+  }
+  return av;
+}
 function _showLikesModal(group, isMine){
   const data = _getReactData(group);
   const overlay = document.getElementById('likesModalOverlay');
@@ -4138,7 +4145,7 @@ function _showLikesModal(group, isMine){
       const filtered = activeFilter==='all' ? reacts : reacts.filter(r=>r.emoji===activeFilter);
       if(!filtered.length){ list.innerHTML='<div class="lm-empty">Nenhuma reação aqui</div>'; return; }
       list.innerHTML = filtered.map(r=>(
-        '<div class="lm-user-row"><div class="lm-av" style="background:#1e2a4a;color:#8aafd4">'+(r.av||'👤')+'<span class="lm-reaction-badge">'+r.emoji+'</span></div><div class="lm-nick">'+(r.nick||'?')+'</div></div>'
+        '<div class="lm-user-row"><div class="lm-av" style="background:#1e2a4a;color:#8aafd4">'+_likeAvHtml(r.av)+'<span class="lm-reaction-badge">'+r.emoji+'</span></div><div class="lm-nick">'+(r.nick||'?')+'</div></div>'
       )).join('');
     }
     const tabs = [{e:'all',l:'Todos',count:total},...REACTIONS.filter(r=>counts[r.e]).map(r=>({e:r.e,l:r.l,count:counts[r.e]}))];
@@ -4161,7 +4168,7 @@ function _showLikesModal(group, isMine){
     document.getElementById('likesModalList').innerHTML='<div class="lm-empty">Carregando…</div>';
     API.getMessageReactions(msgId).then(function(d){
       var rows=(d&&d.reactions)||[];
-      var mapped=rows.map(function(r){ return {emoji:r.emoji, nick:r.nick, av:(r.avatar||'👤')}; });
+      var mapped=rows.map(function(r){ return {emoji:r.emoji, nick:r.nick, av:(r.photo_url||r.avatar||'👤')}; });
       if(!mapped.length && isMine && !localReacts.length){ closeLikesModal(); showToast('Nenhuma curtida ainda 😐'); return; }
       // guarda também no store local para a barra de resumo
       data.reacts = mapped;
@@ -4181,7 +4188,7 @@ function likesModalTab(btn, filter){
   if(!filtered.length){ list.innerHTML='<div class="lm-empty">Nenhuma reação aqui</div>'; return; }
   list.innerHTML = filtered.map(r=>{
     return `<div class="lm-user-row">
-      <div class="lm-av" style="background:#1e2a4a;color:#8aafd4">${r.av||'👤'}<span class="lm-reaction-badge">${r.emoji}</span></div>
+      <div class="lm-av" style="background:#1e2a4a;color:#8aafd4">${_likeAvHtml(r.av)}<span class="lm-reaction-badge">${r.emoji}</span></div>
       <div class="lm-nick">${r.nick}</div>
     </div>`;
   }).join('');
@@ -4909,7 +4916,7 @@ function showToast(msg,type='info'){
 // ── SALAS PAGE FUNCTIONS ─────────────────────────────────────
 function renderSalasPage(){
   const BADGE_MAP={admin:'b-admin',supervisor:'b-sup',mod:'b-mod',vip:'b-vip',premium:'b-prem',dj:'b-dj',user:'b-user',guest:'b-guest'};
-  const BADGE_LABEL={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MOD',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USER',guest:'VISITANTE'};
+  const BADGE_LABEL={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MODERADOR',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USER',guest:'VISITANTE'};
   // Update header chip
   const av=document.getElementById('salasChipAv');if(av)av.textContent=ME.av;
   const nk=document.getElementById('salasChipNick');if(nk)nk.textContent=ME.nick;
@@ -8695,7 +8702,7 @@ function processSmileKeywords(text){
           : '<span style="width:26px;height:26px;border-radius:50%;background:#22304a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(isG ? '👤' : (info.avatar||'😊'))+'</span>';
         var emo = info.emoji ? '<span style="flex-shrink:0;font-size:14px">'+info.emoji+'</span>' : '';
         var SHOW_BADGE=['dj','premium','mod','supervisor','admin'];
-        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '';
+        var badge = (typeof getBadgeHtml==='function') ? getBadgeHtml(role) : (SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '');
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
         var dot='<span title="'+(info.status||'online')+'" style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
         return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px">'+av+emo+'<span class="ou-nick '+_cp.cls+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+_cp.style+'">'+n+'</span>'+badge+dot+'</div>';
@@ -8712,7 +8719,38 @@ function processSmileKeywords(text){
   });
   tcSocket.on('spy_message', function(d){ if(!window._SPY_MODE) return; try{ incoming(d); }catch(e){} });
   tcSocket.on('user_status', function(d){ try{ if(d&&d.nick){ if(!window._nickColors) window._nickColors={}; if(!window._nickColors[d.nick]) window._nickColors[d.nick]={}; window._nickColors[d.nick].status=d.status; if(typeof window.renderOnline==='function') window.renderOnline(); } }catch(e){} });
-  tcSocket.on('history', function(d){ var _a=document.getElementById('msgArea'); if(!_a) return; if(!window._historyLoaded){ _a.innerHTML=''; try{ seen=new Set(); }catch(e){} window._historyLoaded=true; } (d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){ console.warn('msg render falhou', e); } }); });
+  // Mostra um link fixo "últimas mensagens"; ao clicar, revela as últimas 30 e o link some.
+  window._showHistoryLink=function(){
+    var _a=document.getElementById('msgArea'); if(!_a) return;
+    if(!(window._histMsgs&&window._histMsgs.length)) return;
+    if(document.getElementById('histLinkWrap')) return;
+    var div=document.createElement('div');
+    div.id='histLinkWrap';
+    div.style.cssText='display:flex;justify-content:center;padding:12px 8px';
+    div.innerHTML='<button id="histLinkBtn" onclick="_revealHistory()" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8;border-radius:20px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 1px 5px rgba(24,119,242,.2)">\uD83D\uDCE9 últimas mensagens</button>';
+    _a.insertBefore(div, _a.firstChild);
+  };
+  window._revealHistory=function(){
+    window._histShown=true;
+    var _a=document.getElementById('msgArea'); if(!_a) return;
+    // Limpa (inclui o link) e re-renderiza o histórico do zero — garante a exibição.
+    _a.innerHTML='';
+    try{ seen=new Set(); }catch(e){}
+    window._historyLoaded=true;
+    (window._histMsgs||[]).forEach(function(m){ try{ incoming(m); }catch(e){ console.warn('msg render falhou', e); } });
+    try{ _a.scrollTop=_a.scrollHeight; }catch(e){}
+  };
+  tcSocket.on('history', function(d){
+    var _a=document.getElementById('msgArea'); if(!_a) return;
+    window._histMsgs=(d.messages||[]);
+    if(window._SPY_MODE){
+      if(!window._historyLoaded){ _a.innerHTML=''; try{ seen=new Set(); }catch(e){} window._historyLoaded=true; }
+      window._histMsgs.forEach(function(m){ try{ incoming(m); }catch(e){} });
+      return;
+    }
+    if(window._histShown){ window._histMsgs.forEach(function(m){ try{ incoming(m); }catch(e){ console.warn('msg render falhou', e); } }); }
+    else { window._showHistoryLink(); }
+  });
   tcSocket.on('private', function(d){
     if(!d || !d.from_nick) return;
     try{
