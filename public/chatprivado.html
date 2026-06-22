@@ -265,10 +265,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .ap-close{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:14px;padding:0}
 
 /* ── ONLINE PANEL ── */
-.online-panel{position:fixed;top:0;left:0;width:200px;height:100dvh;background:#dce8f5;border-right:1px solid #c8d8f5;padding:10px 8px;overflow-y:auto;transition:opacity .25s ease,visibility .25s ease;z-index:60;box-shadow:4px 0 20px rgba(0,0,0,.15);opacity:0;visibility:hidden;pointer-events:none;flex-shrink:0}
+.online-panel{position:fixed;top:0;left:0;width:260px;height:100dvh;background:#dce8f5;border-right:1px solid #c8d8f5;padding:10px 8px;overflow-y:auto;transition:opacity .25s ease,visibility .25s ease;z-index:60;box-shadow:4px 0 20px rgba(0,0,0,.15);opacity:0;visibility:hidden;pointer-events:none;flex-shrink:0}
 .online-panel.open{opacity:1;visibility:visible;pointer-events:auto}
 .online-panel::-webkit-scrollbar{display:none}
-.op-header{font-size:10px;color:#fff;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;padding:8px 10px;border-bottom:1px solid #5b21b6;background:#0f1f3d;display:flex;align-items:center;gap:4px;margin:-10px -8px 10px -8px;border-radius:0}
+.op-header{font-size:15px;color:#fff;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;padding:8px 10px;border-bottom:1px solid #5b21b6;background:#0f1f3d;display:flex;align-items:center;gap:4px;margin:-10px -8px 10px -8px;border-radius:0}
 .ou{display:flex;align-items:center;gap:6px;padding:8px 6px;cursor:pointer;border-radius:12px;transition:.15s;background:#c8d8f5;margin-bottom:6px}
 .ou:hover{background:#b8caf0}
 .ou-av{width:28px;height:28px;border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;overflow:hidden}
@@ -432,7 +432,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .admin-top-bar a{background:linear-gradient(90deg,#8aafd4,#60b0ff);;text-decoration:none;margin-left:auto;font-size:11px;font-weight:800}
 
 @media(max-width:500px){
-  .online-panel{width:220px}
+  .online-panel{width:280px}
   .topbar{padding:5px 10px;gap:5px}
   #floatingRadio{max-width:170px!important;min-width:120px!important}
 }
@@ -674,10 +674,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   </button>
 </div>
 
-<!-- BARRA ROXA — Onlines | Convidar | Sair -->
+<!-- BARRA ROXA — Convidar | Sair (botão de Onlines removido: já existe ao lado do +) -->
 <div class="room-name-bar">
   <div class="rnb-center">
-    <button class="rnb-media-btn" onclick="toggleRight()" style="display:flex;align-items:center;gap:4px">👥 <span id="onlineCount" style="color:#dc2626;font-weight:800">0</span></button>
+    <span id="onlineCount" style="display:none">0</span>
     <button class="rnb-media-btn" id="btnConvidarPriv" onclick="abrirConvidarPrivado()" style="display:none">📨 Convidar</button>
     <div class="rnb-sep"></div>
     <button class="leave-txt-btn" onclick="leaveRoom()">Sair</button>
@@ -1536,7 +1536,7 @@ function checkSendPV(targetNick, callback){
 }
 
 // ── OFFLINE USER WARNING ──────────────────────────────────────
-let onlineUsers = new Set(['KarenAdmin','DJMaster','alexvip','PauloXX','Mari_s','ModTop']);
+let onlineUsers = new Set(); // preenchido com usuários reais por renderOnline()
 let pvWarningTimeout = null;
 
 function showPVWarning(nick){

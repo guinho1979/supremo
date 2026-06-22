@@ -1713,7 +1713,7 @@ function checkSendPV(targetNick, callback){
 }
 
 // ── OFFLINE USER WARNING ──────────────────────────────────────
-let onlineUsers = new Set(['KarenAdmin','DJMaster','alexvip','PauloXX','Mari_s','ModTop']);
+let onlineUsers = new Set(); // preenchido com usuários reais por renderOnline()
 let pvWarningTimeout = null;
 
 function showPVWarning(nick){
@@ -1728,7 +1728,20 @@ function showOfflineWarn(msg){
 // ── PRIVATE MSG TOGGLE + WHITELIST ───────────────────────────
 let pvEnabled = true;
 let pvWhitelist = new Set();
-const ALL_USERS = ['KarenAdmin','DJMaster','alexvip','PauloXX','Mari_s'];
+// Sem usuários demo: a lista é montada com usuários reais online + conversas + já liberados.
+const ALL_USERS = [];
+
+function _pvWhitelistRealUsers(){
+  var set = new Set();
+  // usuários realmente online (vindos do servidor via renderOnline)
+  try { if(typeof onlineUsers!=='undefined'){ onlineUsers.forEach(function(n){ if(n && n!==ME.nick) set.add(n); }); } } catch(e){}
+  // pessoas com quem você já conversou no privado (inbox/janelas abertas)
+  try { Object.keys(pvWindows||{}).forEach(function(n){ if(n && n!==ME.nick) set.add(n); }); } catch(e){}
+  try { Object.keys(window._pvInbox||{}).forEach(function(n){ if(n && n!==ME.nick) set.add(n); }); } catch(e){}
+  // quem já estava liberado mesmo que esteja offline agora
+  try { pvWhitelist.forEach(function(n){ if(n && n!==ME.nick) set.add(n); }); } catch(e){}
+  return Array.from(set).sort(function(a,b){ return String(a).localeCompare(String(b)); });
+}
 
 function togglePVModal(){
   const ov = document.getElementById('pvToggleOverlay');
@@ -1741,7 +1754,12 @@ function closePVToggle(){
 function renderPVWhitelist(){
   const list = document.getElementById('pvWhitelistUsers');
   if(!list) return;
-  list.innerHTML = ALL_USERS.map(u=>{
+  var users = _pvWhitelistRealUsers();
+  if(!users.length){
+    list.innerHTML = '<div style="text-align:center;padding:18px 6px;font-size:12px;color:var(--text3);font-family:\'Syne\',sans-serif">Nenhum usuário online no momento.<br><span style="font-size:10px;color:var(--text3)">Pessoas online ou com quem você já conversou aparecem aqui.</span></div>';
+    return;
+  }
+  list.innerHTML = users.map(u=>{
     const on = pvWhitelist.has(u);
     return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border-radius:8px">
       <span style="flex:1;font-size:12px;font-weight:700;color:var(--text)">${u}</span>
@@ -3266,18 +3284,8 @@ function scheduleMessageExpiry(el){
   }, MSG_TTL);
 }
 
-// SVG inline de robô (usado como avatar do bot — sem precisar hospedar imagem)
-const BOT_ROBO_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
-  + '<defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs>'
-  + '<rect x="6" y="14" width="52" height="44" rx="10" fill="url(#g)"/>'
-  + '<rect x="28" y="4" width="8" height="10" rx="2" fill="#1d4ed8"/><circle cx="32" cy="4" r="3" fill="#fbbf24"/>'
-  + '<circle cx="22" cy="32" r="6" fill="#fff"/><circle cx="42" cy="32" r="6" fill="#fff"/>'
-  + '<circle cx="22" cy="32" r="3" fill="#0f172a"/><circle cx="42" cy="32" r="3" fill="#0f172a"/>'
-  + '<rect x="22" y="44" width="20" height="5" rx="2" fill="#0f172a"/>'
-  + '<rect x="24" y="44" width="3" height="5" fill="#fff"/><rect x="30" y="44" width="3" height="5" fill="#fff"/><rect x="36" y="44" width="3" height="5" fill="#fff"/>'
-  + '</svg>'
-);
+// Robô mascote do bot Supra (estilo do logo do Chat Supremo) — imagem embutida (data-URI)
+const BOT_ROBO_IMG = 'data:image/png;base64,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';
 
 // ── BOT SUPRA (IA via Claude API) ────────────────────────────
 const TOPZINHO = {
@@ -3286,6 +3294,17 @@ const TOPZINHO = {
   color: '#1d4ed8',
   role: 'bot',
 };
+
+// Ícone do robô exibido ANTES do nick do bot Supra nas mensagens
+function _botNickIcon(nick, role){
+  try{
+    var isBot = (role === 'bot') || (String(nick) === (typeof TOPZINHO!=='undefined' ? TOPZINHO.nick : 'Supra'));
+    if(!isBot) return '';
+    return '<img src="'+BOT_ROBO_IMG+'" alt="bot" class="bot-nick-ico" title="Bot do Chat Supremo" '
+      + 'style="width:20px;height:20px;border-radius:50%;vertical-align:middle;margin-right:4px;flex-shrink:0;'
+      + 'box-shadow:0 0 5px #22d3ee99;background:#0f1f3d;object-fit:cover">';
+  }catch(e){ return ''; }
+}
 
 // Histórico de conversa do bot para manter contexto
 const botHistorico = [];
@@ -3348,6 +3367,7 @@ function botMostrarDigitando() {
   d.dataset.user = 'Supra';
   d.innerHTML = `<div class="msg-av" style="background:#0f1f3d;color:#60a5fa;border-color:#1d4ed8">⚡</div>
   <div class="msg-content"><div class="msg-bubble" style="display:inline-flex;align-items:center;gap:6px;padding:10px 14px;background:#e8f0ff;border:1px solid #bfdbfe">
+    <img src="${BOT_ROBO_IMG}" alt="bot" style="width:20px;height:20px;border-radius:50%;flex-shrink:0;box-shadow:0 0 5px #22d3ee99;background:#0f1f3d;object-fit:cover">
     <span style="font-size:11px;color:#3a6fa8;font-weight:700;font-family:'Syne',sans-serif">Supra está digitando</span>
     <span style="display:flex;gap:3px;align-items:center">${[0,150,300].map(d=>`<span style="width:5px;height:5px;border-radius:50%;background:#3a6fa8;display:inline-block;animation:botDot 1s ${d}ms infinite ease-in-out"></span>`).join('')}</span>
   </div></div>`;
@@ -3492,7 +3512,7 @@ const REACTIONS = window._REACTIONS || (window._REACTIONS = [
   if(!window._userRoles)window._userRoles={}; window._userRoles[msg.nick]=msg.role||'user';
   d.innerHTML=`<div class="msg-av" style="background:${avBg};color:${avColor};border-color:${msg.nickColor||avColor}">${avHtml}</div>
   <div class="msg-content">${pvHdr}<div class="msg-bubble${msg.isPrivate?' priv':''}${msg.monitoredPV?' admin-spy':''}${iMentioned&&!msg.isMine?' mentioned-me':''}">
-    <div class="msg-head"><div class="status-dot ${sc}"></div>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}<span class="msg-nick${iMentioned&&!msg.isMine?' nick-mentioned-me':''}" style="${iMentioned&&!msg.isMine?'color:#A020F0;text-shadow:0 0 8px #A020F055;':'color:'+( msg.nickColor||u.color||'#0a1628')}" onclick="if('${msg.nick}'!==ME.nick)openOuMenu(event,'${msg.nick}')" style="cursor:pointer">${msg.nick}</span>${badgeHtml}</div>
+    <div class="msg-head"><div class="status-dot ${sc}"></div>${_botNickIcon(msg.nick,msg.role)}${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}<span class="msg-nick${iMentioned&&!msg.isMine?' nick-mentioned-me':''}" style="${iMentioned&&!msg.isMine?'color:#A020F0;text-shadow:0 0 8px #A020F055;':'color:'+( msg.nickColor||u.color||'#0a1628')}" onclick="if('${msg.nick}'!==ME.nick)openOuMenu(event,'${msg.nick}')" style="cursor:pointer">${msg.nick}</span>${badgeHtml}</div>
     ${quoteHtml}
     ${mentionRow}
     <div class="msg-text" style="color:${msg.msgColor||'#0a1628'}">${renderedText}</div>
@@ -7548,13 +7568,18 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
   var bubble = document.createElement('div');
   bubble.className = 'msg-bubble priv';
 
-  // Nick header — usa as cores REAIS salvas pelo usuário (do _nickColors do servidor)
+  // Nick header — usa as cores REAIS salvas pelo usuário em "Editar Cores"
   var _ciFrom = (window._nickColors && window._nickColors[fromNick]) || {};
   var nickColor = isMine ? (ME.nickColor || _ciFrom.color || '#2563eb') : (_ciFrom.color || '#0f1f3d');
   var nickLabel = isMine ? ME.nick : fromNick;
-  // Cor da mensagem também vem do que o usuário salvou
-  var msgColor = isMine ? (ME.msgColor || '#0a1628') : (_ciFrom.msg_color || '#0a1628');
+  // Cor da mensagem também vem do que o usuário salvou em "Editar Cores"
+  var msgColor = isMine
+    ? (ME.msgColor || _ciFrom.msg_color || '#0a1628')
+    : (_ciFrom.msg_color || '#0a1628');
   bubble.style.color = msgColor;
+  // guarda o nick para reaplicar a cor quando _nickColors carregar
+  bubble.dataset.user = nickLabel;
+  bubble.dataset.msgcolor = msgColor;
   var head = document.createElement('div');
   head.className = 'msg-head';
   var nickEl = document.createElement('span');
@@ -7562,9 +7587,15 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
   nickEl.style.color = nickColor;
   nickEl.textContent = nickLabel;
   head.appendChild(nickEl);
+  // Aplica gradiente/efeito do nick (igual ao "Editar Cores"), se houver
+  try{
+    if(typeof _applyNickStyle==='function' && window._nickColors && window._nickColors[nickLabel]){
+      _applyNickStyle(nickEl, nickLabel);
+    }
+  }catch(_e){}
   // Emoji do nick ao lado
   try{
-    var _e=(isMine?ME.nickEmoji:_ciFrom.emoji)||'';
+    var _e=(isMine?(ME.nickEmoji||_ciFrom.emoji):_ciFrom.emoji)||'';
     if(_e){ var emoEl=document.createElement('span'); emoEl.style.cssText='font-size:13px;margin-left:4px'; emoEl.textContent=_e; head.appendChild(emoEl); }
   }catch(_e){}
   bubble.appendChild(head);
@@ -7659,6 +7690,7 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
   } else {
     var textEl = document.createElement('div');
     textEl.className = 'msg-text';
+    textEl.style.color = msgColor; // cor da mensagem salva em "Editar Cores" (sobrepõe o padrão do CSS)
     textEl.innerHTML = animateEmojis(escHtml(text));
     bubble.appendChild(textEl);
   }
@@ -8703,7 +8735,7 @@ function processSmileKeywords(text){
       ''+'</div></div>';
     var _delX=((mine||(typeof canDeleteMsg==='function'&&canDeleteMsg()&&!window._isStaffMsg(d.role,d.nick))))?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'';
     div.innerHTML='<div class="msg-av" style="background:#1e1635;border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble">'
-      +'<div class="msg-head"><div class="status-dot '+sc+'"></div>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(d.nick):'')+'<span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="if(\''+nq+'\'!==ME.nick)openOuMenu(event,\''+nq+'\')">'+d.nick+'</span>'+badge+'</div>'
+      +'<div class="msg-head"><div class="status-dot '+sc+'"></div>'+(typeof _botNickIcon==='function'?_botNickIcon(d.nick,d.role):'')+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(d.nick):'')+'<span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="if(\''+nq+'\'!==ME.nick)openOuMenu(event,\''+nq+'\')">'+d.nick+'</span>'+badge+'</div>'
       +mediaBlock
       +_footer+_delX
       +'</div></div>';
@@ -8905,6 +8937,8 @@ function processSmileKeywords(text){
     d.innerHTML=h; a.appendChild(d); a.scrollTop=a.scrollHeight;
   };
   window.tcVote=function(id,idx){
+    // Visitantes não podem votar em enquetes
+    if(typeof isGuest==='function' && isGuest()){ tip('Visitantes não podem votar. Cadastre-se para participar das enquetes.','error'); return; }
     var st=pollState[id]; if(!st||st.closed||st.myVote!=null) return;
     API.polls.vote(id,idx).then(function(r){ st.counts=r.counts; st.myVote=r.my_vote; tcRenderPoll(st.poll,st.counts,st.myVote,st.closed); }).catch(function(e){ tip(e.message||'Erro','error'); });
   };
@@ -9205,6 +9239,18 @@ function loadNickColors(){
       window._nickColors=(d&&d.colors)||{};
       try{ if(typeof window.renderOnline==='function'){ window.renderOnline(); } else { document.querySelectorAll('#onlineList .ou-nick').forEach(function(el){ _applyNickStyle(el, el.getAttribute('data-nick')||el.textContent.trim()); }); } }catch(e){}
       try{ document.querySelectorAll('.msg-group').forEach(function(g){ var el=g.querySelector('.msg-nick'); if(el && window._nickColors[g.dataset.user]) _applyNickStyle(el, g.dataset.user); }); }catch(e){}
+      // Reaplica cor de nick e de mensagem também nas janelas de privado
+      try{
+        document.querySelectorAll('.msg-bubble.priv').forEach(function(b){
+          var u=b.dataset.user; if(!u) return;
+          var ci=window._nickColors[u]; if(!ci) return;
+          var nk=b.querySelector('.msg-nick');
+          if(nk){ if(ci.color){ nk.style.color=ci.color; } _applyNickStyle(nk, u); }
+          // cor da mensagem: prioriza o que o dono salvou
+          var mc=ci.msg_color||b.dataset.msgcolor||'';
+          if(mc){ b.style.color=mc; var tx=b.querySelector('.msg-text'); if(tx) tx.style.color=mc; }
+        });
+      }catch(e){}
     }).catch(function(){ if(!window._ncWarned){ window._ncWarned=1; try{ if(typeof showToast==='function') showToast('⚠️ Cores: sem resposta do servidor'); }catch(e){} } });
   }catch(e){}
 }

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bsHead" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c026d3"/>
+      <stop offset="0.45" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="bsCup" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e879f9"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+    <radialGradient id="bsEye" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#67e8f9"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </radialGradient>
+    <filter id="bsGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- antena + raio -->
+  <line x1="32" y1="11" x2="32" y2="5" stroke="#a855f7" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M33 1 L29.5 6.2 L32 6.2 L30.4 10 L35 4.4 L32.2 4.4 Z" fill="#fbbf24" stroke="#f59e0b" stroke-width="0.4"/>
+
+  <!-- cabeça do robô -->
+  <rect x="13" y="11" width="38" height="34" rx="13" fill="url(#bsHead)" stroke="#22d3ee" stroke-width="1.4" filter="url(#bsGlow)"/>
+
+  <!-- visor escuro -->
+  <rect x="18" y="18" width="28" height="18" rx="9" fill="#140a2e" opacity="0.55"/>
+
+  <!-- olhos bravos estilo logo -->
+  <g filter="url(#bsGlow)">
+    <path d="M21 26 L29 29 L29 33 Q24 33 21 30 Z" fill="url(#bsEye)"/>
+    <path d="M43 26 L35 29 L35 33 Q40 33 43 30 Z" fill="url(#bsEye)"/>
+  </g>
+
+  <!-- boca / grelha -->
+  <rect x="26" y="38" width="12" height="4" rx="2" fill="#0f172a"/>
+  <rect x="28" y="38" width="1.6" height="4" fill="#67e8f9"/>
+  <rect x="31.2" y="38" width="1.6" height="4" fill="#67e8f9"/>
+  <rect x="34.4" y="38" width="1.6" height="4" fill="#67e8f9"/>
+
+  <!-- fones de ouvido (igual ao logo) -->
+  <path d="M11 30 Q11 14 32 14 Q53 14 53 30" fill="none" stroke="#a855f7" stroke-width="3" stroke-linecap="round" opacity="0.95"/>
+  <rect x="6" y="27" width="9" height="14" rx="4.5" fill="url(#bsCup)" stroke="#22d3ee" stroke-width="1"/>
+  <rect x="49" y="27" width="9" height="14" rx="4.5" fill="url(#bsCup)" stroke="#22d3ee" stroke-width="1"/>
+
+  <!-- brilho lateral -->
+  <circle cx="56" cy="20" r="1.2" fill="#e879f9"/>
+  <circle cx="9" cy="48" r="1" fill="#67e8f9"/>
+</svg>
