@@ -18,7 +18,7 @@ router.get('/rooms', authMiddleware, async (req, res) => {
       LEFT JOIN online_presence op ON op.room_slug = r.slug
       WHERE r.is_active = TRUE
       GROUP BY r.id
-      ORDER BY r.sort_order, r.name
+      ORDER BY r.sort_order ASC, r.created_at ASC, r.id ASC
     `);
     res.json({ rooms: rows });
   } catch (err) {

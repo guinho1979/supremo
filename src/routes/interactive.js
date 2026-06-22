@@ -58,15 +58,31 @@ router.post('/polls/:id/vote', async (req, res) => {
     if (!p) return res.status(404).json({ error: 'Enquete encerrada ou inexistente.' });
     const idx = parseInt(req.body.option_index);
     if (isNaN(idx) || idx < 0 || idx >= p.options.length) return res.status(400).json({ error: 'Opção inválida.' });
-    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
+
+    // Visitantes não podem votar
     const isGuest = !req.user.user_id;
-    const voterKey = isGuest ? ('ip:' + (ip || req.user.nick || Math.random())) : ('u:' + req.user.user_id);
-    const nick = req.user.nick || 'Visitante';
+    if (isGuest) return res.status(403).json({ error: 'Apenas usuários cadastrados podem votar.' });
+
+    const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
+    const nick = req.user.nick || '';
+
+    // 1 voto por IP — se outro nick já votou desse IP, bloqueia
+    if (ip) {
+      const { rows: [other] } = await db.query(
+        `SELECT user_id FROM poll_votes
+         WHERE poll_id = $1 AND voter_ip = $2 AND (user_id IS NULL OR user_id <> $3)
+         LIMIT 1`,
+        [p.id, ip, req.user.user_id]
+      );
+      if (other) return res.status(403).json({ error: 'Este IP já votou nesta enquete com outro nick.' });
+    }
+
+    const voterKey = 'u:' + req.user.user_id;
     await db.query(
       `INSERT INTO poll_votes (poll_id, user_id, option_index, nick, voter_ip, voter_key)
        VALUES ($1,$2,$3,$4,$5,$6)
-       ON CONFLICT (poll_id, voter_key) DO UPDATE SET option_index = EXCLUDED.option_index, nick = EXCLUDED.nick`,
-      [p.id, req.user.user_id || null, idx, nick, ip, voterKey]
+       ON CONFLICT (poll_id, voter_key) DO UPDATE SET option_index = EXCLUDED.option_index, nick = EXCLUDED.nick, voter_ip = EXCLUDED.voter_ip`,
+      [p.id, req.user.user_id, idx, nick, ip, voterKey]
     );
     const counts = await pollCounts(p.id, p.options.length);
     bcast(p.room_slug, 'poll_update', { id: p.id, counts });

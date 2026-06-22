@@ -160,7 +160,7 @@ router.post('/login', async (req, res) => {
     const { rows } = await db.query(
       `SELECT id, nick, role, password_hash, is_banned, ban_reason,
               ban_expires, avatar, photo_url, nick_color, msg_color,
-              nick_gradient, status
+              nick_gradient, status, lema
        FROM users WHERE LOWER(nick) = LOWER($1)`,
       [nick]
     );
@@ -237,6 +237,7 @@ router.post('/login', async (req, res) => {
         msg_color:    user.msg_color,
         nick_gradient: user.nick_gradient,
         status:       user.status,
+        lema:         user.lema || '',
       }
     });
 
@@ -334,7 +335,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     const { rows: [u] } = await db.query(
       `SELECT id, nick, role, avatar, photo_url, nick_color, msg_color, nick_gradient,
               status, birthday, bio, city, age, gender, job, interests,
-              nick_emoji, nick_effect, profile_audio, profile_audio_name
+              nick_emoji, nick_effect, profile_audio, profile_audio_name, lema
        FROM users WHERE id = $1`, [req.user.user_id]);
     res.json({ user: { ...req.user, ...(u || {}) } });
   } catch (err) {
@@ -356,7 +357,7 @@ router.patch('/me', authMiddleware, async (req, res) => {
       if (nick) {
         const gp = guestPrefs[nick] || { _guest: true };
         ['photo_url','avatar','nick_color','msg_color','nick_gradient','nick_effect',
-         'nick_emoji','status','bio','city','age','gender','job','interests'].forEach(k => {
+         'nick_emoji','status','bio','city','age','gender','job','interests','lema'].forEach(k => {
           if (b[k] !== undefined) gp[k] = b[k];
         });
         guestPrefs[nick] = gp;
@@ -369,12 +370,15 @@ router.patch('/me', authMiddleware, async (req, res) => {
     if (b.profile_audio && b.profile_audio.length > 10 * 1024 * 1024)
       return res.status(400).json({ error: 'Áudio muito grande (máx 7MB).' });
 
+    if (b.lema !== undefined && String(b.lema).length > 40)
+      return res.status(400).json({ error: 'Lema muito longo (máx 40 caracteres).' });
+
     const fields = [];
     const values = [];
     let i = 1;
     const allowed = ['photo_url','avatar','nick_color','msg_color','status','nick_gradient',
                      'bio','city','age','gender','job','interests','nick_emoji','nick_effect',
-                     'profile_audio','profile_audio_name'];
+                     'profile_audio','profile_audio_name','lema'];
     for (const key of allowed) {
       if (b[key] !== undefined) { fields.push(`${key} = $${i++}`); values.push(b[key]); }
     }
@@ -479,7 +483,7 @@ router.post('/faceid/login', async (req, res) => {
 router.get('/colors', authMiddleware, async (req, res) => {
   try {
     const { rows } = await db.query(
-      `SELECT nick, nick_color, msg_color, nick_gradient, nick_effect, avatar, photo_url, nick_emoji, status
+      `SELECT nick, nick_color, msg_color, nick_gradient, nick_effect, avatar, photo_url, nick_emoji, status, lema
        FROM users WHERE nick IS NOT NULL`
     );
     const colors = {};
@@ -492,7 +496,8 @@ router.get('/colors', authMiddleware, async (req, res) => {
         avatar: u.avatar || '😊',
         photo: u.photo_url || '',
         emoji: u.nick_emoji || '',
-        status: u.status || 'online'
+        status: u.status || 'online',
+        lema: u.lema || ''
       };
     });
     // mescla preferências de visitantes (em memória)
