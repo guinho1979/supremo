@@ -48,7 +48,8 @@ function startPresenceCleaner() {
 function broadcast(roomSlug, payload, excludeId = null) {
   const msg = JSON.stringify(payload);
   clients.forEach((client, id) => {
-    if (id !== excludeId && client.roomSlug === roomSlug && client.ws.readyState === WebSocket.OPEN) {
+    if (id !== excludeId && client.ws.readyState === WebSocket.OPEN
+        && (client.roomSlug === roomSlug || client.spyRoom === roomSlug)) {
       client.ws.send(msg);
     }
   });
@@ -447,7 +448,10 @@ function setupWebSocket(server) {
         try {
           const { rows } = await db.query(
             `SELECT id, nick, role, content, msg_type, media_url, created_at
-             FROM messages WHERE room_slug = $1 ORDER BY created_at DESC LIMIT 50`, [room]
+             FROM messages
+             WHERE room_slug = $1 AND is_deleted = FALSE
+               AND created_at > NOW() - INTERVAL '10 minutes'
+             ORDER BY created_at DESC LIMIT 50`, [room]
           );
           ws.send(JSON.stringify({ event: 'spy_history', data: { room_slug: room, messages: rows.reverse() } }));
         } catch (e) {}

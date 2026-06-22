@@ -4,7 +4,6 @@ const express      = require('express');
 const http         = require('http');
 const cors         = require('cors');
 const path         = require('path');
-const jwt          = require('jsonwebtoken');
 const rateLimit    = require('express-rate-limit');
 const setupWebSocket = require('./websocket');
 
@@ -29,27 +28,6 @@ app.use(cors({
 // ── Body Parser ───────────────────────────────────────────────
 app.use(express.json({ limit: '12mb' }));
 app.use(express.urlencoded({ extended: true }));
-
-// Lê o cabeçalho "Cookie" e popula req.cookies, sem precisar de
-// nenhuma dependência externa (substitui o pacote cookie-parser).
-app.use((req, res, next) => {
-  req.cookies = {};
-  const header = req.headers.cookie;
-  if (header) {
-    header.split(';').forEach((part) => {
-      const idx = part.indexOf('=');
-      if (idx === -1) return;
-      const key = part.slice(0, idx).trim();
-      const val = part.slice(idx + 1).trim();
-      try {
-        req.cookies[key] = decodeURIComponent(val);
-      } catch (e) {
-        req.cookies[key] = val;
-      }
-    });
-  }
-  next();
-});
 
 // ── Rate Limiting ─────────────────────────────────────────────
 const limiter = rateLimit({
@@ -97,40 +75,21 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-// ── Fallback: decide qual página servir para rotas desconhecidas ──
-// Se existe cookie de sessão com JWT válido, manda para a última página
-// que o usuário visitou (guardada em tc_last_page pelo front-end), ou
-// para salas.html se não houver nenhuma registrada. Sem cookie válido,
-// manda para o login. Isso resolve o F5 quando a URL está escondida via
-// history.pushState/replaceState no front-end: o navegador recarrega "/"
-// e o servidor precisa decidir sozinho, sem depender do localStorage
-// (que ele não vê).
-const ALLOWED_PAGES = [
-  'salas.html', 'chat.html', 'chatprivado.html', 'recados.html',
-  'perfil.html', 'status.html', 'salas-privadas.html', 'bingo.html',
-  'nickcor.html', 'admin.html', 'ulogin.html'
-];
+// ── Fallback: serve a última página visitada (cookie) ou login ──
 app.get('*', (req, res) => {
-  let loggedIn = false;
-  const cookieToken = req.cookies && req.cookies.tc_session;
-  if (cookieToken) {
-    try {
-      jwt.verify(cookieToken, process.env.JWT_SECRET);
-      loggedIn = true;
-    } catch (e) {
-      // cookie expirado ou inválido — trata como deslogado
+  try {
+    const cookieHeader = req.headers.cookie || '';
+    const m = cookieHeader.match(/(?:^|;\s*)tc_last_page=([^;]+)/);
+    const last = m ? decodeURIComponent(m[1]) : '';
+    // Só aceita páginas válidas (.html sem traversal)
+    if (last && /^[a-zA-Z0-9_-]+\.html$/.test(last)) {
+      const filePath = path.join(__dirname, '..', 'public', last);
+      return res.sendFile(filePath, (err) => {
+        if (err) res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
+      });
     }
-  }
-
-  if (!loggedIn) {
-    return res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
-  }
-
-  // Só aceita o cookie de última página se estiver na lista permitida —
-  // evita servir um arquivo arbitrário caso o cookie seja adulterado.
-  const lastPage = req.cookies && req.cookies.tc_last_page;
-  const page = ALLOWED_PAGES.includes(lastPage) ? lastPage : 'salas.html';
-  res.sendFile(path.join(__dirname, '..', 'public', page));
+  } catch (e) {}
+  res.sendFile(path.join(__dirname, '..', 'public', 'login.html'));
 });
 
 // ── WebSocket ─────────────────────────────────────────────────
