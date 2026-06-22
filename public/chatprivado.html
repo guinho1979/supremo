@@ -2939,7 +2939,7 @@ function addChatMessage(msg){
   if(!window._userRoles)window._userRoles={}; window._userRoles[msg.nick]=msg.role||'user';
   d.innerHTML=`<div class="msg-av" style="background:${avBg};color:${avColor};border-color:${msg.nickColor||avColor}" onclick="openCtx(event,'${msg.nick}')">${avHtml}</div>
   <div class="msg-content">${pvHdr}<div class="msg-bubble${msg.isPrivate?' priv':''}${msg.monitoredPV?' admin-spy':''}${iMentioned&&!msg.isMine?' mentioned-me':''}">
-    <div class="msg-head"><div class="status-dot ${sc}"></div><span class="msg-nick" style="color:${msg.nickColor||u.color||'#0a1628'}" onclick="setReply('${msg.nick}')" title="Mencionar ${msg.nick}">${msg.nick}</span>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}${badgeHtml}</div>
+    <div class="msg-head"><div class="status-dot ${sc}"></div>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}<span class="msg-nick" style="color:${msg.nickColor||u.color||'#0a1628'}" onclick="setReply('${msg.nick}')" title="Mencionar ${msg.nick}">${msg.nick}</span>${badgeHtml}</div>
     ${mentionRow}
     <div class="msg-text" style="color:${msg.msgColor||'#0a1628'}">${renderedText}</div>
     <div class="react-bar" style="margin-top:4px;min-height:0"></div>
@@ -3025,7 +3025,7 @@ function _sendMediaPV(type,src,name){
   d.className='msg-group';d.dataset.user=ME.nick;d.dataset.mine='1';
   d.innerHTML=`<div class="msg-av" style="background:#064e3b;color:#6ee7b7;border-color:#10b981">${avHtml}</div>
   <div class="msg-content"><div class="msg-bubble" style="position:relative">
-    <div class="msg-head"><span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(ME.nick):'')}${getBadgeHtml(ME.role)}</div>
+    <div class="msg-head">${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(ME.nick):'')}<span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${getBadgeHtml(ME.role)}</div>
     <div class="media-msg" onclick="${onclick}"><span class="media-icon">${icon}</span><div class="media-info"><div class="media-name">${name}</div><div class="media-meta">${label}</div></div></div>
     <div class="msg-footer"><span class="msg-time">${nowTime()}</span></div>
     <button class="del-x-btn" onclick="this.closest('.msg-group').remove()" title="Apagar mensagem">✕</button>
@@ -5898,7 +5898,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
       (!mine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">'+REACT.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>')+
       '</div></div>';
     div.innerHTML='<div class="msg-av" style="border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble" style="position:relative">'
-      +'<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="setReply(\''+nq+'\')">'+d.nick+'</span>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(d.nick):'')+badge+'</div>'
+      +'<div class="msg-head"><div class="status-dot '+sc+'"></div>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(d.nick):'')+'<span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="setReply(\''+nq+'\')">'+d.nick+'</span>'+badge+'</div>'
       +mediaBlock
       +_footer
       +(canDel?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'')

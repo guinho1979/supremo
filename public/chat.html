@@ -1848,7 +1848,7 @@ window._spyMsgHtml=function(m, canDel){
   return '<div class="msg-group" data-user="'+nq+'" data-msg-id="'+(m.id||'')+'">'+
     '<div class="msg-av" style="background:#1e1635;border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div>'+
     '<div class="msg-content"><div class="msg-bubble">'+
-      '<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="openOuMenu(event,\''+nq+'\')">'+m.nick+'</span>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(m.nick):'')+badge+'</div>'+
+      '<div class="msg-head"><div class="status-dot '+sc+'"></div>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(m.nick):'')+'<span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="openOuMenu(event,\''+nq+'\')">'+m.nick+'</span>'+badge+'</div>'+
       '<div class="msg-text" style="color:#0a1628">'+body+'</div>'+
       '<div class="msg-footer"><span class="msg-time">'+when+'</span><div class="msg-actions">'+shield+'</div></div>'+
       delX+
@@ -3492,7 +3492,7 @@ const REACTIONS = window._REACTIONS || (window._REACTIONS = [
   if(!window._userRoles)window._userRoles={}; window._userRoles[msg.nick]=msg.role||'user';
   d.innerHTML=`<div class="msg-av" style="background:${avBg};color:${avColor};border-color:${msg.nickColor||avColor}">${avHtml}</div>
   <div class="msg-content">${pvHdr}<div class="msg-bubble${msg.isPrivate?' priv':''}${msg.monitoredPV?' admin-spy':''}${iMentioned&&!msg.isMine?' mentioned-me':''}">
-    <div class="msg-head"><div class="status-dot ${sc}"></div><span class="msg-nick${iMentioned&&!msg.isMine?' nick-mentioned-me':''}" style="${iMentioned&&!msg.isMine?'color:#A020F0;text-shadow:0 0 8px #A020F055;':'color:'+( msg.nickColor||u.color||'#0a1628')}" onclick="if('${msg.nick}'!==ME.nick)openOuMenu(event,'${msg.nick}')" style="cursor:pointer">${msg.nick}</span>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}${badgeHtml}</div>
+    <div class="msg-head"><div class="status-dot ${sc}"></div>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}<span class="msg-nick${iMentioned&&!msg.isMine?' nick-mentioned-me':''}" style="${iMentioned&&!msg.isMine?'color:#A020F0;text-shadow:0 0 8px #A020F055;':'color:'+( msg.nickColor||u.color||'#0a1628')}" onclick="if('${msg.nick}'!==ME.nick)openOuMenu(event,'${msg.nick}')" style="cursor:pointer">${msg.nick}</span>${badgeHtml}</div>
     ${quoteHtml}
     ${mentionRow}
     <div class="msg-text" style="color:${msg.msgColor||'#0a1628'}">${renderedText}</div>
@@ -3600,7 +3600,7 @@ function initHistoryButton(){
     el.innerHTML =
       '<div class="msg-av" style="background:'+avBg+';color:'+avClr+';border-color:'+avClr+'">'+m.av+'</div>'+
       '<div class="msg-content"><div class="msg-bubble">'+
-        '<div class="msg-head"><span class="msg-nick" style="color:'+m.color+'">'+m.nick+'</span>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(m.nick):'')+badge+'</div>'+
+        '<div class="msg-head">'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(m.nick):'')+'<span class="msg-nick" style="color:'+m.color+'">'+m.nick+'</span>'+badge+'</div>'+
         '<div class="msg-text" style="color:#0a1628">'+m.text+'</div>'+
         '<div class="msg-footer"><span class="msg-time">'+timeStr+'</span></div>'+
       '</div></div>';
@@ -3950,7 +3950,7 @@ function _sendMedia(type,src,name){
   d.className='msg-group';d.dataset.user=ME.nick;d.dataset.mine='1';
   d.innerHTML=`<div class="msg-av" style="background:#064e3b;color:#6ee7b7;border-color:#10b981">${avHtml}</div>
   <div class="msg-content"><div class="msg-bubble">
-    <div class="msg-head"><span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(ME.nick):'')}${getBadgeHtml(ME.role)}</div>
+    <div class="msg-head">${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(ME.nick):'')}<span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${getBadgeHtml(ME.role)}</div>
     <div class="media-msg" onclick="${onclick}">
       <span class="media-icon">${icon}</span>
       <div class="media-info"><div class="media-name">${name}${type==='yt'?'<span class="yt-badge">YT</span>':type==='tiktok'?'<span class="yt-badge" style="background:#ff0050">TK</span>':type==='instagram'?'<span class="yt-badge" style="background:linear-gradient(45deg,#f09433,#dc2743,#bc1888)">IG</span>':''}</div><div class="media-meta">${label}</div></div>
@@ -8703,7 +8703,7 @@ function processSmileKeywords(text){
       ''+'</div></div>';
     var _delX=((mine||(typeof canDeleteMsg==='function'&&canDeleteMsg()&&!window._isStaffMsg(d.role,d.nick))))?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'';
     div.innerHTML='<div class="msg-av" style="background:#1e1635;border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble">'
-      +'<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="if(\''+nq+'\'!==ME.nick)openOuMenu(event,\''+nq+'\')">'+d.nick+'</span>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(d.nick):'')+badge+'</div>'
+      +'<div class="msg-head"><div class="status-dot '+sc+'"></div>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(d.nick):'')+'<span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="if(\''+nq+'\'!==ME.nick)openOuMenu(event,\''+nq+'\')">'+d.nick+'</span>'+badge+'</div>'
       +mediaBlock
       +_footer+_delX
       +'</div></div>';
