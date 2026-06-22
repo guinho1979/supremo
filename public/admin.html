@@ -1167,10 +1167,9 @@ function renderLoginTable(){
       const typeBadge = isReg
         ? `<span class="badge login-type-registered" style="font-size:8px">👤 CADASTRADO</span>`
         : `<span class="badge login-type-guest" style="font-size:8px">👁 VISITANTE</span>`;
-      // Nick clicável apenas para cadastrados
-      const nickCell = isReg
-        ? `<span class="login-nick-link" onclick="irParaUsuario('${l.nick}')">${l.nick}</span>`
-        : `<span style="font-size:11px;color:var(--text3)">${l.nick}</span>`;
+      // Nick clicável para cadastrados E visitantes (abre a Moderação já selecionado)
+      const _nickArg = String(l.nick).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const nickCell = `<span class="login-nick-link" onclick="irParaUsuario('${_nickArg}')">${l.nick}</span>`;
       return `<tr>
         <td style="color:var(--text3);font-size:10px">${num}</td>
         <td>${nickCell}</td>
@@ -1205,11 +1204,15 @@ function loginGoPage(p){
 
 // Redireciona para a página de Usuários com o nick selecionado
 function irParaUsuario(nick){
-  const navEl = document.querySelector('.nav-item[onclick*="usuarios"]');
-  show('usuarios', navEl);
+  // Vai para a aba Moderação (onde fica o seletor de usuário + dados + ações)
+  const navEl = document.querySelector('.nav-item[onclick*="moderacao"]');
+  show('moderacao', navEl);
   setTimeout(()=>{
-    document.getElementById('userSearchInput').value = nick;
-    selecionarUsuario(nick);
+    const si = document.getElementById('userSearchInput');
+    if(si) si.value = nick;
+    selecionarUsuario(nick);                 // carrega o card com todas as informações
+    const mn = document.getElementById('modNick');
+    if(mn) mn.value = nick;                   // já deixa o nick selecionado para moderação
   }, 100);
 }
 
@@ -1520,7 +1523,12 @@ function selecionarUsuario(nick){
         }
       }
     }).catch(function(){ if(typeof toast==='function') toast('Erro ao carregar usuário','err'); card.style.display='none'; });
-  } else { card.style.display='none'; }
+  } else {
+    // Sem API: tenta montar como visitante a partir dos logs de login locais
+    var g=_guestUserFromLogins(nick);
+    if(g){ USERS_DATA[nick]=g; _renderUserCard(nick,g); }
+    else { card.style.display='none'; }
+  }
 }
 
 function _renderUserCard(nick,u){
@@ -1745,11 +1753,46 @@ function _onPvMonitorStorage(e) {
 }
 
 function getPvMonitorMsgs() {
+  pvMonitorFixV1();
   try {
     var all = JSON.parse(localStorage.getItem(PV_MON_KEY) || '[]');
     var cutoff = Date.now() - 24 * 60 * 60 * 1000;
     return all.filter(function(m){ return !m.ts || m.ts >= cutoff; });
   } catch(e) { return []; }
+}
+
+// ── Migração única: conserta conversas antigas que foram divididas ────────────
+// O bug antigo gravava a chave como "X ↔ X" para mensagens recebidas (e eco das
+// próprias enviadas), partindo uma conversa em várias. Aqui re-chaveamos esses
+// registros capturados localmente para a conversa real (eu ↔ parceiro) e
+// descartamos os ecos das mensagens enviadas pelo próprio usuário.
+function pvMonitorFixV1() {
+  try {
+    if (localStorage.getItem('tc_pv_monitor_fixv1') === '1') return;
+    var meNick = (localStorage.getItem('tc_nick') || '').trim();
+    if (!meNick) return; // sem o nick do usuário não dá para recuperar; tenta depois
+    var raw = localStorage.getItem(PV_MON_KEY);
+    if (raw) {
+      var arr = JSON.parse(raw) || [];
+      var out = [];
+      var sortPair = function(a, b){ return a.toLowerCase() < b.toLowerCase() ? -1 : (a.toLowerCase() > b.toLowerCase() ? 1 : 0); };
+      arr.forEach(function(m){
+        if (!m) return;
+        if (m._srv) { out.push(m); return; } // dados do servidor já têm a chave correta
+        var p = (m.conv ? String(m.conv) : '').split('\u2194').map(function(s){ return s.trim(); }).filter(Boolean);
+        var isSelfPair = (p.length === 1) || (p.length >= 2 && p[0].toLowerCase() === p[1].toLowerCase());
+        if (!isSelfPair) { out.push(m); return; }
+        var x = p[0] || m.from || '';
+        if (!x || x.toLowerCase() === meNick.toLowerCase()) return; // eco da própria mensagem → descarta
+        var pair = [meNick, x].sort(sortPair);
+        m.conv = pair.join(' \u2194 ');
+        m.to = (m.from && m.from.toLowerCase() === meNick.toLowerCase()) ? x : meNick;
+        out.push(m);
+      });
+      localStorage.setItem(PV_MON_KEY, JSON.stringify(out));
+    }
+    localStorage.setItem('tc_pv_monitor_fixv1', '1');
+  } catch(e) {}
 }
 
 function clearPvMonitorMsgs() {
@@ -2495,7 +2538,7 @@ function spPrivRecarregar(){
       var nome=String(s.name||'').replace(/['"\\]/g,'');
       var icon=s.icon||'\U0001F512'; var cor=s.color||'#7c3aed'; var owner=String(s.owner_nick||'').replace(/['"\\]/g,'');
       var slug=String(s.slug||('priv_'+s.id));
-      return '<div style="background:var(--surface);border:1.5px solid '+cor+'55;border-radius:12px;padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="font-size:22px">'+icon+'</div><div style="flex:1"><div style="font-family:\'Syne\',sans-serif;font-size:13px;font-weight:800">'+nome+'</div><div style="font-size:10px;color:var(--text3)">por '+owner+'</div></div></div><div style="display:flex;gap:8px"><button onclick="spPrivEspiar(\''+slug+'\',\''+nome+'\')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:12px;font-weight:700;cursor:pointer;font-family:\'Syne\',sans-serif">\U0001F441 Espiar</button></div></div>';
+      return '<div style="background:var(--surface);border:1.5px solid '+cor+'55;border-radius:12px;padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="font-size:22px">'+icon+'</div><div style="flex:1"><div style="font-family:\'Syne\',sans-serif;font-size:13px;font-weight:800">'+nome+'</div><div style="font-size:10px;color:var(--text3)">por '+owner+'</div></div></div><div style="display:flex;gap:8px"><button onclick="spPrivEspiar(\''+slug+'\',\''+nome+'\')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--purple2);font-size:12px;font-weight:700;cursor:pointer;font-family:\'Syne\',sans-serif">Espiar</button></div></div>';
     }).join('');
   }).catch(function(){
     if(grid) grid.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">Erro ao carregar salas privadas.</div>';

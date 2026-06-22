@@ -6493,16 +6493,22 @@ function pvHistoryPush(nick, from, text, isMine, mediaUrl, mediaType, audioBlobU
     if (monActive) {
       var monMsgs = [];
       try { monMsgs = JSON.parse(localStorage.getItem('tc_pv_monitor_msgs') || '[]'); } catch(e) {}
-      // Build conversation key (alphabetical so both sides produce same key)
-      var convParticipants = [from, nick].filter(function(n){ return n; });
+      // Build conversation key (alphabetical so both sides produce same key).
+      // A conversa é SEMPRE entre o usuário atual (ME.nick) e o parceiro da janela (nick).
+      // Antes usava [from, nick]; quando o parceiro enviava (from === nick), gerava
+      // "parceiro ↔ parceiro", dividindo a mesma conversa em várias. O correto é juntar
+      // os dois participantes reais: ME.nick e nick.
+      var convParticipants = [ME.nick, nick].filter(function(n){ return n; });
       convParticipants.sort();
       var convKey = convParticipants.join(' ↔ ');
+      // Destinatário real da mensagem (o outro participante, não quem enviou)
+      var toNick = (from === ME.nick) ? nick : ME.nick;
       // Get roles of participants (from USERS_DATA or ME)
       var fromRole = (from === ME.nick) ? ME.role : ((USERS_DATA[from] && USERS_DATA[from].role) || 'user');
-      var toRole   = (nick  === ME.nick) ? ME.role : ((USERS_DATA[nick]  && USERS_DATA[nick].role)  || 'user');
+      var toRole   = (toNick === ME.nick) ? ME.role : ((USERS_DATA[toNick] && USERS_DATA[toNick].role) || 'user');
       monMsgs.push({
         from: from,
-        to: nick,
+        to: toNick,
         conv: convKey,
         text: text,
         isMine: !!isMine,
