@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script>try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp)window.__SPY__=_sp;}catch(e){}try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/"+(location.search||""));}catch(e){}</script>
+  <script>try{document.cookie="tc_last_page=chat.html; path=/; max-age="+(7*24*60*60)+"; SameSite=Lax";}catch(e){}try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp)window.__SPY__=_sp;}catch(e){}</script>
 <script>
 (function(){
   try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
@@ -548,9 +548,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   </div>
   <div class="oc-body">
 
-    <!-- Avatar + Nick -->
+    <!-- Lema + Nick -->
     <div class="oc-section-block" style="text-align:center;padding-top:20px;padding-bottom:18px">
-      <div id="ocAvRing" style="width:100px;height:100px;border-radius:10px;background:#c8d8f5;border:2px solid #b8d0e8;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px;overflow:hidden">😊</div>
+      <div class="oc-sect" style="font-size:14px;text-align:center;margin-bottom:8px">📝 Lema</div>
+      <div style="display:flex;gap:6px;align-items:center;max-width:280px;margin:0 auto 8px">
+        <input id="ocLemaInput" maxlength="40" placeholder="Sua frase (máx 40)" style="flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid #b8d0e8;font-size:13px;font-family:inherit;background:#fff;color:#0a1628">
+        <button onclick="salvarLema()" style="padding:8px 12px;border-radius:8px;border:none;background:#2563eb;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Salvar</button>
+      </div>
+      <div id="ocAvRing" style="display:none">😊</div>
       <div class="oc-nick-display" id="ocNickDisplay">–</div>
     </div>
 
@@ -700,7 +705,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
       <span id="djPanelRnbBadge" style="display:none;position:absolute;top:-5px;right:-5px;background:#ef4444;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:20px;font-family:'Syne',sans-serif;min-width:16px;text-align:center">0</span>
     </button>
     <div class="rnb-sep"></div>
-    <button class="rnb-media-btn" onclick="toggleRight()" style="display:flex;align-items:center;gap:4px">👥 <span id="onlineCount">0</span></button>
+    <button class="rnb-media-btn" onclick="togglePvNotifPanel()" title="Mensagens privadas" style="display:flex;align-items:center;gap:4px;position:relative">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h16v11H11l-3 3V14H2V3z"/></svg>
+      <span id="pvNotifBadgeTop" style="display:none;position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>
+    </button>
     <button class="mod-btn" id="modPanelBtn" onclick="abrirPainel()" title="Painel Admin" style="font-size:16px;padding:0 8px">🛡️</button>
     <button class="leave-txt-btn" onclick="leaveRoom()">Sair</button>
   </div>
@@ -815,11 +823,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <button id="btnPlusTrigger" class="mdbtn" onclick="togglePlusMenu()" title="Mais opções" style="width:34px;height:34px;border-radius:50%;font-size:18px;font-weight:800;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</button>
     <!-- PV Toggle Button (hidden - private messages now via nick click) -->
     <div id="btnPvToggle" style="display:none" class="toggle"></div>
-    <!-- PV Notification Badge -->
-    <div id="pvNotifBtn" title="Mensagens privadas pendentes" onclick="togglePvNotifPanel()" style="position:relative;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;cursor:pointer;background:#f0f4ff;border:1.5px solid #c8d8f5;flex-shrink:0;transition:.15s" onmouseover="this.style.background='#e0eaff'" onmouseout="this.style.background='#f0f4ff'">
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M2 3h16v11H11l-3 3V14H2V3z"/></svg>
+    <!-- Online users button (trocou de posição com o 📨) -->
+    <button id="pvNotifBtn" onclick="toggleRight()" title="Usuários online" style="position:relative;display:flex;align-items:center;justify-content:center;height:32px;padding:0 10px;gap:4px;border-radius:16px;cursor:pointer;background:#f0f4ff;border:1.5px solid #c8d8f5;flex-shrink:0;transition:.15s;color:#7c3aed;font-size:13px;font-weight:700;font-family:inherit" onmouseover="this.style.background='#e0eaff'" onmouseout="this.style.background='#f0f4ff'">
+      👥 <span id="onlineCount" style="color:#dc2626;font-weight:800">0</span>
       <span id="pvNotifBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #fff;z-index:10"></span>
-    </div>
+    </button>
     <!-- Hidden original buttons for JS compatibility -->
     <button id="btnMic" style="display:none" onclick="toggleMicRecording()"></button>
     <button id="btnEmojiAnim" style="display:none" onclick="toggleEmojiAnimPicker()"></button>
@@ -1559,10 +1567,20 @@ function updateMyEmojiInOnlineList(){
 }
 
 // ─── SETTINGS ────────────────────────────────────────────────────────────────
+function salvarLema(){
+  var li=document.getElementById('ocLemaInput'); if(!li) return;
+  var v=(li.value||'').trim().slice(0,40);
+  if(window.ME) ME.lema=v;
+  try{ LS.set('tc_lema', v); }catch(e){}
+  if(window.API && API.patch){
+    API.patch('/auth/me', { lema: v }).then(function(){ try{ if(typeof showToast==='function') showToast('Lema salvo!'); }catch(e){} }).catch(function(){ try{ if(typeof showToast==='function') showToast('Não foi possível salvar.'); }catch(e){} });
+  }
+}
 function toggleLeft(){
   document.getElementById('ocLeft').classList.toggle('open');
   document.getElementById('backdrop').classList.toggle('show');
   if(document.getElementById('ocLeft').classList.contains('open')){
+    try{ var li=document.getElementById('ocLemaInput'); if(li) li.value = (typeof ME!=='undefined' && ME.lema) ? ME.lema : (LS.get('tc_lema','')||''); }catch(e){}
     initGradPalettes();
     // Gradiente disponível para todos os usuários cadastrados
     const gradToggle = document.getElementById('nickGradientToggle');
@@ -1818,7 +1836,7 @@ window._spyMsgHtml=function(m, canDel){
   return '<div class="msg-group" data-user="'+nq+'" data-msg-id="'+(m.id||'')+'">'+
     '<div class="msg-av" style="background:#1e1635;border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div>'+
     '<div class="msg-content"><div class="msg-bubble">'+
-      '<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="openOuMenu(event,\''+nq+'\')">'+m.nick+'</span>'+badge+'</div>'+
+      '<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="openOuMenu(event,\''+nq+'\')">'+m.nick+'</span>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(m.nick):'')+badge+'</div>'+
       '<div class="msg-text" style="color:#0a1628">'+body+'</div>'+
       '<div class="msg-footer"><span class="msg-time">'+when+'</span><div class="msg-actions">'+shield+'</div></div>'+
       delX+
@@ -3236,10 +3254,23 @@ function scheduleMessageExpiry(el){
   }, MSG_TTL);
 }
 
+// SVG inline de robô (usado como avatar do bot — sem precisar hospedar imagem)
+const BOT_ROBO_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+  + '<defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs>'
+  + '<rect x="6" y="14" width="52" height="44" rx="10" fill="url(#g)"/>'
+  + '<rect x="28" y="4" width="8" height="10" rx="2" fill="#1d4ed8"/><circle cx="32" cy="4" r="3" fill="#fbbf24"/>'
+  + '<circle cx="22" cy="32" r="6" fill="#fff"/><circle cx="42" cy="32" r="6" fill="#fff"/>'
+  + '<circle cx="22" cy="32" r="3" fill="#0f172a"/><circle cx="42" cy="32" r="3" fill="#0f172a"/>'
+  + '<rect x="22" y="44" width="20" height="5" rx="2" fill="#0f172a"/>'
+  + '<rect x="24" y="44" width="3" height="5" fill="#fff"/><rect x="30" y="44" width="3" height="5" fill="#fff"/><rect x="36" y="44" width="3" height="5" fill="#fff"/>'
+  + '</svg>'
+);
+
 // ── BOT SUPRA (IA via Claude API) ────────────────────────────
 const TOPZINHO = {
   nick: 'Supra',
-  av: '⚡',
+  av: BOT_ROBO_IMG,
   color: '#1d4ed8',
   role: 'bot',
 };
@@ -3270,7 +3301,7 @@ Contexto da plataforma:
 Responda apenas à mensagem atual do usuário, de forma natural e contextualizada.`;
 
 const BOT_MSGS_ESPONTANEAS = [
-  '⚡ Olá pessoal! Sou o Supra, assistente do Chat Supremo! Me chame com @Supra se precisar de ajuda!',
+  'Olá pessoal! Sou o Supra, assistente do Chat Supremo! Me chame com @Supra se precisar de ajuda!',
   '🎉 Bem-vindos ao Chat Supremo! Aproveitem a conversa e respeitem todos 😊',
   '⭐ Dica: Membros VIP e Premium têm acesso a salas exclusivas e podem entrar invisíveis! 👁',
   '🎵 Não esqueça de pedir sua música favorita ao DJ usando o botão 🎧!',
@@ -3279,7 +3310,7 @@ const BOT_MSGS_ESPONTANEAS = [
   '💡 Dica rápida: Clique no nick de alguém para ver o perfil e enviar mensagem privada!',
   '👁 Sabia que VIP ⭐ e Premium 👑 podem espiar salas em modo invisível? Ninguém te vê, mas você vê tudo! 😏',
   '🔒 Suas mensagens privadas são seguras — só você e a outra pessoa veem!',
-  '⚡ Precisando de ajuda? Me mencione com @Supra e responderei em instantes!',
+  'Precisando de ajuda? Me mencione com @Supra e responderei em instantes!',
 ];
 
 function botEnviarMensagem(texto, replyNick) {
@@ -3386,7 +3417,7 @@ function botIniciar() {
   if (!botAtivo) return;
   // Mensagem de boas-vindas após 3s
   setTimeout(() => {
-    botEnviarMensagem('⚡ Olá! Sou o Supra, assistente do Chat Supremo! Me chame com @Supra sempre que precisar de ajuda 😊');
+    botEnviarMensagem('Olá! Sou o Supra, assistente do Chat Supremo! Me chame com @Supra sempre que precisar de ajuda');
   }, 3000);
   // Mensagens espontâneas a cada 10 minutos
   function agendarProxima() {
@@ -3449,7 +3480,7 @@ const REACTIONS = window._REACTIONS || (window._REACTIONS = [
   if(!window._userRoles)window._userRoles={}; window._userRoles[msg.nick]=msg.role||'user';
   d.innerHTML=`<div class="msg-av" style="background:${avBg};color:${avColor};border-color:${msg.nickColor||avColor}">${avHtml}</div>
   <div class="msg-content">${pvHdr}<div class="msg-bubble${msg.isPrivate?' priv':''}${msg.monitoredPV?' admin-spy':''}${iMentioned&&!msg.isMine?' mentioned-me':''}">
-    <div class="msg-head"><div class="status-dot ${sc}"></div><span class="msg-nick${iMentioned&&!msg.isMine?' nick-mentioned-me':''}" style="${iMentioned&&!msg.isMine?'color:#A020F0;text-shadow:0 0 8px #A020F055;':'color:'+( msg.nickColor||u.color||'#0a1628')}" onclick="if('${msg.nick}'!==ME.nick)openOuMenu(event,'${msg.nick}')" style="cursor:pointer">${msg.nick}</span>${badgeHtml}</div>
+    <div class="msg-head"><div class="status-dot ${sc}"></div><span class="msg-nick${iMentioned&&!msg.isMine?' nick-mentioned-me':''}" style="${iMentioned&&!msg.isMine?'color:#A020F0;text-shadow:0 0 8px #A020F055;':'color:'+( msg.nickColor||u.color||'#0a1628')}" onclick="if('${msg.nick}'!==ME.nick)openOuMenu(event,'${msg.nick}')" style="cursor:pointer">${msg.nick}</span>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}${badgeHtml}</div>
     ${quoteHtml}
     ${mentionRow}
     <div class="msg-text" style="color:${msg.msgColor||'#0a1628'}">${renderedText}</div>
@@ -3557,7 +3588,7 @@ function initHistoryButton(){
     el.innerHTML =
       '<div class="msg-av" style="background:'+avBg+';color:'+avClr+';border-color:'+avClr+'">'+m.av+'</div>'+
       '<div class="msg-content"><div class="msg-bubble">'+
-        '<div class="msg-head"><span class="msg-nick" style="color:'+m.color+'">'+m.nick+'</span>'+badge+'</div>'+
+        '<div class="msg-head"><span class="msg-nick" style="color:'+m.color+'">'+m.nick+'</span>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(m.nick):'')+badge+'</div>'+
         '<div class="msg-text" style="color:#0a1628">'+m.text+'</div>'+
         '<div class="msg-footer"><span class="msg-time">'+timeStr+'</span></div>'+
       '</div></div>';
@@ -3907,7 +3938,7 @@ function _sendMedia(type,src,name){
   d.className='msg-group';d.dataset.user=ME.nick;d.dataset.mine='1';
   d.innerHTML=`<div class="msg-av" style="background:#064e3b;color:#6ee7b7;border-color:#10b981">${avHtml}</div>
   <div class="msg-content"><div class="msg-bubble">
-    <div class="msg-head"><span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${getBadgeHtml(ME.role)}</div>
+    <div class="msg-head"><span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(ME.nick):'')}${getBadgeHtml(ME.role)}</div>
     <div class="media-msg" onclick="${onclick}">
       <span class="media-icon">${icon}</span>
       <div class="media-info"><div class="media-name">${name}${type==='yt'?'<span class="yt-badge">YT</span>':type==='tiktok'?'<span class="yt-badge" style="background:#ff0050">TK</span>':type==='instagram'?'<span class="yt-badge" style="background:linear-gradient(45deg,#f09433,#dc2743,#bc1888)">IG</span>':''}</div><div class="media-meta">${label}</div></div>
@@ -4127,6 +4158,16 @@ function _likeAvHtml(av){
     return '<img src="'+av+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">';
   }
   return '👤';
+}
+// Retorna o emoji do nick (usuário) — vazio se não tiver. Usado em todos os balões.
+function _nickEmojiHtml(nick){
+  try{
+    var e='';
+    if(nick && nick===((typeof ME!=='undefined'&&ME.nick)||'')) e=(typeof ME!=='undefined'&&ME.nickEmoji)||'';
+    if(!e && window._nickColors && window._nickColors[nick]) e=window._nickColors[nick].emoji||'';
+    if(!e) return '';
+    return ' <span style="font-size:13px;line-height:1;display:inline-flex;align-items:center;vertical-align:middle">'+e+'</span>';
+  }catch(_e){ return ''; }
 }
 function _showLikesModal(group, isMine){
   const data = _getReactData(group);
@@ -4521,25 +4562,8 @@ function filtrarPedidosDJ(f, btn){
 
 function updateDJOnlineName(){
   const el = document.getElementById('djOnlineName');
-  if(!el) return;
-  // Find first DJ online (exclude self if DJ)
-  let djNick = null;
-  for(const nick of onlineUsers){
-    const u = USERS[nick];
-    if(u && u.role==='dj' && nick !== ME.nick){ djNick = nick; break; }
-  }
-  // Also check demo users via onlineList rows
-  if(!djNick){
-    document.querySelectorAll('#onlineList .ou').forEach(row=>{
-      if(djNick) return;
-      const badge = row.querySelector('.badge');
-      if(badge && badge.textContent.trim()==='DJ'){
-        const nickEl = row.querySelector('.ou-nick');
-        if(nickEl) djNick = nickEl.textContent.trim();
-      }
-    });
-  }
-  el.textContent = djNick ? djNick : '';
+  if(el) el.textContent = '';
+  // Nome do DJ escondido do botão de pedidos (evita ficar piscando "DJMaster/Demo").
 }
 
 function renderDJPanel(){
@@ -6745,16 +6769,20 @@ function openPrivateWindow(nick) {
   backBtn.addEventListener('mouseleave', function(){ this.style.background='rgba(255,255,255,.15)'; });
   backBtn.addEventListener('click', function(){ closePrivateWindow(nick); });
   var avSpan = document.createElement('span');
-  avSpan.style.cssText = 'font-size:18px;width:30px;height:30px;background:rgba(255,255,255,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0';
-  avSpan.textContent = u.av || '👤';
+  avSpan.style.cssText = 'width:30px;height:30px;background:rgba(255,255,255,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;font-size:18px';
+  var _ci = (window._nickColors && window._nickColors[nick]) || {};
+  if (_ci.photo) { avSpan.innerHTML = '<img src="'+_ci.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">'; }
+  else { avSpan.textContent = _ci.avatar || u.av || '👤'; }
   var hdrInfo = document.createElement('div');
   hdrInfo.style.cssText = 'flex:1;overflow:hidden';
   var titleSpan = document.createElement('div');
   titleSpan.style.cssText = 'font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
   titleSpan.textContent = '🔒 PV: ' + nick;
   var onlineSpan = document.createElement('div');
-  onlineSpan.style.cssText = 'font-size:10px;color:rgba(255,255,255,.7);margin-top:1px';
-  onlineSpan.textContent = onlineUsers.has(nick) ? '● online' : '○ offline';
+  onlineSpan.style.cssText = 'font-size:10px;color:rgba(255,255,255,.85);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic';
+  // Mostra o LEMA do usuário (se tiver); senão, status online/offline.
+  if (_ci.lema) { onlineSpan.textContent = '“' + _ci.lema + '”'; }
+  else { onlineSpan.style.fontStyle='normal'; onlineSpan.textContent = onlineUsers.has(nick) ? '● online' : '○ offline'; }
   hdrInfo.appendChild(titleSpan);
   hdrInfo.appendChild(onlineSpan);
   var clearHistBtn = document.createElement('button');
@@ -7508,9 +7536,13 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
   var bubble = document.createElement('div');
   bubble.className = 'msg-bubble priv';
 
-  // Nick header
-  var nickColor = isMine ? (ME.nickColor || '#2563eb') : '#0f1f3d';
+  // Nick header — usa as cores REAIS salvas pelo usuário (do _nickColors do servidor)
+  var _ciFrom = (window._nickColors && window._nickColors[fromNick]) || {};
+  var nickColor = isMine ? (ME.nickColor || _ciFrom.color || '#2563eb') : (_ciFrom.color || '#0f1f3d');
   var nickLabel = isMine ? ME.nick : fromNick;
+  // Cor da mensagem também vem do que o usuário salvou
+  var msgColor = isMine ? (ME.msgColor || '#0a1628') : (_ciFrom.msg_color || '#0a1628');
+  bubble.style.color = msgColor;
   var head = document.createElement('div');
   head.className = 'msg-head';
   var nickEl = document.createElement('span');
@@ -7518,6 +7550,11 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
   nickEl.style.color = nickColor;
   nickEl.textContent = nickLabel;
   head.appendChild(nickEl);
+  // Emoji do nick ao lado
+  try{
+    var _e=(isMine?ME.nickEmoji:_ciFrom.emoji)||'';
+    if(_e){ var emoEl=document.createElement('span'); emoEl.style.cssText='font-size:13px;margin-left:4px'; emoEl.textContent=_e; head.appendChild(emoEl); }
+  }catch(_e){}
   bubble.appendChild(head);
 
   // Media or text content
@@ -7713,23 +7750,8 @@ function makePvWindowDraggable(win) {
   document.addEventListener('mouseup', () => { dragging = false; });
 }
 
-// ─── DEMO PV USERS — bots that can reply to private messages ────────────────
-const DEMO_PV_USERS = {
-  DanielDev: {
-    replies: [
-      'Oi! Tudo bem por aí? 😊',
-      'Que bacana! Conta mais!',
-      'Haha sim, concordo!',
-      'Eita! Interessante isso 🤔',
-      'Pode sim! Sem problemas',
-      'Vlw pela mensagem! 🙏',
-      'Isso mesmo! 👍',
-      'Perfeito, entendi!',
-      'Rsrs que situação kkk',
-      'Manda mais detalhes?'
-    ]
-  }
-};
+// ─── DEMO PV USERS — desativados (sem usuários falsos no Gerenciar Privados) ───
+const DEMO_PV_USERS = {};
 
 // ─── ONLINE PANEL USER MENU ─────────────────────────────────────────────────
 // Menu shown when clicking a nick in the online users panel
@@ -8669,7 +8691,7 @@ function processSmileKeywords(text){
       ''+'</div></div>';
     var _delX=((mine||(typeof canDeleteMsg==='function'&&canDeleteMsg()&&!window._isStaffMsg(d.role,d.nick))))?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'';
     div.innerHTML='<div class="msg-av" style="background:#1e1635;border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble">'
-      +'<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="if(\''+nq+'\'!==ME.nick)openOuMenu(event,\''+nq+'\')">'+d.nick+'</span>'+badge+'</div>'
+      +'<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="if(\''+nq+'\'!==ME.nick)openOuMenu(event,\''+nq+'\')">'+d.nick+'</span>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(d.nick):'')+badge+'</div>'
       +mediaBlock
       +_footer+_delX
       +'</div></div>';
@@ -8716,7 +8738,28 @@ function processSmileKeywords(text){
   tcSocket.offAll();
   window._SPY_MODE = (function(){ try{ return window.__SPY__ || new URLSearchParams(location.search).get('spy') || ''; }catch(e){ return window.__SPY__||''; } })();
   tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); if(window._SPY_MODE){ tcSocket.send('spy_join',{room:window._SPY_MODE}); } else { tcSocket.join(curRoom()); } try{ if(tcSocket.status && !window._SPY_MODE) tcSocket.status(LS.get('tc_status','online')); }catch(e){} try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
-  tcSocket.on('spy_history', function(d){ if(!window._SPY_MODE) return; var _a=document.getElementById('msgArea'); if(_a) _a.innerHTML=''; try{ seen=new Set(); }catch(e){} (d&&d.messages||[]).forEach(function(m){ try{ incoming(m); }catch(e){} });
+  tcSocket.on('spy_history', function(d){ if(!window._SPY_MODE) return; var _a=document.getElementById('msgArea'); if(!_a) return;
+    window._histMsgs=(d&&d.messages)||[];
+    if(!window._histShown){
+      if(!window._spyHistoryInit){
+        _a.innerHTML='';
+        window._spyHistoryInit=true;
+      }
+      // injeta o link "últimas mensagens" só se ainda não estiver lá
+      if(!document.getElementById('histLinkWrap') && window._histMsgs.length){
+        var div=document.createElement('div'); div.id='histLinkWrap';
+        div.style.cssText='display:flex;justify-content:center;padding:12px 8px';
+        div.innerHTML='<button id="histLinkBtn" onclick="_revealHistory()" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8;border-radius:20px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 1px 5px rgba(24,119,242,.2)">\uD83D\uDD52 últimas mensagens</button>';
+        _a.appendChild(div);
+      }
+    } else {
+      // já clicou — só completa o que faltar (sem repintar)
+      if(!window._spyHistoryInit){
+        _a.innerHTML=''; try{ seen=new Set(); }catch(e){}
+        window._spyHistoryInit=true;
+      }
+      window._histMsgs.forEach(function(m){ try{ incoming(m); }catch(e){} });
+    }
     try{ if(API.roomUsers){ API.roomUsers(window._SPY_MODE).then(function(r){ var us=(r&&(r.users||r.online))||(Array.isArray(r)?r:[]); if(typeof roomRoles!=='undefined'){ try{ Object.keys(roomRoles).forEach(function(k){ delete roomRoles[k]; }); }catch(e){} us.forEach(function(u){ roomRoles[u.nick]=u.role||'user'; }); } if(typeof renderOnline==='function') renderOnline(); }).catch(function(){}); } }catch(e){}
   });
   tcSocket.on('spy_message', function(d){ if(!window._SPY_MODE) return; try{ incoming(d); }catch(e){} });
@@ -8730,7 +8773,7 @@ function processSmileKeywords(text){
     var div=document.createElement('div');
     div.id='histLinkWrap';
     div.style.cssText='display:flex;justify-content:center;padding:12px 8px';
-    div.innerHTML='<button id="histLinkBtn" onclick="_revealHistory()" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8;border-radius:20px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 1px 5px rgba(24,119,242,.2)">\uD83D\uDCE9 últimas mensagens</button>';
+    div.innerHTML='<button id="histLinkBtn" onclick="_revealHistory()" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8;border-radius:20px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 1px 5px rgba(24,119,242,.2)">\uD83D\uDD52 últimas mensagens</button>';
     _a.insertBefore(div, _a.firstChild);
   };
   window._revealHistory=function(){
@@ -9210,6 +9253,8 @@ setTimeout(buildSpyRoomList, 1800);
     // esconde o botão de configurações (⚙️)
     try{ var cfg=document.querySelector('.topbar .btn-menu'); if(cfg) cfg.style.display='none'; }catch(e){}
     try{ var trn=document.getElementById('topRoomName'); if(trn && trn.parentElement) trn.parentElement.style.display='none'; }catch(e){}
+    // esconde a topbar inteira (fundo azul) em modo espião
+    try{ var tb=document.querySelector('.topbar'); if(tb) tb.style.display='none'; }catch(e){}
     // esconde demais botões do header, mantendo SÓ o de onlines (👥 toggleRight)
     try{
       document.querySelectorAll('.room-name-bar button, .topbar button, #floatRadioBtn, .dj-btn, .mod-btn').forEach(function(b){

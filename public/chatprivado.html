@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script>try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp)window.__SPY__=_sp;}catch(e){}try{if(location.pathname!=="/"&&location.pathname!=="")history.replaceState(null,"","/"+(location.search||""));}catch(e){}</script>
+  <script>try{document.cookie="tc_last_page=chatprivado.html; path=/; max-age="+(7*24*60*60)+"; SameSite=Lax";}catch(e){}try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp)window.__SPY__=_sp;}catch(e){}</script>
 <script>
 (function(){
   try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
@@ -677,7 +677,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <!-- BARRA ROXA — Onlines | Convidar | Sair -->
 <div class="room-name-bar">
   <div class="rnb-center">
-    <button class="rnb-media-btn" onclick="toggleRight()" style="display:flex;align-items:center;gap:4px">👥 <span id="onlineCount">0</span></button>
+    <button class="rnb-media-btn" onclick="toggleRight()" style="display:flex;align-items:center;gap:4px">👥 <span id="onlineCount" style="color:#dc2626;font-weight:800">0</span></button>
     <button class="rnb-media-btn" id="btnConvidarPriv" onclick="abrirConvidarPrivado()" style="display:none">📨 Convidar</button>
     <div class="rnb-sep"></div>
     <button class="leave-txt-btn" onclick="leaveRoom()">Sair</button>
@@ -689,36 +689,36 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <span id="roomNameLabel" style="display:none">Sala Privada</span>
 
 <!-- ── MODAL CONVIDAR PARA SALA PRIVADA ── -->
-<div class="overlay" id="convidarPrivModal" onclick="if(event.target===this)fecharConvidarPrivado()" style="display:none;z-index:400">
-  <div class="modal" style="max-width:400px;padding:0;overflow:hidden">
+<div class="overlay" id="convidarPrivModal" onclick="if(event.target===this)fecharConvidarPrivado()" style="display:none;z-index:400;background:#00000088;align-items:center;justify-content:center;position:fixed;inset:0">
+  <div class="modal" style="max-width:400px;padding:0;overflow:hidden;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.25);max-height:90vh">
     <!-- Header -->
-    <div style="padding:14px 16px;border-bottom:1px solid #1e3a5f;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#0f1f3d,#1d4ed8)">
+    <div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px;background:#fff">
       <span style="font-size:20px">📨</span>
       <div style="flex:1">
-        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#e8edf5">Convidar para sala</div>
-        <div id="convidarPrivSalaNome" style="font-size:10px;color:#8aafd4;margin-top:1px"></div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#0f1f3d">Convidar para sala</div>
+        <div id="convidarPrivSalaNome" style="font-size:10px;color:#6a8aaa;margin-top:1px"></div>
       </div>
-      <button onclick="fecharConvidarPrivado()" style="background:none;border:none;color:#8aafd4;font-size:18px;cursor:pointer;padding:4px;line-height:1">✕</button>
+      <button onclick="fecharConvidarPrivado()" style="background:none;border:none;color:#6a8aaa;font-size:18px;cursor:pointer;padding:4px;line-height:1">✕</button>
     </div>
 
     <!-- Step 1: salas de salas.html -->
-    <div id="cpStep1" style="padding:12px">
-      <div style="font-size:10px;font-weight:700;color:#8aafd4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Escolha uma sala para buscar usuários</div>
+    <div id="cpStep1" style="padding:12px;background:#fff">
+      <div style="font-size:10px;font-weight:700;color:#6a8aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Escolha uma sala para buscar usuários</div>
       <div id="cpSalasList" style="display:grid;grid-template-columns:1fr 1fr;gap:7px"></div>
     </div>
 
     <!-- Step 2: usuários da sala escolhida -->
-    <div id="cpStep2" style="display:none;padding:12px">
+    <div id="cpStep2" style="display:none;padding:12px;background:#fff">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <button onclick="cpVoltar()" style="background:#1a1d24;border:1px solid #2a3244;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;color:#8aafd4;cursor:pointer;font-family:'DM Sans',sans-serif">← Voltar</button>
-        <span id="cpSalaSel" style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#e8edf5"></span>
+        <button onclick="cpVoltar()" style="background:#f3f4f6;border:1px solid #d1d5db;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;color:#374151;cursor:pointer;font-family:'DM Sans',sans-serif">← Voltar</button>
+        <span id="cpSalaSel" style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#0f1f3d"></span>
       </div>
       <div id="cpUsersList" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto"></div>
     </div>
 
     <!-- Footer -->
-    <div style="padding:10px 14px;border-top:1px solid #2a3244">
-      <button onclick="fecharConvidarPrivado()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #2a3244;background:#1a1d24;color:#8aafd4;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Fechar</button>
+    <div style="padding:10px 14px;border-top:1px solid #e5e7eb;background:#fff">
+      <button onclick="fecharConvidarPrivado()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#374151;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Fechar</button>
     </div>
   </div>
 </div>
@@ -854,6 +854,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   <div class="input-row">
     <!-- + Button -->
     <button id="btnPlusTrigger" class="mdbtn" onclick="togglePlusMenu()" title="Mais opções" style="width:34px;height:34px;border-radius:50%;font-size:18px;font-weight:800;padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0">+</button>
+    <!-- Botão Onlines (ao lado do +) -->
+    <button id="btnOnlinesInput" onclick="toggleRight()" title="Usuários online" style="display:flex;align-items:center;gap:4px;height:32px;padding:0 10px;border-radius:16px;cursor:pointer;background:#f0f4ff;border:1.5px solid #c8d8f5;flex-shrink:0;color:#7c3aed;font-size:13px;font-weight:700;font-family:inherit">
+      👥 <span id="onlineCountBottom" style="color:#dc2626;font-weight:800">0</span>
+    </button>
     <!-- PV Toggle Button removed -->
     <!-- PV Toggle Button removed -->
     <!-- Hidden original buttons for JS compatibility -->
@@ -2935,7 +2939,7 @@ function addChatMessage(msg){
   if(!window._userRoles)window._userRoles={}; window._userRoles[msg.nick]=msg.role||'user';
   d.innerHTML=`<div class="msg-av" style="background:${avBg};color:${avColor};border-color:${msg.nickColor||avColor}" onclick="openCtx(event,'${msg.nick}')">${avHtml}</div>
   <div class="msg-content">${pvHdr}<div class="msg-bubble${msg.isPrivate?' priv':''}${msg.monitoredPV?' admin-spy':''}${iMentioned&&!msg.isMine?' mentioned-me':''}">
-    <div class="msg-head"><div class="status-dot ${sc}"></div><span class="msg-nick" style="color:${msg.nickColor||u.color||'#0a1628'}" onclick="setReply('${msg.nick}')" title="Mencionar ${msg.nick}">${msg.nick}</span>${badgeHtml}</div>
+    <div class="msg-head"><div class="status-dot ${sc}"></div><span class="msg-nick" style="color:${msg.nickColor||u.color||'#0a1628'}" onclick="setReply('${msg.nick}')" title="Mencionar ${msg.nick}">${msg.nick}</span>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}${badgeHtml}</div>
     ${mentionRow}
     <div class="msg-text" style="color:${msg.msgColor||'#0a1628'}">${renderedText}</div>
     <div class="react-bar" style="margin-top:4px;min-height:0"></div>
@@ -2960,7 +2964,7 @@ function addChatMessage(msg){
 
 
 const STATUS_DOT_CLASS={online:'s-online',away:'s-away',busy:'s-busy',offline:'s-offline'};
-function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MOD',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ')[1]}</span>`:'';}
+function getBadgeHtml(role){const m={admin:'b-admin ADMIN',supervisor:'b-sup SUPERVISOR',mod:'b-mod MODERADOR',vip:'b-vip VIP',premium:'b-prem PREMIUM',dj:'b-dj DJ ONLINE'};const v=m[role];return v?`<span class="badge ${v.split(' ')[0]}">${v.split(' ').slice(1).join(' ')}</span>`:'';}
 function renderAv(av){return av&&av.startsWith('http')?`<img src="${av}" alt="av"/>`:av||'😊';}
 
 // ─── MEDIA UPLOAD / MESSAGES ─────────────────────────────────────────────────
@@ -3021,7 +3025,7 @@ function _sendMediaPV(type,src,name){
   d.className='msg-group';d.dataset.user=ME.nick;d.dataset.mine='1';
   d.innerHTML=`<div class="msg-av" style="background:#064e3b;color:#6ee7b7;border-color:#10b981">${avHtml}</div>
   <div class="msg-content"><div class="msg-bubble" style="position:relative">
-    <div class="msg-head"><span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${getBadgeHtml(ME.role)}</div>
+    <div class="msg-head"><span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(ME.nick):'')}${getBadgeHtml(ME.role)}</div>
     <div class="media-msg" onclick="${onclick}"><span class="media-icon">${icon}</span><div class="media-info"><div class="media-name">${name}</div><div class="media-meta">${label}</div></div></div>
     <div class="msg-footer"><span class="msg-time">${nowTime()}</span></div>
     <button class="del-x-btn" onclick="this.closest('.msg-group').remove()" title="Apagar mensagem">✕</button>
@@ -3228,6 +3232,16 @@ function deleteMsg(btn){
 }
 
 // ─── PROFILE ─────────────────────────────────────────────────────────────────
+// Emoji do nick (igual ao chat.html): pega do próprio ME ou de _nickColors[nick]
+function _nickEmojiHtml(nick){
+  try{
+    var e='';
+    if(nick && nick===((typeof ME!=='undefined'&&ME.nick)||'')) e=(typeof ME!=='undefined'&&ME.nickEmoji)||'';
+    if(!e && window._nickColors && window._nickColors[nick]) e=window._nickColors[nick].emoji||'';
+    if(!e) return '';
+    return ' <span style="font-size:13px;line-height:1;display:inline-flex;align-items:center;vertical-align:middle">'+e+'</span>';
+  }catch(_e){ return ''; }
+}
 function openProfile(nick){
   const u=USERS[nick]||{color:'#4a4070',av:'😊',avBg:'#edf2ff',avColor:'#2563eb',bio:'',role:'user'};
   const ci=(window._nickColors&&window._nickColors[nick])||{};
@@ -5884,7 +5898,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
       (!mine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">'+REACT.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>')+
       '</div></div>';
     div.innerHTML='<div class="msg-av" style="border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble" style="position:relative">'
-      +'<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="setReply(\''+nq+'\')">'+d.nick+'</span>'+badge+'</div>'
+      +'<div class="msg-head"><div class="status-dot '+sc+'"></div><span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="setReply(\''+nq+'\')">'+d.nick+'</span>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(d.nick):'')+badge+'</div>'
       +mediaBlock
       +_footer
       +(canDel?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'')
@@ -5918,6 +5932,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
   function renderOnline(){
     var nicks=Object.keys(roomRoles);
     var cnt=document.getElementById('onlineCount'); if(cnt) cnt.textContent=nicks.length;
+    var cnt2=document.getElementById('onlineCountBottom'); if(cnt2) cnt2.textContent=nicks.length;
     if(typeof onlineUsers!=='undefined'){ try{ onlineUsers.clear(); nicks.forEach(function(n){onlineUsers.add(n);}); }catch(e){} }
     var el=document.getElementById('onlineList');
     if(el){
@@ -5929,12 +5944,13 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
           : '<span style="width:26px;height:26px;border-radius:50%;background:#22304a;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(isG?'👤':(info.avatar||'😊'))+'</span>';
         var emo = info.emoji ? '<span style="flex-shrink:0;font-size:14px">'+info.emoji+'</span>' : '';
         var SHOW_BADGE=['dj','premium','mod','supervisor','admin'];
-        var badge = SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '';
+        var badge = (typeof getBadgeHtml==='function') ? getBadgeHtml(role) : (SHOW_BADGE.indexOf(role)>-1 ? '<span class="badge">'+role.toUpperCase()+'</span>' : '');
         var stColor={online:'#10b981',away:'#f59e0b',busy:'#ef4444'}[info.status||'online']||'#10b981';
-        var dot='<span style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
+        var dot='<span title="'+(info.status||'online')+'" style="width:9px;height:9px;border-radius:50%;background:'+stColor+';flex-shrink:0;box-shadow:0 0 4px '+stColor+'"></span>';
         var col=info.color||'';
         var _cp=_nickColorParts(n);
-        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px;cursor:pointer" onclick="if(typeof openProfile===\'function\')openProfile(\''+n.replace(/'/g,"\\'")+'\')">'+av+emo+'<span class="ou-nick '+(_cp.cls||'')+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+(_cp.style||(col?'color:'+col:''))+'">'+n+'</span>'+badge+dot+'</div>';
+        var shield=(window._shieldBtn?window._shieldBtn(n, role):'');
+        return '<div class="ou" style="display:flex;align-items:center;gap:7px;padding:6px 4px;cursor:pointer" onclick="if(event.target.closest&&event.target.closest(\'.msg-shield-btn\'))return; if(typeof openProfile===\'function\')openProfile(\''+n.replace(/'/g,"\\'")+'\')">'+dot+av+emo+'<span class="ou-nick '+(_cp.cls||'')+'" data-nick="'+n+'" style="flex:1;font-weight:700;font-size:16px;'+(_cp.style||(col?'color:'+col:''))+'">'+n+'</span>'+badge+shield+'</div>';
       }).join('') || '<div style="padding:10px;font-size:12px;opacity:.6">Ninguém online.</div>';
     }
   }
