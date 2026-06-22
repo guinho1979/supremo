@@ -497,9 +497,12 @@ router.post('/rooms', requireRole('admin'), async (req, res) => {
   try {
     const { rows: ex } = await db.query('SELECT 1 FROM rooms WHERE slug = $1', [slug]);
     if (ex.length) return res.status(409).json({ error: 'Já existe uma sala com esse identificador.' });
+    // Nova sala sempre entra no fim da lista (ordem de criação), nunca alfabética.
+    const { rows: mx } = await db.query('SELECT COALESCE(MAX(sort_order), 0) AS m FROM rooms');
+    const nextOrder = (parseInt(mx[0] && mx[0].m, 10) || 0) + 1;
     await db.query(
-      'INSERT INTO rooms (slug, name, icon, description, min_role, max_users) VALUES ($1, $2, $3, $4, $5, $6)',
-      [slug, name, icon, description, min_role, max_users]
+      'INSERT INTO rooms (slug, name, icon, description, min_role, max_users, sort_order) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+      [slug, name, icon, description, min_role, max_users, nextOrder]
     );
     res.status(201).json({ room: { slug, name, icon, description, min_role, max_users } });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao criar sala.' }); }
