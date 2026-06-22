@@ -212,10 +212,10 @@ CREATE TABLE IF NOT EXISTS online_presence (
 
 -- ─────────────────────────────────────────────────────────────
 --  SALAS PADRÃO
+--  (Nenhuma sala é criada automaticamente. As salas são criadas
+--   pelo painel admin e podem ser excluídas de forma permanente —
+--   não há mais sala fixa "geral" que volta após reiniciar.)
 -- ─────────────────────────────────────────────────────────────
-INSERT INTO rooms (slug, name, description, icon, category, sort_order) VALUES
-  ('geral',     'Geral',          'Sala principal para todos',           '💬', 'geral',    1)
-ON CONFLICT (slug) DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────────
 --  ADMIN PADRÃO
