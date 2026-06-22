@@ -1,7 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <script>try{document.cookie="tc_last_page=chat.html; path=/; max-age="+(7*24*60*60)+"; SameSite=Lax";}catch(e){}try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp)window.__SPY__=_sp;}catch(e){}</script>
+  <script>try{document.cookie="tc_last_page=chat.html; path=/; max-age="+(7*24*60*60)+"; SameSite=Lax";}catch(e){}try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp){window.__SPY__=_sp;document.documentElement.classList.add('spy-mode');}}catch(e){}</script>
+  <style>
+    /* Esconde elementos do chat normal em modo espião ANTES do JS rodar (evita piscar) */
+    html.spy-mode .topbar,
+    html.spy-mode .input-row,
+    html.spy-mode #floatRadioBtn,
+    html.spy-mode .dj-btn,
+    html.spy-mode #djRequestBtn,
+    html.spy-mode #djPanelRnbBtn,
+    html.spy-mode .mod-btn,
+    html.spy-mode .leave-txt-btn,
+    html.spy-mode .rnb-sep{display:none !important}
+  </style>
 <script>
 (function(){
   try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
@@ -9248,30 +9260,28 @@ setTimeout(buildSpyRoomList, 1800);
   var spy=''; try{ spy=new URLSearchParams(location.search).get('spy')||''; }catch(e){}
   if(!spy) return;
   function init(){
-    var ir=document.querySelector('.input-row'); if(ir) ir.style.display='none';
     try{ var mi=document.getElementById('msgInput'); if(mi){ mi.disabled=true; } }catch(e){}
-    // esconde o botão de configurações (⚙️)
-    try{ var cfg=document.querySelector('.topbar .btn-menu'); if(cfg) cfg.style.display='none'; }catch(e){}
-    try{ var trn=document.getElementById('topRoomName'); if(trn && trn.parentElement) trn.parentElement.style.display='none'; }catch(e){}
-    // esconde a topbar inteira (fundo azul) em modo espião
-    try{ var tb=document.querySelector('.topbar'); if(tb) tb.style.display='none'; }catch(e){}
-    // esconde demais botões do header, mantendo SÓ o de onlines (👥 toggleRight)
+    // Botão Onlines + SAIR no header (room-name-bar)
     try{
-      document.querySelectorAll('.room-name-bar button, .topbar button, #floatRadioBtn, .dj-btn, .mod-btn').forEach(function(b){
-        var oc=(b.getAttribute('onclick')||'');
-        if(oc.indexOf('toggleRight')>-1) return; // mantém onlines
-        b.style.display='none';
-      });
-    }catch(e){}
-    // botão SAIR no header
-    try{
-      var bar=document.querySelector('.room-name-bar .rnb-center')||document.querySelector('.room-name-bar')||document.querySelector('.topbar');
-      if(bar && !document.getElementById('spySairBtn')){
-        var s=document.createElement('button'); s.id='spySairBtn';
-        s.textContent='✕ Sair';
-        s.style.cssText='margin-left:6px;background:#7f1d1d;border:1px solid #ef4444;color:#fff;font-size:11px;font-weight:800;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:Syne,sans-serif;white-space:nowrap';
-        s.onclick=function(){ try{ if(window.parent && window.parent.fecharEspiar){ window.parent.fecharEspiar(); return; } }catch(e){} try{ if(window.parent){ window.parent.postMessage('tc_spy_close','*'); } }catch(e){} };
-        bar.appendChild(s);
+      var bar=document.querySelector('.room-name-bar .rnb-center')||document.querySelector('.room-name-bar');
+      if(bar){
+        if(!document.getElementById('spyOnlinesBtn')){
+          var ob=document.createElement('button'); ob.id='spyOnlinesBtn';
+          ob.onclick=function(){ try{ toggleRight(); }catch(e){} };
+          ob.style.cssText='display:flex;align-items:center;gap:4px;height:24px;padding:0 10px;border-radius:6px;background:#ffffff;border:1px solid #000;color:#0f1f3d;font-size:11px;font-weight:700;cursor:pointer;font-family:Syne,sans-serif;white-space:nowrap';
+          ob.innerHTML='👥 <span id="spyOnlineCountBtn" style="color:#dc2626;font-weight:800">0</span>';
+          bar.appendChild(ob);
+          // sincroniza o número com o onlineCount existente
+          var sync=function(){ try{ var src=document.getElementById('onlineCount'); var dst=document.getElementById('spyOnlineCountBtn'); if(src&&dst) dst.textContent=src.textContent; }catch(e){} };
+          setInterval(sync, 1500); sync();
+        }
+        if(!document.getElementById('spySairBtn')){
+          var s=document.createElement('button'); s.id='spySairBtn';
+          s.textContent='✕ Sair';
+          s.style.cssText='margin-left:6px;background:#7f1d1d;border:1px solid #ef4444;color:#fff;font-size:11px;font-weight:800;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:Syne,sans-serif;white-space:nowrap';
+          s.onclick=function(){ try{ if(window.parent && window.parent.fecharEspiar){ window.parent.fecharEspiar(); return; } }catch(e){} try{ if(window.parent){ window.parent.postMessage('tc_spy_close','*'); } }catch(e){} };
+          bar.appendChild(s);
+        }
       }
     }catch(e){}
     if(!document.getElementById('spyBanner')){
