@@ -690,35 +690,35 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
 <!-- ── MODAL CONVIDAR PARA SALA PRIVADA ── -->
 <div class="overlay" id="convidarPrivModal" onclick="if(event.target===this)fecharConvidarPrivado()" style="display:none;z-index:400;background:#00000088;align-items:center;justify-content:center;position:fixed;inset:0">
-  <div class="modal" style="max-width:400px;padding:0;overflow:hidden;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.25);max-height:90vh">
+  <div class="modal" style="max-width:400px;padding:0;overflow:hidden;background:#0f1f3d;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.35);max-height:90vh">
     <!-- Header -->
-    <div style="padding:14px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:10px;background:#fff">
+    <div style="padding:14px 16px;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#0f1f3d,#1d4ed8);border-radius:14px 14px 0 0">
       <span style="font-size:20px">📨</span>
       <div style="flex:1">
-        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#0f1f3d">Convidar para sala</div>
-        <div id="convidarPrivSalaNome" style="font-size:10px;color:#6a8aaa;margin-top:1px"></div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff">Convidar para sala</div>
+        <div id="convidarPrivSalaNome" style="font-size:11px;color:#cbd5e1;margin-top:2px"></div>
       </div>
-      <button onclick="fecharConvidarPrivado()" style="background:none;border:none;color:#6a8aaa;font-size:18px;cursor:pointer;padding:4px;line-height:1">✕</button>
+      <button onclick="fecharConvidarPrivado()" style="background:rgba(255,255,255,.12);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">✕</button>
     </div>
 
     <!-- Step 1: salas de salas.html -->
-    <div id="cpStep1" style="padding:12px;background:#fff">
-      <div style="font-size:10px;font-weight:700;color:#6a8aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Escolha uma sala para buscar usuários</div>
-      <div id="cpSalasList" style="display:grid;grid-template-columns:1fr 1fr;gap:7px"></div>
+    <div id="cpStep1" style="padding:14px;background:#0a1628">
+      <div style="font-size:11px;font-weight:700;color:#8aafd4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">① Escolha uma sala para buscar usuários</div>
+      <div id="cpSalasList" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"></div>
     </div>
 
     <!-- Step 2: usuários da sala escolhida -->
-    <div id="cpStep2" style="display:none;padding:12px;background:#fff">
+    <div id="cpStep2" style="display:none;padding:14px;background:#0a1628">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <button onclick="cpVoltar()" style="background:#f3f4f6;border:1px solid #d1d5db;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;color:#374151;cursor:pointer;font-family:'DM Sans',sans-serif">← Voltar</button>
-        <span id="cpSalaSel" style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#0f1f3d"></span>
+        <button onclick="cpVoltar()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:700;color:#cbd5e1;cursor:pointer;font-family:'DM Sans',sans-serif">← Voltar</button>
+        <span id="cpSalaSel" style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#fff"></span>
       </div>
       <div id="cpUsersList" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto"></div>
     </div>
 
     <!-- Footer -->
-    <div style="padding:10px 14px;border-top:1px solid #e5e7eb;background:#fff">
-      <button onclick="fecharConvidarPrivado()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #d1d5db;background:#fff;color:#374151;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Fechar</button>
+    <div style="padding:10px 14px;background:#0a1628;border-radius:0 0 14px 14px">
+      <button onclick="fecharConvidarPrivado()" style="width:100%;padding:11px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#cbd5e1;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Fechar</button>
     </div>
   </div>
 </div>

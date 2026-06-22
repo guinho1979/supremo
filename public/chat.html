@@ -12,6 +12,7 @@
     html.spy-mode #djPanelRnbBtn,
     html.spy-mode .mod-btn,
     html.spy-mode .leave-txt-btn,
+    html.spy-mode [onclick*="togglePvNotifPanel"],
     html.spy-mode .rnb-sep{display:none !important}
   </style>
 <script>
@@ -717,9 +718,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
       <span id="djPanelRnbBadge" style="display:none;position:absolute;top:-5px;right:-5px;background:#ef4444;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:20px;font-family:'Syne',sans-serif;min-width:16px;text-align:center">0</span>
     </button>
     <div class="rnb-sep"></div>
-    <button class="rnb-media-btn" onclick="togglePvNotifPanel()" title="Mensagens privadas" style="display:flex;align-items:center;gap:4px;position:relative">
+    <button id="pvNotifBtn" class="rnb-media-btn" onclick="togglePvNotifPanel()" title="Mensagens privadas" style="display:flex;align-items:center;gap:4px;position:relative">
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h16v11H11l-3 3V14H2V3z"/></svg>
-      <span id="pvNotifBadgeTop" style="display:none;position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#ef4444;border:2px solid #fff"></span>
+      <span id="pvNotifBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #fff;z-index:10"></span>
     </button>
     <button class="mod-btn" id="modPanelBtn" onclick="abrirPainel()" title="Painel Admin" style="font-size:16px;padding:0 8px">🛡️</button>
     <button class="leave-txt-btn" onclick="leaveRoom()">Sair</button>
@@ -836,9 +837,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <!-- PV Toggle Button (hidden - private messages now via nick click) -->
     <div id="btnPvToggle" style="display:none" class="toggle"></div>
     <!-- Online users button (trocou de posição com o 📨) -->
-    <button id="pvNotifBtn" onclick="toggleRight()" title="Usuários online" style="position:relative;display:flex;align-items:center;justify-content:center;height:32px;padding:0 10px;gap:4px;border-radius:16px;cursor:pointer;background:#f0f4ff;border:1.5px solid #c8d8f5;flex-shrink:0;transition:.15s;color:#7c3aed;font-size:13px;font-weight:700;font-family:inherit" onmouseover="this.style.background='#e0eaff'" onmouseout="this.style.background='#f0f4ff'">
+    <button id="btnOnlinesInput" onclick="toggleRight()" title="Usuários online" style="position:relative;display:flex;align-items:center;justify-content:center;height:32px;padding:0 10px;gap:4px;border-radius:16px;cursor:pointer;background:#f0f4ff;border:1.5px solid #c8d8f5;flex-shrink:0;transition:.15s;color:#7c3aed;font-size:13px;font-weight:700;font-family:inherit" onmouseover="this.style.background='#e0eaff'" onmouseout="this.style.background='#f0f4ff'">
       👥 <span id="onlineCount" style="color:#dc2626;font-weight:800">0</span>
-      <span id="pvNotifBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #fff;z-index:10"></span>
     </button>
     <!-- Hidden original buttons for JS compatibility -->
     <button id="btnMic" style="display:none" onclick="toggleMicRecording()"></button>
