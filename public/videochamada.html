@@ -7,13 +7,21 @@
 <script src="api.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#f0f6fc;--surface:#fff;--border:#c8d8f5;--border2:#8aaee0;--text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;--radius:16px;--blue:#2563eb;--purple:#7c3aed}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh}
+:root{--bg:#f0f6fc;--surface:#ffffff;--border:#c8d8f5;--border2:#8aaee0;--text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;--radius:14px;--blue:#2563eb;--purple:#7c3aed;--gold:#f59e0b;--green:#10b981}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
 a{color:inherit}
-header{background:#0f1f3d;color:#fff;padding:13px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
-header .h-back{background:rgba(255,255,255,.12);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center}
-header .h-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
-main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
+header{padding:8px 16px;background:#0f1f3d;border-bottom:1px solid #5b21b6;color:#fff;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.22)}
+.user-chip{display:flex;align-items:center;gap:6px}
+.badge-chip{font-size:8px;padding:2px 7px;border-radius:20px;font-weight:700}
+.b-admin{background:#064e3b;color:#6ee7b7}.b-sup{background:#7f1d1d;color:#fca5a5}
+.b-mod{background:#1c1c2e;color:#d1d5db}
+.b-vip{background:linear-gradient(90deg,#ff0080,#ff8c00,#ffe400,#00ff88,#00cfff,#7b2fff,#ff0080);background-size:300% 100%;color:#fff;animation:vipRainbowBadge 3s linear infinite}
+@keyframes vipRainbowBadge{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+.b-prem{background:#451a03;color:#fde68a}.b-dj{background:#2e1065;color:#d8b4fe}
+.b-user{background:#e5e7eb;color:#374151}.b-guest{background:#f3f4f6;color:#6b7280}
+.page-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.page-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
+main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;box-shadow:0 2px 14px rgba(37,99,235,.06)}
 .card h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
@@ -78,11 +86,24 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
 </style></head><body>
 
 <header>
-  <a class="h-back" href="salas.html" title="Voltar">←</a>
-  <div class="h-title">📹 Sala de Vídeo</div>
+  <div style="display:flex;align-items:center;justify-content:center">
+    <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:40px;object-fit:contain">
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="user-chip">
+      <span id="headerAv" style="font-size:16px">😊</span>
+      <span id="headerNick" style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff"></span>
+      <span id="headerBadge" class="badge-chip"></span>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+      <a href="salas.html" style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;text-decoration:none;font-family:'Syne',sans-serif">← Salas</a>
+    </div>
+  </div>
 </header>
 
 <main id="lobby">
+  <div class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;vertical-align:-4px;margin-right:5px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg>Sala de Vídeo</div>
+  <p class="page-sub">Chamada de vídeo ao vivo com até 4 pessoas</p>
   <div class="card">
     <h2>🎬 Iniciar uma chamada</h2>
     <div class="sub">Crie uma chamada e os usuários online recebem um convite para entrar.</div>
@@ -120,7 +141,7 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
 
 <!-- Notificação de chamada -->
 <div class="ring" id="ring">
-  <div class="r-ico">📹</div>
+  <div class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg></div>
   <div class="r-meta">
     <div class="r-t" id="ringTitle">Chamada de vídeo</div>
     <div class="r-s" id="ringSub">iniciou uma chamada</div>
@@ -137,9 +158,20 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
   var token=LSget('tc_token','');
   if(!token){ location.replace('login.html'); return; }
   var ME={ nick:LSget('tc_nick','você'), role:LSget('tc_role','user'), avatar:LSget('tc_avatar','😊'), photo:LSget('tc_photo','') };
+  (function(){
+    var BM={admin:'b-admin',supervisor:'b-sup',mod:'b-mod',premium:'b-prem',dj:'b-dj',vip:'b-vip',user:'b-user',guest:'b-guest'};
+    var BL={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MOD',premium:'PREMIUM',dj:'DJ',vip:'VIP',user:'USER',guest:'VISITANTE'};
+    var av=document.getElementById('headerAv'); if(av){ av.innerHTML = ME.photo ? '<img src="'+ME.photo+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle">' : (ME.avatar||'😊'); }
+    var nk=document.getElementById('headerNick'); if(nk) nk.textContent=ME.nick;
+    var bg=document.getElementById('headerBadge'); if(bg){ bg.className='badge-chip '+(BM[ME.role]||'b-guest'); bg.textContent=BL[ME.role]||'VISITANTE'; }
+  })();
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function toast(m,err){ var t=document.getElementById('toast'); t.textContent=m; t.className='toast show'+(err?' err':''); clearTimeout(t._x); t._x=setTimeout(function(){t.className='toast';},2600); }
+  function blockPage(title,sub){
+    var lob=document.getElementById('lobby');
+    if(lob) lob.innerHTML='<div class="card" style="text-align:center;padding:36px 18px"><div style="font-size:42px;margin-bottom:10px">🔒</div><div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:18px;margin-bottom:8px">'+title+'</div><div style="font-size:13px;color:var(--text3);line-height:1.5">'+sub+'</div><a href="salas.html" style="display:inline-block;margin-top:18px;background:#2563eb;color:#fff;text-decoration:none;padding:11px 22px;border-radius:12px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:13px">Voltar às salas</a></div>';
+  }
 
   /* ───────── ICE (STUN grátis + TURN opcional via config) ───────── */
   var ICE={ iceServers:[ {urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'} ] };
@@ -165,10 +197,24 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
     ws.onclose=function(){ wsReady=false; setTimeout(connect,2000); };
     ws.onerror=function(){ try{ws.close();}catch(e){} };
   }
-  connect();
-  setInterval(function(){ wsSend({event:'ping'}); }, 25000);
-
-  /* ───────── Estado da chamada ───────── */
+  function boot(){
+    connect();
+    setInterval(function(){ wsSend({event:'ping'}); }, 25000);
+    try{
+      var jid=new URLSearchParams(location.search).get('join');
+      if(jid){ var iv=setInterval(function(){ if(wsReady){ clearInterval(iv); vcJoin(jid); } }, 200); }
+    }catch(e){}
+  }
+  // Bloqueios: visitante nunca entra; respeita o toggle do admin (video_enabled)
+  if(ME.role==='guest'){
+    blockPage('Sala de Vídeo','Visitantes não podem fazer chamadas de vídeo. Entre com uma conta registrada para participar.');
+  } else if(window.API && API.getSystemConfig){
+    API.getSystemConfig().then(function(r){
+      var c=(r&&r.config)||{};
+      if(c.video_enabled==='false'){ blockPage('Sala de Vídeo indisponível','A sala de vídeo está desativada pelo administrador no momento.'); }
+      else boot();
+    }).catch(function(){ boot(); });
+  } else boot();
   var roomId=null, isInCall=false, localStream=null;
   var pcs={};            // nick -> RTCPeerConnection
   var pending={};        // nick -> [ice candidates aguardando]
@@ -206,7 +252,7 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
     if(!rooms.length){ box.innerHTML='<div class="empty-calls">Nenhuma chamada ativa no momento.</div>'; return; }
     box.innerHTML=rooms.map(function(r){
       var full=r.count>=r.max;
-      return '<div class="call-item"><div class="call-ico">📹</div>'+
+      return '<div class="call-item"><div class="call-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg></div>'+
         '<div class="call-meta"><div class="call-title">'+esc(r.title)+'</div>'+
         '<div class="call-sub">por '+esc(r.host)+' · '+r.count+'/'+r.max+' na chamada</div></div>'+
         '<button class="call-join" '+(full?'disabled':'')+' onclick="vcJoin(\''+esc(r.id)+'\')">'+(full?'Cheia':'Entrar')+'</button></div>';
@@ -362,12 +408,6 @@ main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
   // sair limpo ao fechar a aba
   window.addEventListener('pagehide', function(){ if(roomId) wsSend({event:'vc_leave', data:{ id:roomId }}); });
   window.addEventListener('beforeunload', function(){ if(roomId) wsSend({event:'vc_leave', data:{ id:roomId }}); });
-
-  // entrar direto numa chamada via ?join=ID (vindo da notificação no chat)
-  try{
-    var jid=new URLSearchParams(location.search).get('join');
-    if(jid){ var iv=setInterval(function(){ if(wsReady){ clearInterval(iv); vcJoin(jid); } }, 200); }
-  }catch(e){}
 })();
 </script>
 </body></html>

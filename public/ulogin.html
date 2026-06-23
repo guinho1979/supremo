@@ -71,6 +71,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   vertical-align:middle;margin-left:5px;
 }
 .b-admin{background:#10b981;color:#fff}
+.b-sup{background:#ef4444;color:#fff}
 .b-vip{background:#2563eb;color:#93c5fd}
 .b-premium{background:#f59e0b;color:#fff}
 .b-mod{background:#6b7280;color:#fff}
@@ -198,13 +199,14 @@ const DEMO_LOGINS = [
 // ── Rótulo de badge por role ────────────────────────────────────
 function badgeHtml(role){
   const map={
-    admin:  ['ADMIN',   'b-admin'],
-    mod:    ['MOD',     'b-mod'],
-    dj:     ['DJ',      'b-dj'],
-    vip:    ['VIP',     'b-vip'],
-    premium:['PREMIUM', 'b-premium'],
-    guest:  ['VISIT.',  'b-guest'],
-    user:   ['',        'b-user'],
+    admin:     ['ADMIN',      'b-admin'],
+    supervisor:['SUPERVISOR', 'b-sup'],
+    mod:       ['MODERADOR',  'b-mod'],
+    dj:        ['DJ',         'b-dj'],
+    vip:       ['VIP',        'b-vip'],
+    premium:   ['PREMIUM',    'b-premium'],
+    guest:     ['VISITANTE',  'b-guest'],
+    user:      ['',           'b-user'],
   };
   const [label, cls] = map[role] || ['', 'b-user'];
   if(!label) return '';
@@ -304,20 +306,24 @@ function render(logins){
 })();
 </script>
 <script>
-/* === Últimos online reais === */
+/* === Últimos online reais (atualiza sozinho) === */
 (function(){
   if(typeof API==='undefined' || typeof render!=='function') return;
-  var RC={admin:'#7c3aed',supervisor:'#ef4444',dj:'#a855f7',vip:'#2563eb',premium:'#f59e0b',mod:'#6b7280',user:'#7a90b0',guest:'#7a90b0'};
-  var BG={admin:'#ede9fe',supervisor:'#fee2e2',dj:'#f3e8ff',vip:'#dbeafe',premium:'#fef3c7',mod:'#e8f2ff',user:'#e8f2ff',guest:'#e8f2ff'};
-  API.getRecentOnline().then(function(d){
-    var now=Date.now();
-    var logins=(d.users||[]).map(function(u){
-      var mins=u.last_seen?Math.max(0,Math.round((now-Date.parse(u.last_seen))/60000)):0;
-      return { nick:u.nick, av:(u.nick_emoji||u.avatar||'😊'), photo:u.photo_url||'', role:u.role||'user', color:RC[u.role]||'#7a90b0', avBg:BG[u.role]||'#e8f2ff', tsAgo:mins };
-    });
-    logins=logins.filter(function(x){ return x.tsAgo<=60; });
-    render(logins); // só última hora; sobrescreve demo
-  }).catch(function(){});
+  var RC={admin:'#7c3aed',supervisor:'#ef4444',dj:'#a855f7',vip:'#2563eb',premium:'#f59e0b',mod:'#6b7280',user:'#7a90b0',guest:'#000000'};
+  var BG={admin:'#ede9fe',supervisor:'#fee2e2',dj:'#f3e8ff',vip:'#dbeafe',premium:'#fef3c7',mod:'#e8f2ff',user:'#e8f2ff',guest:'#eef2f7'};
+  function loadRealOnline(){
+    API.getRecentOnline().then(function(d){
+      var now=Date.now();
+      var logins=(d.users||[]).map(function(u){
+        var mins=u.last_seen?Math.max(0,Math.round((now-Date.parse(u.last_seen))/60000)):0;
+        return { nick:u.nick, av:(u.nick_emoji||u.avatar||'😊'), photo:u.photo_url||'', role:u.role||'user', color:RC[u.role]||'#7a90b0', avBg:BG[u.role]||'#e8f2ff', tsAgo:mins };
+      });
+      logins=logins.filter(function(x){ return x.tsAgo<=60; });
+      render(logins); // só última hora; sobrescreve demo
+    }).catch(function(){});
+  }
+  loadRealOnline();
+  setInterval(loadRealOnline, 20000);
 })();
 </script>
 <script>

@@ -638,6 +638,10 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
           <div class="toggle-info">🎱 Liberar Bingo<small>Permite que usuários acessem a página do Bingo</small></div>
           <div class="toggle" id="bingoToggle" onclick="toggleBingo(this)"></div>
         </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg>Liberar Sala de Vídeo<small>Permite chamadas de vídeo (até 4 pessoas)</small></div>
+          <div class="toggle" id="videoToggle" onclick="toggleVideo(this)"></div>
+        </div>
       </div>
       <div class="section">
         <div class="section-title">Fechamento global</div>
@@ -3531,6 +3535,12 @@ window.show = function(id, el){
       .then(function(){ try{localStorage.setItem('tc_bingo_ativo',on?'1':'0');}catch(e){} T('🎱 Bingo '+(on?'liberado para usuários':'bloqueado'), on?'ok':'err'); })
       .catch(function(e){ el.classList.toggle('on'); T((e&&e.message)||'Erro','err'); });
   };
+  window.toggleVideo=function(el){
+    el.classList.toggle('on'); var on=el.classList.contains('on');
+    API.admin.setSystem('video_enabled',on?'true':'false')
+      .then(function(){ try{localStorage.setItem('tc_video_ativo',on?'1':'0');}catch(e){} T('📹 Sala de Vídeo '+(on?'liberada para usuários':'bloqueada'), on?'ok':'err'); })
+      .catch(function(e){ el.classList.toggle('on'); T((e&&e.message)||'Erro','err'); });
+  };
 
   var _origSalvarMsg=window.salvarConfigMensagens;
   window.salvarConfigMensagens=function(showToast){
@@ -3557,6 +3567,7 @@ window.show = function(id, el){
       setTog('siteBlock', c.maintenance==='true');
       setTog('membersOnlyAdminToggle', c.members_only==='true');
       setTog('bingoToggle', c.bingo_enabled==='true');
+      setTog('videoToggle', c.video_enabled!=='false');
       var ml=document.getElementById('msgLimitGlobal'); if(ml&&c.msg_limit) ml.value=c.msg_limit;
       var mt=document.getElementById('msgTTLGlobal'); if(mt&&c.msg_ttl&&c.msg_ttl!=='0') mt.value=c.msg_ttl;
     }).catch(function(){});

@@ -3513,12 +3513,12 @@ const REACTIONS = window._REACTIONS || (window._REACTIONS = [
   if(!window._userRoles)window._userRoles={}; window._userRoles[msg.nick]=msg.role||'user';
   d.innerHTML=`<div class="msg-av" style="background:${avBg};color:${avColor};border-color:${msg.nickColor||avColor}">${avHtml}</div>
   <div class="msg-content">${pvHdr}<div class="msg-bubble${msg.isPrivate?' priv':''}${msg.monitoredPV?' admin-spy':''}${iMentioned&&!msg.isMine?' mentioned-me':''}">
-    <div class="msg-head"><div class="status-dot ${sc}"></div>${_botNickIcon(msg.nick,msg.role)}${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}<span class="msg-nick${iMentioned&&!msg.isMine?' nick-mentioned-me':''}" style="${iMentioned&&!msg.isMine?'color:#A020F0;text-shadow:0 0 8px #A020F055;':'color:'+( msg.nickColor||u.color||'#0a1628')}" onclick="if('${msg.nick}'!==ME.nick)openOuMenu(event,'${msg.nick}')" style="cursor:pointer">${msg.nick}</span>${badgeHtml}</div>
+    <div class="msg-head"><div class="status-dot ${sc}"></div>${_botNickIcon(msg.nick,msg.role)}${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(msg.nick):'')}<span class="msg-nick${iMentioned&&!msg.isMine?' nick-mentioned-me':''}" style="${iMentioned&&!msg.isMine?'color:#A020F0;text-shadow:0 0 8px #A020F055;':'color:'+( msg.nickColor||(msg.role==='guest'?'#000000':(u.color||'#0a1628')))}" onclick="if('${msg.nick}'!==ME.nick)openOuMenu(event,'${msg.nick}')" style="cursor:pointer">${msg.nick}</span>${badgeHtml}</div>
     ${quoteHtml}
     ${mentionRow}
     <div class="msg-text" style="color:${msg.msgColor||'#0a1628'}">${renderedText}</div>
     <div class="react-bar" style="margin-top:4px;min-height:0"></div>
-    <div class="msg-footer"><span class="msg-time">${nowTime()}</span>
+    <div class="msg-footer"><span class="msg-time">${msg.ts?_fmtTs(msg.ts):nowTime()}</span>
     <div class="msg-actions"><button class="act-btn" onclick="setReply('${msg.nick}')">↩ Reply</button>${!msg.isMine?`<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">${REACTIONS.map(r=>`<button class="react-emoji-btn" onclick="doReact(event,this,'${r.e}','${r.l}')" title="${r.l}">${r.e}<span class="re-label">${r.l}</span></button>`).join('')}</div></div>`:`<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>`}</div></div>
     ${(msg.isMine||(canDeleteMsg()&&!window._isStaffMsg(msg.role,msg.nick)))&&!msg.monitoredPV?`<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>`:''}
   </div></div>`;
@@ -4990,6 +4990,7 @@ function highlightMentions(html){
   });
 }
 function nowTime(){return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function _fmtTs(ts){ try{ if(!ts) return nowTime(); return new Date(ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }catch(e){ return nowTime(); } }
 function showToast(msg,type='info'){
   let t=document.getElementById('_t');
   if(!t){t=document.createElement('div');t.id='_t';t.className='toast';document.body.appendChild(t);}
@@ -8897,6 +8898,23 @@ function processSmileKeywords(text){
   });
   tcSocket.on('spy_message', function(d){ if(!window._SPY_MODE) return; try{ incoming(d); }catch(e){} });
   tcSocket.on('user_status', function(d){ try{ if(d&&d.nick){ if(!window._nickColors) window._nickColors={}; if(!window._nickColors[d.nick]) window._nickColors[d.nick]={}; window._nickColors[d.nick].status=d.status; if(typeof window.renderOnline==='function') window.renderOnline(); } }catch(e){} });
+  // Notificação de videochamada iniciada por outro usuário
+  tcSocket.on('vc_ring', function(d){
+    try{
+      if(!d||!d.id) return;
+      var ex=document.getElementById('vcRingBanner'); if(ex) ex.remove();
+      var b=document.createElement('div'); b.id='vcRingBanner';
+      b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:90px;z-index:99999;background:#0f1f3d;color:#fff;border:1px solid #2a3f63;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 12px 36px rgba(0,0,0,.45);width:calc(100% - 28px);max-width:400px';
+      b.innerHTML='<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg></div>'+
+        '<div style="flex:1;min-width:0"><div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+((d.host||'Alguém'))+' iniciou uma chamada</div><div style="font-size:11px;color:#9fb4d6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+((d.title||'Chamada de vídeo'))+' · até '+((d.max||4))+'</div></div>'+
+        '<button id="vcRingGo" style="background:#10b981;color:#fff;border:none;border-radius:14px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:\'Syne\',sans-serif">Entrar</button>'+
+        '<button id="vcRingX" style="background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:14px;padding:8px 10px;font-size:12px;cursor:pointer">✕</button>';
+      document.body.appendChild(b);
+      document.getElementById('vcRingGo').onclick=function(){ location.href='videochamada.html?join='+encodeURIComponent(d.id); };
+      document.getElementById('vcRingX').onclick=function(){ b.remove(); };
+      clearTimeout(window._vcRingT); window._vcRingT=setTimeout(function(){ if(b&&b.parentNode) b.remove(); }, 20000);
+    }catch(e){}
+  });
   // Mostra um link fixo "últimas mensagens"; ao clicar, revela as últimas e o link some.
   window._showHistoryLink=function(){
     if(window._histShown) return;
