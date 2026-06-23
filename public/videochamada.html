@@ -1,0 +1,373 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Chat Supremo — Sala de Vídeo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
+<script src="api.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f0f6fc;--surface:#fff;--border:#c8d8f5;--border2:#8aaee0;--text:#0f1f3d;--text2:#374d6e;--text3:#7a90b0;--radius:16px;--blue:#2563eb;--purple:#7c3aed}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh}
+a{color:inherit}
+header{background:#0f1f3d;color:#fff;padding:13px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+header .h-back{background:rgba(255,255,255,.12);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center}
+header .h-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
+main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;box-shadow:0 2px 14px rgba(37,99,235,.06)}
+.card h2{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.card .sub{font-size:12px;color:var(--text3);margin-bottom:14px}
+.field-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px}
+.tc-input{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:14px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);outline:none}
+.tc-input:focus{border-color:var(--blue)}
+.seg{display:flex;gap:8px;margin-top:4px}
+.seg button{flex:1;border:1.5px solid var(--border);background:var(--bg);color:var(--text2);border-radius:10px;padding:11px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif}
+.seg button.sel{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn-main{width:100%;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:none;border-radius:12px;padding:14px;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 18px rgba(37,99,235,.28)}
+.btn-main:active{transform:scale(.99)}
+
+.call-item{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
+.call-ico{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.call-meta{flex:1;min-width:0}
+.call-title{font-weight:800;font-family:'Syne',sans-serif;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.call-sub{font-size:11px;color:var(--text3)}
+.call-join{background:#10b981;color:#fff;border:none;border-radius:18px;padding:8px 16px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;flex-shrink:0}
+.call-join:disabled{background:#cbd5e1;cursor:default}
+.empty-calls{text-align:center;color:var(--text3);font-size:12px;padding:18px 0}
+
+/* ── Chamada em andamento (tela cheia escura) ── */
+.call-view{display:none;position:fixed;inset:0;z-index:50;background:#0a0f1c;flex-direction:column}
+.call-view.open{display:flex}
+.cv-top{padding:12px 16px;display:flex;align-items:center;gap:10px;color:#fff;flex-shrink:0}
+.cv-top .cv-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cv-top .cv-count{font-size:12px;color:#9fb4d6;background:rgba(255,255,255,.1);padding:4px 11px;border-radius:14px;flex-shrink:0}
+.grid{flex:1;display:grid;gap:8px;padding:0 8px;min-height:0;align-content:center}
+.grid.g1{grid-template-columns:1fr}
+.grid.g2{grid-template-columns:1fr}
+.grid.g3,.grid.g4{grid-template-columns:1fr 1fr}
+@media(min-width:620px){.grid.g2{grid-template-columns:1fr 1fr}}
+.tile{position:relative;background:#11182b;border-radius:14px;overflow:hidden;min-height:0;display:flex;align-items:center;justify-content:center}
+.tile video{width:100%;height:100%;object-fit:cover;background:#11182b}
+.tile.self video{transform:scaleX(-1)}
+.tile .tile-av{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:46px;background:#161f36;color:#5b6e94}
+.tile .tile-name{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px;display:flex;align-items:center;gap:5px;max-width:80%}
+.tile .tile-name .mic-off{color:#ff6b6b}
+.tile .tile-badge{position:absolute;right:8px;top:8px;background:rgba(37,99,235,.85);color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;font-family:'Syne',sans-serif}
+.cv-controls{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:14px;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+.cv-btn{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);color:#fff;transition:.15s}
+.cv-btn.off{background:#fff;color:#0a0f1c}
+.cv-btn.hang{background:#ef4444;color:#fff;width:64px;height:64px;font-size:26px}
+.cv-btn:active{transform:scale(.93)}
+
+/* Ring (notificação de chamada) */
+.ring{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:80;background:#0f1f3d;color:#fff;border-radius:16px;padding:14px 16px;display:none;align-items:center;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.4);width:calc(100% - 28px);max-width:420px;border:1px solid #2a3f63}
+.ring.show{display:flex;animation:ringIn .3s ease}
+@keyframes ringIn{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+.ring .r-ico{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+.ring .r-meta{flex:1;min-width:0}
+.ring .r-t{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ring .r-s{font-size:11px;color:#9fb4d6}
+.ring .r-acc{background:#10b981;color:#fff;border:none;border-radius:16px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif}
+.ring .r-dec{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:16px;padding:8px 11px;font-size:12px;cursor:pointer}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:20px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:.3s;pointer-events:none;background:#0d2a5e;color:#bfdbfe}
+.toast.show{opacity:1}
+.toast.err{background:#7f1d1d;color:#fca5a5}
+</style></head><body>
+
+<header>
+  <a class="h-back" href="salas.html" title="Voltar">←</a>
+  <div class="h-title">📹 Sala de Vídeo</div>
+</header>
+
+<main id="lobby">
+  <div class="card">
+    <h2>🎬 Iniciar uma chamada</h2>
+    <div class="sub">Crie uma chamada e os usuários online recebem um convite para entrar.</div>
+    <div class="field-label">Nome da chamada (opcional)</div>
+    <input class="tc-input" id="callTitle" placeholder="Ex.: Bate-papo da galera" maxlength="40">
+    <div class="field-label" style="margin-top:14px">Quantas pessoas no máximo?</div>
+    <div class="seg" id="maxSeg">
+      <button data-m="2">2</button>
+      <button data-m="3">3</button>
+      <button data-m="4" class="sel">4</button>
+    </div>
+    <button class="btn-main" id="startBtn">📞 Iniciar chamada</button>
+  </div>
+
+  <div class="card">
+    <h2>🔴 Chamadas ativas</h2>
+    <div class="sub">Toque em entrar para participar (vagas limitadas).</div>
+    <div id="activeCalls"><div class="empty-calls">Nenhuma chamada ativa no momento.</div></div>
+  </div>
+</main>
+
+<!-- Chamada em andamento -->
+<div class="call-view" id="callView">
+  <div class="cv-top">
+    <span class="cv-title" id="cvTitle">Chamada</span>
+    <span class="cv-count" id="cvCount">1/4</span>
+  </div>
+  <div class="grid g1" id="grid"></div>
+  <div class="cv-controls">
+    <button class="cv-btn" id="btnMic" title="Microfone">🎤</button>
+    <button class="cv-btn" id="btnCam" title="Câmera">📷</button>
+    <button class="cv-btn hang" id="btnHang" title="Encerrar">📵</button>
+  </div>
+</div>
+
+<!-- Notificação de chamada -->
+<div class="ring" id="ring">
+  <div class="r-ico">📹</div>
+  <div class="r-meta">
+    <div class="r-t" id="ringTitle">Chamada de vídeo</div>
+    <div class="r-s" id="ringSub">iniciou uma chamada</div>
+  </div>
+  <button class="r-acc" id="ringAcc">Entrar</button>
+  <button class="r-dec" id="ringDec">✕</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var LSget=function(k,d){ try{return localStorage.getItem(k)||d||'';}catch(e){return d||'';} };
+  var token=LSget('tc_token','');
+  if(!token){ location.replace('login.html'); return; }
+  var ME={ nick:LSget('tc_nick','você'), role:LSget('tc_role','user'), avatar:LSget('tc_avatar','😊'), photo:LSget('tc_photo','') };
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function toast(m,err){ var t=document.getElementById('toast'); t.textContent=m; t.className='toast show'+(err?' err':''); clearTimeout(t._x); t._x=setTimeout(function(){t.className='toast';},2600); }
+
+  /* ───────── ICE (STUN grátis + TURN opcional via config) ───────── */
+  var ICE={ iceServers:[ {urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'} ] };
+  try{
+    if(window.API && API.getSystemConfig){
+      API.getSystemConfig().then(function(r){
+        var c=(r&&r.config)||{};
+        if(c.turn_url){
+          ICE.iceServers.push({ urls:c.turn_url, username:c.turn_user||'', credential:c.turn_cred||'' });
+        }
+      }).catch(function(){});
+    }
+  }catch(e){}
+
+  /* ───────── WebSocket ───────── */
+  var ws=null, wsReady=false, queue=[];
+  var tabId='vc_'+Math.random().toString(36).slice(2,8);
+  function wsSend(o){ if(wsReady && ws && ws.readyState===1) ws.send(JSON.stringify(o)); else queue.push(o); }
+  function connect(){
+    ws=new WebSocket(TC_WS_URL+'?token='+encodeURIComponent(token)+'&tab='+tabId);
+    ws.onopen=function(){ wsReady=true; queue.forEach(function(o){ ws.send(JSON.stringify(o)); }); queue=[]; wsSend({event:'vc_hello'}); };
+    ws.onmessage=function(ev){ var m; try{m=JSON.parse(ev.data);}catch(e){return;} handle(m); };
+    ws.onclose=function(){ wsReady=false; setTimeout(connect,2000); };
+    ws.onerror=function(){ try{ws.close();}catch(e){} };
+  }
+  connect();
+  setInterval(function(){ wsSend({event:'ping'}); }, 25000);
+
+  /* ───────── Estado da chamada ───────── */
+  var roomId=null, isInCall=false, localStream=null;
+  var pcs={};            // nick -> RTCPeerConnection
+  var pending={};        // nick -> [ice candidates aguardando]
+  var participants={};   // nick -> true (na chamada, além de mim)
+  var maxPeople=4;
+
+  function handle(m){
+    switch(m.event){
+      case 'vc_list': renderActive(m.data.rooms||[]); break;
+      case 'vc_ring': onRing(m.data); break;
+      case 'vc_created': roomId=m.data.id; maxPeople=m.data.max; enterCall(m.data.title, []); break;
+      case 'vc_joined': roomId=m.data.id; maxPeople=m.data.max; enterCall(m.data.title, m.data.peers||[]); break;
+      case 'vc_full': toast('Chamada cheia 😕', true); break;
+      case 'vc_error': toast(m.data.message||'Erro', true); break;
+      case 'vc_peer_joined': /* o novo vai me enviar a oferta */ break;
+      case 'vc_peer_left': removePeer(m.data.nick); break;
+      case 'vc_signal': onSignal(m.data); break;
+    }
+  }
+
+  /* ───────── Lobby ───────── */
+  var maxSel=4;
+  document.getElementById('maxSeg').addEventListener('click', function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    document.querySelectorAll('#maxSeg button').forEach(function(x){x.classList.remove('sel');});
+    b.classList.add('sel'); maxSel=parseInt(b.dataset.m,10)||4;
+  });
+  document.getElementById('startBtn').onclick=function(){
+    var title=document.getElementById('callTitle').value.trim();
+    wsSend({event:'vc_create', data:{ max:maxSel, title:title }});
+  };
+
+  function renderActive(rooms){
+    var box=document.getElementById('activeCalls');
+    if(!rooms.length){ box.innerHTML='<div class="empty-calls">Nenhuma chamada ativa no momento.</div>'; return; }
+    box.innerHTML=rooms.map(function(r){
+      var full=r.count>=r.max;
+      return '<div class="call-item"><div class="call-ico">📹</div>'+
+        '<div class="call-meta"><div class="call-title">'+esc(r.title)+'</div>'+
+        '<div class="call-sub">por '+esc(r.host)+' · '+r.count+'/'+r.max+' na chamada</div></div>'+
+        '<button class="call-join" '+(full?'disabled':'')+' onclick="vcJoin(\''+esc(r.id)+'\')">'+(full?'Cheia':'Entrar')+'</button></div>';
+    }).join('');
+  }
+  window.vcJoin=function(id){ wsSend({event:'vc_join', data:{ id:id }}); };
+
+  /* ───────── Ring ───────── */
+  var ringTimer=null;
+  function onRing(d){
+    if(isInCall) return; // já estou em uma chamada
+    document.getElementById('ringTitle').textContent=d.title||'Chamada de vídeo';
+    document.getElementById('ringSub').textContent=(d.host||'Alguém')+' iniciou uma chamada · até '+d.max;
+    var ring=document.getElementById('ring'); ring.classList.add('show');
+    document.getElementById('ringAcc').onclick=function(){ ring.classList.remove('show'); vcJoin(d.id); };
+    document.getElementById('ringDec').onclick=function(){ ring.classList.remove('show'); };
+    clearTimeout(ringTimer); ringTimer=setTimeout(function(){ ring.classList.remove('show'); }, 20000);
+  }
+
+  /* ───────── Entrar na chamada (mídia + UI) ───────── */
+  function enterCall(title, peers){
+    document.getElementById('ring').classList.remove('show');
+    document.getElementById('cvTitle').textContent=title||'Chamada';
+    document.getElementById('callView').classList.add('open');
+    document.getElementById('lobby').style.display='none';
+    isInCall=true;
+    addOrUpdateTile(ME.nick, null, true);
+    updateCount();
+    ensureMedia().then(function(stream){
+      // adiciona meu vídeo ao meu tile
+      var v=document.querySelector('#tile_'+cssId(ME.nick)+' video'); if(v){ v.srcObject=stream; v.muted=true; v.play().catch(function(){}); }
+      var av=document.querySelector('#tile_'+cssId(ME.nick)+' .tile-av'); if(av) av.style.display='none';
+      // como entrante, eu inicio a conexão com quem já estava
+      (peers||[]).forEach(function(p){ participants[p]=true; addOrUpdateTile(p,null,false); createOffer(p); });
+      updateCount();
+    }).catch(function(err){
+      toast('Não foi possível acessar câmera/microfone', true);
+      console.error(err);
+    });
+  }
+
+  function ensureMedia(){
+    if(localStream) return Promise.resolve(localStream);
+    return navigator.mediaDevices.getUserMedia({ video:{ width:{ideal:640}, height:{ideal:480}, facingMode:'user' }, audio:true })
+      .then(function(s){ localStream=s; return s; });
+  }
+
+  /* ───────── PeerConnections (malha) ───────── */
+  function getPC(nick){
+    if(pcs[nick]) return pcs[nick];
+    var pc=new RTCPeerConnection(ICE);
+    pcs[nick]=pc; pending[nick]=pending[nick]||[];
+    if(localStream) localStream.getTracks().forEach(function(t){ pc.addTrack(t, localStream); });
+    pc.onicecandidate=function(e){ if(e.candidate) wsSend({event:'vc_signal', data:{ id:roomId, to:nick, data:{ candidate:e.candidate } }}); };
+    pc.ontrack=function(e){
+      addOrUpdateTile(nick, e.streams[0], false);
+      var v=document.querySelector('#tile_'+cssId(nick)+' video'); if(v && v.srcObject!==e.streams[0]){ v.srcObject=e.streams[0]; v.play().catch(function(){}); }
+      var av=document.querySelector('#tile_'+cssId(nick)+' .tile-av'); if(av) av.style.display='none';
+    };
+    pc.onconnectionstatechange=function(){ if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){ /* mantém; pode reconectar */ } };
+    return pc;
+  }
+  function createOffer(nick){
+    var pc=getPC(nick);
+    pc.createOffer().then(function(o){ return pc.setLocalDescription(o); })
+      .then(function(){ wsSend({event:'vc_signal', data:{ id:roomId, to:nick, data:{ sdp:pc.localDescription } }}); })
+      .catch(function(e){ console.error(e); });
+  }
+  function onSignal(d){
+    var nick=d.from, payload=d.data||{};
+    if(payload.sdp){
+      var pc=getPC(nick);
+      var desc=new RTCSessionDescription(payload.sdp);
+      pc.setRemoteDescription(desc).then(function(){
+        // aplica candidatos que chegaram antes
+        (pending[nick]||[]).forEach(function(c){ pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){}); });
+        pending[nick]=[];
+        if(desc.type==='offer'){
+          participants[nick]=true; addOrUpdateTile(nick,null,false); updateCount();
+          return pc.createAnswer().then(function(a){ return pc.setLocalDescription(a); })
+            .then(function(){ wsSend({event:'vc_signal', data:{ id:roomId, to:nick, data:{ sdp:pc.localDescription } }}); });
+        }
+      }).catch(function(e){ console.error(e); });
+    } else if(payload.candidate){
+      var pc2=pcs[nick];
+      if(pc2 && pc2.remoteDescription && pc2.remoteDescription.type){
+        pc2.addIceCandidate(new RTCIceCandidate(payload.candidate)).catch(function(){});
+      } else {
+        pending[nick]=pending[nick]||[]; pending[nick].push(payload.candidate);
+      }
+    }
+  }
+  function removePeer(nick){
+    if(pcs[nick]){ try{pcs[nick].close();}catch(e){} delete pcs[nick]; }
+    delete participants[nick]; delete pending[nick];
+    var t=document.getElementById('tile_'+cssId(nick)); if(t) t.remove();
+    updateCount(); updateGridClass();
+  }
+
+  /* ───────── Tiles / grade ───────── */
+  function cssId(nick){ return String(nick).replace(/[^a-zA-Z0-9]/g,'_'); }
+  function addOrUpdateTile(nick, stream, isSelf){
+    var id='tile_'+cssId(nick);
+    var t=document.getElementById(id);
+    if(!t){
+      t=document.createElement('div');
+      t.className='tile'+(isSelf?' self':''); t.id=id;
+      t.innerHTML='<div class="tile-av">'+(isSelf?'🙂':'👤')+'</div>'+
+                  '<video autoplay playsinline'+(isSelf?' muted':'')+'></video>'+
+                  '<div class="tile-name">'+(isSelf?'Você':esc(nick))+'</div>'+
+                  (isSelf?'':'');
+      document.getElementById('grid').appendChild(t);
+      updateGridClass();
+    }
+    if(stream){ var v=t.querySelector('video'); if(v.srcObject!==stream){ v.srcObject=stream; v.play().catch(function(){}); } var av=t.querySelector('.tile-av'); if(av) av.style.display='none'; }
+  }
+  function tilesCount(){ return document.querySelectorAll('#grid .tile').length; }
+  function updateGridClass(){ var g=document.getElementById('grid'); g.className='grid g'+Math.min(4,Math.max(1,tilesCount())); }
+  function updateCount(){
+    var n=1+Object.keys(participants).length;
+    document.getElementById('cvCount').textContent=n+'/'+maxPeople;
+  }
+
+  /* ───────── Controles ───────── */
+  var micOn=true, camOn=true;
+  document.getElementById('btnMic').onclick=function(){
+    if(!localStream) return; micOn=!micOn;
+    localStream.getAudioTracks().forEach(function(t){ t.enabled=micOn; });
+    this.classList.toggle('off',!micOn); this.textContent=micOn?'🎤':'🔇';
+  };
+  document.getElementById('btnCam').onclick=function(){
+    if(!localStream) return; camOn=!camOn;
+    localStream.getVideoTracks().forEach(function(t){ t.enabled=camOn; });
+    this.classList.toggle('off',!camOn); this.textContent=camOn?'📷':'🚫';
+    var av=document.querySelector('#tile_'+cssId(ME.nick)+' .tile-av'); if(av) av.style.display=camOn?'none':'flex';
+  };
+  document.getElementById('btnHang').onclick=function(){ hangup(); };
+
+  function hangup(){
+    if(roomId) wsSend({event:'vc_leave', data:{ id:roomId }});
+    Object.keys(pcs).forEach(function(n){ try{pcs[n].close();}catch(e){} });
+    pcs={}; pending={}; participants={};
+    if(localStream){ localStream.getTracks().forEach(function(t){ t.stop(); }); localStream=null; }
+    document.getElementById('grid').innerHTML='';
+    document.getElementById('callView').classList.remove('open');
+    document.getElementById('lobby').style.display='';
+    isInCall=false; roomId=null; micOn=camOn=true;
+    document.getElementById('btnMic').className='cv-btn'; document.getElementById('btnMic').textContent='🎤';
+    document.getElementById('btnCam').className='cv-btn'; document.getElementById('btnCam').textContent='📷';
+    wsSend({event:'vc_list_req'});
+  }
+
+  // sair limpo ao fechar a aba
+  window.addEventListener('pagehide', function(){ if(roomId) wsSend({event:'vc_leave', data:{ id:roomId }}); });
+  window.addEventListener('beforeunload', function(){ if(roomId) wsSend({event:'vc_leave', data:{ id:roomId }}); });
+
+  // entrar direto numa chamada via ?join=ID (vindo da notificação no chat)
+  try{
+    var jid=new URLSearchParams(location.search).get('join');
+    if(jid){ var iv=setInterval(function(){ if(wsReady){ clearInterval(iv); vcJoin(jid); } }, 200); }
+  }catch(e){}
+})();
+</script>
+</body></html>
