@@ -83,6 +83,13 @@ var API = {
   guest: async function (nick) {
     var d = await API.post('/auth/guest', { nick: nick });
     API.saveSession(d.token, d.user, 'guest');
+    // Visitante: foto = ícone de usuário (👤) e nick na cor preta
+    try {
+      LS.set('tc_avatar', '👤');
+      LS.set('tc_photo', '');
+      LS.set('tc_nick_color', '#000000');
+      LS.set('tc_nickcolor', '#000000');
+    } catch (e) {}
     return d;
   },
   logout: async function () { try { await API.post('/auth/logout'); } catch (e) {} API.clearSession(); },
