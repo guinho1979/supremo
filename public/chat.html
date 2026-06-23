@@ -114,6 +114,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .msg-content{width:100%;min-width:0;position:relative}
 .msg-bubble{background:#ffffff;border-radius:0 12px 12px 12px;padding:8px 12px;border:0.5px solid #b8d0e8;width:100%}
 .msg-bubble.priv{background:#fffde7;border:1px solid #fca5a555;border-left:3px solid #ef4444}
+.msg-group[data-mine="1"] .msg-bubble.priv{background:#e8f2ff}
 .msg-bubble.admin-spy{background:#fffde7;border:1px solid #ffffff;border-left:3px solid #ef4444}
 .pv-header{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px 6px 0 0;font-size:10px;font-weight:700;background:#ef4444;border:1px solid #ef4444;border-bottom:none}
 .pv-header.monitored{background:#000000;border-color:#ef4444}
@@ -7238,11 +7239,26 @@ function openPrivateWindow(nick) {
   inputRow.appendChild(inp);
   inputRow.appendChild(sendBtn);
 
+  // ── Barra de reply (citação) ──────────────────────────────────────────────
+  var replyBar = document.createElement('div');
+  replyBar.id = 'pvreply_' + nick;
+  replyBar.style.cssText = 'display:none;align-items:center;gap:8px;background:#ffffff;border-left:3px solid #A020F0;padding:5px 10px;margin:0 8px 4px;border-radius:0 6px 6px 0;font-size:11px;color:#5a7fa8;flex-shrink:0';
+  var rbText = document.createElement('span');
+  rbText.className = 'pvreply-text';
+  rbText.style.cssText = 'flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis';
+  var rbClose = document.createElement('button');
+  rbClose.textContent = '✕';
+  rbClose.style.cssText = 'background:none;border:none;color:#5a7fa8;cursor:pointer;font-size:13px;flex-shrink:0;line-height:1';
+  rbClose.addEventListener('click', function(){ pvClearReply(nick); });
+  replyBar.appendChild(rbText);
+  replyBar.appendChild(rbClose);
+
   win.appendChild(hdr);
   win.appendChild(msgs);
   win.appendChild(emojiPicker);
   win.appendChild(plusMenu);
   win.appendChild(recBar);
+  win.appendChild(replyBar);
   win.appendChild(inputRow);
   document.body.appendChild(win);
   makePvWindowDraggable(win);
@@ -7472,6 +7488,34 @@ function pvFloodFill(ctx, cv, startX, startY, fillColorHex) {
 let pvZIndex = 1000;
 function getNextPvZIndex() { return ++pvZIndex; }
 
+// ── Reply dentro da janela privada ───────────────────────────────────────────
+window._pvReply = window._pvReply || {};
+function pvReplyFromBtn(btn, winNick, fromNick){
+  try{
+    var bub = btn.closest('.msg-bubble');
+    var txtEl = bub && bub.querySelector('.msg-text');
+    var quoted = txtEl ? txtEl.textContent : '';
+    pvSetReply(winNick, fromNick, quoted);
+  }catch(e){}
+}
+function pvSetReply(winNick, fromNick, text){
+  window._pvReply[winNick] = { from: fromNick, text: text||'' };
+  var bar = document.getElementById('pvreply_'+winNick);
+  if(bar){
+    bar.style.display='flex';
+    var prev = (text||'').substring(0,50) + ((text||'').length>50?'…':'');
+    var t = bar.querySelector('.pvreply-text');
+    if(t) t.innerHTML = '↩ Respondendo <strong style="color:#A020F0">'+escHtml(fromNick)+'</strong>'+(prev?' — <span style="color:#5a7fa8">'+escHtml(prev)+'</span>':'');
+  }
+  var inp = document.getElementById('pvinp_'+winNick);
+  if(inp) inp.focus();
+}
+function pvClearReply(winNick){
+  delete window._pvReply[winNick];
+  var bar = document.getElementById('pvreply_'+winNick);
+  if(bar) bar.style.display='none';
+}
+
 function sendPrivateWindow(nick, inp) {
   const text = inp.value.trim();
   if (!text) return;
@@ -7531,17 +7575,19 @@ function sendPrivateWindow(nick, inp) {
   }
 
   // Save to history
+  var _q = window._pvReply ? window._pvReply[nick] : null;
   pvHistoryPush(nick, ME.nick, text, true);
   renderPvNotifBadge();
-  // Add to private window
-  addPrivateMsgToWindow(nick, ME.nick, text, true);
+  // Add to private window (com citação, se for um reply)
+  addPrivateMsgToWindow(nick, ME.nick, text, true, null, null, null, _q ? {from:_q.from, text:_q.text} : null);
   // Enviar pelo servidor (tempo real)
-  if(window.tcSocket && tcSocket.connected){ try{ tcSocket.private(nick, text); }catch(e){} }
+  if(window.tcSocket && tcSocket.connected){ try{ tcSocket.private(nick, text, _q ? {quoted_nick:_q.from, quoted_text:_q.text} : undefined); }catch(e){} }
+  pvClearReply(nick);
   inp.value = '';
 
 }
 
-function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, mediaType, audioBlobUrl) {
+function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, mediaType, audioBlobUrl, quoted) {
   const winNick = pvWindows[targetNick] ? targetNick : (pvWindows[fromNick] ? fromNick : null);
   if (!winNick) {
     if (!window._pvInbox) window._pvInbox = {};
@@ -7606,7 +7652,13 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
   }catch(_e){}
   bubble.appendChild(head);
 
-  // Media or text content
+  // Bloco de citação (reply) — mostra a mensagem respondida acima do texto
+  if (quoted && (quoted.text || quoted.from)) {
+    var qEl = document.createElement('div');
+    qEl.className = 'msg-quote-block';
+    qEl.innerHTML = '<span class="msg-quote-nick">'+escHtml(quoted.from||'')+'</span><span class="msg-quote-text">'+escHtml((quoted.text||'').substring(0,90))+'</span>';
+    bubble.appendChild(qEl);
+  }
   var _pvBubbleMediaStyle = 'display:inline-flex;align-items:center;justify-content:center;background:#1a1d24;border:1px solid #2a3244;border-radius:14px;padding:10px;cursor:pointer;transition:.15s;width:54px;height:54px;margin-top:4px';
   function _pvIconBtn(ico, fn) {
     var btn = document.createElement('div');
@@ -7712,9 +7764,10 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
   var now = new Date();
   var _tm = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
   var _nq = String(isMine?ME.nick:fromNick).replace(/'/g,"\\'");
+  var _wq = String(winNick).replace(/'/g,"\\'");
   var _RB = window._REACTIONS||[{e:'👍',l:'Curtir'},{e:'❤️',l:'Amei'},{e:'😂',l:'Haha'},{e:'😮',l:'Uau'},{e:'😢',l:'Triste'},{e:'😡',l:'Grr'}];
   footer.innerHTML = '<span class="msg-time">'+_tm+'</span>'+
-    '<div class="msg-actions"><button class="act-btn" onclick="setReply(\''+_nq+'\')">↩ Reply</button>'+
+    '<div class="msg-actions"><button class="act-btn" onclick="pvReplyFromBtn(this,\''+_wq+'\',\''+_nq+'\')">↩ Reply</button>'+
     (!isMine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">'+_RB.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'')+
     '</div>';
   bubble.appendChild(footer);

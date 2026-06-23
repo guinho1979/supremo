@@ -537,8 +537,8 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
       <div id="pvSpyHeader" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(135deg,#1a237e,#283593);flex-shrink:0;min-height:58px">
         <!-- Botão voltar -->
         <button onclick="fecharPvSpy()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">←</button>
-        <!-- Avatar do contato -->
-        <div id="pvSpyContactAvatarInner" style="width:38px;height:38px;border-radius:50%;background:#334155;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:2px solid rgba(255,255,255,.3);overflow:hidden"></div>
+        <!-- Avatar do contato (removido no modo espião) -->
+        <div id="pvSpyContactAvatarInner" style="display:none"></div>
         <!-- Info -->
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:6px">
@@ -546,9 +546,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
             <div id="pvSpyConvTitle" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">PV: Conversa</div>
           </div>
           <div style="display:flex;align-items:center;gap:5px;margin-top:1px">
-            <span style="width:7px;height:7px;border-radius:50%;background:#69f0ae;display:inline-block;flex-shrink:0"></span>
-            <span style="font-size:10px;color:rgba(255,255,255,.75)">online</span>
-            <span style="font-size:9px;color:rgba(239,68,68,.9);font-weight:700;letter-spacing:.4px;margin-left:6px;background:rgba(239,68,68,.15);padding:1px 6px;border-radius:8px;border:1px solid rgba(239,68,68,.4)">👁 ESPIÃO</span>
+            <span style="font-size:9px;color:rgba(239,68,68,.9);font-weight:700;letter-spacing:.4px;background:rgba(239,68,68,.15);padding:1px 6px;border-radius:8px;border:1px solid rgba(239,68,68,.4)">👁 ESPIÃO</span>
           </div>
         </div>
         <!-- SELECT conversas -->
@@ -1945,10 +1943,18 @@ function fecharModalPvConvs() {
 }
 
 // Atualiza o label do botão com contagem de conversas ativas
+// Usa a MESMA normalização da lista (pvNormConv) para não contar as duas direções
+// (A↔B e B↔A) nem os pares quebrados "X↔X" como conversas separadas.
 function pvAtualizarBtnLabel() {
   var msgs = getPvMonitorMsgs();
   var convSet = {};
-  msgs.forEach(function(m){ if(m.conv) convSet[m.conv] = true; });
+  msgs.forEach(function(m){
+    if(!m.conv) return;
+    var k = (typeof pvNormConv==='function') ? pvNormConv(m.conv) : m.conv;
+    var parts = k.split('\u2194').map(function(s){return s.trim();}).filter(Boolean);
+    if(parts.length < 2 || parts[0].toLowerCase()===parts[1].toLowerCase()) return; // ignora pares quebrados
+    convSet[k] = true;
+  });
   var n = Object.keys(convSet).length;
   var el = document.getElementById('pvSelectBtnLabel');
   if (el) el.textContent = n ? n + ' Conversa(s) Ativa(s)' : 'Selecionar Conversa';
