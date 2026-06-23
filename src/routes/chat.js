@@ -461,14 +461,34 @@ router.get('/bot/key', async (req, res) => {
 });
 
 // ─── GET /api/users/recent — últimos online (público) ───────
+// Inclui usuários cadastrados (tabela users) E visitantes recentes (login_logs),
+// para que os nicks de visitantes também apareçam na tela de últimos online.
 router.get('/users/recent', async (req, res) => {
   try {
-    const { rows } = await db.query(
-      `SELECT nick, role, avatar, photo_url, nick_emoji, last_seen
-       FROM users WHERE last_seen IS NOT NULL ORDER BY last_seen DESC LIMIT 30`
-    );
+    const { rows } = await db.query(`
+      WITH guests AS (
+        SELECT DISTINCT ON (LOWER(nick)) nick, created_at
+        FROM login_logs
+        WHERE kind = 'guest' AND created_at > NOW() - INTERVAL '2 hours'
+        ORDER BY LOWER(nick), created_at DESC
+      ),
+      combined AS (
+        SELECT nick, role, avatar, photo_url, nick_emoji, last_seen
+        FROM users
+        WHERE last_seen IS NOT NULL
+        UNION ALL
+        SELECT g.nick, 'guest'::varchar AS role, '👤'::varchar AS avatar,
+               NULL::text AS photo_url, NULL::varchar AS nick_emoji, g.created_at AS last_seen
+        FROM guests g
+        WHERE NOT EXISTS (SELECT 1 FROM users u WHERE LOWER(u.nick) = LOWER(g.nick))
+      )
+      SELECT nick, role, avatar, photo_url, nick_emoji, last_seen
+      FROM combined
+      ORDER BY last_seen DESC
+      LIMIT 40
+    `);
     res.json({ users: rows });
-  } catch (err) { res.json({ users: [] }); }
+  } catch (err) { console.error(err); res.json({ users: [] }); }
 });
 
 // ─── GET /api/users/:nick — perfil público + fãs ─────────────
