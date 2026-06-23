@@ -4400,7 +4400,8 @@ function openProfile(nick){
     bio:   isOwn ? (LS.get('tc_bio','')||((USERS[nick]||{}).bio)||'') : ((USERS[nick]||{}).bio||'')
   });
   state.currentUser=nick;
-  document.getElementById('profTitle').innerHTML=`👤 Perfil ${getBadgeHtml(u.role)}`;
+  const _isStaff = ['admin','supervisor','mod'].includes(u.role);
+  document.getElementById('profTitle').innerHTML=`👤 Perfil ${_isStaff ? '' : getBadgeHtml(u.role)}`;
   const _photoUrl = u.photo
     || (isOwn ? (LS.get('tc_photo','')||'') : '')
     || (ci.photo||'')
@@ -4437,7 +4438,7 @@ function openProfile(nick){
           <span style="position:absolute;right:5px;bottom:5px;width:15px;height:15px;border-radius:50%;background:#22c55e;border:2.5px solid #0a1120;box-shadow:0 0 8px #22c55e"></span>
         </div>
         <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center">
-          <span style="font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:#f1f5ff">${neHtml}${nick}</span>${getBadgeHtml(u.role)}
+          <span style="font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:#f1f5ff">${neHtml}${nick}</span>${_isStaff ? '' : getBadgeHtml(u.role)}
         </div>
         <div style="font-family:'JetBrains Mono',monospace,'Syne';font-size:10px;letter-spacing:2px;color:${ACC};font-weight:700">⟨ ${roleLabel} ⟩</div>
         ${moodHtml}
