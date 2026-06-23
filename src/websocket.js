@@ -456,6 +456,7 @@ function setupWebSocket(server) {
         return;
       }
       if (msg.event === 'vc_create') {
+        if (!client.userId || client.role === 'guest') { ws.send(JSON.stringify({ event: 'vc_error', data: { message: 'Visitantes não podem criar chamadas.' } })); return; }
         const max = Math.min(4, Math.max(2, parseInt((msg.data && msg.data.max) || 4, 10) || 4));
         const title = String((msg.data && msg.data.title) || ('Chamada de ' + client.nick)).slice(0, 40);
         const id = 'vc_' + Math.random().toString(36).slice(2, 10);
@@ -472,6 +473,7 @@ function setupWebSocket(server) {
         return;
       }
       if (msg.event === 'vc_join') {
+        if (!client.userId || client.role === 'guest') { ws.send(JSON.stringify({ event: 'vc_error', data: { message: 'Visitantes não podem entrar em chamadas.' } })); return; }
         const id = msg.data && msg.data.id;
         const room = callRooms.get(id);
         if (!room) { ws.send(JSON.stringify({ event: 'vc_error', data: { message: 'Esta chamada não existe mais.' } })); return; }
