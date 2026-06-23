@@ -120,6 +120,10 @@ var API = {
   commentRecado: function (id, content) { return API.post('/recados/' + id + '/comments', { content: content }); },
   delComment:    function (cid) { return API.delete('/recados/comments/' + cid); },
   delRecado:     function (id)  { return API.delete('/recados/' + id); },
+  // ── Status (estilo WhatsApp, expira em 24h) ──
+  getStatuses:   function ()      { return API.get('/status'); },
+  postStatus:    function (extra)  { return API.post('/status', extra || {}); },
+  delStatus:     function (id)     { return API.delete('/status/' + id); },
   report:        function (n, r, reason) { return API.post('/reports', { reported_nick: n, room_slug: r, reason: reason }); },
   getSystemConfig: function ()   { return API.get('/system/config'); },
 
