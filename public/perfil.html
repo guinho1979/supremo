@@ -237,6 +237,89 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .toast.s{background:#064e3b;color:#6ee7b7}
 .toast.e{background:#7f1d1d;color:#fca5a5}
 .toast.i{background:#0d2a5e;color:#bfdbfe}
+
+/* ══════════ CAPA (banner) ══════════ */
+.av-section{padding-top:0!important}
+.cover{position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);background-size:cover;background-position:center;z-index:0}
+.cover::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,31,61,0) 30%,rgba(15,31,61,.55) 100%)}
+.av-section{padding-top:84px!important}
+.cover-edit{position:absolute;top:10px;right:12px;z-index:2;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.35);color:#fff;font-size:11px;font-weight:700;padding:6px 12px;border-radius:18px;cursor:pointer;backdrop-filter:blur(4px);font-family:'Syne',sans-serif}
+.cover-edit:hover{background:rgba(0,0,0,.6)}
+
+/* ══════════ Ver perfil público (botão) ══════════ */
+.view-public-btn{margin:0 0 2px;width:100%;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border:none;border-radius:14px;padding:13px;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 18px rgba(124,58,237,.3)}
+.view-public-btn:active{transform:scale(.99)}
+
+/* ══════════ Swatches (capa & tema) ══════════ */
+.sw-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:4px}
+.sw{width:38px;height:38px;border-radius:10px;cursor:pointer;border:2.5px solid transparent;transition:.15s;position:relative}
+.sw.sel{border-color:var(--blue);transform:scale(1.08)}
+.sw.sel::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.sw-upload{width:38px;height:38px;border-radius:10px;border:2px dashed var(--border2);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--text3)}
+
+/* ══════════ Humor / mood ══════════ */
+.mood-row{display:flex;gap:8px;align-items:center}
+.mood-emoji-btn{width:46px;height:46px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);font-size:22px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.mood-quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mood-chip{font-size:11px;padding:5px 10px;border-radius:14px;background:var(--surface2);border:1px solid var(--border);cursor:pointer;color:var(--text2);font-weight:600}
+.mood-chip:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ══════════ Redes sociais ══════════ */
+.soc-field{display:flex;align-items:center;gap:9px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+.soc-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;color:#fff}
+.soc-ig{background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af)}
+.soc-fb{background:#1877f2}
+.soc-tt{background:#000}
+.soc-tw{background:#000}
+.soc-yt{background:#ff0000}
+.soc-ico svg{width:17px;height:17px;display:block}
+.pub-soc svg{width:23px;height:23px;display:block}
+.soc-field input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif}
+
+/* ══════════ VISÃO PÚBLICA (overlay) ══════════ */
+.pub-ov{display:none;position:fixed;inset:0;z-index:900;background:rgba(8,14,30,.78);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.pub-ov.open{display:flex}
+.pub-card{width:100%;max-width:400px;background:var(--surface);border-radius:22px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.5);position:relative;animation:pubIn .28s cubic-bezier(.2,.8,.3,1)}
+@keyframes pubIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:none}}
+.pub-close{position:absolute;top:12px;right:12px;z-index:5;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.4);border:none;color:#fff;font-size:16px;cursor:pointer;backdrop-filter:blur(4px)}
+.pub-cover{height:130px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);background-size:cover;background-position:center;position:relative}
+.pub-cover::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.35))}
+.pub-av-wrap{display:flex;justify-content:center;margin-top:-52px;position:relative;z-index:2}
+.pub-av{width:104px;height:104px;border-radius:24px;background:#1a1735;border:4px solid var(--surface);display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.pub-av img{width:100%;height:100%;object-fit:cover}
+.pub-body{padding:10px 22px 24px;text-align:center}
+.pub-nick{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--text);margin-top:8px;display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}
+.pub-badge{display:inline-block;font-size:10px;padding:3px 12px;border-radius:14px;font-weight:800;font-family:'Syne',sans-serif;letter-spacing:.4px;margin-top:8px}
+.pub-mood{margin-top:10px;font-size:14px;color:var(--text2);font-style:italic;background:var(--surface2);display:inline-block;padding:7px 16px;border-radius:18px;border:1px solid var(--border)}
+.pub-bio{margin-top:14px;font-size:14px;line-height:1.55;color:var(--text2)}
+.pub-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+.pub-chip{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text2);background:var(--surface2);border:1px solid var(--border);padding:7px 12px;border-radius:14px}
+.pub-chip .ci{font-size:13px}
+.pub-socials{display:flex;gap:12px;justify-content:center;margin-top:18px}
+.pub-soc{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;text-decoration:none;transition:.15s;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.pub-soc:active{transform:scale(.92)}
+.pub-divider{height:1px;background:var(--border);margin:20px 0}
+.pub-since{font-size:11px;color:var(--text3);margin-top:16px}
+
+/* Fã (visão pública) */
+.pub-fan-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px}
+.pub-fan-btn{display:flex;align-items:center;gap:7px;padding:9px 22px;border-radius:22px;border:1.5px solid #e53e3e;background:transparent;color:#e53e3e;font-size:13px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s}
+.pub-fan-btn:active{transform:scale(.96)}
+.pub-fan-btn.is-fan{background:#e53e3e;color:#fff;border-color:#e53e3e}
+.pub-fan-btn:disabled{cursor:default;opacity:.9}
+.pub-fan-btn .fan-heart{width:15px;height:15px;vertical-align:-2px;margin-right:3px}
+.pub-fan-count{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text2);font-weight:600}
+.pub-fan-count b{font-size:17px;color:#ff5a6e;font-weight:800;font-family:'Syne',sans-serif}
+
+/* ══════════ PLAYER DE ÁUDIO ══════════ */
+.aud-player{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#0f1f3d,#1d4ed8);border-radius:16px;padding:13px 15px;margin-top:18px;box-shadow:0 6px 18px rgba(29,78,216,.25)}
+.aud-play{width:46px;height:46px;border-radius:50%;background:#fff;border:none;color:#1d4ed8;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.2)}
+.aud-mid{flex:1;min-width:0;text-align:left}
+.aud-name{font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Syne',sans-serif}
+.aud-bar{height:5px;background:rgba(255,255,255,.25);border-radius:5px;margin-top:7px;cursor:pointer;position:relative;overflow:hidden}
+.aud-fill{height:100%;width:0;background:#fff;border-radius:5px}
+.aud-time{font-size:10px;color:rgba(255,255,255,.8);margin-top:4px;display:flex;justify-content:space-between}
+.aud-wave{font-size:18px;flex-shrink:0;color:rgba(255,255,255,.7)}
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
@@ -251,6 +334,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- AVATAR HERO -->
 <div class="av-section">
+  <div class="cover" id="coverBanner"></div>
+  <button class="cover-edit" onclick="document.getElementById('coverCard').scrollIntoView({behavior:'smooth',block:'center'})">🖼 Capa</button>
   <div class="av-ring" id="avRing">
     <span id="avDisplay">😊</span>
   </div>
@@ -261,9 +346,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <button class="av-btn" id="nickEmojiBtn" onclick="openNickEmojiPicker()">😀 Emoji do nick</button>
   </div>
   <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)"/>
+  <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="handleCoverUpload(this)"/>
 </div>
 
 <div class="content">
+
+  <!-- VER PERFIL PÚBLICO -->
+  <button class="view-public-btn" onclick="openPublicView()">👁 Ver como os outros veem seu perfil</button>
 
   <!-- NICK -->
   <div class="card">
@@ -287,6 +376,62 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <input class="tc-input" id="bioInput" placeholder="Escreva algo sobre você..." maxlength="100" oninput="updateBioCount()"/>
         <div class="char-count"><span id="bioCount">0</span>/100</div>
       </div>
+    </div>
+  </div>
+
+  <!-- HUMOR / STATUS -->
+  <div class="card">
+    <div class="card-header"><span class="icon">💭</span> Humor do dia</div>
+    <div class="card-body">
+      <div class="field-label">Como você está se sentindo?</div>
+      <div class="mood-row">
+        <button class="mood-emoji-btn" id="moodEmojiBtn" onclick="cycleMoodEmoji()">😎</button>
+        <input class="tc-input" id="moodInput" placeholder="Diga seu humor..." maxlength="60" style="flex:1"/>
+      </div>
+      <div class="mood-quick" id="moodQuick"></div>
+    </div>
+  </div>
+
+  <!-- CAPA -->
+  <div class="card" id="coverCard">
+    <div class="card-header"><span class="icon">🖼</span> Capa do perfil</div>
+    <div class="card-body">
+      <div class="field-label">Escolha um fundo ou envie uma imagem</div>
+      <div class="sw-row" id="coverSwatches"></div>
+    </div>
+  </div>
+
+  <!-- TEMA -->
+  <div class="card">
+    <div class="card-header"><span class="icon">🎨</span> Tema do perfil</div>
+    <div class="card-body">
+      <div class="field-label">A cor que dá identidade ao seu perfil</div>
+      <div class="sw-row" id="themeSwatches"></div>
+    </div>
+  </div>
+
+  <!-- ANIVERSÁRIO -->
+  <div class="card">
+    <div class="card-header"><span class="icon">🎂</span> Aniversário</div>
+    <div class="card-body">
+      <div class="field-wrap">
+        <div class="field-label">Sua data de nascimento (opcional)</div>
+        <input class="tc-input" id="birthdayInput" type="date"/>
+        <div class="input-hint">Aparece no seu perfil como "🎂 faz aniversário em...".</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REDES SOCIAIS -->
+  <div class="card">
+    <div class="card-header"><span class="icon">🔗</span> Redes sociais</div>
+    <div class="card-body">
+      <div class="soc-field"><span class="soc-ico soc-ig"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07c-1.28.06-2.15.26-2.91.56-.79.31-1.46.72-2.13 1.38C1.34 2.68.93 3.35.63 4.14c-.3.76-.5 1.63-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91.31.79.72 1.46 1.38 2.13.67.66 1.34 1.07 2.13 1.38.76.3 1.63.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.38.66-.67 1.07-1.34 1.38-2.13.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.38-2.13C21.32 1.34 20.65.93 19.86.63c-.76-.3-1.63-.5-2.91-.56C15.67.01 15.26 0 12 0m0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84M12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4m6.41-10.85a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44"/></svg></span><input id="socIg" placeholder="seu_instagram" maxlength="40"/></div>
+      <div class="soc-field"><span class="soc-ico soc-fb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6.02 4.39 11.02 10.13 11.93v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8v8.44C19.61 23.09 24 18.09 24 12.07"/></svg></span><input id="socFb" placeholder="seu.facebook" maxlength="60"/></div>
+      <div class="soc-field"><span class="soc-ico soc-tt"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03C3.23 21.77 1.81 19.59 1.6 17.25c-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></span><input id="socTt" placeholder="seu_tiktok" maxlength="40"/></div>
+      <div class="soc-field"><span class="soc-ico soc-yt"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19C0 8.07 0 12 0 12s0 3.93.5 5.81a3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.81M9.55 15.57V8.43L15.82 12z"/></svg></span><input id="socYt" placeholder="link ou @canal" maxlength="80"/></div>
+      <div class="soc-field"><span class="soc-ico soc-tw"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zM17.61 20.64h2.04L6.49 3.24H4.3z"/></svg></span><input id="socTw" placeholder="seu_usuario_x" maxlength="40"/></div>
+      <div class="input-hint">Use só o @ ou nome de usuário (sem o link completo).</div>
     </div>
   </div>
 
@@ -413,6 +558,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <div class="toast" id="toast"></div>
 
+<!-- ══════════ VISÃO PÚBLICA DO PERFIL ══════════ -->
+<div class="pub-ov" id="pubOverlay" onclick="if(event.target===this)closePublicView()">
+  <div class="pub-card">
+    <button class="pub-close" onclick="closePublicView()">✕</button>
+    <div class="pub-cover" id="pubCover"></div>
+    <div class="pub-av-wrap"><div class="pub-av" id="pubAv">😊</div></div>
+    <div class="pub-body">
+      <div class="pub-nick" id="pubNick">Nick</div>
+      <div><span class="pub-badge b-user" id="pubBadge">USER</span></div>
+      <div class="pub-fan-row" id="pubFanRow"></div>
+      <div id="pubMoodWrap" style="display:none"><div class="pub-mood" id="pubMood"></div></div>
+      <div class="pub-bio" id="pubBio"></div>
+      <div class="pub-chips" id="pubChips"></div>
+      <div class="pub-socials" id="pubSocials"></div>
+      <div id="pubAudioWrap"></div>
+      <div class="pub-since" id="pubSince"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ── Storage ─────────────────────────────────────────── */
 const LS={
@@ -466,6 +631,10 @@ async function loadProfileFromServer(){
     setLS('tc_status',user.status||'online'); setLS('tc_nick_emoji',user.nick_emoji||'');
     setLS('tc_bio',user.bio||''); setLS('tc_city',user.city||''); setLS('tc_age',user.age||'');
     setLS('tc_gender',user.gender||''); setLS('tc_job',user.job||''); setLS('tc_interests',user.interests||'');
+    setLS('tc_cover',user.cover_url||''); setLS('tc_theme',user.theme||''); setLS('tc_mood',user.mood||'');
+    setLS('tc_birthday',user.birthday||''); setLS('tc_si',user.social_instagram||''); setLS('tc_st',user.social_tiktok||'');
+    setLS('tc_sx',user.social_twitter||''); setLS('tc_sy',user.social_youtube||''); setLS('tc_sfb',user.social_facebook||'');
+    try{ if(typeof loadExtrasIntoForm==='function') loadExtrasIntoForm(); }catch(e){}
     if(user.profile_audio){ try{ localStorage.setItem('tc_profile_audio_b64',user.profile_audio); localStorage.setItem('tc_profile_audio_name',user.profile_audio_name||'audio.mp3'); }catch(e){} }
     document.getElementById('nickInput').value=user.nick||''; updateNickCount();
     document.getElementById('bioInput').value=user.bio||''; updateBioCount();
@@ -558,7 +727,15 @@ async function saveProfile(){
     gender:document.getElementById('genderInput').value,
     job:document.getElementById('jobInput').value.trim(),
     interests:document.getElementById('interestsInput').value.trim(),
-    nick_emoji:LS.get('tc_nick_emoji','')
+    nick_emoji:LS.get('tc_nick_emoji',''),
+    mood:(function(){var mi=document.getElementById('moodInput'),mb=document.getElementById('moodEmojiBtn');var t=mi?mi.value.trim():'';return t?((mb?mb.textContent.trim()+' ':'')+t):'';})(),
+    theme:LS.get('tc_theme',''),
+    birthday:(document.getElementById('birthdayInput')?document.getElementById('birthdayInput').value:'')||null,
+    social_instagram:_socClean(document.getElementById('socIg')),
+    social_tiktok:_socClean(document.getElementById('socTt')),
+    social_twitter:_socClean(document.getElementById('socTw')),
+    social_youtube:(document.getElementById('socYt')?document.getElementById('socYt').value.trim():''),
+    social_facebook:(document.getElementById('socFb')?document.getElementById('socFb').value.trim():'')
   };
   if(nick) patch.nick=nick;
   try{
@@ -566,6 +743,9 @@ async function saveProfile(){
     if(nick) LS.set('tc_nick',nick);
     LS.set('tc_bio',patch.bio);LS.set('tc_age',patch.age);LS.set('tc_city',patch.city);
     LS.set('tc_gender',patch.gender);LS.set('tc_job',patch.job);LS.set('tc_interests',patch.interests);
+    LS.set('tc_mood',patch.mood);LS.set('tc_theme',patch.theme);LS.set('tc_birthday',patch.birthday||'');
+    LS.set('tc_si',patch.social_instagram);LS.set('tc_st',patch.social_tiktok);
+    LS.set('tc_sx',patch.social_twitter);LS.set('tc_sy',patch.social_youtube);LS.set('tc_sfb',patch.social_facebook);
     const ne=LS.get('tc_nick_emoji','');
     document.getElementById('avNick').textContent=(ne?ne+' ':'')+(nick||LS.get('tc_nick',''));
     showToast('✅ Perfil salvo com sucesso!','s');
@@ -790,6 +970,310 @@ function showToast(msg,type='i'){
     <div class="ne-grid" id="neGrid"></div>
   </div>
 </div>
+
+<script>
+/* ════════════════ PERFIL — Recursos novos ════════════════ */
+(function(){
+  // Paletas (capa & tema)
+  var GRADS = [
+    'linear-gradient(135deg,#1d4ed8,#7c3aed)',
+    'linear-gradient(135deg,#0ea5e9,#2563eb)',
+    'linear-gradient(135deg,#10b981,#0d9488)',
+    'linear-gradient(135deg,#f59e0b,#ef4444)',
+    'linear-gradient(135deg,#ec4899,#8b5cf6)',
+    'linear-gradient(135deg,#ef4444,#7c3aed)',
+    'linear-gradient(135deg,#111827,#374151)',
+    'linear-gradient(135deg,#14b8a6,#0ea5e9)',
+    'linear-gradient(135deg,#f43f5e,#f59e0b)',
+    'linear-gradient(135deg,#6d28d9,#2563eb)'
+  ];
+  var MOOD_EMOJIS = ['😎','😀','🥳','😍','😌','🤔','😴','🥹','😇','🤩','😅','🔥','💪','✨','☕','🎮','🎵','❤️'];
+  var MOOD_QUICK = ['De boa 😌','Focado 💪','Apaixonado 😍','Cansado 😴','Festando 🥳','Ouvindo música 🎵','Jogando 🎮','Trabalhando ☕'];
+
+  // Coração (SVG) que herda a cor do botão (branco quando "Sou fã")
+  var HEART_SVG = '<svg class="fan-heart" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>';
+  var SOC_SVG = {
+    ig:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07c-1.28.06-2.15.26-2.91.56-.79.31-1.46.72-2.13 1.38C1.34 2.68.93 3.35.63 4.14c-.3.76-.5 1.63-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91.31.79.72 1.46 1.38 2.13.67.66 1.34 1.07 2.13 1.38.76.3 1.63.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.38.66-.67 1.07-1.34 1.38-2.13.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.38-2.13C21.32 1.34 20.65.93 19.86.63c-.76-.3-1.63-.5-2.91-.56C15.67.01 15.26 0 12 0m0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84M12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4m6.41-10.85a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44"/></svg>',
+    fb:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6.02 4.39 11.02 10.13 11.93v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8v8.44C19.61 23.09 24 18.09 24 12.07"/></svg>',
+    tt:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03C3.23 21.77 1.81 19.59 1.6 17.25c-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>',
+    yt:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19C0 8.07 0 12 0 12s0 3.93.5 5.81a3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.81M9.55 15.57V8.43L15.82 12z"/></svg>',
+    x:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zM17.61 20.64h2.04L6.49 3.24H4.3z"/></svg>'
+  };
+
+  window._socClean = function(el){ if(!el) return ''; return el.value.trim().replace(/^@+/,'').replace(/\s+/g,''); };
+
+  function LSg(k,d){ try{return localStorage.getItem(k)||d||'';}catch(e){return d||'';} }
+
+  // Aplica capa (no hero + guarda)
+  function applyCover(val){
+    var c=document.getElementById('coverBanner'); if(!c) return;
+    if(val && val.indexOf('data:')===0){ c.style.background="url('"+val+"') center/cover"; }
+    else { c.style.background = val || GRADS[0]; }
+  }
+  function applyTheme(val){
+    // tema pinta a barra superior do hero discretamente (e é usado na visão pública)
+    document.documentElement.style.setProperty('--profile-theme', val || GRADS[0]);
+  }
+
+  // Constrói swatches de capa
+  function buildCoverSwatches(){
+    var row=document.getElementById('coverSwatches'); if(!row) return;
+    var cur=LSg('tc_cover', GRADS[0]);
+    var html=GRADS.map(function(g){
+      var sel=(g===cur)?' sel':'';
+      return '<div class="sw'+sel+'" style="background:'+g+'" data-g="'+g.replace(/"/g,'')+'" onclick="pickCover(this)"></div>';
+    }).join('');
+    html+='<div class="sw-upload" onclick="document.getElementById(\'coverInput\').click()" title="Enviar imagem">＋</div>';
+    row.innerHTML=html;
+  }
+  function buildThemeSwatches(){
+    var row=document.getElementById('themeSwatches'); if(!row) return;
+    var cur=LSg('tc_theme', GRADS[0]);
+    row.innerHTML=GRADS.map(function(g){
+      var sel=(g===cur)?' sel':'';
+      return '<div class="sw'+sel+'" style="background:'+g+'" onclick="pickTheme(this,\''+g.replace(/'/g,"")+'\')"></div>';
+    }).join('');
+  }
+  function buildMoodQuick(){
+    var q=document.getElementById('moodQuick'); if(!q) return;
+    q.innerHTML=MOOD_QUICK.map(function(m){ return '<span class="mood-chip" onclick="setMoodQuick(this)">'+m+'</span>'; }).join('');
+  }
+
+  window.pickCover=function(el){
+    document.querySelectorAll('#coverSwatches .sw').forEach(function(s){s.classList.remove('sel');});
+    el.classList.add('sel');
+    var g=el.getAttribute('data-g'); LS.set('tc_cover',g); applyCover(g);
+    if(window.API&&API.updateProfile) API.updateProfile({cover_url:g}).catch(function(){});
+    showToast('🖼 Capa atualizada','s');
+  };
+  window.pickTheme=function(el,g){
+    document.querySelectorAll('#themeSwatches .sw').forEach(function(s){s.classList.remove('sel');});
+    el.classList.add('sel');
+    LS.set('tc_theme',g); applyTheme(g);
+    if(window.API&&API.updateProfile) API.updateProfile({theme:g}).catch(function(){});
+    showToast('🎨 Tema atualizado','s');
+  };
+  window.handleCoverUpload=function(inp){
+    var f=inp.files&&inp.files[0]; if(!f) return;
+    if(!/^image\//.test(f.type)){ showToast('Selecione uma imagem','e'); return; }
+    if(f.size>5*1024*1024){ showToast('Imagem muito grande (máx 5MB)','e'); return; }
+    var img=new Image(), rd=new FileReader();
+    rd.onload=function(){ img.onload=function(){
+      var max=1280,w=img.width,h=img.height;
+      if(w>max){ h=Math.round(h*max/w); w=max; }
+      var cv=document.createElement('canvas'); cv.width=w; cv.height=Math.min(h,720);
+      cv.getContext('2d').drawImage(img,0,0,w,h);
+      var url=cv.toDataURL('image/jpeg',0.82);
+      LS.set('tc_cover',url); applyCover(url);
+      document.querySelectorAll('#coverSwatches .sw').forEach(function(s){s.classList.remove('sel');});
+      if(window.API&&API.updateProfile) API.updateProfile({cover_url:url}).then(function(){showToast('🖼 Capa enviada!','s');}).catch(function(e){showToast(e.message||'Erro','e');});
+    }; img.src=rd.result; };
+    rd.readAsDataURL(f); inp.value='';
+  };
+
+  window.cycleMoodEmoji=function(){
+    var btn=document.getElementById('moodEmojiBtn'); if(!btn) return;
+    var cur=btn.textContent.trim();
+    var i=MOOD_EMOJIS.indexOf(cur); i=(i+1)%MOOD_EMOJIS.length;
+    btn.textContent=MOOD_EMOJIS[i];
+  };
+  window.setMoodQuick=function(el){
+    var txt=el.textContent.trim();
+    var m=txt.match(/\s(\p{Emoji})\s*$/u);
+    var inp=document.getElementById('moodInput');
+    if(inp) inp.value=txt.replace(/\s*\p{Emoji}\s*$/u,'').trim();
+    var emo=txt.split(' ').pop();
+    var btn=document.getElementById('moodEmojiBtn'); if(btn&&emo) btn.textContent=emo;
+  };
+
+  // Carrega campos extras no formulário
+  window.loadExtrasIntoForm=function(){
+    var mood=LSg('tc_mood',''); var moodInp=document.getElementById('moodInput');
+    var emo='😎', txt=mood;
+    var mm=mood.match(/^(\p{Emoji})\s*/u);
+    if(mm){ emo=mm[1]; txt=mood.replace(/^\p{Emoji}\s*/u,''); }
+    if(moodInp) moodInp.value=txt;
+    var mb=document.getElementById('moodEmojiBtn'); if(mb&&emo) mb.textContent=emo;
+    var bd=document.getElementById('birthdayInput'); if(bd){ var b=LSg('tc_birthday',''); if(b) bd.value=String(b).slice(0,10); }
+    var sIg=document.getElementById('socIg'); if(sIg) sIg.value=LSg('tc_si','');
+    var sTt=document.getElementById('socTt'); if(sTt) sTt.value=LSg('tc_st','');
+    var sTw=document.getElementById('socTw'); if(sTw) sTw.value=LSg('tc_sx','');
+    var sYt=document.getElementById('socYt'); if(sYt) sYt.value=LSg('tc_sy','');
+    var sFb=document.getElementById('socFb'); if(sFb) sFb.value=LSg('tc_sfb','');
+    applyCover(LSg('tc_cover', GRADS[0])); applyTheme(LSg('tc_theme', GRADS[0]));
+    buildCoverSwatches(); buildThemeSwatches();
+  };
+
+  // junta emoji+texto do humor para salvar (feito direto no saveProfile)
+
+  /* ══════ VISÃO PÚBLICA ══════ */
+  var ROLE_LABELS={admin:'ADMIN',supervisor:'SUPERVISOR',mod:'MOD',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USER',guest:'VISITANTE'};
+  var ROLE_CLASSES={admin:'b-admin',supervisor:'b-admin',mod:'b-mod',vip:'b-vip',premium:'b-premium',dj:'b-dj',user:'b-user',guest:'b-guest'};
+  var STAFF=['admin','supervisor','mod'];
+
+  function chip(ico,txt){ return '<div class="pub-chip"><span class="ci">'+ico+'</span> '+esc(txt)+'</div>'; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  var _pubViewNick='';
+
+  function _dataFromLS(){
+    var moodInp=document.getElementById('moodInput'), moodBtn=document.getElementById('moodEmojiBtn');
+    var mood=LSg('tc_mood','');
+    if(moodInp && moodInp.value.trim()) mood=(moodBtn?moodBtn.textContent.trim()+' ':'')+moodInp.value.trim();
+    return {
+      nick:LSg('tc_nick','SeuNick'), role:LSg('tc_role','user'), photo:LSg('tc_photo',''), av:LSg('tc_avatar','😊'),
+      ne:LSg('tc_nick_emoji',''), theme:LSg('tc_theme',GRADS[0]), cover:LSg('tc_cover',GRADS[0]),
+      bio:LSg('tc_bio',''), mood:mood, age:LSg('tc_age',''), city:LSg('tc_city',''), gender:LSg('tc_gender',''),
+      job:LSg('tc_job',''), interests:LSg('tc_interests',''), birthday:LSg('tc_birthday',''),
+      si:LSg('tc_si',''), st:LSg('tc_st',''), sx:LSg('tc_sx',''), sy:LSg('tc_sy',''), sf:LSg('tc_sfb',''),
+      audio:LSg('tc_profile_audio_b64',''), audioName:LSg('tc_profile_audio_name','Áudio do perfil')
+    };
+  }
+  function _dataFromServer(u){
+    u=u||{};
+    return {
+      nick:u.nick||'', role:u.role||'user', photo:u.photo_url||'', av:u.avatar||'😊',
+      ne:u.nick_emoji||'', theme:u.theme||GRADS[0], cover:u.cover_url||GRADS[0],
+      bio:u.bio||'', mood:u.mood||'', age:u.age||'', city:u.city||'', gender:u.gender||'',
+      job:u.job||'', interests:u.interests||'', birthday:u.birthday||'',
+      si:u.social_instagram||'', st:u.social_tiktok||'', sx:u.social_twitter||'', sy:u.social_youtube||'', sf:u.social_facebook||'',
+      audio:u.profile_audio||'', audioName:u.profile_audio_name||'Áudio do perfil'
+    };
+  }
+
+  function _fillPub(d){
+    var pc=document.getElementById('pubCover');
+    if(String(d.cover).indexOf('data:')===0) pc.style.background="url('"+d.cover+"') center/cover"; else pc.style.background=d.cover||GRADS[0];
+    var pa=document.getElementById('pubAv');
+    pa.innerHTML = d.photo ? '<img src="'+d.photo+'" alt="">' : esc(d.av);
+    var verified = STAFF.indexOf(d.role)>=0 ? ' <span title="Verificado" style="color:#2563eb;font-size:18px">✔️</span>' : '';
+    document.getElementById('pubNick').innerHTML=(d.ne?esc(d.ne)+' ':'')+esc(d.nick)+verified;
+    var bd=document.getElementById('pubBadge'); bd.textContent=ROLE_LABELS[d.role]||(d.role||'').toUpperCase(); bd.className='pub-badge '+(ROLE_CLASSES[d.role]||'b-user');
+    var mw=document.getElementById('pubMoodWrap');
+    if(d.mood){ mw.style.display=''; document.getElementById('pubMood').textContent=d.mood; } else mw.style.display='none';
+    var bioEl=document.getElementById('pubBio'); bioEl.textContent=d.bio||''; bioEl.style.display=d.bio?'':'none';
+    var chips=[];
+    if(d.age) chips.push(chip('🎂', d.age+' anos'));
+    if(d.city) chips.push(chip('📍', d.city));
+    if(d.gender){ var gm={M:'Masculino',F:'Feminino',N:'Não informado'}; chips.push(chip('⚧', gm[d.gender]||d.gender)); }
+    if(d.job) chips.push(chip('💼', d.job));
+    if(d.interests) chips.push(chip('✨', d.interests));
+    if(d.birthday){ var dd=new Date(d.birthday); if(!isNaN(dd)) chips.push(chip('🎈', dd.getUTCDate()+'/'+(dd.getUTCMonth()+1))); }
+    document.getElementById('pubChips').innerHTML=chips.join('');
+    var socs=[];
+    if(d.si) socs.push('<a class="pub-soc soc-ig" target="_blank" href="https://instagram.com/'+encodeURIComponent(d.si)+'">'+SOC_SVG.ig+'</a>');
+    if(d.sf){ var furl=/^https?:/.test(d.sf)?d.sf:('https://facebook.com/'+encodeURIComponent(d.sf)); socs.push('<a class="pub-soc soc-fb" target="_blank" href="'+esc(furl)+'">'+SOC_SVG.fb+'</a>'); }
+    if(d.st) socs.push('<a class="pub-soc soc-tt" target="_blank" href="https://tiktok.com/@'+encodeURIComponent(d.st)+'">'+SOC_SVG.tt+'</a>');
+    if(d.sy){ var yurl=/^https?:/.test(d.sy)?d.sy:('https://youtube.com/'+(d.sy[0]==='@'?d.sy:'@'+d.sy)); socs.push('<a class="pub-soc soc-yt" target="_blank" href="'+esc(yurl)+'">'+SOC_SVG.yt+'</a>'); }
+    if(d.sx) socs.push('<a class="pub-soc soc-tw" target="_blank" href="https://x.com/'+encodeURIComponent(d.sx)+'">'+SOC_SVG.x+'</a>');
+    document.getElementById('pubSocials').innerHTML=socs.join('');
+    renderPubAudio(d.audio, d.audioName);
+    document.getElementById('pubSince').textContent='';
+  }
+
+  function _openPubOverlay(){
+    document.getElementById('pubOverlay').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+
+  // Botão de fã (igual ao do chat): conta + alternar
+  window.renderFanRow=function(nick, count, isFan, isSelf){
+    var row=document.getElementById('pubFanRow'); if(!row) return;
+    count=count||0;
+    if(isSelf){
+      row.innerHTML='<span class="pub-fan-count">❤️ <b>'+count+'</b> '+(count===1?'fã':'fãs')+'</span>'+
+        '<button class="pub-fan-btn" disabled title="Prévia — é assim que aparece para os outros">'+HEART_SVG+' Ser fã</button>';
+    } else {
+      row.innerHTML='<button class="pub-fan-btn'+(isFan?' is-fan':'')+'" id="pubFanBtn" onclick="toggleFanPublic(\''+esc(nick).replace(/'/g,"")+'\')">'+
+          HEART_SVG+(isFan?' Sou fã':' Ser fã')+'</button>'+
+        '<span class="pub-fan-count">❤️ <b id="pubFanCount">'+count+'</b></span>';
+    }
+  };
+  window.toggleFanPublic=function(nick){
+    var btn=document.getElementById('pubFanBtn'), cEl=document.getElementById('pubFanCount');
+    var willFan=!(btn&&btn.classList.contains('is-fan'));
+    // otimista
+    if(btn){ btn.classList.toggle('is-fan',willFan); btn.innerHTML=HEART_SVG+(willFan?' Sou fã':' Ser fã'); }
+    if(cEl){ cEl.textContent=Math.max(0,(parseInt(cEl.textContent,10)||0)+(willFan?1:-1)); }
+    if(window.API&&API.toggleFan){
+      API.toggleFan(nick).then(function(r){
+        if(btn){ btn.classList.toggle('is-fan',!!r.isFan); btn.innerHTML=HEART_SVG+(r.isFan?' Sou fã':' Ser fã'); }
+        if(cEl&&typeof r.count==='number') cEl.textContent=r.count;
+      }).catch(function(e){
+        // reverte
+        if(btn){ btn.classList.toggle('is-fan',!willFan); btn.innerHTML=HEART_SVG+(!willFan?' Sou fã':' Ser fã'); }
+        if(cEl){ cEl.textContent=Math.max(0,(parseInt(cEl.textContent,10)||0)+(willFan?-1:1)); }
+        showToast(e.message||'Erro','e');
+      });
+    }
+  };
+
+  window.openPublicView=function(nick){
+    var myNick=LSg('tc_nick','SeuNick');
+    var isSelf = !nick || String(nick).toLowerCase()===myNick.toLowerCase();
+    _pubViewNick = isSelf ? myNick : nick;
+    if(isSelf){
+      _fillPub(_dataFromLS());
+      _openPubOverlay();
+      if(window.API&&API.getUserProfile){
+        API.getUserProfile(myNick).then(function(d){ renderFanRow(myNick,(d&&d.fans)?d.fans.count:0,false,true); })
+          .catch(function(){ renderFanRow(myNick,0,false,true); });
+      } else renderFanRow(myNick,0,false,true);
+    } else {
+      if(window.API&&API.getUserProfile){
+        API.getUserProfile(nick).then(function(d){
+          _fillPub(_dataFromServer(d.user||{}));
+          _openPubOverlay();
+          var f=d.fans||{count:0,isFan:false};
+          renderFanRow(nick, f.count, f.isFan, false);
+        }).catch(function(e){ showToast(e.message||'Perfil não encontrado','e'); });
+      }
+    }
+  };
+  window.closePublicView=function(){
+    document.getElementById('pubOverlay').classList.remove('open');
+    document.body.style.overflow='';
+    if(_pubAudio){ try{_pubAudio.pause();}catch(e){} }
+  };
+
+  /* ══════ Player de áudio (visão pública) ══════ */
+  var _pubAudio=null, _pubPlaying=false;
+  function fmtTime(s){ s=Math.floor(s||0); var m=Math.floor(s/60); var ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
+  function renderPubAudio(b64, name){
+    var wrap=document.getElementById('pubAudioWrap');
+    b64=b64||''; name=name||'Áudio do perfil';
+    if(!b64){ wrap.innerHTML=''; if(_pubAudio){try{_pubAudio.pause();}catch(e){}_pubAudio=null;} return; }
+    wrap.innerHTML='<div class="aud-player">'+
+      '<button class="aud-play" id="audPlay">▶</button>'+
+      '<div class="aud-mid"><div class="aud-name">🎵 '+esc(name.replace(/\.[^.]+$/,""))+'</div>'+
+        '<div class="aud-bar" id="audBar"><div class="aud-fill" id="audFill"></div></div>'+
+        '<div class="aud-time"><span id="audCur">0:00</span><span id="audDur">0:00</span></div>'+
+      '</div><span class="aud-wave">🎶</span></div>';
+    _pubAudio=new Audio(b64); _pubPlaying=false;
+    _pubAudio.addEventListener('loadedmetadata',function(){ document.getElementById('audDur').textContent=fmtTime(_pubAudio.duration); });
+    _pubAudio.addEventListener('timeupdate',function(){
+      var f=document.getElementById('audFill'), c=document.getElementById('audCur');
+      if(f&&_pubAudio.duration) f.style.width=(_pubAudio.currentTime/_pubAudio.duration*100)+'%';
+      if(c) c.textContent=fmtTime(_pubAudio.currentTime);
+    });
+    _pubAudio.addEventListener('ended',function(){ _pubPlaying=false; var p=document.getElementById('audPlay'); if(p)p.textContent='▶'; });
+    document.getElementById('audPlay').onclick=function(){
+      if(!_pubAudio) return;
+      if(_pubPlaying){ _pubAudio.pause(); this.textContent='▶'; _pubPlaying=false; }
+      else { _pubAudio.play(); this.textContent='⏸'; _pubPlaying=true; }
+    };
+    document.getElementById('audBar').onclick=function(e){
+      if(!_pubAudio||!_pubAudio.duration) return;
+      var r=this.getBoundingClientRect(); var pct=(e.clientX-r.left)/r.width;
+      _pubAudio.currentTime=pct*_pubAudio.duration;
+    };
+  }
+
+  // init
+  loadExtrasIntoForm();
+  buildMoodQuick();
+})();
+</script>
 
 <script>
 /* === Logo do chat: aplica o logo enviado no painel (lido do servidor) === */
