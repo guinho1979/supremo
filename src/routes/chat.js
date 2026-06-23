@@ -461,34 +461,14 @@ router.get('/bot/key', async (req, res) => {
 });
 
 // ─── GET /api/users/recent — últimos online (público) ───────
-// Inclui usuários cadastrados (tabela users) E visitantes recentes (login_logs),
-// para que os nicks de visitantes também apareçam na tela de últimos online.
 router.get('/users/recent', async (req, res) => {
   try {
-    const { rows } = await db.query(`
-      WITH guests AS (
-        SELECT DISTINCT ON (LOWER(nick)) nick, created_at
-        FROM login_logs
-        WHERE kind = 'guest' AND created_at > NOW() - INTERVAL '2 hours'
-        ORDER BY LOWER(nick), created_at DESC
-      ),
-      combined AS (
-        SELECT nick, role, avatar, photo_url, nick_emoji, last_seen
-        FROM users
-        WHERE last_seen IS NOT NULL
-        UNION ALL
-        SELECT g.nick, 'guest'::varchar AS role, '👤'::varchar AS avatar,
-               NULL::text AS photo_url, NULL::varchar AS nick_emoji, g.created_at AS last_seen
-        FROM guests g
-        WHERE NOT EXISTS (SELECT 1 FROM users u WHERE LOWER(u.nick) = LOWER(g.nick))
-      )
-      SELECT nick, role, avatar, photo_url, nick_emoji, last_seen
-      FROM combined
-      ORDER BY last_seen DESC
-      LIMIT 40
-    `);
+    const { rows } = await db.query(
+      `SELECT nick, role, avatar, photo_url, nick_emoji, last_seen
+       FROM users WHERE last_seen IS NOT NULL ORDER BY last_seen DESC LIMIT 30`
+    );
     res.json({ users: rows });
-  } catch (err) { console.error(err); res.json({ users: [] }); }
+  } catch (err) { res.json({ users: [] }); }
 });
 
 // ─── GET /api/users/:nick — perfil público + fãs ─────────────
@@ -616,71 +596,6 @@ router.delete('/dj/requests/:id', authMiddleware, async (req, res) => {
     await db.query('DELETE FROM dj_requests WHERE id = $1', [parseInt(req.params.id, 10)]);
     res.json({ ok: true });
   } catch (err) { res.status(500).json({ error: 'Erro.' }); }
-});
-
-// ─── STATUS (estilo WhatsApp, expira em 24h) ──────────────────
-// GET /api/status — lista status ativos (não expirados), agrupáveis por nick
-router.get('/status', authMiddleware, async (req, res) => {
-  try {
-    // Limpeza preguiçosa dos expirados
-    db.query('DELETE FROM statuses WHERE expires_at < NOW()').catch(() => {});
-    const { rows } = await db.query(`
-      SELECT s.id, s.user_id, s.nick, s.role, s.avatar, s.content,
-             s.media_url, s.media_type, s.bg, s.created_at, s.expires_at,
-             COALESCE(u.photo_url, s.photo_url) AS photo_url
-      FROM statuses s
-      LEFT JOIN users u ON u.id = s.user_id
-      WHERE s.expires_at > NOW()
-      ORDER BY s.created_at ASC
-    `);
-    res.json({ statuses: rows });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro ao buscar status.' });
-  }
-});
-
-// POST /api/status — cria um status
-router.post('/status', authMiddleware, async (req, res) => {
-  try {
-    if (!req.user.user_id)
-      return res.status(403).json({ error: 'Visitantes não podem criar status.' });
-    const { content = '', media_url = null, media_type = null, bg = null, photo_url = null } = req.body;
-    const text = (content || '').trim();
-    if (!text && !media_url)
-      return res.status(400).json({ error: 'Escreva algo ou anexe uma mídia.' });
-    if (text.length > 700)
-      return res.status(400).json({ error: 'Status muito longo (máx 700 chars).' });
-
-    const { rows: [status] } = await db.query(`
-      INSERT INTO statuses (user_id, nick, role, avatar, photo_url, content, media_url, media_type, bg)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-      RETURNING *
-    `, [req.user.user_id, req.user.nick, req.user.role, req.user.avatar || '😊', photo_url, text, media_url, media_type, bg]);
-
-    res.status(201).json({ status });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro ao criar status.' });
-  }
-});
-
-// DELETE /api/status/:id — apaga o próprio status (ou admin/supervisor/mod)
-router.delete('/status/:id', authMiddleware, async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    if (!id) return res.status(400).json({ error: 'ID inválido.' });
-    const { rows: [st] } = await db.query('SELECT user_id FROM statuses WHERE id = $1', [id]);
-    if (!st) return res.status(404).json({ error: 'Status não encontrado.' });
-    const isStaff = ['admin', 'supervisor', 'mod'].includes(req.user.role);
-    if (st.user_id !== req.user.user_id && !isStaff)
-      return res.status(403).json({ error: 'Sem permissão.' });
-    await db.query('DELETE FROM statuses WHERE id = $1', [id]);
-    res.json({ ok: true });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro ao apagar status.' });
-  }
 });
 
 module.exports = router;
