@@ -20,6 +20,8 @@ async function getSysFlags() {
 
 // Mapa de conexões: socket_id → { ws, nick, role, userId, roomSlug }
 const clients = new Map();
+// Salas de videochamada (sinalização WebRTC em malha, até 4 pessoas)
+const callRooms = new Map(); // id -> { id, host, title, max, participants:Set(nick), createdAt }
 
 // Auto-delete de mensagens antigas (a cada 1 minuto limpa mensagens > 10min)
 function startMessageCleaner() {
@@ -68,6 +70,37 @@ function broadcastSpy(roomSlug, data) {
   clients.forEach(client => {
     if (client.spyRoom === roomSlug && client.ws.readyState === WebSocket.OPEN) client.ws.send(msg);
   });
+}
+
+// ── Helpers de videochamada ───────────────────────────────────
+function vcSendToNick(nick, payload) {
+  if (!nick) return;
+  const s = JSON.stringify(payload);
+  const n = String(nick).toLowerCase();
+  clients.forEach(c => {
+    if (c.nick && String(c.nick).toLowerCase() === n && c.ws && c.ws.readyState === WebSocket.OPEN) c.ws.send(s);
+  });
+}
+function vcRoomsPublic() {
+  const arr = [];
+  callRooms.forEach(r => arr.push({
+    id: r.id, host: r.host, title: r.title, max: r.max,
+    count: r.participants.size, participants: Array.from(r.participants)
+  }));
+  return arr;
+}
+function vcBroadcastList() {
+  const s = JSON.stringify({ event: 'vc_list', data: { rooms: vcRoomsPublic() } });
+  clients.forEach(c => { if (c.inVideoLobby && c.ws && c.ws.readyState === WebSocket.OPEN) c.ws.send(s); });
+}
+function vcRemoveParticipant(id, nick) {
+  const room = callRooms.get(id);
+  if (!room) return;
+  if (room.participants.delete(nick)) {
+    room.participants.forEach(n => vcSendToNick(n, { event: 'vc_peer_left', data: { id, nick } }));
+  }
+  if (room.participants.size === 0) callRooms.delete(id);
+  vcBroadcastList();
 }
 
 function sendOnlineCount() {
@@ -412,6 +445,60 @@ function setupWebSocket(server) {
         return;
       }
 
+      // ── VIDEOCHAMADA (sinalização WebRTC em malha, máx 4) ──
+      if (msg.event === 'vc_hello') {
+        client.inVideoLobby = true;
+        ws.send(JSON.stringify({ event: 'vc_list', data: { rooms: vcRoomsPublic() } }));
+        return;
+      }
+      if (msg.event === 'vc_list_req') {
+        ws.send(JSON.stringify({ event: 'vc_list', data: { rooms: vcRoomsPublic() } }));
+        return;
+      }
+      if (msg.event === 'vc_create') {
+        const max = Math.min(4, Math.max(2, parseInt((msg.data && msg.data.max) || 4, 10) || 4));
+        const title = String((msg.data && msg.data.title) || ('Chamada de ' + client.nick)).slice(0, 40);
+        const id = 'vc_' + Math.random().toString(36).slice(2, 10);
+        callRooms.set(id, { id, host: client.nick, title, max, participants: new Set([client.nick]), createdAt: Date.now() });
+        client.inVideoLobby = true;
+        ws.send(JSON.stringify({ event: 'vc_created', data: { id, max, title, host: client.nick } }));
+        // toca o "telefone" para todos os outros usuários online
+        const ring = JSON.stringify({ event: 'vc_ring', data: { id, host: client.nick, title, max } });
+        const me = String(client.nick).toLowerCase();
+        clients.forEach(c => {
+          if (c.ws && c.ws.readyState === WebSocket.OPEN && c.nick && String(c.nick).toLowerCase() !== me) c.ws.send(ring);
+        });
+        vcBroadcastList();
+        return;
+      }
+      if (msg.event === 'vc_join') {
+        const id = msg.data && msg.data.id;
+        const room = callRooms.get(id);
+        if (!room) { ws.send(JSON.stringify({ event: 'vc_error', data: { message: 'Esta chamada não existe mais.' } })); return; }
+        const already = room.participants.has(client.nick);
+        if (!already && room.participants.size >= room.max) {
+          ws.send(JSON.stringify({ event: 'vc_full', data: { id } })); return;
+        }
+        const existing = Array.from(room.participants).filter(n => String(n).toLowerCase() !== String(client.nick).toLowerCase());
+        room.participants.add(client.nick);
+        client.inVideoLobby = true;
+        ws.send(JSON.stringify({ event: 'vc_joined', data: { id, peers: existing, host: room.host, title: room.title, max: room.max } }));
+        existing.forEach(n => vcSendToNick(n, { event: 'vc_peer_joined', data: { id, nick: client.nick } }));
+        vcBroadcastList();
+        return;
+      }
+      if (msg.event === 'vc_signal') {
+        const { id, to, data } = msg.data || {};
+        if (!to) return;
+        vcSendToNick(to, { event: 'vc_signal', data: { id, from: client.nick, data } });
+        return;
+      }
+      if (msg.event === 'vc_leave') {
+        const id = msg.data && msg.data.id;
+        if (id) vcRemoveParticipant(id, client.nick);
+        return;
+      }
+
       // ── PING (keep-alive + atualiza presence) ─────────────
       if (msg.event === 'ping') {
         if (client.userId) {
@@ -503,6 +590,12 @@ function setupWebSocket(server) {
           }
         }
         if (!stillOnline) {
+          // sai de qualquer videochamada que estava
+          if (client.nick) {
+            const leaving = [];
+            callRooms.forEach((room, id) => { if (room.participants.has(client.nick)) leaving.push(id); });
+            leaving.forEach(id => vcRemoveParticipant(id, client.nick));
+          }
           if (client.roomSlug) {
             broadcast(client.roomSlug, {
               event: 'user_left',
