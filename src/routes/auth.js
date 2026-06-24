@@ -335,7 +335,8 @@ router.get('/me', authMiddleware, async (req, res) => {
     const { rows: [u] } = await db.query(
       `SELECT id, nick, role, avatar, photo_url, nick_color, msg_color, nick_gradient,
               status, birthday, bio, city, age, gender, job, interests,
-              nick_emoji, nick_effect, profile_audio, profile_audio_name, lema
+              nick_emoji, nick_effect, profile_audio, profile_audio_name, lema,
+              cover_url, theme, mood, social_instagram, social_tiktok, social_twitter, social_youtube, social_facebook
        FROM users WHERE id = $1`, [req.user.user_id]);
     res.json({ user: { ...req.user, ...(u || {}) } });
   } catch (err) {
@@ -357,7 +358,8 @@ router.patch('/me', authMiddleware, async (req, res) => {
       if (nick) {
         const gp = guestPrefs[nick] || { _guest: true };
         ['photo_url','avatar','nick_color','msg_color','nick_gradient','nick_effect',
-         'nick_emoji','status','bio','city','age','gender','job','interests','lema'].forEach(k => {
+         'nick_emoji','status','bio','city','age','gender','job','interests','lema',
+         'cover_url','theme','mood','social_instagram','social_tiktok','social_twitter','social_youtube','social_facebook'].forEach(k => {
           if (b[k] !== undefined) gp[k] = b[k];
         });
         guestPrefs[nick] = gp;
@@ -367,18 +369,23 @@ router.patch('/me', authMiddleware, async (req, res) => {
 
     if (b.photo_url && b.photo_url.length > 3 * 1024 * 1024)
       return res.status(400).json({ error: 'Foto muito grande. Máximo 2MB.' });
+    if (b.cover_url && b.cover_url.length > 4 * 1024 * 1024)
+      return res.status(400).json({ error: 'Capa muito grande. Máximo 3MB.' });
     if (b.profile_audio && b.profile_audio.length > 10 * 1024 * 1024)
       return res.status(400).json({ error: 'Áudio muito grande (máx 7MB).' });
 
     if (b.lema !== undefined && String(b.lema).length > 40)
       return res.status(400).json({ error: 'Lema muito longo (máx 40 caracteres).' });
+    if (b.mood !== undefined && String(b.mood).length > 80)
+      return res.status(400).json({ error: 'Humor muito longo.' });
 
     const fields = [];
     const values = [];
     let i = 1;
     const allowed = ['photo_url','avatar','nick_color','msg_color','status','nick_gradient',
                      'bio','city','age','gender','job','interests','nick_emoji','nick_effect',
-                     'profile_audio','profile_audio_name','lema'];
+                     'profile_audio','profile_audio_name','lema',
+                     'cover_url','theme','mood','social_instagram','social_tiktok','social_twitter','social_youtube','social_facebook'];
     for (const key of allowed) {
       if (b[key] !== undefined) { fields.push(`${key} = $${i++}`); values.push(b[key]); }
     }
