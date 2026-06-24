@@ -357,15 +357,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
   </div>
 
-  <!-- TEMA -->
-  <div class="card">
-    <div class="card-header"><span class="icon">🎨</span> Tema do perfil</div>
-    <div class="card-body">
-      <div class="field-label">A cor que dá identidade ao seu perfil</div>
-      <div class="sw-row" id="themeSwatches"></div>
-    </div>
-  </div>
-
   <!-- ANIVERSÁRIO -->
   <div class="card">
     <div class="card-header"><span class="icon">🎂</span> Aniversário</div>
@@ -946,11 +937,6 @@ function showToast(msg,type='i'){
     if(val && val.indexOf('data:')===0){ c.style.background="url('"+val+"') center/cover"; }
     else { c.style.background = val || GRADS[0]; }
   }
-  function applyTheme(val){
-    // tema pinta a barra superior do hero discretamente (e é usado na visão pública)
-    document.documentElement.style.setProperty('--profile-theme', val || GRADS[0]);
-  }
-
   // Constrói swatches de capa
   function buildCoverSwatches(){
     var row=document.getElementById('coverSwatches'); if(!row) return;
@@ -961,14 +947,6 @@ function showToast(msg,type='i'){
     }).join('');
     html+='<div class="sw-upload" onclick="document.getElementById(\'coverInput\').click()" title="Enviar imagem">＋</div>';
     row.innerHTML=html;
-  }
-  function buildThemeSwatches(){
-    var row=document.getElementById('themeSwatches'); if(!row) return;
-    var cur=LSg('tc_theme', GRADS[0]);
-    row.innerHTML=GRADS.map(function(g){
-      var sel=(g===cur)?' sel':'';
-      return '<div class="sw'+sel+'" style="background:'+g+'" onclick="pickTheme(this,\''+g.replace(/'/g,"")+'\')"></div>';
-    }).join('');
   }
   function buildMoodQuick(){
     var q=document.getElementById('moodQuick'); if(!q) return;
@@ -981,13 +959,6 @@ function showToast(msg,type='i'){
     var g=el.getAttribute('data-g'); LS.set('tc_cover',g); applyCover(g);
     if(window.API&&API.updateProfile) API.updateProfile({cover_url:g}).catch(function(){});
     showToast('🖼 Capa atualizada','s');
-  };
-  window.pickTheme=function(el,g){
-    document.querySelectorAll('#themeSwatches .sw').forEach(function(s){s.classList.remove('sel');});
-    el.classList.add('sel');
-    LS.set('tc_theme',g); applyTheme(g);
-    if(window.API&&API.updateProfile) API.updateProfile({theme:g}).catch(function(){});
-    showToast('🎨 Tema atualizado','s');
   };
   window.handleCoverUpload=function(inp){
     var f=inp.files&&inp.files[0]; if(!f) return;
@@ -1036,8 +1007,8 @@ function showToast(msg,type='i'){
     var sTw=document.getElementById('socTw'); if(sTw) sTw.value=LSg('tc_sx','');
     var sYt=document.getElementById('socYt'); if(sYt) sYt.value=LSg('tc_sy','');
     var sFb=document.getElementById('socFb'); if(sFb) sFb.value=LSg('tc_sfb','');
-    applyCover(LSg('tc_cover', GRADS[0])); applyTheme(LSg('tc_theme', GRADS[0]));
-    buildCoverSwatches(); buildThemeSwatches();
+    applyCover(LSg('tc_cover', GRADS[0]));
+    buildCoverSwatches();
   };
 
   // junta emoji+texto do humor para salvar (feito direto no saveProfile)

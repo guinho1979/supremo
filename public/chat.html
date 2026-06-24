@@ -5063,6 +5063,18 @@ function entrarSalaPage(id){
   const area=document.getElementById('msgArea');
   if(area)area.innerHTML=`<div class="sys-msg">Você entrou em <strong>${rd.icon} ${rd.name}</strong></div>`;
   showToast('Entrando em '+rd.icon+' '+rd.name);
+  // Avisa o servidor que trocou de sala (sem isso, a lista de online e as mensagens
+  // continuam vinculadas à sala anterior até a página ser recarregada)
+  try{
+    if(window.tcSocket && tcSocket.connected){
+      tcSocket.join(id);
+      // Mostra o próprio nick como online na nova sala imediatamente, sem esperar o servidor responder
+      if(window.roomRoles && typeof ME!=='undefined' && ME.nick){
+        window.roomRoles[ME.nick]=ME.role||'user';
+        if(typeof window.renderOnline==='function') window.renderOnline();
+      }
+    }
+  }catch(e){}
 }
 function espiarSalaPage(roomId,roomName){
   /* salasOverlay removida */
@@ -8758,6 +8770,7 @@ function processSmileKeywords(text){
   if(typeof API==='undefined'){ return; }
   var seen = new Set();
   var roomRoles = {};
+  try{ window.roomRoles = roomRoles; }catch(e){}
   function curRoom(){ try{ return LS.get('tc_room','geral'); }catch(e){ return 'geral'; } }
   function sig(d){ return d.id ? ('id:'+d.id) : (d.nick+'|'+d.content+'|'+(d.created_at||'').slice(0,19)); }
   function meNick(){ try{ return (typeof ME!=='undefined' && ME.nick) ? ME.nick : (LS.get('tc_nick','')); }catch(e){ return ''; } }
@@ -8883,7 +8896,21 @@ function processSmileKeywords(text){
   try{ window.renderOnline = renderOnline; }catch(e){}
   tcSocket.offAll();
   window._SPY_MODE = (function(){ try{ return window.__SPY__ || new URLSearchParams(location.search).get('spy') || ''; }catch(e){ return window.__SPY__||''; } })();
-  tcSocket.on('connected', function(){ window._tcConnAt=Date.now(); if(window._SPY_MODE){ tcSocket.send('spy_join',{room:window._SPY_MODE}); } else { tcSocket.join(curRoom()); } try{ if(tcSocket.status && !window._SPY_MODE) tcSocket.status(LS.get('tc_status','online')); }catch(e){} try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){} });
+  tcSocket.on('connected', function(){
+    window._tcConnAt=Date.now();
+    if(window._SPY_MODE){
+      tcSocket.send('spy_join',{room:window._SPY_MODE});
+    } else {
+      // Otimista: já mostra o próprio nick como online na lista, sem esperar o servidor confirmar
+      try{
+        var myNick=meNick();
+        if(myNick && !roomRoles[myNick]){ roomRoles[myNick]=ME.role||'user'; renderOnline(); }
+      }catch(e){}
+      tcSocket.join(curRoom());
+    }
+    try{ if(tcSocket.status && !window._SPY_MODE) tcSocket.status(LS.get('tc_status','online')); }catch(e){}
+    try{ API.getBlocks().then(function(d){ (d.blocks||[]).forEach(function(n){ if(typeof blockedUsers!=='undefined') blockedUsers.add(n); }); }).catch(function(){}); }catch(e){}
+  });
   tcSocket.on('spy_history', function(d){ if(!window._SPY_MODE) return; var _a=document.getElementById('msgArea'); if(!_a) return;
     window._histMsgs=(d&&d.messages)||[];
     if(!window._histShown){
@@ -8988,7 +9015,7 @@ function processSmileKeywords(text){
   tcSocket.on('message', incoming);
   tcSocket.on('quiz_start', function(d){ try{ if(typeof renderQuizFromData==='function') renderQuizFromData(d); }catch(e){} });
   tcSocket.on('quiz_answer', function(d){ try{ if(typeof registrarAcertoQuiz==='function') registrarAcertoQuiz(d); }catch(e){} });
-  tcSocket.on('room_users', function(d){ roomRoles={}; (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); renderOnline(); });
+  tcSocket.on('room_users', function(d){ Object.keys(roomRoles).forEach(function(k){ delete roomRoles[k]; }); (d.users||[]).forEach(function(u){ roomRoles[u.nick]=u.role; }); try{ var myNick=meNick(); if(myNick && !roomRoles[myNick]) roomRoles[myNick]=ME.role||'user'; }catch(e){} renderOnline(); });
   tcSocket.on('user_joined', function(d){ roomRoles[d.nick]=d.role; renderOnline(); });
   tcSocket.on('user_left', function(d){ if(d&&d.nick&&d.nick===ME.nick) return; delete roomRoles[d.nick]; renderOnline(); });
   tcSocket.on('typing', function(d){ var t=document.getElementById('typingIndicator'); if(t){ t.textContent=(d.nick||'')+' está digitando…'; clearTimeout(window._tcTypTo); window._tcTypTo=setTimeout(function(){t.textContent='';},2500);} });
@@ -9018,7 +9045,8 @@ function processSmileKeywords(text){
     }catch(e){}
   });
   if(window._SPY_MODE){ if(tcSocket.connected) tcSocket.send('spy_join',{room:window._SPY_MODE}); else tcSocket.connect(); }
-  else if(tcSocket.connected) tcSocket.join(curRoom()); else tcSocket.connect();
+  else if(tcSocket.connected){ try{ var myNick0=meNick(); if(myNick0 && !roomRoles[myNick0]){ roomRoles[myNick0]=ME.role||'user'; renderOnline(); } }catch(e){} tcSocket.join(curRoom()); }
+  else tcSocket.connect();
   // enviar "digitando" enquanto escreve
   document.addEventListener('input', function(e){
     if(e.target && e.target.id==='msgInput'){ var now=Date.now(); if(now-(window._tcLastTyp||0)>1500){ window._tcLastTyp=now; tcSocket.typing(); } }
