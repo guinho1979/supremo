@@ -453,8 +453,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .prof-fan-btn.is-fan{background:#e53e3e;color:#ffffff}
 .prof-fan-count{font-size:13px;color:#374d6e;font-weight:600;display:flex;align-items:center;gap:4px}
 .prof-fan-count b{font-size:15px;color:#ff5a6e;font-weight:800;font-family:'Syne',sans-serif}
-.prof-mood{margin-top:10px;font-size:13px;color:#374d6e;font-style:italic;background:#eef2fb;display:inline-block;padding:6px 14px;border-radius:16px;border:1px solid #d8e2f3}
-.prof-bio{font-size:13px;color:#374d6e;margin-top:14px;padding:10px 12px;background:#f3f6fc;border:1px solid #e2e8f0;border-radius:10px;line-height:1.55;text-align:center}
+.prof-mood{margin-top:10px;text-align:left;background:#eef2fb;border:1px solid #d8e2f3;border-radius:10px;padding:8px 12px}
+.prof-mood-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a90b0;margin-bottom:2px}
+.prof-mood-value{font-size:13px;color:#374d6e;font-style:italic}
+.prof-bio{font-size:13px;color:#374d6e;margin-top:14px;padding:8px 12px;background:#f3f6fc;border:1px solid #e2e8f0;border-radius:10px;line-height:1.55;text-align:left}
+.prof-bio-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a90b0;margin-bottom:2px}
+.prof-bio-value{display:block}
 .prof-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
 .prof-field-item{background:#f3f6fc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;text-align:left;min-width:0}
 .prof-field-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a90b0;margin-bottom:2px}
@@ -4414,7 +4418,7 @@ function openProfile(nick){
   const avHtml = _photoUrl ? `<img src="${_photoUrl}" alt="foto" style="width:100%;height:100%;object-fit:cover;display:block">` : `<span style="font-size:46px;line-height:1">${u.av||'😊'}</span>`;
   const _coverVal = u.cover_url || '';
   const coverBg = _coverVal ? (_coverVal.indexOf('data:')===0 ? `url('${_coverVal}') center/cover` : _coverVal) : `linear-gradient(135deg,#1d4ed8,#7c3aed)`;
-  const moodHtml = u.mood ? `<div class="prof-mood">${u.mood}</div>` : '';
+  const moodHtml = u.mood ? `<div class="prof-mood"><div class="prof-mood-label">Humor do dia</div><div class="prof-mood-value">${u.mood}</div></div>` : '';
   const neHtml = u.nick_emoji ? (u.nick_emoji+' ') : '';
   const roleLabel = {admin:'ADMINISTRADOR',supervisor:'SUPERVISOR',mod:'MODERADOR',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USUÁRIO',guest:'VISITANTE'}[u.role]||'USUÁRIO';
   const fieldMap=[
@@ -4442,7 +4446,7 @@ function openProfile(nick){
       ${moodHtml}
       ${fanBtnHtml}
       ${_profSocialsHtml(u)}
-      ${u.bio ? '<div class="prof-bio">'+u.bio+'</div>' : ''}
+      ${u.bio ? '<div class="prof-bio"><div class="prof-bio-label">Bio</div><div class="prof-bio-value">'+u.bio+'</div></div>' : ''}
       ${chipsHtml}
     </div>`;
   const adminDiv=document.getElementById('profAdminActions');
