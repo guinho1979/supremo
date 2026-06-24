@@ -8040,7 +8040,11 @@ function _patchOuElement(ou) {
     if (e.target && e.target.closest && e.target.closest('.msg-shield-btn')) { return; }
     e.stopPropagation();
     const nick = getNick();
-    if (nick && nick !== ME.nick) {
+    if (!nick) return;
+    if (nick === ME.nick) {
+      // Clicou no próprio nick: abre direto o perfil (sem menu de contexto)
+      openProfile(nick);
+    } else {
       openOuMenu(e, nick);
     }
   }, true);
