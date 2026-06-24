@@ -402,10 +402,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .modal{background:#ffffff;border:1px solid #e2e8f0;border-radius:var(--radius);padding:20px;width:320px;max-width:95vw;transform:translateY(10px);transition:.2s;max-height:92dvh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
 .overlay.show .modal{transform:translateY(0)}
 .modal-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#1a202c;margin-bottom:13px;display:flex;align-items:center;gap:7px}
-#profileOverlay .modal{background:#0a1120;border:1px solid #1c2a44;box-shadow:0 24px 70px rgba(0,0,0,.55)}
-#profileOverlay .modal-title{color:#e8eefb;border-bottom:1px solid #1c2a44;padding-bottom:10px}
-#profileOverlay .mbtn.cancel{background:#142036;color:#cbd6ea;border:1px solid #233452}
-#profileOverlay .mbtn.cancel:hover{background:#1b2c49}
+#profileOverlay .modal{background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 24px 70px rgba(0,0,0,.35);padding:0;overflow:hidden}
+#profileOverlay .modal-title{display:none}
 .modal-input{width:100%;background:#0b0918;border:1px solid #2a2560;border-radius:var(--radius-sm);padding:9px 12px;color:#e2e0f0;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px}
 .modal-input:focus{border-color:#A020F0;box-shadow:0 0 0 3px #A020F020}
 .modal-textarea{width:100%;background:#0b0918;border:1px solid #2a2560;border-radius:var(--radius-sm);padding:9px 12px;color:#e2e0f0;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px;resize:vertical;min-height:80px}
@@ -439,29 +437,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .av-preview-ring{width:56px;height:56px;border-radius:10px;background:#221f42;border:2px solid #3d35a0;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 10px;overflow:hidden;transition:.15s}
 .av-preview-ring img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 
-/* ── PROFILE MODAL ── */
-.prof-grid{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:start;margin-bottom:12px}
-.prof-av-cell{display:flex;flex-direction:column;align-items:center;gap:10px}
-.prof-av{width:112px;height:112px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:48px;overflow:hidden;border:2.5px solid #3a5068;background:#1a1d24;flex-shrink:0}
-.prof-av img{width:100%;height:100%;object-fit:cover;border-radius:10px}
-.prof-fan-btn{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1.5px solid #e53e3e;background:#ffffff;color:#e53e3e;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.18s;white-space:nowrap}
+/* ── PROFILE MODAL (visual claro, estilo card público) ── */
+#profileOverlay .modal{width:360px}
+.prof-close-x{position:absolute;top:12px;right:12px;z-index:5;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.32);border:none;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.prof-cover{height:118px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);background-size:cover;background-position:center;position:relative}
+.prof-cover::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.28))}
+.prof-av-wrap{display:flex;justify-content:center;margin-top:-46px;position:relative;z-index:2}
+.prof-av{width:96px;height:96px;border-radius:20px;background:#eef2fb;border:4px solid #ffffff;display:flex;align-items:center;justify-content:center;font-size:44px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.22);flex-shrink:0}
+.prof-av img{width:100%;height:100%;object-fit:cover;border-radius:16px}
+.prof-body{padding:8px 22px 22px;text-align:center}
+.prof-nick{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#0f1f3d;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.prof-badges{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:6px;margin-bottom:0}
+.prof-fan-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:20px;border:1.5px solid #e53e3e;background:#ffffff;color:#e53e3e;font-size:12px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s;white-space:nowrap}
 .prof-fan-btn:hover{background:#fff0f0}
 .prof-fan-btn.is-fan{background:#e53e3e;color:#ffffff}
-.prof-fan-count{font-size:14px;color:#ef4444;font-weight:800}
-.prof-info-cell{display:flex;flex-direction:column;gap:6px;min-width:0;padding-top:2px}
-.prof-nick{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:0;word-break:break-word;line-height:1.2}
-.prof-badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0}
-.prof-bio{font-size:12px;color:#4a5568;margin-bottom:0;padding:8px 10px;background:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;line-height:1.65}
-.prof-fields-section{margin-bottom:12px}
-.prof-fields-section-label{font-size:9px;color:#3a5070;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.prof-fields-grid{display:grid;grid-template-columns:1fr;gap:5px}
-.prof-field-item{border-radius:8px;padding:6px 10px;display:flex;flex-direction:column;gap:1px}
-.prof-field-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.prof-field-value{font-size:12px;font-weight:700}
-.prof-field-age,.prof-field-city,.prof-field-gender,.prof-field-status,.prof-field-interests{background:#f7fafc;border:1px solid #e2e8f0}
-.prof-field-age .prof-field-label,.prof-field-city .prof-field-label,.prof-field-gender .prof-field-label,.prof-field-status .prof-field-label,.prof-field-interests .prof-field-label{color:#a0aec0}
-.prof-field-age .prof-field-value,.prof-field-city .prof-field-value,.prof-field-gender .prof-field-value,.prof-field-status .prof-field-value,.prof-field-interests .prof-field-value{color:#2d3748}
-.prof-section-sep{border:none;border-top:1px solid #2a3244;margin:10px 0}
+.prof-fan-count{font-size:13px;color:#374d6e;font-weight:600;display:flex;align-items:center;gap:4px}
+.prof-fan-count b{font-size:15px;color:#ff5a6e;font-weight:800;font-family:'Syne',sans-serif}
+.prof-mood{margin-top:10px;font-size:13px;color:#374d6e;font-style:italic;background:#eef2fb;display:inline-block;padding:6px 14px;border-radius:16px;border:1px solid #d8e2f3}
+.prof-bio{font-size:13px;color:#374d6e;margin-top:14px;padding:10px 12px;background:#f3f6fc;border:1px solid #e2e8f0;border-radius:10px;line-height:1.55;text-align:center}
+.prof-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.prof-field-item{background:#f3f6fc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;text-align:left;min-width:0}
+.prof-field-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a90b0;margin-bottom:2px}
+.prof-field-value{font-size:13px;font-weight:700;color:#0f1f3d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prof-section-sep{border:none;border-top:1px solid #e2e8f0;margin:14px 0 0}
+#profileOverlay .modal-btns{padding:0 22px 22px;margin-top:0}
+#profileOverlay .mbtn.cancel{background:#f3f6fc;color:#374d6e;border:1px solid #e2e8f0}
+#profileOverlay .mbtn.cancel:hover{background:#e8eefb}
+#profileOverlay #profAdminActions{padding:0 22px}
+#profileOverlay #profExcluirDiv{padding:0 22px 18px;border-top:1px solid #e2e8f0;margin-top:0!important;padding-top:12px!important}
 
 /* ── MEDIA MODAL ── */
 .media-modal-img{width:100%;border-radius:var(--radius-sm);max-height:65dvh;object-fit:contain;background:#ffffff}
@@ -1021,17 +1024,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .pap-canvas-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
 </style>
 <div class="overlay" id="profileOverlay" onclick="if(event.target===this)closeProfile()">
-  <div class="modal">
+  <div class="modal" style="position:relative">
+    <button class="prof-close-x" onclick="closeProfile()">✕</button>
     <div class="modal-title" id="profTitle">👤 Perfil</div>
     <div id="profBody"></div>
-    <div id="profAudioPlayer" style="display:none">
+    <div id="profAudioPlayer" style="display:none;padding:0 22px">
       <!-- Modern mini audio player injected by JS -->
     </div>
-    <div class="modal-btns" style="margin-top:12px">
+    <div class="modal-btns">
       <button class="mbtn cancel" onclick="closeProfile()">Fechar</button>
     </div>
-    <div id="profAdminActions" style="display:none;margin-top:10px">
-      <div style="font-size:9px;color:#3a5070;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Moderação</div>
+    <div id="profAdminActions" style="display:none;margin-top:10px;padding-bottom:18px">
+      <div style="font-size:9px;color:#7a90b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Moderação</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap">
         <button class="mbtn danger" style="flex:none;padding:6px 10px" onclick="adminAct('ban')">🔨 Ban</button>
         <button class="mbtn" style="flex:none;padding:6px 10px;background:#451a03;color:#fde68a" onclick="adminAct('kick')">👢 Kick</button>
@@ -1040,7 +1044,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
       </div>
     </div>
     <!-- Excluir cadastro — só aparece no próprio perfil -->
-    <div id="profExcluirDiv" style="display:none;margin-top:12px;border-top:1px solid #1e2a3a;padding-top:10px">
+    <div id="profExcluirDiv" style="display:none">
       <button class="mbtn danger" style="width:100%;font-size:11px" onclick="abrirModalExcluirCadastroChat()">🗑 Excluir meu cadastro</button>
     </div>
   </div>
@@ -4407,47 +4411,40 @@ function openProfile(nick){
     || (ci.photo||'')
     || ((u.av && (u.av.indexOf('http')===0||u.av.indexOf('data:')===0)) ? u.av : '')
     || ((ci.avatar && (ci.avatar.indexOf('http')===0||ci.avatar.indexOf('data:')===0)) ? ci.avatar : '');
-  const avHtml = _photoUrl ? `<img src="${_photoUrl}" alt="foto" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px">` : `<span style="font-size:54px;line-height:1">${u.av||'😊'}</span>`;
-  const ACC = u.color || '#38bdf8';
+  const avHtml = _photoUrl ? `<img src="${_photoUrl}" alt="foto" style="width:100%;height:100%;object-fit:cover;display:block">` : `<span style="font-size:46px;line-height:1">${u.av||'😊'}</span>`;
   const _coverVal = u.cover_url || '';
-  const coverBg = _coverVal ? (_coverVal.indexOf('data:')===0 ? `url('${_coverVal}') center/cover` : _coverVal) : `linear-gradient(135deg,${ACC},#0e1830)`;
-  const moodHtml = u.mood ? `<div style="margin-top:2px;font-size:13px;color:#cdd9ef;font-style:italic;background:#0d1422;border:1px solid #1e2c44;padding:5px 14px;border-radius:16px">${u.mood}</div>` : '';
+  const coverBg = _coverVal ? (_coverVal.indexOf('data:')===0 ? `url('${_coverVal}') center/cover` : _coverVal) : `linear-gradient(135deg,#1d4ed8,#7c3aed)`;
+  const moodHtml = u.mood ? `<div class="prof-mood">${u.mood}</div>` : '';
   const neHtml = u.nick_emoji ? (u.nick_emoji+' ') : '';
   const roleLabel = {admin:'ADMINISTRADOR',supervisor:'SUPERVISOR',mod:'MODERADOR',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USUÁRIO',guest:'VISITANTE'}[u.role]||'USUÁRIO';
   const fieldMap=[
-    {ic:'🎂',label:'IDADE',value:u.age?u.age+' anos':null},
-    {ic:'📍',label:'CIDADE',value:u.city||null},
-    {ic:'⚧',label:'GÊNERO',value:u.gender?(u.gender==='M'?'Masculino':'Feminino'):null},
-    {ic:'🏷️',label:'NÍVEL',value:{admin:'Administrador',supervisor:'Supervisor',mod:'Moderador',vip:'VIP',premium:'Premium',dj:'DJ',user:'Usuário',guest:'Visitante'}[u.role]||'Usuário'},
-    {ic:'✨',label:'INTERESSES',value:u.interests||null},
-    {ic:'🎈',label:'ANIVERSÁRIO',value:(function(){ if(!u.birthday) return null; var d=new Date(u.birthday); return isNaN(d)?null:(d.getUTCDate()+'/'+(d.getUTCMonth()+1)); })()},
+    {label:'Idade',value:u.age?u.age+' anos':null},
+    {label:'Cidade',value:u.city||null},
+    {label:'Gênero',value:u.gender?(u.gender==='M'?'Masculino':'Feminino'):null},
+    {label:'Nível',value:{admin:'Administrador',supervisor:'Supervisor',mod:'Moderador',vip:'VIP',premium:'Premium',dj:'DJ',user:'Usuário',guest:'Visitante'}[u.role]||'Usuário'},
+    {label:'Interesses',value:u.interests||null},
+    {label:'Aniversário',value:(function(){ if(!u.birthday) return null; var d=new Date(u.birthday); return isNaN(d)?null:(d.getUTCDate()+'/'+(d.getUTCMonth()+1)); })()},
   ].filter(f=>f.value);
-  const chipsHtml=fieldMap.length?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">${fieldMap.map(f=>`<div style="background:#0d1422;border:1px solid #1e2c44;border-left:3px solid ${ACC};border-radius:10px;padding:8px 10px;min-width:0"><div style="font-size:9px;letter-spacing:1px;color:#5b7290;font-family:'JetBrains Mono',monospace,'Syne';font-weight:700;margin-bottom:2px">${f.ic} ${f.label}</div><div style="font-size:13px;font-weight:700;color:#e8eefb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.value}</div></div>`).join('')}</div>`:'';
+  const chipsHtml=fieldMap.length?`<div class="prof-fields-grid">${fieldMap.map(f=>`<div class="prof-field-item"><div class="prof-field-label">${f.label}</div><div class="prof-field-value">${f.value}</div></div>`).join('')}</div>`:'';
   const fd=getFanCount(nick);
   const isOwnProfile=nick===ME.nick;
   const fanBtnHtml=isOwnProfile
-    ?`<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px"><button style="padding:6px 16px;border-radius:20px;border:1.5px solid #e53e3e;background:transparent;color:#e53e3e;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">👥 Ver fãs</button><span style="display:flex;align-items:center;gap:4px;font-size:13px;color:#8aa0bf">❤️ <span id="profFanCount" style="font-size:15px;color:#ff5a6e;font-weight:800">${fd.count}</span></span></div>`
-    :`<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px"><button id="profFanBtn" class="prof-fan-btn${fd.isFan?' is-fan':''}" onclick="toggleFan('${nick}')">${fd.isFan?_PROF_HEART+' Sou fã':_PROF_HEART+' Ser fã'}</button><span style="display:flex;align-items:center;gap:4px;font-size:13px;color:#8aa0bf">❤️ <span id="profFanCount" style="font-size:15px;color:#ff5a6e;font-weight:800">${fd.count}</span></span></div>`;
+    ?`<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px"><button class="prof-fan-btn" style="border-color:#cbd5e1;color:#374d6e">👥 Ver fãs</button><span class="prof-fan-count">❤️ <b id="profFanCount">${fd.count}</b></span></div>`
+    :`<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px"><button id="profFanBtn" class="prof-fan-btn${fd.isFan?' is-fan':''}" onclick="toggleFan('${nick}')">${fd.isFan?_PROF_HEART+' Sou fã':_PROF_HEART+' Ser fã'}</button><span class="prof-fan-count">❤️ <b id="profFanCount">${fd.count}</b></span></div>`;
   document.getElementById('profBody').innerHTML=`
-    <div style="position:relative;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#0a1120,#0e1830);border:1px solid #1c2a44;margin-bottom:12px">
-      <div style="height:74px;background:${coverBg};position:relative"><div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(10,17,32,.75))"></div></div>
-      <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 16px 16px;margin-top:-48px">
-        <div style="position:relative;width:100px;height:100px">
-          <div style="position:absolute;inset:-3px;border-radius:13px;background:linear-gradient(135deg,${ACC},transparent 60%);filter:blur(.5px)"></div>
-          <div style="position:relative;width:100px;height:100px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0c1322;border:3px solid #0a1120;box-shadow:0 6px 20px rgba(0,0,0,.4),0 0 22px ${ACC}44">${avHtml}</div>
-          <span style="position:absolute;right:5px;bottom:5px;width:15px;height:15px;border-radius:50%;background:#22c55e;border:2.5px solid #0a1120;box-shadow:0 0 8px #22c55e"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center">
-          <span style="font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:#f1f5ff">${neHtml}${nick}</span>${_isStaff ? '' : getBadgeHtml(u.role)}
-        </div>
-        <div style="font-family:'JetBrains Mono',monospace,'Syne';font-size:10px;letter-spacing:2px;color:${ACC};font-weight:700">⟨ ${roleLabel} ⟩</div>
-        ${moodHtml}
-      </div>
+    <div class="prof-cover" style="background:${coverBg}"></div>
+    <div class="prof-av-wrap">
+      <div class="prof-av">${avHtml}</div>
     </div>
-    ${fanBtnHtml}
-    ${_profSocialsHtml(u)}
-    ${u.bio ? '<div style="margin-top:10px;background:#0b1019;border:1px solid #1d2840;border-radius:10px;padding:10px 12px;font-size:13px;color:#cbd6ea;line-height:1.5">'+u.bio+'</div>' : ''}
-    ${chipsHtml}`;
+    <div class="prof-body">
+      <div class="prof-nick">${neHtml}${nick}</div>
+      <div class="prof-badges">${_isStaff ? `<span style="font-size:10px;padding:3px 12px;border-radius:14px;font-weight:800;font-family:'Syne',sans-serif;letter-spacing:.4px;background:#e8eefb;color:#374d6e">${roleLabel}</span>` : getBadgeHtml(u.role)}</div>
+      ${moodHtml}
+      ${fanBtnHtml}
+      ${_profSocialsHtml(u)}
+      ${u.bio ? '<div class="prof-bio">'+u.bio+'</div>' : ''}
+      ${chipsHtml}
+    </div>`;
   const adminDiv=document.getElementById('profAdminActions');
   adminDiv.style.display=(canMonitor()&&nick!==ME.nick)?'block':'none';
   // Mostrar botão excluir cadastro apenas no próprio perfil
