@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TopChat — Acesso Rápido</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#0f1628,#1a1735);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+  .card{background:#fff;border-radius:20px;padding:32px 28px;max-width:360px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+  .logo{font-size:28px;font-weight:900;color:#7c3aed;text-align:center;margin-bottom:4px;font-family:'Syne',sans-serif}
+  .sub{text-align:center;font-size:12px;color:#7a90b0;margin-bottom:24px}
+  .btn{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;border-radius:12px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:'Segoe UI',sans-serif;margin-bottom:10px;transition:.15s}
+  .btn:hover{opacity:.88;transform:translateY(-1px)}
+  .btn-admin{background:linear-gradient(135deg,#064e3b,#065f46);color:#6ee7b7}
+  .btn-sup{background:linear-gradient(135deg,#7f1d1d,#991b1b);color:#fca5a5}
+  .btn-mod{background:linear-gradient(135deg,#1e1b4b,#312e81);color:#c7d2fe}
+  .btn-premium{background:linear-gradient(135deg,#451a03,#78350f);color:#fde68a}
+  .btn-vip{background:linear-gradient(135deg,#1e3a5f,#1e40af);color:#93c5fd}
+  .btn-user{background:#f0f6fc;color:#374151;border:1.5px solid #c8d8f5}
+  .av{font-size:22px;width:32px;text-align:center;flex-shrink:0}
+  .info{flex:1}
+  .nick{font-size:13px;font-weight:800;display:block}
+  .role{font-size:10px;opacity:.75;display:block;margin-top:1px}
+  .divider{height:1px;background:#e5e7eb;margin:16px 0}
+  .warn{font-size:10px;color:#9ca3af;text-align:center;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🛡 TopChat</div>
+  <div class="sub">Acesso rápido para testes</div>
+
+  <button class="btn btn-admin" onclick="login('admin','🛡','admin')">
+    <span class="av">🛡</span>
+    <span class="info">
+      <span class="nick">admin</span>
+      <span class="role">ADMIN — Acesso total ao painel</span>
+    </span>
+  </button>
+
+  <button class="btn btn-sup" onclick="login('supervisor','⚡','supervisor')">
+    <span class="av">⚡</span>
+    <span class="info">
+      <span class="nick">supervisor</span>
+      <span class="role">SUPERVISOR — Painel completo</span>
+    </span>
+  </button>
+
+  <button class="btn btn-mod" onclick="login('moderador','🛡','mod')">
+    <span class="av">🛡</span>
+    <span class="info">
+      <span class="nick">moderador</span>
+      <span class="role">MOD — Usuários, Espiar, Logs</span>
+    </span>
+  </button>
+
+  <div class="divider"></div>
+
+  <button class="btn btn-premium" onclick="login('PauloXX','👑','premium')">
+    <span class="av">👑</span>
+    <span class="info">
+      <span class="nick">PauloXX</span>
+      <span class="role">PREMIUM — Espiar salas, sala privada</span>
+    </span>
+  </button>
+
+  <button class="btn btn-vip" onclick="login('alexvip','⚡','vip')">
+    <span class="av">⚡</span>
+    <span class="info">
+      <span class="nick">alexvip</span>
+      <span class="role">VIP — Espiar salas invisível</span>
+    </span>
+  </button>
+
+  <button class="btn btn-user" onclick="login('Mari_s','🌸','user')">
+    <span class="av">🌸</span>
+    <span class="info">
+      <span class="nick">Mari_s</span>
+      <span class="role">USER — Usuário comum</span>
+    </span>
+  </button>
+
+  <div class="warn">⚠ Página apenas para testes locais</div>
+</div>
+
+<script>
+function login(nick, av, role){
+  localStorage.setItem('tc_nick',  nick);
+  localStorage.setItem('tc_avatar', av);
+  localStorage.setItem('tc_role',  role);
+  localStorage.setItem('tc_type',  'registered');
+  localStorage.setItem('tc_token', 'tok_' + Date.now());
+
+  // Admin e supervisor → painel admin
+  if(['admin','supervisor','mod'].includes(role)){
+    window.location.href = 'admin.html';
+  } else {
+    window.location.href = 'salas.html';
+  }
+}
+</script>
+</body>
+</html>

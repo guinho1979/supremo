@@ -1,4 +1,11 @@
 <!DOCTYPE html><html lang="pt-BR"><head>
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Chat Supremo — Sala de Vídeo</title>
@@ -173,29 +180,18 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
     if(lob) lob.innerHTML='<div class="card" style="text-align:center;padding:36px 18px"><div style="font-size:42px;margin-bottom:10px">🔒</div><div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:18px;margin-bottom:8px">'+title+'</div><div style="font-size:13px;color:var(--text3);line-height:1.5">'+sub+'</div><a href="salas.html" style="display:inline-block;margin-top:18px;background:#2563eb;color:#fff;text-decoration:none;padding:11px 22px;border-radius:12px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:13px">Voltar às salas</a></div>';
   }
 
-  /* ───────── ICE (STUN + TURN) ─────────
-     STUN só descobre o IP público. Quando os dois usuários estão em redes
-     diferentes / atrás de NAT simétrico, a conexão DIRETA não fecha e o vídeo
-     do outro nunca chega — cada um vê só a própria câmera (o sintoma deste bug).
-     É preciso um servidor TURN para RETRANSMITIR a mídia nesses casos.
-     Os endpoints OpenRelay abaixo são um TURN público gratuito (melhor esforço).
-     Para produção, configure um TURN próprio no painel admin
-     (turn_url / turn_user / turn_cred) — ex.: conta grátis da Metered,
-     credenciais grátis da Cloudflare, ou um coturn seu. */
-  var ICE={ iceServers:[
-    { urls:'stun:stun.l.google.com:19302' },
-    { urls:'stun:stun1.l.google.com:19302' },
-    { urls:'turn:openrelay.metered.ca:80',  username:'openrelayproject', credential:'openrelayproject' },
-    { urls:'turn:openrelay.metered.ca:443', username:'openrelayproject', credential:'openrelayproject' },
-    { urls:'turns:openrelay.metered.ca:443?transport=tcp', username:'openrelayproject', credential:'openrelayproject' }
-  ] };
-  // TURN configurado pelo admin tem prioridade. Aplicado ANTES de boot(),
-  // logo antes de qualquer chamada existir — sem corrida de inicialização.
-  function applyTurnFromConfig(c){
-    if(c && c.turn_url){
-      ICE.iceServers.push({ urls:c.turn_url, username:c.turn_user||'', credential:c.turn_cred||'' });
+  /* ───────── ICE (STUN grátis + TURN opcional via config) ───────── */
+  var ICE={ iceServers:[ {urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'} ] };
+  try{
+    if(window.API && API.getSystemConfig){
+      API.getSystemConfig().then(function(r){
+        var c=(r&&r.config)||{};
+        if(c.turn_url){
+          ICE.iceServers.push({ urls:c.turn_url, username:c.turn_user||'', credential:c.turn_cred||'' });
+        }
+      }).catch(function(){});
     }
-  }
+  }catch(e){}
 
   /* ───────── WebSocket ───────── */
   var ws=null, wsReady=false, queue=[];
@@ -222,7 +218,6 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
   } else if(window.API && API.getSystemConfig){
     API.getSystemConfig().then(function(r){
       var c=(r&&r.config)||{};
-      applyTurnFromConfig(c);   // garante TURN pronto ANTES de boot()
       if(c.video_enabled==='false'){ blockPage('Sala de Vídeo indisponível','A sala de vídeo está desativada pelo administrador no momento.'); }
       else boot();
     }).catch(function(){ boot(); });
@@ -297,9 +292,6 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
       // adiciona meu vídeo ao meu tile
       var v=document.querySelector('#tile_'+cssId(ME.nick)+' video'); if(v){ v.srcObject=stream; v.muted=true; v.play().catch(function(){}); }
       var av=document.querySelector('#tile_'+cssId(ME.nick)+' .tile-av'); if(av) av.style.display='none';
-      // se alguma conexão já existia (oferta chegou antes da câmera liberar),
-      // anexa nossas faixas agora para que o outro lado passe a nos ver
-      attachLocalTracksAll();
       // como entrante, eu inicio a conexão com quem já estava
       (peers||[]).forEach(function(p){ participants[p]=true; addOrUpdateTile(p,null,false); createOffer(p); });
       updateCount();
@@ -316,45 +308,23 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
   }
 
   /* ───────── PeerConnections (malha) ───────── */
-  // Garante que TODAS as faixas locais estão nesta conexão (sem duplicar).
-  // Importante quando a mídia fica pronta DEPOIS da conexão ser criada —
-  // senão o nosso vídeo nunca é enviado e o outro lado não nos vê.
-  function attachLocalTracks(pc){
-    if(!localStream || !pc) return;
-    var have={};
-    pc.getSenders().forEach(function(s){ if(s.track) have[s.track.id]=true; });
-    localStream.getTracks().forEach(function(t){ if(!have[t.id]){ try{ pc.addTrack(t, localStream); }catch(e){} } });
-  }
-  function attachLocalTracksAll(){ Object.keys(pcs).forEach(function(n){ attachLocalTracks(pcs[n]); }); }
-
   function getPC(nick){
     if(pcs[nick]) return pcs[nick];
     var pc=new RTCPeerConnection(ICE);
     pcs[nick]=pc; pending[nick]=pending[nick]||[];
-    attachLocalTracks(pc);
+    if(localStream) localStream.getTracks().forEach(function(t){ pc.addTrack(t, localStream); });
     pc.onicecandidate=function(e){ if(e.candidate) wsSend({event:'vc_signal', data:{ id:roomId, to:nick, data:{ candidate:e.candidate } }}); };
     pc.ontrack=function(e){
       addOrUpdateTile(nick, e.streams[0], false);
       var v=document.querySelector('#tile_'+cssId(nick)+' video'); if(v && v.srcObject!==e.streams[0]){ v.srcObject=e.streams[0]; v.play().catch(function(){}); }
       var av=document.querySelector('#tile_'+cssId(nick)+' .tile-av'); if(av) av.style.display='none';
     };
-    pc.oniceconnectionstatechange=function(){
-      var st=pc.iceConnectionState;
-      if(st==='failed'){
-        // Conexão de mídia não fechou (típico de NAT sem TURN). Tenta reiniciar
-        // o ICE; só quem FEZ a oferta renegocia, para não cair em "glare".
-        try{ pc.restartIce && pc.restartIce(); }catch(e){}
-        if(pc.localDescription && pc.localDescription.type==='offer'){ createOffer(nick, true); }
-        else toast('Falha na conexão de vídeo com '+esc(nick)+'. Pode ser necessário um servidor TURN.', true);
-      }
-    };
-    pc.onconnectionstatechange=function(){ /* mantém; pode reconectar via ICE restart */ };
+    pc.onconnectionstatechange=function(){ if(pc.connectionState==='failed'||pc.connectionState==='disconnected'){ /* mantém; pode reconectar */ } };
     return pc;
   }
-  function createOffer(nick, iceRestart){
+  function createOffer(nick){
     var pc=getPC(nick);
-    attachLocalTracks(pc);
-    pc.createOffer(iceRestart?{iceRestart:true}:undefined).then(function(o){ return pc.setLocalDescription(o); })
+    pc.createOffer().then(function(o){ return pc.setLocalDescription(o); })
       .then(function(){ wsSend({event:'vc_signal', data:{ id:roomId, to:nick, data:{ sdp:pc.localDescription } }}); })
       .catch(function(e){ console.error(e); });
   }
@@ -363,16 +333,11 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
     if(payload.sdp){
       var pc=getPC(nick);
       var desc=new RTCSessionDescription(payload.sdp);
-      var isOffer=(desc.type==='offer');
-      // Antes de RESPONDER, garante câmera/microfone prontos e nossas faixas
-      // anexadas — senão respondemos sem mídia e o outro lado não nos vê.
-      var prep = isOffer ? ensureMedia().then(function(){ attachLocalTracks(pc); }).catch(function(){})
-                         : Promise.resolve();
-      prep.then(function(){ return pc.setRemoteDescription(desc); }).then(function(){
+      pc.setRemoteDescription(desc).then(function(){
         // aplica candidatos que chegaram antes
         (pending[nick]||[]).forEach(function(c){ pc.addIceCandidate(new RTCIceCandidate(c)).catch(function(){}); });
         pending[nick]=[];
-        if(isOffer){
+        if(desc.type==='offer'){
           participants[nick]=true; addOrUpdateTile(nick,null,false); updateCount();
           return pc.createAnswer().then(function(a){ return pc.setLocalDescription(a); })
             .then(function(){ wsSend({event:'vc_signal', data:{ id:roomId, to:nick, data:{ sdp:pc.localDescription } }}); });
