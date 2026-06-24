@@ -1,0 +1,37 @@
+# render.yaml — Deploy GRÁTIS na Render (para testes)
+# Cria o serviço web (Node) + o banco PostgreSQL, tudo no plano free.
+# Limitações do free: o servidor "dorme" após 15 min parado (acorda em ~1 min)
+# e o banco gratuito expira 30 dias após criado. Para produção, troque os
+# campos "plan: free" por planos pagos (ex.: starter / basic-256mb).
+
+services:
+  - type: web
+    name: chat-supremo
+    runtime: node
+    plan: free                    # GRÁTIS
+    region: oregon                # precisa ser a MESMA do banco abaixo
+    buildCommand: npm install
+    # No plano free não existe preDeployCommand, então rodamos a migração
+    # e a criação do admin no start (ambas são idempotentes = seguras p/ repetir).
+    startCommand: npm run db:migrate && npm run db:admin && npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: JWT_SECRET
+        generateValue: true       # a Render gera um segredo forte sozinha
+      - key: BOT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chat-supremo-db
+          property: connectionString
+
+databases:
+  - name: chat-supremo-db
+    plan: free                    # GRÁTIS (expira em 30 dias)
+    databaseName: chatsupremo
+    user: chatsupremo
+    region: oregon                # << precisa ser a MESMA do serviço acima
