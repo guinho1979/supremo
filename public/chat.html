@@ -710,6 +710,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <span id="topRoomIcon" style="font-size:16px;flex-shrink:0">💬</span>
     <span id="topRoomName" style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;letter-spacing:.3px">Geral</span>
   </div>
+  <button id="invBell" onclick="abrirConvitesModal()" title="Convites de sala privada" style="position:relative;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:16px;font-weight:700;padding:5px 9px;border-radius:8px;cursor:pointer;line-height:1;flex-shrink:0">📨<span id="invDot" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #1d4ed8;animation:blink 1s ease-in-out infinite"></span></button>
   <button class="dj-btn" onclick="openDJ()" title="Pedido ao DJ" style="display:none" id="djTopBtn">♪</button>
   <!-- Radio button inside topbar -->
   <button id="floatRadioBtn" onclick="toggleFloatRadio()" title="Rádio">
@@ -9549,6 +9550,131 @@ function sendMainPaintDrawing(){
     <div class="likes-modal-list" id="likesModalList"></div>
   </div>
 </div>
+
+<!-- ═══════════ MODAL CONVITES DE SALA PRIVADA ═══════════ -->
+<style>
+.inv-ov{display:none;position:fixed;inset:0;z-index:700;background:#00000088;align-items:center;justify-content:center;padding:16px}
+.inv-ov.show{display:flex}
+.inv-modal{background:#fff;border-radius:16px;padding:0;max-width:380px;width:100%;max-height:80dvh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.inv-modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #2a3244}
+.inv-modal-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#13151c}
+.inv-modal-close{background:#f0f6fc;border:none;width:30px;height:30px;border-radius:50%;font-size:14px;cursor:pointer;color:#8aafd4}
+.inv-list{padding:10px 14px 16px;display:flex;flex-direction:column;gap:10px}
+.inv-item{display:flex;align-items:center;gap:12px;background:#f7faff;border:1px solid #2a3244;border-radius:12px;padding:12px}
+.inv-item-icon{width:42px;height:42px;border-radius:11px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.inv-item-body{flex:1;min-width:0}
+.inv-item-room{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#13151c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inv-item-from{font-size:11px;color:#4a6080}
+.inv-item-actions{display:flex;gap:6px;margin-top:8px}
+.inv-item-actions button{flex:1;padding:7px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+.inv-btn-accept{background:#10b981;color:#fff}
+.inv-btn-decline{background:#fee2e2;color:#ef4444}
+.inv-empty{padding:30px 18px;text-align:center;color:#4a6080;font-size:12px}
+</style>
+<div class="inv-ov" id="convitesOverlay" onclick="if(event.target===this)fecharConvitesModal()">
+  <div class="inv-modal">
+    <div class="inv-modal-head">
+      <span class="inv-modal-title">📨 Convites de sala privada</span>
+      <button class="inv-modal-close" onclick="fecharConvitesModal()">✕</button>
+    </div>
+    <div class="inv-list" id="convitesList">
+      <div class="inv-empty">Carregando...</div>
+    </div>
+  </div>
+</div>
+<script>
+/* ══════════ CONVITES DE SALA PRIVADA (📨) ══════════ */
+(function(){
+  if(typeof API==='undefined') return;
+
+  function setBellPending(has){
+    var bell=document.getElementById('invBell');
+    var dot=document.getElementById('invDot');
+    if(dot) dot.style.display=has?'block':'none';
+  }
+
+  function nickEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  function renderConvites(invites){
+    var list=document.getElementById('convitesList'); if(!list) return;
+    if(!invites || !invites.length){
+      list.innerHTML='<div class="inv-empty">Nenhum convite pendente.</div>';
+      setBellPending(false);
+      return;
+    }
+    setBellPending(true);
+    list.innerHTML=invites.map(function(inv){
+      return '<div class="inv-item" id="invItem_'+inv.id+'">'+
+        '<div class="inv-item-icon">'+nickEsc(inv.icon||'🔒')+'</div>'+
+        '<div class="inv-item-body">'+
+          '<div class="inv-item-room">'+nickEsc(inv.name)+'</div>'+
+          '<div class="inv-item-from">Convite de <strong>'+nickEsc(inv.from_nick)+'</strong></div>'+
+          '<div class="inv-item-actions">'+
+            '<button class="inv-btn-decline" onclick="recusarConvite('+inv.id+')">✕ Rejeitar</button>'+
+            '<button class="inv-btn-accept" onclick="aceitarConvite('+inv.id+')">✓ Aceitar</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  function carregarConvites(){
+    if(!window.API || !API.privateRooms) return;
+    API.privateRooms.invites().then(function(d){
+      renderConvites(d.invites||[]);
+    }).catch(function(){ /* silencioso */ });
+  }
+
+  window.abrirConvitesModal=function(){
+    document.getElementById('convitesOverlay').classList.add('show');
+    carregarConvites();
+  };
+  window.fecharConvitesModal=function(){
+    document.getElementById('convitesOverlay').classList.remove('show');
+  };
+
+  window.aceitarConvite=function(id){
+    API.privateRooms.accept(id).then(function(d){
+      showToast('✓ Convite aceito! Entrando em '+(d.room?d.room.name:'sala')+'…');
+      var el=document.getElementById('invItem_'+id); if(el) el.remove();
+      carregarConvites();
+      if(d.room && d.room.slug){
+        try{ LS.set('tc_room', d.room.slug); LS.set('tc_room_name', d.room.name); }catch(e){}
+        setTimeout(function(){ fecharConvitesModal(); enterRoom(d.room.slug, d.room.name); }, 600);
+      }
+    }).catch(function(e){ showToast((e&&e.message)||'Erro ao aceitar convite.','error'); });
+  };
+
+  window.recusarConvite=function(id){
+    API.privateRooms.decline(id).then(function(){
+      showToast('Convite recusado.');
+      var el=document.getElementById('invItem_'+id); if(el) el.remove();
+      carregarConvites();
+    }).catch(function(e){ showToast((e&&e.message)||'Erro ao recusar convite.','error'); });
+  };
+
+  // Tempo real: pisca o ícone quando chega convite
+  function setupSocketListeners(){
+    if(!window.tcSocket) return;
+    tcSocket.on('private_invite_received', function(d){
+      setBellPending(true);
+      showToast('📨 '+(d&&d.from_nick?d.from_nick:'Alguém')+' te convidou para uma sala privada!');
+      if(document.getElementById('convitesOverlay').classList.contains('show')) carregarConvites();
+    });
+    tcSocket.on('private_invite_declined', function(d){
+      showToast('😕 '+(d&&d.by_nick?d.by_nick:'O usuário')+' recusou seu convite para '+(d&&d.room_name?d.room_name:'a sala')+'.','error');
+    });
+  }
+
+  if(window.tcSocket){
+    setupSocketListeners();
+    if(!tcSocket.connected) tcSocket.connect();
+  }
+
+  carregarConvites();
+  setInterval(carregarConvites, 30000);
+})();
+</script>
 
 <!-- ══ USER NOT IN ROOM MODAL ══ -->
 <div id="userNotInRoomOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;align-items:center;justify-content:center" onclick="if(event.target===this)closeUserNotInRoomModal()">
