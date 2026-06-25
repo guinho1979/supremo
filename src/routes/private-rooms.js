@@ -2,6 +2,7 @@
 const express = require('express');
 const db      = require('../db');
 const { authMiddleware } = require('../middleware/auth');
+const ws      = require('../websocket');
 
 const router = express.Router();
 router.use(authMiddleware);
@@ -72,10 +73,22 @@ router.post('/invites/:id/accept', async (req, res) => {
 router.post('/invites/:id/decline', async (req, res) => {
   if (!requireUser(req, res)) return;
   try {
+    const { rows: [inv] } = await db.query(
+      "SELECT i.*, pr.name AS room_name FROM private_room_invites i JOIN private_rooms pr ON pr.id = i.room_id WHERE i.id = $1 AND i.to_user_id = $2 AND i.status = 'pending'",
+      [req.params.id, req.user.user_id]
+    );
+    if (!inv) return res.status(404).json({ error: 'Convite não encontrado.' });
     await db.query(
       "UPDATE private_room_invites SET status = 'declined' WHERE id = $1 AND to_user_id = $2",
       [req.params.id, req.user.user_id]
     );
+    // Avisa quem enviou o convite que foi recusado
+    try {
+      ws.sendToNick(inv.from_nick, {
+        event: 'private_invite_declined',
+        data: { room_name: inv.room_name, by_nick: req.user.nick }
+      });
+    } catch (e) { /* não bloqueia a resposta */ }
     res.json({ ok: true });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao recusar convite.' }); }
 });
@@ -115,9 +128,12 @@ router.post('/:id/invite', async (req, res) => {
 
     const toNick = (req.body.to_nick || '').trim();
     if (!toNick) return res.status(400).json({ error: 'Nick obrigatório.' });
-    const { rows: [target] } = await db.query('SELECT id, nick FROM users WHERE LOWER(nick) = LOWER($1)', [toNick]);
+    const { rows: [target] } = await db.query('SELECT id, nick, accept_invites FROM users WHERE LOWER(nick) = LOWER($1)', [toNick]);
     if (!target) return res.status(404).json({ error: 'Usuário não encontrado.' });
     if (target.id === uid) return res.status(400).json({ error: 'Você já é dono da sala.' });
+
+    if (target.accept_invites === false)
+      return res.status(409).json({ error: `${target.nick} desativou convites.`, code: 'INVITES_DISABLED' });
 
     const { rows: mem } = await db.query('SELECT 1 FROM private_room_members WHERE room_id = $1 AND user_id = $2', [room.id, target.id]);
     if (mem.length) return res.status(409).json({ error: 'Esse usuário já é membro.' });
@@ -126,13 +142,37 @@ router.post('/:id/invite', async (req, res) => {
     const { rows: dup } = await db.query(
       "SELECT 1 FROM private_room_invites WHERE room_id = $1 AND to_user_id = $2 AND status = 'pending'", [room.id, target.id]
     );
+    let inviteId = null;
     if (!dup.length) {
-      await db.query(
-        'INSERT INTO private_room_invites (room_id, from_nick, to_user_id, to_nick) VALUES ($1, $2, $3, $4)',
+      const { rows: [created] } = await db.query(
+        'INSERT INTO private_room_invites (room_id, from_nick, to_user_id, to_nick) VALUES ($1, $2, $3, $4) RETURNING id',
         [room.id, req.user.nick, target.id, target.nick]
       );
+      inviteId = created.id;
+    } else {
+      const { rows: [existing] } = await db.query(
+        "SELECT id FROM private_room_invites WHERE room_id = $1 AND to_user_id = $2 AND status = 'pending'", [room.id, target.id]
+      );
+      inviteId = existing.id;
     }
-    res.json({ ok: true });
+
+    // Notifica o destinatário em tempo real (sininho 📨 pisca na hora, sem precisar de polling)
+    try {
+      ws.sendToNick(target.nick, {
+        event: 'private_invite_received',
+        data: {
+          invite_id: inviteId,
+          room_id: room.id,
+          room_slug: room.slug,
+          room_name: room.name,
+          room_icon: room.icon,
+          room_description: room.description,
+          from_nick: req.user.nick
+        }
+      });
+    } catch (e) { /* falha de notificação não deve quebrar a resposta */ }
+
+    res.json({ ok: true, invite_id: inviteId });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro ao convidar.' }); }
 });
 

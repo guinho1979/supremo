@@ -336,7 +336,8 @@ router.get('/me', authMiddleware, async (req, res) => {
       `SELECT id, nick, role, avatar, photo_url, nick_color, msg_color, nick_gradient,
               status, birthday, bio, city, age, gender, job, interests,
               nick_emoji, nick_effect, profile_audio, profile_audio_name, lema,
-              cover_url, theme, mood, social_instagram, social_tiktok, social_twitter, social_youtube, social_facebook
+              cover_url, theme, mood, social_instagram, social_tiktok, social_twitter, social_youtube, social_facebook,
+              accept_invites
        FROM users WHERE id = $1`, [req.user.user_id]);
     res.json({ user: { ...req.user, ...(u || {}) } });
   } catch (err) {
@@ -359,7 +360,8 @@ router.patch('/me', authMiddleware, async (req, res) => {
         const gp = guestPrefs[nick] || { _guest: true };
         ['photo_url','avatar','nick_color','msg_color','nick_gradient','nick_effect',
          'nick_emoji','status','bio','city','age','gender','job','interests','lema',
-         'cover_url','theme','mood','social_instagram','social_tiktok','social_twitter','social_youtube','social_facebook'].forEach(k => {
+         'cover_url','theme','mood','social_instagram','social_tiktok','social_twitter','social_youtube','social_facebook',
+         'accept_invites'].forEach(k => {
           if (b[k] !== undefined) gp[k] = b[k];
         });
         guestPrefs[nick] = gp;
@@ -385,7 +387,8 @@ router.patch('/me', authMiddleware, async (req, res) => {
     const allowed = ['photo_url','avatar','nick_color','msg_color','status','nick_gradient',
                      'bio','city','age','gender','job','interests','nick_emoji','nick_effect',
                      'profile_audio','profile_audio_name','lema',
-                     'cover_url','theme','mood','social_instagram','social_tiktok','social_twitter','social_youtube','social_facebook'];
+                     'cover_url','theme','mood','social_instagram','social_tiktok','social_twitter','social_youtube','social_facebook',
+                     'accept_invites'];
     for (const key of allowed) {
       if (b[key] !== undefined) { fields.push(`${key} = $${i++}`); values.push(b[key]); }
     }
