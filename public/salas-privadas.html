@@ -715,58 +715,7 @@ async function enviarConvite(nickDestino) {
 }
 
 // ── RECEBER CONVITE ──────────────────────────────────────────
-// Verificar se há convite pendente para o usuário atual
-let _convitePendente = null;
-
-async function verificarConvitesPendentes() {
-  if (_convitePendente) return;
-  try{ if(localStorage.getItem('tc_no_convites')==='1') return; }catch(e){}
-  try {
-    const d = await API.privateRooms.invites();
-    const inv = (d.invites||[])[0];
-    if (!inv) return;
-    _convitePendente = { inviteId: inv.id, slug: inv.slug, salaNome: inv.name, salaIcon: inv.icon||'🔒', salaDesc: inv.description||'', de: inv.from_nick, deAv: '👤' };
-    mostrarModalConviteRecebido(_convitePendente);
-  } catch(e) {}
-}
-
-function mostrarModalConviteRecebido(convite) {
-  document.getElementById('conviteRemetenteNome').textContent = convite.de + ' ' + convite.deAv;
-  document.getElementById('conviteSalaIcon').textContent = convite.salaIcon || '🔒';
-  document.getElementById('conviteSalaNome').textContent = convite.salaNome;
-  document.getElementById('conviteSalaDesc').textContent = convite.salaDesc || 'Sala privada exclusiva';
-  document.getElementById('conviteRecebidoModal').style.display = 'flex';
-}
-
-async function aceitarConvite() {
-  if (!_convitePendente) return;
-  const inviteId = _convitePendente.inviteId;
-  try {
-    const d = await API.privateRooms.accept(inviteId);
-    const slug = (d.room && d.room.slug) || _convitePendente.slug;
-    const name = (d.room && d.room.name) || _convitePendente.salaNome;
-    document.getElementById('conviteRecebidoModal').style.display = 'none';
-    _convitePendente = null;
-    LS.set('tc_room', slug); LS.set('tc_room_name', name);
-    window.location.href = 'chatprivado.html';
-  } catch(e) { showToast(e.message||'Erro ao aceitar.','error'); }
-}
-
-async function rejeitarConvite() {
-  if (!_convitePendente) return;
-  const inviteId = _convitePendente.inviteId;
-  try { await API.privateRooms.decline(inviteId); } catch(e) {}
-  _convitePendente = null;
-  document.getElementById('conviteRecebidoModal').style.display = 'none';
-  showToast('Convite recusado.');
-}
-
-// Verificar convites a cada 5 segundos (polling)
-// Em produção usar WebSocket para receber em tempo real
-if (IS_LOGGED) {
-  verificarConvitesPendentes();
-  setInterval(verificarConvitesPendentes, 5000);
-}
+// Removido: o recebimento de convites agora acontece pelo ícone 📨 em salas.html (tempo real via WebSocket).
 
 // ─── AUTO-EXCLUSÃO: sala vazia por 10 minutos ──────────────
 const EMPTY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutos
@@ -821,12 +770,8 @@ limparSalasVazias();
 // Fechar modal de convidar ao clicar no fundo
 document.addEventListener('DOMContentLoaded', function(){
   const convidarModal = document.getElementById('convidarModal');
-  const conviteRecebidoModal = document.getElementById('conviteRecebidoModal');
   if(convidarModal) convidarModal.addEventListener('click', function(e){
     if (e.target === this) fecharModalConvidar();
-  });
-  if(conviteRecebidoModal) conviteRecebidoModal.addEventListener('click', function(e){
-    if (e.target === this) rejeitarConvite();
   });
 });
 
@@ -863,28 +808,6 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <button onclick="fecharModalConvidar()" style="width:100%;margin-top:14px;padding:10px;border-radius:8px;border:1px solid #2a3244;background:#1a2a40;color:#8aafd4;font-weight:700;font-size:12px;cursor:pointer;font-family:'Syne',sans-serif">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════ MODAL CONVITE RECEBIDO (para o usuário convidado) ═══════════ -->
-<div class="modal-overlay" id="conviteRecebidoModal" style="display:none;align-items:center;justify-content:center">
-  <div class="modal" style="max-width:360px;width:95%;text-align:center">
-    <div style="font-size:36px;margin-bottom:10px">📨</div>
-    <div class="modal-title" style="justify-content:center;display:flex;margin-bottom:6px">Convite de Sala Privada</div>
-    <div style="font-size:13px;color:#374d6e;margin-bottom:6px">
-      <strong id="conviteRemetenteNome"></strong> te convidou para a sala:
-    </div>
-    <div style="background:#f5f3ff;border:1.5px solid #7c3aed33;border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
-      <span id="conviteSalaIcon" style="font-size:26px">🔒</span>
-      <div style="text-align:left">
-        <div id="conviteSalaNome" style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:#0f1f3d"></div>
-        <div id="conviteSalaDesc" style="font-size:11px;color:#7a90b0"></div>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px">
-      <button onclick="rejeitarConvite()" style="flex:1;padding:11px;border-radius:10px;border:1.5px solid #ef444455;background:#7f1d1d22;color:#ef4444;font-size:13px;font-weight:700;cursor:pointer;font-family:Syne,sans-serif">✕ Rejeitar</button>
-      <button onclick="aceitarConvite()" style="flex:1;padding:11px;border-radius:10px;border:none;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:Syne,sans-serif;box-shadow:0 2px 8px rgba(124,58,237,.3)">✓ Aceitar</button>
     </div>
   </div>
 </div>

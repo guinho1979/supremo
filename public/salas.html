@@ -114,6 +114,30 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
 .st-vw-foot{flex-shrink:0;padding:10px 16px 18px;display:flex;justify-content:center;z-index:3}
 .st-vw-del{background:rgba(239,68,68,.85);border:none;color:#fff;font-size:12px;font-weight:700;padding:9px 22px;border-radius:22px;cursor:pointer;font-family:'Syne',sans-serif}
 .st-empty-hint{color:var(--text3);font-size:12px;padding:8px 0}
+
+/* ══════════ CONVITES DE SALA PRIVADA (📨 topbar) ══════════ */
+.inv-bell{position:relative;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:16px;font-weight:700;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;line-height:1}
+.inv-bell .inv-dot{position:absolute;top:-3px;right:-3px;width:13px;height:13px;border-radius:50%;background:#ef4444;border:2px solid #0f1f3d;display:none}
+.inv-bell.has-pending .inv-dot{display:block;animation:invBlink 1s ease-in-out infinite}
+@keyframes invBlink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+
+.inv-ov{display:none;position:fixed;inset:0;z-index:700;background:#00000088;align-items:center;justify-content:center;padding:16px}
+.inv-ov.show{display:flex}
+.inv-modal{background:#fff;border-radius:16px;padding:0;max-width:380px;width:100%;max-height:80dvh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.inv-modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border)}
+.inv-modal-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--text)}
+.inv-modal-close{background:#f0f6fc;border:none;width:30px;height:30px;border-radius:50%;font-size:14px;cursor:pointer;color:var(--text2)}
+.inv-list{padding:10px 14px 16px;display:flex;flex-direction:column;gap:10px}
+.inv-item{display:flex;align-items:center;gap:12px;background:#f7faff;border:1px solid var(--border);border-radius:12px;padding:12px}
+.inv-item-icon{width:42px;height:42px;border-radius:11px;background:#ede9fe;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.inv-item-body{flex:1;min-width:0}
+.inv-item-room{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inv-item-from{font-size:11px;color:var(--text3)}
+.inv-item-actions{display:flex;gap:6px;margin-top:8px}
+.inv-item-actions button{flex:1;padding:7px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+.inv-btn-accept{background:#10b981;color:#fff}
+.inv-btn-decline{background:#fee2e2;color:#ef4444}
+.inv-empty{padding:30px 18px;text-align:center;color:var(--text3);font-size:12px}
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
@@ -130,12 +154,27 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
       <span id="headerBadge" class="badge-chip"></span>
     </div>
     <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+      <!-- Convites de sala privada -->
+      <button id="invBell" class="inv-bell" onclick="abrirConvitesModal()" title="Convites de sala privada">📨<span class="inv-dot"></span></button>
       <!-- Painel Admin: admin, supervisor, mod, premium -->
       <a id="adminPainelBtn" href="admin.html" style="display:none;background:#064e3b;border:1px solid #10b98155;color:#6ee7b7;font-size:16px;font-weight:700;padding:5px 10px;border-radius:8px;text-decoration:none;font-family:'Syne',sans-serif" title="Painel Admin">🛡</a>
       <button id="btnSair" onclick="logout()" style="background:#ef4444;border:none;color:#fff;font-size:11px;font-weight:700;padding:5px 12px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif">⏻ Sair</button>
     </div>
   </div>
 </header>
+
+<!-- ═══════════ MODAL CONVITES DE SALA PRIVADA ═══════════ -->
+<div class="inv-ov" id="convitesOverlay" onclick="if(event.target===this)fecharConvitesModal()">
+  <div class="inv-modal">
+    <div class="inv-modal-head">
+      <span class="inv-modal-title">📨 Convites de sala privada</span>
+      <button class="inv-modal-close" onclick="fecharConvitesModal()">✕</button>
+    </div>
+    <div class="inv-list" id="convitesList">
+      <div class="inv-empty">Carregando...</div>
+    </div>
+  </div>
+</div>
 
 <main>
   <!-- ══════════ STATUS (estilo WhatsApp) ══════════ -->
@@ -297,33 +336,6 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
 </div>
 
 <!-- MODAL CONVIDAR -->
-<div id="convidarModal" style="display:none;position:fixed;inset:0;z-index:600;background:#00000088;align-items:center;justify-content:center;padding:16px">
-  <div style="background:#fff;border-radius:16px;width:100%;max-width:400px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25)">
-    <div style="padding:16px 18px;border-bottom:1px solid #e8f0fa;display:flex;align-items:center;gap:10px;flex-shrink:0">
-      <span style="font-size:20px">📨</span>
-      <div style="flex:1;min-width:0">
-        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#0f1f3d">Convidar para sala</div>
-        <div id="convidarSalaNomeTitle" style="font-size:11px;color:#7a90b0;margin-top:1px"></div>
-      </div>
-      <button onclick="fecharConvidarModal()" style="background:none;border:none;font-size:18px;color:#7a90b0;cursor:pointer;padding:4px">✕</button>
-    </div>
-    <div id="stepSalas" style="flex:1;overflow-y:auto;padding:14px">
-      <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:#7a90b0;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Escolha uma sala</div>
-      <div id="convidarSalasList" style="display:flex;flex-direction:column;gap:6px"></div>
-    </div>
-    <div id="stepUsuarios" style="display:none;flex:1;overflow-y:auto;padding:14px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <button onclick="voltarParaSalas()" style="background:#f0f6fc;border:1px solid #c8d8f5;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:#2563eb;cursor:pointer;font-family:'DM Sans',sans-serif">← Voltar</button>
-        <div id="stepSalaNome" style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#0f1f3d"></div>
-      </div>
-      <div id="convidarUsersList"></div>
-    </div>
-    <div style="padding:12px 18px;border-top:1px solid #e8f0fa;flex-shrink:0">
-      <button onclick="fecharConvidarModal()" style="width:100%;padding:9px;border-radius:8px;border:1.5px solid #c8d8f5;background:#f7faff;color:#7a90b0;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Fechar</button>
-    </div>
-  </div>
-</div>
-
 <script>
 const LS={get:(k,d='')=>{try{return localStorage.getItem(k)||d;}catch(e){return d;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}}};
 const TOKEN=LS.get('tc_token','');
@@ -515,61 +527,6 @@ async function logout(){ if(window.API){try{await API.logout();}catch(e){}}
   ['tc_token','tc_role','tc_nick','tc_avatar','tc_photo','tc_room','tc_spy_mode','tc_spy_room'].forEach(k=>{try{localStorage.removeItem(k);}catch(e){}});
   window.location.href='login.html';
 }
-
-// ── CONVIDAR ──────────────────────────────────────────────────
-const SALAS_TODAS=[
-  {id:'geral',name:'💬 Geral'},{id:'amizade',name:'❤️ Amizade Top'},{id:'games',name:'🎮 Games'},
-  {id:'musica',name:'🎵 Música'},{id:'esportes',name:'⚽ Esportes'},
-  {id:'vip',name:'⭐ VIP Lounge'},{id:'premium',name:'👑 Premium'},{id:'dj',name:'🎧 Sala DJ'},
-];
-const USERS_POR_SALA={
-  geral:[{nick:'KarenAdmin',av:'🌟',role:'admin'},{nick:'PauloXX',av:'👑',role:'premium'},{nick:'Mari_s',av:'🌸',role:'user'}],
-  games:[{nick:'GameKing',av:'🎮',role:'user'},{nick:'PixelBoy',av:'🕹',role:'premium'}],
-  musica:[{nick:'RafaBeats',av:'🎵',role:'dj'},{nick:'SoniaLima',av:'🎤',role:'user'}],
-};
-const ROLE_COLORS={admin:'#16a34a',supervisor:'#dc2626',mod:'#6366f1',premium:'#d97706',dj:'#7c3aed',vip:'#2563eb',user:'#374151',guest:'#9ca3af'};
-let _convSala=null;
-
-function abrirConvidarModal(id,name,icon){
-  _convSala={id,name,icon};
-  document.getElementById('convidarSalaNomeTitle').textContent=icon+' '+name;
-  document.getElementById('convidarSalasList').innerHTML=SALAS_TODAS.map(s=>`
-    <button onclick="selecionarSalaConvidar('${s.id}')" style="display:flex;align-items:center;gap:8px;width:100%;background:#f7faff;border:1.5px solid #c8d8f5;border-radius:8px;padding:9px 12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:#0f1f3d;text-align:left" onmouseover="this.style.borderColor='#7c3aed'" onmouseout="this.style.borderColor='#c8d8f5'">
-      <span style="font-size:16px">${s.name.split(' ')[0]}</span>
-      <span>${s.name.replace(/^[\S]+ /,'')}</span>
-      <span style="margin-left:auto;font-size:10px;color:#7c3aed;font-weight:700">Ver →</span>
-    </button>`).join('');
-  document.getElementById('stepSalas').style.display='';
-  document.getElementById('stepUsuarios').style.display='none';
-  document.getElementById('convidarModal').style.display='flex';
-}
-
-function selecionarSalaConvidar(salaId){
-  const sala=SALAS_TODAS.find(s=>s.id===salaId);if(!sala)return;
-  const users=USERS_POR_SALA[salaId]||[];
-  document.getElementById('stepSalaNome').textContent=sala.name;
-  document.getElementById('convidarUsersList').innerHTML=users.length
-    ?users.map(u=>`
-      <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:#f7faff;border:1px solid #e8f0fa;margin-bottom:6px">
-        <span style="font-size:18px">${u.av}</span>
-        <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:${ROLE_COLORS[u.role]||'#0f1f3d'}">${u.nick}</div></div>
-        <button onclick="enviarConviteParaUser('${u.nick}')" id="btn_conv_${u.nick}" style="height:28px;padding:0 12px;border-radius:6px;background:#7c3aed;border:none;color:#fff;font-size:11px;font-weight:700;cursor:pointer">📨 Convidar</button>
-      </div>`).join('')
-    :'<div style="text-align:center;padding:20px;font-size:12px;color:#7a90b0">Nenhum usuário online.</div>';
-  document.getElementById('stepSalas').style.display='none';
-  document.getElementById('stepUsuarios').style.display='';
-}
-
-function voltarParaSalas(){document.getElementById('stepSalas').style.display='';document.getElementById('stepUsuarios').style.display='none';}
-
-function enviarConviteParaUser(nick){
-  if(!_convSala)return;
-  try{localStorage.setItem('tc_convite_'+nick,JSON.stringify({de:ME.nick,deAv:ME.av||'😊',salaPrivId:_convSala.id,salaNome:_convSala.name,salaIcon:_convSala.icon,ts:Date.now()}));}catch(e){}
-  const btn=document.getElementById('btn_conv_'+nick);
-  if(btn){btn.textContent='✅ Enviado';btn.style.background='#10b981';btn.disabled=true;}
-}
-
-function fecharConvidarModal(){document.getElementById('convidarModal').style.display='none';_convSala=null;}
 
 // ── TOAST ─────────────────────────────────────────────────────
 function toast(msg,type='ok'){
@@ -999,6 +956,101 @@ function toast(msg,type='ok'){
       if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
     }
   }).catch(function(){});
+})();
+</script>
+<script>
+/* ══════════ CONVITES DE SALA PRIVADA (📨) ══════════ */
+(function(){
+  if(typeof API==='undefined') return;
+
+  function setBellPending(has){
+    var bell=document.getElementById('invBell');
+    if(bell) bell.classList.toggle('has-pending', !!has);
+  }
+
+  function nickEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  function renderConvites(invites){
+    var list=document.getElementById('convitesList'); if(!list) return;
+    if(!invites || !invites.length){
+      list.innerHTML='<div class="inv-empty">Nenhum convite pendente.</div>';
+      setBellPending(false);
+      return;
+    }
+    setBellPending(true);
+    list.innerHTML=invites.map(function(inv){
+      return '<div class="inv-item" id="invItem_'+inv.id+'">'+
+        '<div class="inv-item-icon">'+nickEsc(inv.icon||'🔒')+'</div>'+
+        '<div class="inv-item-body">'+
+          '<div class="inv-item-room">'+nickEsc(inv.name)+'</div>'+
+          '<div class="inv-item-from">Convite de <strong>'+nickEsc(inv.from_nick)+'</strong></div>'+
+          '<div class="inv-item-actions">'+
+            '<button class="inv-btn-decline" onclick="recusarConvite('+inv.id+')">✕ Rejeitar</button>'+
+            '<button class="inv-btn-accept" onclick="aceitarConvite('+inv.id+')">✓ Aceitar</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  function carregarConvites(){
+    if(!window.API || !API.privateRooms) return;
+    API.privateRooms.invites().then(function(d){
+      renderConvites(d.invites||[]);
+    }).catch(function(){ /* silencioso */ });
+  }
+
+  window.abrirConvitesModal=function(){
+    document.getElementById('convitesOverlay').classList.add('show');
+    carregarConvites();
+  };
+  window.fecharConvitesModal=function(){
+    document.getElementById('convitesOverlay').classList.remove('show');
+  };
+
+  window.aceitarConvite=function(id){
+    API.privateRooms.accept(id).then(function(d){
+      toast('✓ Convite aceito! Entrando em '+(d.room?d.room.name:'sala')+'…');
+      var el=document.getElementById('invItem_'+id); if(el) el.remove();
+      carregarConvites();
+      if(d.room && d.room.slug){
+        try{ LS.set('tc_room', d.room.slug); LS.set('tc_room_name', d.room.name); }catch(e){}
+        setTimeout(function(){ window.location.href='chat.html'; }, 600);
+      }
+    }).catch(function(e){ toast((e&&e.message)||'Erro ao aceitar convite.','err'); });
+  };
+
+  window.recusarConvite=function(id){
+    API.privateRooms.decline(id).then(function(){
+      toast('Convite recusado.');
+      var el=document.getElementById('invItem_'+id); if(el) el.remove();
+      carregarConvites();
+    }).catch(function(e){ toast((e&&e.message)||'Erro ao recusar convite.','err'); });
+  };
+
+  // Conexão em tempo real: pisca o sininho assim que o convite chega, sem precisar abrir o modal
+  function setupSocketListeners(){
+    if(!window.tcSocket) return;
+    tcSocket.on('private_invite_received', function(d){
+      setBellPending(true);
+      toast('📨 '+(d&&d.from_nick?d.from_nick:'Alguém')+' te convidou para uma sala privada!');
+      // Se o modal já estiver aberto, atualiza a lista na hora
+      if(document.getElementById('convitesOverlay').classList.contains('show')) carregarConvites();
+    });
+    tcSocket.on('private_invite_declined', function(d){
+      toast('😕 '+(d&&d.by_nick?d.by_nick:'O usuário')+' recusou seu convite para '+(d&&d.room_name?d.room_name:'a sala')+'.','err');
+    });
+  }
+
+  if(window.tcSocket){
+    setupSocketListeners();
+    if(!tcSocket.connected) tcSocket.connect();
+  }
+
+  // Estado inicial ao carregar a página
+  carregarConvites();
+  // Revalida periodicamente como rede de segurança (caso a conexão em tempo real falhe)
+  setInterval(carregarConvites, 30000);
 })();
 </script>
 </body>
