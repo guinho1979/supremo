@@ -730,6 +730,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   </div>
 </div>
 
+<!-- ── CONVITE RECEBIDO — canto inferior esquerdo ── -->
+<div id="conviteToast" style="
+  display:none;position:fixed;bottom:90px;left:14px;z-index:9999;
+  background:#fff;border:1.5px solid #7c3aed33;border-radius:14px;
+  box-shadow:0 4px 24px rgba(124,58,237,.18);
+  padding:12px 14px;max-width:280px;
+  animation:conviteIn .35s ease">
+  <div style="display:flex;align-items:flex-start;gap:10px">
+    <span id="conviteToastIcon" style="font-size:26px;flex-shrink:0">🔒</span>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:10px;color:#7a90b0;font-weight:700;margin-bottom:2px">Convite de sala privada</div>
+      <div id="conviteToastRem" style="font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:#0f1f3d;margin-bottom:1px"></div>
+      <div id="conviteToastNome" style="font-size:11px;color:#374d6e;font-weight:600"></div>
+    </div>
+    <button onclick="fecharConviteToast()" style="background:none;border:none;color:#93b4d8;font-size:16px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;margin-top:-2px">✕</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <button onclick="fecharConviteToast()" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid #ef444444;background:#7f1d1d22;color:#ef4444;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Fechar</button>
+    <button id="conviteToastVerBtn" onclick="verConviteToast()" style="flex:2;padding:7px;border-radius:8px;border:none;background:linear-gradient(135deg,#0f1f3d,#1d4ed8);color:#fff;font-size:11px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;box-shadow:0 2px 8px rgba(124,58,237,.3)">👁 Ver convite</button>
+  </div>
+</div>
+<style>
+@keyframes conviteIn{from{transform:translateX(-30px);opacity:0}to{transform:translateX(0);opacity:1}}
+</style>
+
 
 <div class="main">
   <!-- MESSAGES -->
@@ -1888,24 +1913,11 @@ function toggleNoConvites(el){
   el.classList.toggle('on');
   const aceita = el.classList.contains('on');
   LS.set('tc_no_convites', aceita ? '0' : '1');
-  try{
-    if(window.API && API.updateProfile) API.updateProfile({accept_invites: aceita}).catch(function(){});
-  }catch(e){}
 }
-// Init convites toggle (busca preferência real do servidor; localStorage é só fallback)
+// Init convites toggle
 (function(){
   const t = document.getElementById('toggleConvites');
-  if(!t) return;
-  if(LS.get('tc_no_convites','0')==='0') t.classList.add('on');
-  try{
-    if(window.API && API.me){
-      API.me().then(function(d){
-        var u=d&&d.user; if(!u || u.accept_invites===undefined) return;
-        t.classList.toggle('on', !!u.accept_invites);
-        LS.set('tc_no_convites', u.accept_invites ? '0' : '1');
-      }).catch(function(){});
-    }
-  }catch(e){}
+  if(t && LS.get('tc_no_convites','0')==='0') t.classList.add('on');
 })();
 
 function salvarRadio(){
@@ -5112,8 +5124,47 @@ if(typeof doSend === 'function'){
   };
 }
 
-// ── CONVITES DE SALA PRIVADA ──────────────────────────────────
-// Removido: o recebimento de convites agora acontece pelo ícone 📨 em salas.html (tempo real via WebSocket).
+// ── CONVITES DE SALA PRIVADA (polling localStorage) ──────────
+let _chatConvitePendente = null;
+
+function verificarConvitesChatPrivado(){
+  const key = 'tc_convite_' + ME.nick;
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return;
+    const c = JSON.parse(raw);
+    if(Date.now() - c.ts > 5*60*1000){ localStorage.removeItem(key); return; }
+    if(_chatConvitePendente && _chatConvitePendente.ts === c.ts) return; // já mostrando
+    _chatConvitePendente = c;
+    document.getElementById('chatConviteRemetente').textContent = c.de + ' ' + (c.deAv||'');
+    document.getElementById('chatConviteIcon').textContent = c.salaIcon||'🔒';
+    document.getElementById('chatConviteNome').textContent = c.salaNome;
+    document.getElementById('chatConviteDesc').textContent = c.salaDesc||'Sala privada exclusiva';
+    document.getElementById('convitePrivadoOverlay').style.display='flex';
+  }catch(e){}
+}
+
+function aceitarConviteChat(){
+  if(!_chatConvitePendente) return;
+  try{ localStorage.removeItem('tc_convite_'+ME.nick); }catch(e){}
+  try{ localStorage.setItem('tc_convite_aceito_'+_chatConvitePendente.salaPrivId,'1'); }catch(e){}
+  LS.set('tc_room', _chatConvitePendente.salaPrivId);
+  LS.set('tc_room_name', _chatConvitePendente.salaNome);
+  _chatConvitePendente = null;
+  document.getElementById('convitePrivadoOverlay').style.display='none';
+  window.location.href='salas-privadas.html';
+}
+
+function rejeitarConviteChat(){
+  if(!_chatConvitePendente) return;
+  try{ localStorage.removeItem('tc_convite_'+ME.nick); }catch(e){}
+  _chatConvitePendente = null;
+  document.getElementById('convitePrivadoOverlay').style.display='none';
+  showToast('Convite recusado.');
+}
+
+// Polling a cada 5s
+if(ME.role !== 'guest') setInterval(verificarConvitesChatPrivado, 5000);
 
 // ── SALA PRIVADA: inicialização do chatprivado ───────────────
 (function initChatPrivado(){
@@ -5274,8 +5325,55 @@ function cpEnviarConvite(nick){
   });
 }
 
-// ── CONVITE TOAST ─────────────────────────────────────────────
-// Removido: o recebimento de convites agora acontece pelo ícone 📨 em salas.html (tempo real via WebSocket).
+// ── CONVITE TOAST (canto inferior esquerdo) ─────────────────
+function mostrarConviteToast(convite){
+  const t = document.getElementById('conviteToast');
+  if(!t) return;
+  document.getElementById('conviteToastIcon').textContent = convite.salaIcon || '🔒';
+  document.getElementById('conviteToastRem').textContent  = convite.de + ' te convidou';
+  document.getElementById('conviteToastNome').textContent = convite.salaNome || 'Sala Privada';
+  t.style.display = 'block';
+  // replay animation
+  t.style.animation = 'none'; t.offsetHeight; t.style.animation = 'conviteIn .35s ease';
+  // Armazena para o botão "Ver convite"
+  t._convite = convite;
+}
+
+function fecharConviteToast(){
+  const t = document.getElementById('conviteToast');
+  if(t) t.style.display = 'none';
+}
+
+function verConviteToast(){
+  fecharConviteToast();
+  // Abre o modal de convite existente com os dados
+  const t = document.getElementById('conviteToast');
+  const c = t && t._convite;
+  if(!c) return;
+  const el = document.getElementById('chatConviteRemetente');
+  if(el) el.textContent = c.de;
+  const ni = document.getElementById('chatConviteIcon');
+  if(ni) ni.textContent = c.salaIcon || '🔒';
+  const nn = document.getElementById('chatConviteNome');
+  if(nn) nn.textContent = c.salaNome || 'Sala Privada';
+  const nd = document.getElementById('chatConviteDesc');
+  if(nd) nd.textContent = 'Sala exclusiva por convite';
+  const ov = document.getElementById('convitePrivadoOverlay');
+  if(ov) ov.style.display = 'flex';
+}
+
+// Verificar convite pendente ao entrar na sala
+(function verificarConvitePendente(){
+  try{
+    const nick = LS.get('tc_nick','');
+    if(!nick) return;
+    const raw = localStorage.getItem('tc_convite_'+nick);
+    if(!raw) return;
+    const c = JSON.parse(raw);
+    if(Date.now() - c.ts > 3600000) return; // expirado
+    setTimeout(()=> mostrarConviteToast(c), 1500);
+  }catch(e){}
+})();
 
 // ── @ MENÇÃO: inserida ao clicar no nick no balão ────────────
 function mencionarNick(nick){
@@ -5329,6 +5427,28 @@ function abrirConvidarPrivadoDoChat(){
 
 </script>
 
+
+<!-- ═══════════ MODAL CONVITE SALA PRIVADA ═══════════ -->
+<div class="overlay" id="convitePrivadoOverlay" style="display:none;align-items:center;justify-content:center">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:36px;margin-bottom:10px">📨</div>
+    <div class="modal-title" style="justify-content:center;display:flex;margin-bottom:6px">Convite de Sala Privada</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:6px">
+      <strong id="chatConviteRemetente"></strong> te convidou para a sala:
+    </div>
+    <div style="background:#f5f3ff;border:1.5px solid #7c3aed33;border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <span id="chatConviteIcon" style="font-size:26px">🔒</span>
+      <div style="text-align:left">
+        <div id="chatConviteNome" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text)"></div>
+        <div id="chatConviteDesc" style="font-size:11px;color:var(--text2)"></div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="rejeitarConviteChat()">✕ Rejeitar</button>
+      <button class="mbtn confirm" onclick="aceitarConviteChat()">✓ Aceitar</button>
+    </div>
+  </div>
+</div>
 
 <input type="file" id="fileInput" accept="image/*,video/*,audio/*" style="opacity:0;position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;pointer-events:none" onchange="handleFileUpload(this)"/>
 
