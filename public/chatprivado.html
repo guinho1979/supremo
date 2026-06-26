@@ -349,10 +349,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .modal{background:#1a1735;border:1px solid #3d35a0;border-radius:var(--radius);padding:20px;width:320px;max-width:95vw;transform:translateY(10px);transition:.2s;max-height:92dvh;overflow-y:auto}
 .overlay.show .modal{transform:translateY(0)}
 .modal-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#a78bfa;margin-bottom:13px;display:flex;align-items:center;gap:7px}
-#profileOverlay .modal{background:#0a1120;border:1px solid #1c2a44}
-#profileOverlay .modal-title{color:#e8eefb;border-bottom:1px solid #1c2a44;padding-bottom:10px}
-#profileOverlay .mbtn.cancel{background:#142036;color:#cbd6ea}
-#profileOverlay .mbtn.cancel:hover{background:#1b2c49}
+#profileOverlay .modal{background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 24px 70px rgba(0,0,0,.35);padding:0;overflow:hidden;width:360px;position:relative}
+#profileOverlay .modal-title{display:none}
 .modal-input{width:100%;background:#0b0918;border:1px solid #2a2560;border-radius:var(--radius-sm);padding:9px 12px;color:#e2e0f0;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px}
 .modal-input:focus{border-color:#A020F0;box-shadow:0 0 0 3px #A020F020}
 .modal-textarea{width:100%;background:#0b0918;border:1px solid #2a2560;border-radius:var(--radius-sm);padding:9px 12px;color:#e2e0f0;font-size:12px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:8px;resize:vertical;min-height:80px}
@@ -386,13 +384,36 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .av-preview-ring{width:56px;height:56px;border-radius:10px;background:#221f42;border:2px solid #3d35a0;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 10px;overflow:hidden;transition:.15s}
 .av-preview-ring img{width:100%;height:100%;object-fit:cover;border-radius:10px}
 
-/* ── PROFILE MODAL ── */
-.prof-av{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 8px;overflow:hidden;border:3px solid #3a5068}
-.prof-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.prof-nick{text-align:center;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:5px}
-.prof-badges{display:flex;justify-content:center;gap:5px;margin-bottom:8px}
-.prof-bio{font-size:12px;color:#8aafd4;text-align:center;margin-bottom:10px;padding:7px 10px;background:#1a1d24;border-radius:var(--radius-sm);line-height:1.65}
-.prof-fields{font-size:11px;color:#4a6080;line-height:2}
+/* ── PROFILE MODAL (igual ao chat.html) ── */
+.prof-close-x{position:absolute;top:12px;right:12px;z-index:5;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.32);border:none;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.prof-cover{height:118px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);background-size:cover;background-position:center;position:relative}
+.prof-cover::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.28))}
+.prof-av-wrap{display:flex;justify-content:center;margin-top:-46px;position:relative;z-index:2}
+.prof-av{width:96px;height:96px;border-radius:20px;background:#eef2fb;border:4px solid #ffffff;display:flex;align-items:center;justify-content:center;font-size:44px;overflow:hidden;box-shadow:0 8px 22px rgba(0,0,0,.22);flex-shrink:0;margin:0}
+.prof-av img{width:100%;height:100%;object-fit:cover;border-radius:16px}
+.prof-body{padding:8px 22px 22px;text-align:center}
+.prof-nick{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:#0f1f3d;margin-top:6px;margin-bottom:0;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;text-align:center}
+.prof-badges{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:6px;margin-bottom:0}
+.prof-fan-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:20px;border:1.5px solid #e53e3e;background:#ffffff;color:#e53e3e;font-size:12px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s;white-space:nowrap}
+.prof-fan-btn:hover{background:#fff0f0}
+.prof-fan-btn.is-fan{background:#e53e3e;color:#ffffff}
+.prof-fan-count{font-size:13px;color:#374d6e;font-weight:600;display:flex;align-items:center;gap:4px}
+.prof-fan-count b{font-size:15px;color:#ff5a6e;font-weight:800;font-family:'Syne',sans-serif}
+.prof-mood{margin-top:10px;text-align:left;background:#eef2fb;border:1px solid #d8e2f3;border-radius:10px;padding:8px 12px}
+.prof-mood-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a90b0;margin-bottom:2px}
+.prof-mood-value{font-size:13px;color:#374d6e;font-style:italic}
+.prof-bio{font-size:13px;color:#374d6e;margin-top:14px;margin-bottom:0;padding:8px 12px;background:#f3f6fc;border:1px solid #e2e8f0;border-radius:10px;line-height:1.55;text-align:left}
+.prof-bio-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a90b0;margin-bottom:2px}
+.prof-bio-value{display:block}
+.prof-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.prof-field-item{background:#f3f6fc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;text-align:left;min-width:0}
+.prof-field-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7a90b0;margin-bottom:2px}
+.prof-field-value{font-size:13px;font-weight:700;color:#0f1f3d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#profileOverlay .modal-btns{padding:0 22px 22px;margin-top:0}
+#profileOverlay .mbtn.cancel{background:#f3f6fc;color:#374d6e;border:1px solid #e2e8f0}
+#profileOverlay .mbtn.cancel:hover{background:#e8eefb}
+#profileOverlay #profAdminActions{padding:0 22px}
+#profileOverlay #profExcluirDiv{padding:0 22px 18px;border-top:1px solid #e2e8f0;margin-top:0!important;padding-top:12px!important}
 
 /* ── MEDIA MODAL ── */
 .media-modal-img{width:100%;border-radius:var(--radius-sm);max-height:65dvh;object-fit:contain;background:#ffffff}
@@ -963,15 +984,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
 <!-- PROFILE -->
 <div class="overlay" id="profileOverlay" onclick="if(event.target===this)closeProfile()">
-  <div class="modal">
+  <div class="modal" style="position:relative">
+    <button class="prof-close-x" onclick="closeProfile()">✕</button>
     <div class="modal-title" id="profTitle">👤 Perfil</div>
     <div id="profBody"></div>
-    <div class="modal-btns" style="margin-top:12px">
+    <div id="profAudioPlayer" style="display:none;padding:0 22px"></div>
+    <div class="modal-btns">
       <button class="mbtn cancel" onclick="closeProfile()">Fechar</button>
-      <button class="mbtn confirm" id="profPvBtn" onclick="sendPrivFromProfile()">💬 PV</button>
     </div>
-    <div id="profAdminActions" style="display:none;margin-top:10px">
-      <div style="font-size:9px;color:#3a5070;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Moderação</div>
+    <div id="profAdminActions" style="display:none;margin-top:10px;padding-bottom:18px">
+      <div style="font-size:9px;color:#7a90b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Moderação</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap">
         <button class="mbtn danger" style="flex:none;padding:6px 10px" onclick="adminAct('ban')">🔨 Ban</button>
         <button class="mbtn" style="flex:none;padding:6px 10px;background:#451a03;color:#fde68a" onclick="adminAct('kick')">👢 Kick</button>
@@ -980,7 +1002,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
       </div>
     </div>
     <!-- Excluir cadastro — só aparece no próprio perfil -->
-    <div id="profExcluirDiv" style="display:none;margin-top:12px;border-top:1px solid #1e2a3a;padding-top:10px">
+    <div id="profExcluirDiv" style="display:none">
       <button class="mbtn danger" style="width:100%;font-size:11px" onclick="abrirModalExcluirCadastroChat()">🗑 Excluir meu cadastro</button>
     </div>
   </div>
@@ -3249,54 +3271,202 @@ function _nickEmojiHtml(nick){
     return ' <span style="font-size:13px;line-height:1;display:inline-flex;align-items:center;vertical-align:middle">'+e+'</span>';
   }catch(_e){ return ''; }
 }
+/* ===== PERFIL — visual idêntico ao chat.html ===== */
+window._fanData = window._fanData || {};
+
+function getFanCount(nick){
+  if(!window._fanData[nick]) window._fanData[nick]={count:0,isFan:false};
+  return window._fanData[nick];
+}
+function toggleFan(nick){
+  const fd=getFanCount(nick);
+  fd.isFan=!fd.isFan;
+  fd.count=Math.max(0,fd.count+(fd.isFan?1:-1));
+  // Update UI
+  const btn=document.getElementById('profFanBtn');
+  const cnt=document.getElementById('profFanCount');
+  if(btn){btn.classList.toggle('is-fan',fd.isFan);btn.innerHTML=(typeof _PROF_HEART!=='undefined'?_PROF_HEART:'❤️')+(fd.isFan?' Sou fã':' Ser fã');}
+  if(cnt) cnt.textContent=fd.count;
+}
+
+/* Coração (SVG) que herda a cor do botão — branco quando "Sou fã" */
+var _PROF_HEART='<svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;vertical-align:-2px;margin-right:3px"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>';
+/* Logos oficiais das redes */
+var _PROF_SOC={
+  ig:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07c-1.28.06-2.15.26-2.91.56-.79.31-1.46.72-2.13 1.38C1.34 2.68.93 3.35.63 4.14c-.3.76-.5 1.63-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91.31.79.72 1.46 1.38 2.13.67.66 1.34 1.07 2.13 1.38.76.3 1.63.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.38.66-.67 1.07-1.34 1.38-2.13.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.38-2.13C21.32 1.34 20.65.93 19.86.63c-.76-.3-1.63-.5-2.91-.56C15.67.01 15.26 0 12 0m0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84M12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4m6.41-10.85a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44"/></svg>',
+  fb:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 6.02 4.39 11.02 10.13 11.93v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.96.93-1.96 1.89v2.25h3.33l-.53 3.49h-2.8v8.44C19.61 23.09 24 18.09 24 12.07"/></svg>',
+  tt:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03C3.23 21.77 1.81 19.59 1.6 17.25c-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>',
+  yt:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M23.5 6.19a3.02 3.02 0 0 0-2.12-2.14C19.5 3.55 12 3.55 12 3.55s-7.5 0-9.38.5A3.02 3.02 0 0 0 .5 6.19C0 8.07 0 12 0 12s0 3.93.5 5.81a3.02 3.02 0 0 0 2.12 2.14c1.88.5 9.38.5 9.38.5s7.5 0 9.38-.5a3.02 3.02 0 0 0 2.12-2.14C24 15.93 24 12 24 12s0-3.93-.5-5.81M9.55 15.57V8.43L15.82 12z"/></svg>',
+  x:'<svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.58-6.64 7.58H.47l8.6-9.83L0 1.15h7.59l5.24 6.93zM17.61 20.64h2.04L6.49 3.24H4.3z"/></svg>'
+};
+function _profSocialsHtml(u){
+  var it=[];
+  function a(bg,href,svg){ return '<a href="'+href+'" target="_blank" rel="noopener" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;text-decoration:none;'+bg+'">'+svg+'</a>'; }
+  if(u.social_instagram) it.push(a('background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af)','https://instagram.com/'+encodeURIComponent(u.social_instagram),_PROF_SOC.ig));
+  if(u.social_facebook){ var f=/^https?:/.test(u.social_facebook)?u.social_facebook:('https://facebook.com/'+encodeURIComponent(u.social_facebook)); it.push(a('background:#1877f2',f,_PROF_SOC.fb)); }
+  if(u.social_tiktok) it.push(a('background:#000','https://tiktok.com/@'+encodeURIComponent(u.social_tiktok),_PROF_SOC.tt));
+  if(u.social_youtube){ var y=/^https?:/.test(u.social_youtube)?u.social_youtube:('https://youtube.com/'+(u.social_youtube[0]==='@'?u.social_youtube:'@'+u.social_youtube)); it.push(a('background:#ff0000',y,_PROF_SOC.yt)); }
+  if(u.social_twitter) it.push(a('background:#000','https://x.com/'+encodeURIComponent(u.social_twitter),_PROF_SOC.x));
+  if(!it.length) return '';
+  return '<div style="display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap">'+it.join('')+'</div>';
+}
+
+function buildProfileAudioPlayer(nick){
+  const playerDiv=document.getElementById('profAudioPlayer');
+  if(!playerDiv)return;
+
+  let audioSrc=null, audioName='🎵 Música do perfil';
+  const userData=typeof USERS_DATA!=='undefined'?USERS_DATA[nick]:null;
+  if(userData&&userData.audioB64){audioSrc=userData.audioB64;audioName=userData.audioName||'Música do perfil';}
+  else if(nick===ME.nick){
+    try{audioSrc=localStorage.getItem('tc_profile_audio_b64');audioName=localStorage.getItem('tc_profile_audio_name')||'Música do perfil';}catch(e){}
+  }
+
+  if(!audioSrc){playerDiv.style.display='none';return;}
+
+  playerDiv.style.display='block';
+  playerDiv.innerHTML='';
+
+  // Build player identical to inline message audio player
+  const audEl=document.createElement('audio');
+  audEl.src=audioSrc;
+  audEl.preload='metadata';
+
+  const wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#0f1f3d,#1d4ed8);border-radius:12px;padding:8px 12px;margin-top:10px;min-width:0;cursor:default';
+
+  const playBtn=document.createElement('button');
+  playBtn.style.cssText='width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s;padding:0';
+  const svgPlay='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>';
+  const svgPause='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
+  playBtn.innerHTML=svgPlay;
+
+  const info=document.createElement('div');
+  info.style.cssText='flex:1;min-width:0';
+
+  const nameEl=document.createElement('div');
+  nameEl.style.cssText='font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+  nameEl.textContent=audioName.replace(/\.[^.]+$/,'');
+
+  const barWrap=document.createElement('div');
+  barWrap.style.cssText='height:4px;background:rgba(255,255,255,.25);border-radius:4px;margin-top:4px;cursor:pointer;position:relative';
+  const fill=document.createElement('div');
+  fill.style.cssText='height:100%;width:0%;background:#fff;border-radius:4px;transition:width .1s linear';
+  barWrap.appendChild(fill);
+
+  const timeEl=document.createElement('div');
+  timeEl.style.cssText='font-size:10px;color:rgba(255,255,255,.7);margin-top:2px';
+  timeEl.textContent='0:00';
+
+  info.appendChild(nameEl);
+  info.appendChild(barWrap);
+  info.appendChild(timeEl);
+  wrap.appendChild(playBtn);
+  wrap.appendChild(info);
+  playerDiv.appendChild(wrap);
+  playerDiv.appendChild(audEl);
+
+  // Stop previous
+  if(window._papAudio){try{window._papAudio.pause();window._papAudio.src='';}catch(e){}}
+  window._papAudio=audEl;
+  window._papPlaying=false;
+
+  playBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(audEl.paused){audEl.play().catch(function(){});playBtn.innerHTML=svgPause;window._papPlaying=true;}
+    else{audEl.pause();playBtn.innerHTML=svgPlay;window._papPlaying=false;}
+  });
+  audEl.addEventListener('timeupdate',function(){
+    if(!audEl.duration)return;
+    var pct=(audEl.currentTime/audEl.duration)*100;
+    fill.style.width=pct+'%';
+    var m=Math.floor(audEl.currentTime/60),s=String(Math.floor(audEl.currentTime%60)).padStart(2,'0');
+    var dm=Math.floor(audEl.duration/60),ds=String(Math.floor(audEl.duration%60)).padStart(2,'0');
+    timeEl.textContent=m+':'+s+' / '+dm+':'+ds;
+  });
+  audEl.addEventListener('loadedmetadata',function(){
+    if(!audEl.duration||!isFinite(audEl.duration))return;
+    var dm=Math.floor(audEl.duration/60),ds=String(Math.floor(audEl.duration%60)).padStart(2,'0');
+    timeEl.textContent='0:00 / '+dm+':'+ds;
+  });
+  audEl.addEventListener('ended',function(){playBtn.innerHTML=svgPlay;fill.style.width='100%';window._papPlaying=false;});
+  barWrap.addEventListener('click',function(ev){
+    ev.stopPropagation();
+    if(!audEl.duration)return;
+    var r=barWrap.getBoundingClientRect();
+    var pct=Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width));
+    audEl.currentTime=pct*audEl.duration;
+  });
+}
+
 function openProfile(nick){
-  const u=USERS[nick]||{color:'#4a4070',av:'😊',avBg:'#edf2ff',avColor:'#2563eb',bio:'',role:'user'};
   const ci=(window._nickColors&&window._nickColors[nick])||{};
-  const isOwn=(typeof ME!=='undefined' && nick===ME.nick);
+  const isOwn=(nick===ME.nick);
+  const u=Object.assign({color:'#4a4070',av:'😊',avBg:'#edf2ff',avColor:'#2563eb',bio:'',role:'user'}, USERS[nick]||{}, {
+    photo: isOwn ? (ME.photo||ci.photo||'') : (ci.photo||''),
+    av:    isOwn ? (ME.av||ci.avatar||'😊') : (ci.avatar||(USERS[nick]&&USERS[nick].av)||'😊'),
+    color: ci.color || (USERS[nick]&&USERS[nick].color) || '#4a4070',
+    role:  (typeof roomRoles!=='undefined'&&roomRoles[nick]) || (USERS[nick]&&USERS[nick].role) || (isOwn?ME.role:'user'),
+    bio:   isOwn ? (LS.get('tc_bio','')||((USERS[nick]||{}).bio)||'') : ((USERS[nick]||{}).bio||'')
+  });
   state.currentUser=nick;
-  const role=(typeof roomRoles!=='undefined'&&roomRoles[nick])||ci.role||u.role||'user';
-  const ACC=ci.color||u.color||'#38bdf8';
-  const _photoUrl = (u.photo||'')
-    || (isOwn && typeof ME!=='undefined' ? (ME.photo||'') : '')
+  const _isStaff = ['admin','supervisor','mod'].includes(u.role);
+  document.getElementById('profTitle').innerHTML=`👤 Perfil ${_isStaff ? '' : getBadgeHtml(u.role)}`;
+  const _photoUrl = u.photo
+    || (isOwn ? (LS.get('tc_photo','')||'') : '')
     || (ci.photo||'')
-    || ((u.av && (String(u.av).indexOf('http')===0||String(u.av).indexOf('data:')===0)) ? u.av : '')
-    || ((ci.avatar && (String(ci.avatar).indexOf('http')===0||String(ci.avatar).indexOf('data:')===0)) ? ci.avatar : '');
-  const avEmoji=u.av||ci.avatar||'😊';
-  const avHtml=_photoUrl ? `<img src="${_photoUrl}" alt="foto" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:10px">` : `<span style="font-size:54px;line-height:1">${avEmoji}</span>`;
-  const roleLabel={admin:'ADMINISTRADOR',supervisor:'SUPERVISOR',mod:'MODERADOR',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USUÁRIO',guest:'VISITANTE'}[role]||'USUÁRIO';
-  document.getElementById('profTitle').innerHTML=`👤 Perfil ${getBadgeHtml(role)}`;
+    || ((u.av && (u.av.indexOf('http')===0||u.av.indexOf('data:')===0)) ? u.av : '')
+    || ((ci.avatar && (ci.avatar.indexOf('http')===0||ci.avatar.indexOf('data:')===0)) ? ci.avatar : '');
+  const avHtml = _photoUrl ? `<img src="${_photoUrl}" alt="foto" style="width:100%;height:100%;object-fit:cover;display:block">` : `<span style="font-size:46px;line-height:1">${u.av||'😊'}</span>`;
+  const _coverVal = u.cover_url || '';
+  const coverBg = _coverVal ? (_coverVal.indexOf('data:')===0 ? `url('${_coverVal}') center/cover` : _coverVal) : `linear-gradient(135deg,#1d4ed8,#7c3aed)`;
+  const moodHtml = u.mood ? `<div class="prof-mood"><div class="prof-mood-label">Humor do dia</div><div class="prof-mood-value">${u.mood}</div></div>` : '';
+  const neHtml = u.nick_emoji ? (u.nick_emoji+' ') : '';
+  const roleLabel = {admin:'ADMINISTRADOR',supervisor:'SUPERVISOR',mod:'MODERADOR',vip:'VIP',premium:'PREMIUM',dj:'DJ',user:'USUÁRIO',guest:'VISITANTE'}[u.role]||'USUÁRIO';
   const fieldMap=[
-    {ic:'🎂',label:'IDADE',value:u.age?u.age+' anos':null},
-    {ic:'📍',label:'CIDADE',value:u.city||null},
-    {ic:'⚧',label:'GÊNERO',value:u.gender?(u.gender==='M'?'Masculino':'Feminino'):null},
-    {ic:'💼',label:'TRABALHO',value:u.job||null},
-    {ic:'✨',label:'INTERESSES',value:u.interests||null},
+    {label:'Idade',value:u.age?u.age+' anos':null},
+    {label:'Cidade',value:u.city||null},
+    {label:'Gênero',value:u.gender?(u.gender==='M'?'Masculino':'Feminino'):null},
+    {label:'Nível',value:{admin:'Administrador',supervisor:'Supervisor',mod:'Moderador',vip:'VIP',premium:'Premium',dj:'DJ',user:'Usuário',guest:'Visitante'}[u.role]||'Usuário'},
+    {label:'Interesses',value:u.interests||null},
+    {label:'Aniversário',value:(function(){ if(!u.birthday) return null; var d=new Date(u.birthday); return isNaN(d)?null:(d.getUTCDate()+'/'+(d.getUTCMonth()+1)); })()},
   ].filter(f=>f.value);
-  const chipsHtml=fieldMap.length?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px">${fieldMap.map(f=>`<div style="background:#0d1422;border:1px solid #1e2c44;border-left:3px solid ${ACC};border-radius:10px;padding:8px 10px;min-width:0"><div style="font-size:9px;letter-spacing:1px;color:#5b7290;font-family:monospace;font-weight:700;margin-bottom:2px">${f.ic} ${f.label}</div><div style="font-size:13px;font-weight:700;color:#e8eefb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.value}</div></div>`).join('')}</div>`:'';
+  const chipsHtml=fieldMap.length?`<div class="prof-fields-grid">${fieldMap.map(f=>`<div class="prof-field-item"><div class="prof-field-label">${f.label}</div><div class="prof-field-value">${f.value}</div></div>`).join('')}</div>`:'';
+  const fd=getFanCount(nick);
+  const isOwnProfile=nick===ME.nick;
+  const fanBtnHtml=isOwnProfile
+    ?`<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px"><button class="prof-fan-btn" style="border-color:#cbd5e1;color:#374d6e">👥 Ver fãs</button><span class="prof-fan-count">❤️ <b id="profFanCount">${fd.count}</b></span></div>`
+    :`<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px"><button id="profFanBtn" class="prof-fan-btn${fd.isFan?' is-fan':''}" onclick="toggleFan('${nick}')">${fd.isFan?_PROF_HEART+' Sou fã':_PROF_HEART+' Ser fã'}</button><span class="prof-fan-count">❤️ <b id="profFanCount">${fd.count}</b></span></div>`;
   document.getElementById('profBody').innerHTML=`
-    <div style="position:relative;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,#0a1120,#0e1830);border:1px solid #1c2a44;padding:18px 16px 16px;margin-bottom:12px">
-      <div style="position:absolute;inset:0;background:radial-gradient(120px 120px at 50% -10%, ${ACC}33, transparent 70%);pointer-events:none"></div>
-      <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:10px">
-        <div style="position:relative;width:120px;height:120px">
-          <div style="position:absolute;inset:-3px;border-radius:13px;background:linear-gradient(135deg,${ACC},transparent 60%)"></div>
-          <div style="position:relative;width:120px;height:120px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#0c1322;border:2px solid ${ACC};box-shadow:0 0 26px ${ACC}55">${avHtml}</div>
-          <span style="position:absolute;right:6px;bottom:6px;width:16px;height:16px;border-radius:50%;background:#22c55e;border:2.5px solid #0a1120;box-shadow:0 0 8px #22c55e"></span>
-        </div>
-        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center"><span style="font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:#f1f5ff">${nick}</span>${getBadgeHtml(role)}</div>
-        <div style="font-family:monospace;font-size:10px;letter-spacing:2px;color:${ACC};font-weight:700">⟨ ${roleLabel} ⟩</div>
-      </div>
+    <div class="prof-cover" style="background:${coverBg}"></div>
+    <div class="prof-av-wrap">
+      <div class="prof-av">${avHtml}</div>
     </div>
-    ${u.bio ? '<div style="background:#0b1019;border:1px solid #1d2840;border-radius:10px;padding:10px 12px;font-size:13px;color:#cbd6ea;line-height:1.5"><span style="color:'+ACC+';font-family:monospace">&gt;</span> '+u.bio+'</div>' : ''}
-    ${chipsHtml}`;
+    <div class="prof-body">
+      <div class="prof-nick">${neHtml}${nick}</div>
+      <div class="prof-badges">${_isStaff ? `<span style="font-size:10px;padding:3px 12px;border-radius:14px;font-weight:800;font-family:'Syne',sans-serif;letter-spacing:.4px;background:#e8eefb;color:#374d6e">${roleLabel}</span>` : getBadgeHtml(u.role)}</div>
+      ${moodHtml}
+      ${fanBtnHtml}
+      ${_profSocialsHtml(u)}
+      ${u.bio ? '<div class="prof-bio"><div class="prof-bio-label">Bio</div><div class="prof-bio-value">'+u.bio+'</div></div>' : ''}
+      ${chipsHtml}
+    </div>`;
   const adminDiv=document.getElementById('profAdminActions');
   adminDiv.style.display=(canMonitor()&&nick!==ME.nick)?'block':'none';
-  document.getElementById('profPvBtn').style.display=nick===ME.nick?'none':'';
   // Mostrar botão excluir cadastro apenas no próprio perfil
   const excluirDiv=document.getElementById('profExcluirDiv');
-  if(excluirDiv) excluirDiv.style.display=(nick===ME.nick)?'block':'none';
+  if(excluirDiv) excluirDiv.style.display=isOwnProfile?'block':'none';
   document.getElementById('profileOverlay').classList.add('show');
+  // Build mini audio player for this user's profile
+  buildProfileAudioPlayer(nick);
 }
-function closeProfile(){document.getElementById('profileOverlay').classList.remove('show');}
+function closeProfile(){
+  // Stop profile audio if playing
+  if(window._papAudio){try{window._papAudio.pause();window._papAudio.src='';}catch(e){}}
+  if(window._papRaf){cancelAnimationFrame(window._papRaf);}
+  window._papAudio=null;window._papPlaying=false;window._papRaf=null;
+  document.getElementById('profileOverlay').classList.remove('show');
+}
 function abrirModalExcluirCadastroChat(){
   closeProfile();
   document.getElementById('excluirCadastroChatOverlay').classList.add('show');
@@ -5289,8 +5459,12 @@ function cpVerUsuarios(salaId, salaNome){
     var users = ((d&&d.users)||[]).filter(function(u){ return u.nick !== ME.nick; });
     list.innerHTML = users.length ? users.map(function(u){
       var av=u.avatar||'\u{1F464}', role=u.role||'';
+      var photo = u.photo_url || u.photo || ((String(av).indexOf('http')===0||String(av).indexOf('data:')===0) ? av : '');
+      var avHtml = photo
+        ? '<img src="'+photo+'" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid #dde3ef">'
+        : '<span style="width:36px;height:36px;border-radius:50%;background:#eef2fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #dde3ef"><svg width="20" height="20" viewBox="0 0 24 24" fill="#8aafd4"><path d="M12 12.2c2.6 0 4.7-2.1 4.7-4.7S14.6 2.8 12 2.8 7.3 4.9 7.3 7.5 9.4 12.2 12 12.2zm0 2.3c-3.1 0-9.4 1.6-9.4 4.7v2.3h18.8V19.2c0-3.1-6.3-4.7-9.4-4.7z"/></svg></span>';
       return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:#ffffff;border:1px solid #dde3ef">'
-        +'<span style="font-size:22px;flex-shrink:0">'+av+'</span>'
+        +avHtml
         +'<div style="flex:1;min-width:0"><div style="font-family:\'Syne\',sans-serif;font-size:12px;font-weight:800;color:#1a2340;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+u.nick+'</div>'
         +(role?'<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:#8aafd4">'+role+'</div>':'')+'</div>'
         +'<button id="cpInv_'+u.nick+'" onclick="cpEnviarConvite(\''+u.nick.replace(/'/g,"&#39;")+'\')" '
@@ -6076,7 +6250,14 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
       API.getUserProfile(nick).then(function(d){
         var u=d.user||{};
         if(typeof USERS!=='undefined'){
-          USERS[nick]=Object.assign(USERS[nick]||{}, { role:u.role, av:u.avatar||'😊', photo:u.photo_url||'', bio:u.bio||'', age:u.age, city:u.city, gender:u.gender, interests:u.interests, color:u.nick_color||(USERS[nick]&&USERS[nick].color)||'#4a4070' });
+          USERS[nick]=Object.assign(USERS[nick]||{}, {
+            role:u.role, av:u.avatar||'😊', photo:u.photo_url||'', bio:u.bio||'',
+            age:u.age, city:u.city, gender:u.gender, interests:u.interests, job:u.job,
+            color:u.nick_color||(USERS[nick]&&USERS[nick].color)||'#4a4070',
+            nick_emoji:u.nick_emoji||'', mood:u.mood||'', cover_url:u.cover_url||'', theme:u.theme||'', birthday:u.birthday||'',
+            social_instagram:u.social_instagram||'', social_facebook:u.social_facebook||'',
+            social_tiktok:u.social_tiktok||'', social_twitter:u.social_twitter||'', social_youtube:u.social_youtube||''
+          });
         }
         if(window._fanData) window._fanData[nick]={count:(d.fans&&d.fans.count)||0, isFan:(d.fans&&d.fans.isFan)||false};
       }).catch(function(){}).then(function(){ _origOpenProfile(nick); });
@@ -6087,7 +6268,7 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
       if(window._fanData) window._fanData[nick]={count:r.count, isFan:r.isFan};
       var c=document.getElementById('profFanCount'); if(c) c.textContent=r.count;
       var b=document.getElementById('profFanBtn');
-      if(b){ b.classList.toggle('is-fan', r.isFan); b.innerHTML = r.isFan?'<span style="color:#fff">❤️</span> Sou fã':'<span style="color:#e53e3e">❤️</span> Ser fã'; }
+      if(b){ b.classList.toggle('is-fan', r.isFan); b.innerHTML = (typeof _PROF_HEART!=='undefined'?_PROF_HEART:'❤️')+(r.isFan?' Sou fã':' Ser fã'); }
     }).catch(function(e){ if(typeof showToast==='function') showToast(e.message||'Erro','error'); });
   };
   var _origEspiar = window.espiarSala;

@@ -340,8 +340,7 @@ function renderSalas(){
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <button onclick="entrarSala('${s.id}')" style="flex:1;padding:8px;border-radius:8px;border:none;cursor:pointer;background:${s.cor};color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:12px">Entrar →</button>
-        ${s.isOwner?`<button onclick="abrirModalConvidar('${s.id}')" style="padding:8px 12px;border-radius:8px;border:1.5px solid #c8d8f5;background:#f0f6fc;color:#2563eb;cursor:pointer;font-weight:700;font-size:12px;font-family:'Syne',sans-serif">📨 Convidar</button>
-        <button onclick="confirmarDeletar(${s.dbId})" style="padding:8px 14px;border-radius:8px;border:1.5px solid #fecaca;background:#fef2f2;color:#ef4444;cursor:pointer;font-weight:700;font-size:12px;font-family:'Syne',sans-serif">Excluir</button>`:''}
+        ${s.isOwner?`<button onclick="confirmarDeletar(${s.dbId})" style="padding:8px 14px;border-radius:8px;border:1.5px solid #fecaca;background:#fef2f2;color:#ef4444;cursor:pointer;font-weight:700;font-size:12px;font-family:'Syne',sans-serif">Excluir</button>`:''}
       </div>
     </div>`;
   }).join('');

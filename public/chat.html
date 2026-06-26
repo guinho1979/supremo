@@ -737,7 +737,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h16v11H11l-3 3V14H2V3z"/></svg>
       <span id="pvNotifBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #fff;z-index:10"></span>
     </button>
-    <button id="btnConvitesPend" class="rnb-media-btn" onclick="abrirPainelConvites()" title="Convites de sala privada" style="display:none;position:relative;align-items:center;gap:4px">
+    <button id="btnConvitesPend" class="rnb-media-btn" onclick="abrirPainelConvites()" title="Convites de sala privada" style="display:inline-flex;position:relative;align-items:center;gap:4px">
       📨
       <span id="convitesBadge" style="display:none;position:absolute;top:-5px;right:-5px;background:#ef4444;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:20px;font-family:'Syne',sans-serif;min-width:16px;text-align:center">0</span>
     </button>
@@ -6551,22 +6551,22 @@ function abrirConvidarPrivadoDoChat(){
 
 <!-- ═══════════ MODAL CONVITE SALA PRIVADA ═══════════ -->
 <div class="overlay" id="convitePrivadoOverlay" style="display:none;align-items:center;justify-content:center">
-  <div class="modal" style="text-align:center">
+  <div class="modal" style="text-align:center;background:#000000;color:#ffffff;border:1px solid #2a2a2a">
     <div style="font-size:36px;margin-bottom:10px">📨</div>
-    <div class="modal-title" style="justify-content:center;display:flex;margin-bottom:6px">Convite de Sala Privada</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:6px">
-      <strong id="chatConviteRemetente"></strong> te convidou para a sala:
+    <div class="modal-title" style="justify-content:center;display:flex;margin-bottom:6px;color:#ffffff">Convite de Sala Privada</div>
+    <div style="font-size:13px;color:#e5e5e5;margin-bottom:6px">
+      <strong id="chatConviteRemetente" style="color:#ffffff"></strong> te convidou para a sala:
     </div>
-    <div style="background:#f5f3ff;border:1.5px solid #7c3aed33;border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+    <div style="background:#161616;border:1.5px solid #333333;border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
       <span id="chatConviteIcon" style="font-size:26px">🔒</span>
       <div style="text-align:left">
-        <div id="chatConviteNome" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text)"></div>
-        <div id="chatConviteDesc" style="font-size:11px;color:var(--text2)"></div>
+        <div id="chatConviteNome" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#ffffff"></div>
+        <div id="chatConviteDesc" style="font-size:11px;color:#aaaaaa"></div>
       </div>
     </div>
     <div class="modal-btns">
-      <button class="mbtn cancel" onclick="rejeitarConviteChat()">✕ Rejeitar</button>
-      <button class="mbtn confirm" onclick="aceitarConviteChat()">✓ Aceitar</button>
+      <button class="mbtn cancel" style="background:#dc2626;color:#ffffff;border:none" onclick="rejeitarConviteChat()">✕ Rejeitar</button>
+      <button class="mbtn confirm" style="background:#16a34a;color:#ffffff;border:none" onclick="aceitarConviteChat()">✓ Aceitar</button>
     </div>
   </div>
 </div>
@@ -9436,18 +9436,17 @@ function _renderBadgeConvites(n){
   var btn = document.getElementById('btnConvitesPend');
   var bdg = document.getElementById('convitesBadge');
   if(!btn) return;
-  if(n > 0){
-    btn.style.display = 'inline-flex';
-    if(bdg){ bdg.textContent = n > 9 ? '9+' : String(n); bdg.style.display = 'block'; }
-  } else {
-    btn.style.display = 'none';
-    if(bdg) bdg.style.display = 'none';
+  var isGuest = (typeof ME!=='undefined' && ME && ME.role==='guest');
+  btn.style.display = isGuest ? 'none' : 'inline-flex';   // sempre visível (menos convidado)
+  if(bdg){
+    if(n > 0 && !isGuest){ bdg.textContent = n > 9 ? '9+' : String(n); bdg.style.display = 'block'; }
+    else { bdg.style.display = 'none'; }
   }
 }
 
-function atualizarConvitesPend(){
+function atualizarConvitesPend(force){
   if(typeof API==='undefined' || !API.privateRooms || !API.privateRooms.invites) return;
-  try{ if(localStorage.getItem('tc_no_convites')==='1'){ _renderBadgeConvites(0); return; } }catch(e){}
+  if(!force){ try{ if(localStorage.getItem('tc_no_convites')==='1'){ _renderBadgeConvites(0); return; } }catch(e){} }
   API.privateRooms.invites().then(function(d){
     _convitesCache = (d && d.invites) || [];
     _renderBadgeConvites(_convitesCache.length);
@@ -9488,7 +9487,7 @@ function abrirPainelConvites(){
   _renderListaConvites();
   ov.style.display = 'flex';
   ov.classList.add('show');
-  atualizarConvitesPend();
+  atualizarConvitesPend(true);
 }
 
 function fecharPainelConvites(){
@@ -9668,18 +9667,6 @@ setTimeout(buildSpyRoomList, 1800);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   // garante que nada seja enviado no modo espião
   try{ var _s=window.sendMsg; window.sendMsg=function(){ return; }; }catch(e){}
-})();
-</script>
-<script>
-/* ===== MARCADOR TEMPORÁRIO DE VERSÃO — pode remover depois de confirmar ===== */
-(function(){
-  try{
-    var m=document.createElement('div');
-    m.textContent='✅ chat.html ATUALIZADO — convites v2';
-    m.style.cssText='position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#16a34a;color:#fff;font:700 12px/1.5 sans-serif;text-align:center;padding:6px;box-shadow:0 2px 8px rgba(0,0,0,.3)';
-    document.addEventListener('DOMContentLoaded',function(){ try{ document.body.appendChild(m); setTimeout(function(){try{m.remove();}catch(e){}},6000); }catch(e){} });
-    console.log('[CONVITES] chat.html versão v2 carregada com sucesso');
-  }catch(e){}
 })();
 </script>
 </body>
