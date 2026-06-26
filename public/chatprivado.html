@@ -474,7 +474,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
-<script src="icons.js"></script>
 </head>
 <body>
 
@@ -485,7 +484,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
 <!-- ANNOUNCEMENT BAR -->
 <div class="ann-bar purple" id="annBar">
-  <span class="ann-icon" id="_icoAnn"></span>
+  <span class="ann-icon">📢</span>
   <div class="ann-scroll-wrap">
     <div class="ann-scroll-track" id="annText">Bem-vindos ao Chat Supremo! 🎉</div>
   </div>
@@ -515,9 +514,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div class="oc-section-block">
       <div class="oc-sect">Status</div>
       <div class="status-selector">
-        <button class="sts-btn active-status" data-s="online" onclick="setStatus('online',this)" style="color:#10b981"><span class="_ico-ctx" data-ico="online"></span> Online</button>
-        <button class="sts-btn" data-s="away"   onclick="setStatus('away',this)" style="color:#f59e0b"><span class="_ico-ctx" data-ico="away"></span> Ausente</button>
-        <button class="sts-btn" data-s="busy"   onclick="setStatus('busy',this)" style="color:#ef4444"><span class="_ico-ctx" data-ico="offline"></span> Ocupado</button>
+        <button class="sts-btn active-status" data-s="online" onclick="setStatus('online',this)" style="color:#10b981">🟢 Online</button>
+        <button class="sts-btn" data-s="away"   onclick="setStatus('away',this)" style="color:#f59e0b">🟡 Ausente</button>
+        <button class="sts-btn" data-s="busy"   onclick="setStatus('busy',this)" style="color:#ef4444">🔴 Ocupado</button>
       </div>
     </div>
 
@@ -533,7 +532,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
       <input class="oc-input" id="ocSenhaAtual" type="password" placeholder="Senha atual..." autocomplete="current-password"/>
       <input class="oc-input" id="ocNovaSenha" type="password" placeholder="Nova senha..." autocomplete="new-password" style="margin-top:6px"/>
       <input class="oc-input" id="ocConfSenha" type="password" placeholder="Confirmar nova senha..." autocomplete="new-password" style="margin-top:6px"/>
-      <button onclick="trocarSenhaOffcanvas()" style="margin-top:8px;width:100%;padding:9px;border-radius:8px;border:none;background:#2563eb;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'"><span class="_ico-inline" data-ico="key" data-sz="14" data-col="currentColor"></span> Alterar Senha</button>
+      <button onclick="trocarSenhaOffcanvas()" style="margin-top:8px;width:100%;padding:9px;border-radius:8px;border:none;background:#2563eb;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">🔑 Alterar Senha</button>
     </div>
 
     <!-- Cores -->
@@ -642,7 +641,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <!-- PV WHITELIST MODAL -->
 <div class="overlay" id="pvToggleOverlay" onclick="if(event.target===this)closePVToggle()">
   <div class="modal" style="width:340px;max-width:95vw">
-    <div class="modal-title"><span class="_ico-inline" data-ico="lock" data-sz="14"></span> Configurar Privadas</div>
+    <div class="modal-title">🔒 Configurar Privadas</div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:12px;border-bottom:1px solid #3d35a0">
       <div>
         <div style="font-size:12px;font-weight:700;color:var(--text)">Receber mensagens privadas</div>
@@ -662,20 +661,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
 <!-- SPY MODE BAR -->
 <div class="spy-bar" id="spyBar">
-  <span class="spy-icon" id="_icoSpy"></span>
+  <span class="spy-icon">👁</span>
   <span class="spy-label">MODO ESPIÃO — <strong id="spyRoomLabel">Sala</strong> &nbsp;·&nbsp; Você está invisível</span>
-  <button class="spy-exit" onclick="exitSpyMode()"><span class="_ico-inline" data-ico="close" data-sz="12"></span> Sair</button>
+  <button class="spy-exit" onclick="exitSpyMode()">✕ Sair</button>
 </div>
 <!-- ── TOPBAR LINHA 1: nome da sala ── -->
 <div class="topbar">
   <!-- Room icon + name — centered -->
   <div style="position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;pointer-events:none">
-    <span id="topRoomIcon" style="font-size:16px;flex-shrink:0;display:flex;align-items:center"><span class="_ico-inline" data-ico="lock" data-sz="16"></span></span>
+    <span id="topRoomIcon" style="font-size:16px;flex-shrink:0">🔒</span>
     <span id="topRoomName" style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;letter-spacing:.3px">Sala Privada</span>
   </div>
   <!-- Radio button inside topbar -->
   <button id="floatRadioBtn" onclick="toggleFloatRadio()" title="Rádio">
-    <span class="radio-play-icon" id="_icoRadioPlay"></span>
+    <span class="radio-play-icon">▶</span>
     <div class="radio-bars">
       <span></span><span></span><span></span><span></span><span></span>
     </div>
@@ -686,14 +685,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <div class="room-name-bar">
   <div class="rnb-center">
     <span id="onlineCount" style="display:none">0</span>
-    <button class="rnb-media-btn" id="btnConvidarPriv" onclick="abrirConvidarPrivado()" style="display:none"><span class="_ico-inline" data-ico="invite" data-sz="13"></span> Convidar</button>
+    <button class="rnb-media-btn" id="btnConvidarPriv" onclick="abrirConvidarPrivado()" style="display:none">📨 Convidar</button>
     <div class="rnb-sep"></div>
     <button class="leave-txt-btn" onclick="leaveRoom()">Sair</button>
   </div>
 </div>
 
 <!-- Hidden elements for JS compatibility -->
-<span id="roomIcon" style="display:none;align-items:center"><span class="_ico-inline" data-ico="lock" data-sz="14" data-col="currentColor"></span></span>
+<span id="roomIcon" style="display:none">🔒</span>
 <span id="roomNameLabel" style="display:none">Sala Privada</span>
 
 <!-- ── MODAL CONVIDAR PARA SALA PRIVADA ── -->
@@ -701,7 +700,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   <div class="modal" style="max-width:400px;padding:0;overflow:hidden;background:#0f1f3d;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.35);max-height:90vh">
     <!-- Header -->
     <div style="padding:14px 16px;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#0f1f3d,#1d4ed8);border-radius:14px 14px 0 0">
-      <span style="font-size:20px;display:flex;align-items:center"><span class="_ico-inline" data-ico="invite" data-sz="20"></span></span>
+      <span style="font-size:20px">📨</span>
       <div style="flex:1">
         <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#fff">Convidar para sala</div>
         <div id="convidarPrivSalaNome" style="font-size:11px;color:#cbd5e1;margin-top:2px"></div>
@@ -778,15 +777,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;animation:blink 1s infinite;flex-shrink:0"></div>
     <span style="font-size:12px;font-weight:700;color:#c0392b">Gravando...</span>
     <span id="micTimer" style="font-size:12px;font-weight:700;color:#c0392b;margin-left:2px">0:00</span>
-    <button onclick="stopMicRecording()" style="margin-left:auto;background:#ef4444;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer"><span class="_ico-inline" data-ico="close" data-sz="12"></span> Parar</button>
+    <button onclick="stopMicRecording()" style="margin-left:auto;background:#ef4444;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">⏹ Parar</button>
     <button onclick="cancelMicRecording()" style="background:#fee2e2;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕</button>
   </div>
   <!-- MIC PREVIEW BAR (listen before sending) -->
   <div id="micPreviewBar" style="display:none;align-items:center;gap:8px;background:#f4f0ff;border:1.5px solid #ddd6fe;padding:6px 10px;border-radius:10px;margin-bottom:6px">
-    <button id="micPreviewPlayBtn" onclick="toggleMicPreviewPlayback()" style="width:26px;height:26px;border-radius:50%;background:#7c3aed;border:none;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">▶</button>
+    <button id="micPreviewPlayBtn" onclick="toggleMicPreviewPlayback()" style="width:26px;height:26px;border-radius:50%;background:#7c3aed;border:none;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">▶</button>
     <span id="micPreviewTime" style="font-size:11px;font-weight:600;color:#7c3aed;min-width:32px">0:00</span>
-    <button onclick="cancelMicRecording()" style="margin-left:auto;background:#fff;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer"><span class="_ico-inline" data-ico="close" data-sz="11"></span> Cancelar</button>
-    <button onclick="sendMicPreview()" style="background:#7c3aed;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer"><span class="_ico-inline" data-ico="send" data-sz="12"></span> Enviar</button>
+    <button onclick="cancelMicRecording()" style="margin-left:auto;background:#fff;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕ Cancelar</button>
+    <button onclick="sendMicPreview()" style="background:#7c3aed;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">➤ Enviar</button>
   </div>
   <!-- HIDDEN INPUTS (fileInput moved to body level for reliable .click()) -->
   <!-- INPUT ROW WITH + BUTTON -->
@@ -795,39 +794,39 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div style="display:flex;align-items:center;gap:6px;justify-content:space-around;flex-wrap:wrap">
       <!-- Arquivo -->
       <label for="fileInput" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'" onclick="closePlusMenu()">
-        <span class='_ico-plus' data-ico='attach'></span>
+        <span style="font-size:15px">📎</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Arquivo</span>
       </label>
       <!-- Gravar -->
       <button id="btnMicPlus" onclick="toggleMicRecording();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='mic'></span>
+        <span style="font-size:15px">🎙️</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Gravar</span>
       </button>
       <!-- GIF -->
       <button onclick="openGifModal();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='gif'></span>
+        <span style="font-size:15px">🎞️</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">GIF</span>
       </button>
       <!-- Smiles -->
       <!-- Emoji -->
       <button onclick="openEmojiPicker();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='emoji'></span>
+        <span style="font-size:15px">😀</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Emoji</span>
       </button>
       <!-- Reações -->
       <button id="btnEmojiAnimPlus" onclick="toggleEmojiAnimPicker();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='reaction'></span>
+        <span style="font-size:15px">❤️</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Reação</span>
       </button>
       <!-- Paint -->
       <button onclick="openPaintModal();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='draw'></span>
+        <span style="font-size:15px">🎨</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Desenho</span>
       </button>
       <!-- Convidar Privado -->
       <div id="btnConvidarPrivadoPlus" style="display:none">
         <button onclick="abrirConvidarPrivadoDoChat();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-          <span class='_ico-plus' data-ico='invite'></span>
+          <span style="font-size:15px">📨</span>
           <span style="font-size:8px;color:#7c3aed;font-weight:600">Convidar</span>
         </button>
       </div>
@@ -1662,7 +1661,7 @@ function espiarSala(roomId, roomName){
             <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
               <span style="font-size:10px;color:#8aafd4">${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</span>
               <div style="display:flex;gap:3px;flex-wrap:wrap">
-                <button onclick="setReply('${m.nick}')" style="background:#1E90FF;border:none;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer"><span class='_ico-inline' data-ico='reply' data-sz='12'></span> Reply</button>
+                <button onclick="setReply('${m.nick}')" style="background:#1E90FF;border:none;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">↩ Reply</button>
                 ${canDel?`<button onclick="this.closest('div[style]').parentElement.parentElement.parentElement.remove();showToast('Mensagem apagada')" style="background:#ef4444;border:none;color:#fff;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🗑 Apagar</button>`:''}
                 ${canDel?`<button onclick="spyAction('ban','${m.nick}')" style="background:#7f1d1d;border:none;color:#fca5a5;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">🔨 Banir</button>`:''}
                 ${canDel?`<button onclick="spyAction('kick','${m.nick}')" style="background:#1e3a5f;border:none;color:#93c5fd;font-size:8px;font-weight:700;padding:2px 7px;border-radius:5px;cursor:pointer">👢 Kick</button>`:''}
@@ -2940,7 +2939,7 @@ function addChatMessage(msg){
     <div class="msg-text" style="color:${msg.msgColor||'#0a1628'}">${renderedText}</div>
     <div class="react-bar" style="margin-top:4px;min-height:0"></div>
     <div class="msg-footer"><span class="msg-time">${nowTime()}</span>
-    <div class="msg-actions"><button class="act-btn" onclick="setReply('${msg.nick}')"><span class='_ico-inline' data-ico='reply' data-sz='12'></span> Reply</button>${!msg.isMine?`<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir"><span class='_ico-inline' data-ico='like' data-sz='12'></span> Curtir</button><div class="react-picker">${REACTIONS.map(r=>`<button class="react-emoji-btn" onclick="doReact(event,this,'${r.e}','${r.l}')" title="${r.l}">${r.e}<span class="re-label">${r.l}</span></button>`).join('')}</div></div>`:`<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu"><span class='_ico-inline' data-ico='users' data-sz='12'></span> Ver curtidas</button>`}</div></div>
+    <div class="msg-actions"><button class="act-btn" onclick="setReply('${msg.nick}')">↩ Reply</button>${!msg.isMine?`<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">${REACTIONS.map(r=>`<button class="react-emoji-btn" onclick="doReact(event,this,'${r.e}','${r.l}')" title="${r.l}">${r.e}<span class="re-label">${r.l}</span></button>`).join('')}</div></div>`:`<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>`}</div></div>
     ${(msg.isMine||(canDeleteMsg()&&!window._isStaffMsg(msg.role,msg.nick)))&&!msg.monitoredPV?`<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>`:''}
   </div></div>`;
   area.appendChild(d);
@@ -4367,7 +4366,7 @@ tr:hover td{background:var(--surface2)}
   <div style="display:flex;align-items:center;gap:8px;background:#0f0e1a;border-bottom:2px solid #ef4444;padding:5px 14px;font-size:11px;font-weight:700;color:#fca5a5;font-family:'Syne',sans-serif;flex-shrink:0">
     <span style="animation:blink 1.2s infinite;font-size:13px">👁</span>
     <span style="flex:1">MODO ESPIÃO — <strong id="spyModalRoomName">Sala</strong> · Você está invisível</span>
-    <button onclick="fecharEspiar()" style="background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;font-family:'Syne',sans-serif"><span class="_ico-inline" data-ico="close" data-sz="12"></span> Sair</button>
+    <button onclick="fecharEspiar()" style="background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;font-family:'Syne',sans-serif">✕ Sair</button>
   </div>
 
   <!-- Topbar removida no modo espião (a barra azul com o nome da sala foi excluída para ficar igual à sala pública). O nome da sala já aparece na barra MODO ESPIÃO acima. -->
@@ -4422,7 +4421,7 @@ tr:hover td{background:var(--surface2)}
 <!-- REPORT MODAL -->
 <div class="overlay" id="reportOverlay" onclick="if(event.target===this)closeReport()">
   <div class="modal" style="width:340px;max-width:95vw">
-    <div class="modal-title" style="color:#f59e0b"><span class="_ico-ctx" data-ico="report"></span> Reportar mensagem</div>
+    <div class="modal-title" style="color:#f59e0b">🚩 Reportar mensagem</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Reportando mensagem de <strong id="reportTargetNick" style="color:#fca5a5"></strong></div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Mensagem:</div>
     <div id="reportMsgPreview" style="background:#0f0e1a;border:1px solid #3d35a0;border-radius:8px;padding:8px 12px;font-size:12px;color:#e2e0f0;margin-bottom:12px;max-height:60px;overflow-y:auto"></div>
@@ -5345,7 +5344,7 @@ function abrirConvidarPrivadoDoChat(){
     box-shadow:0 3px 14px rgba(37,99,235,.45);
     display:flex;align-items:center;justify-content:center;
     transition:opacity .2s;opacity:0;pointer-events:none"
-  title="Ir para o final"><span class="_ico-inline" data-ico="scrollDown"></span></button>
+  title="Ir para o final">↓</button>
 <script>
 (function(){
   const area = document.getElementById('msgArea');
@@ -5775,8 +5774,8 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
     var nq=String(d.nick).replace(/'/g,"\\'");
     var REACT=window._REACTIONS||[{e:'👍',l:'Curtir'},{e:'❤️',l:'Amei'},{e:'😂',l:'Haha'},{e:'😮',l:'Uau'},{e:'😢',l:'Triste'},{e:'😡',l:'Grr'}];
     var _footer='<div class="msg-footer"><span class="msg-time">'+((typeof nowTime==='function')?nowTime():'')+'</span>'+
-      '<div class="msg-actions"><button class="act-btn" onclick="setReply(\''+nq+'\')"><span class='_ico-inline' data-ico='reply' data-sz='12'></span> Reply</button>'+
-      (!mine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir"><span class='_ico-inline' data-ico='like' data-sz='12'></span> Curtir</button><div class="react-picker">'+REACT.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu"><span class='_ico-inline' data-ico='users' data-sz='12'></span> Ver curtidas</button>')+
+      '<div class="msg-actions"><button class="act-btn" onclick="setReply(\''+nq+'\')">↩ Reply</button>'+
+      (!mine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">'+REACT.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>')+
       '</div></div>';
     div.innerHTML='<div class="msg-av" style="border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble" style="position:relative">'
       +'<div class="msg-head"><div class="status-dot '+sc+'"></div>'+(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(d.nick):'')+'<span class="msg-nick '+(cp.cls||'')+'" style="'+(cp.style||('color:'+(ci.color||'#0a1628')))+';cursor:pointer" onclick="setReply(\''+nq+'\')">'+d.nick+'</span>'+badge+'</div>'
@@ -6057,59 +6056,6 @@ function sendPaintDrawing(){ const cv=document.getElementById('paintCanvas'); cv
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   try{ window.sendMsg=function(){ return; }; }catch(e){}
-})();
-</script>
-
-<script>
-/* ── Icon Library Auto-Init ── */
-(function(){
-  if(typeof ICO==='undefined') return;
-  // _ico-ctx: context menu / status icons (16px)
-  document.querySelectorAll('._ico-ctx[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](16);
-  });
-  // _ico-pt: paint toolbar icons (14px)
-  document.querySelectorAll('._ico-pt[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](14,col);
-  });
-  // _ico-plus: plus menu icons (18px, purple)
-  document.querySelectorAll('._ico-plus[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](18,'#7c3aed');
-  });
-  // _ico-inline: general inline icons
-  document.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var sz=parseInt(el.getAttribute('data-sz')||'16');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](sz,col);
-  });
-
-  // Named display icons
-  var annIco=document.getElementById('_icoAnn');
-  if(annIco && ICO.announce) annIco.innerHTML=ICO.announce(16,'currentColor');
-  var spyIco=document.getElementById('_icoSpy');
-  if(spyIco && ICO.eye) spyIco.innerHTML=ICO.eye(14,'currentColor');
-  var rpIco=document.getElementById('_icoRadioPlay');
-  if(rpIco && ICO.play) rpIco.innerHTML=ICO.play(12,'currentColor');
-  // Named IDs
-  var idMap={
-    '_ico_menu':    function(){return ICO.settings(18,'#fff');},
-    '_ico_shield_mod': function(){return ICO.shield(18,'#fff');}
-  };
-  Object.keys(idMap).forEach(function(id){
-    var el=document.getElementById(id);
-    if(el) el.innerHTML=idMap[id]();
-  });
-  // DJ topbar button
-  var djBtn=document.getElementById('djTopBtn');
-  if(djBtn && ICO.dj) djBtn.innerHTML=ICO.dj(16,'#fff');
-  // Float radio btn
-  var radioBtn=document.getElementById('floatRadioBtn');
-  if(radioBtn && radioBtn.innerHTML.indexOf('📻')>-1) radioBtn.innerHTML=radioBtn.innerHTML.replace('📻', ICO.radio(16,'currentColor'));
 })();
 </script>
 </body>
