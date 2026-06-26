@@ -99,7 +99,7 @@ router.get('/online/room', authMiddleware, async (req, res) => {
   try {
     const slug = req.query.slug || '';
     const { rows } = await db.query(`
-      SELECT op.nick, u.role, u.avatar
+      SELECT op.nick, u.role, u.avatar, u.photo_url
       FROM online_presence op JOIN users u ON u.id = op.user_id
       WHERE op.room_slug = $1 AND op.last_ping > NOW() - INTERVAL '2 minutes'
       ORDER BY u.role DESC
