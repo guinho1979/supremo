@@ -592,14 +592,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <!-- OFFCANVAS LEFT -->
 <div class="offcanvas left" id="ocLeft">
   <div class="oc-header">
-    <span class="oc-title">⚙ Configurações</span>
-    <button class="oc-close" onclick="closeAll()">✕</button>
+    <span class="oc-title" id="ocTitleIcon" style="display:flex;align-items:center;gap:7px"></span>
+    <button class="oc-close" id="ocCloseBtn" onclick="closeAll()"></button>
   </div>
   <div class="oc-body">
 
     <!-- Lema + Nick -->
     <div class="oc-section-block" style="text-align:center;padding-top:20px;padding-bottom:18px">
-      <div class="oc-sect" style="font-size:14px;text-align:center;margin-bottom:8px">📝 Lema</div>
+      <div class="oc-sect" style="font-size:14px;text-align:center;margin-bottom:8px" id="ocSectLema"></div>
       <div style="display:flex;gap:6px;align-items:center;max-width:280px;margin:0 auto 8px">
         <input id="ocLemaInput" maxlength="40" placeholder="Sua frase (máx 40)" style="flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid #b8d0e8;font-size:13px;font-family:inherit;background:#fff;color:#0a1628">
         <button onclick="salvarLema()" style="padding:8px 12px;border-radius:8px;border:none;background:#2563eb;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Salvar</button>
@@ -621,11 +621,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <!-- Navegação: Perfil + Cores -->
     <div class="oc-section-block">
       <a href="perfil.html" class="toggle-row" style="text-decoration:none;cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">👤</span> Editar Perfil</span>
+        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span id="ocIconPerfil" style="display:flex;align-items:center"></span> Editar Perfil</span>
         <span style="color:#374d6e">›</span>
       </a>
       <a href="nickcor.html" class="toggle-row" style="text-decoration:none;cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">🎨</span> Editar Cores</span>
+        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span id="ocIconCores" style="display:flex;align-items:center"></span> Editar Cores</span>
         <span style="color:#374d6e">›</span>
       </a>
     </div>
@@ -646,11 +646,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
         <div class="toggle" id="toggleConvites" onclick="toggleNoConvites(this)"></div>
       </div>
       <div class="toggle-row" onclick="togglePVModal()" style="cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">🔓</span> Gerenciar privados</span>
+        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span id="ocIconPvManage" style="display:flex;align-items:center"></span> Gerenciar privados</span>
         <span style="color:#374d6e">›</span>
       </div>
       <div class="toggle-row" onclick="openBlockedModal()" style="cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">🚫</span> Gerenciar Bloqueados</span>
+        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span id="ocIconBlocked" style="display:flex;align-items:center"></span> Gerenciar Bloqueados</span>
         <span style="color:#374d6e">›</span>
       </div>
     </div>
@@ -658,7 +658,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <!-- Contato / Reclamação -->
     <div class="oc-section-block">
       <div class="toggle-row" onclick="openContactAdmin()" style="cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">✉</span> Contato / Reclamação</span>
+        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span id="ocIconContact" style="display:flex;align-items:center"></span> Contato / Reclamação</span>
         <span style="color:#374d6e">›</span>
       </div>
     </div>
@@ -666,15 +666,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <!-- Seja Premium -->
     <div class="oc-section-block">
       <a href="status.html" class="toggle-row" style="text-decoration:none;cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">⭐</span> Seja Premium</span>
+        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span id="ocIconPremium" style="display:flex;align-items:center"></span> Seja Premium</span>
         <span style="color:#374d6e">›</span>
       </a>
     </div>
 
     <!-- Zona de perigo -->
     <div class="oc-section-block" style="border-top:1px solid #3a1a1a;margin-top:4px;padding-top:14px">
-      <div class="oc-sect" style="color:#f87171;margin-bottom:8px">⚠ Zona de Perigo</div>
-      <button onclick="abrirExcluirCadastroOffcanvas()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border-radius:12px;border:1px solid #b91c1c;background:#dc2626;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.2s;letter-spacing:.3px;box-sizing:border-box" onmouseover="this.style.background='#b91c1c';this.style.borderColor='#991b1b';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#dc2626';this.style.borderColor='#b91c1c';this.style.transform=''">🗑 Excluir minha conta</button>
+      <div class="oc-sect" id="ocSectDanger" style="color:#f87171;margin-bottom:8px"></div>
+      <button onclick="abrirExcluirCadastroOffcanvas()" id="ocBtnDelete" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border-radius:12px;border:1px solid #b91c1c;background:#dc2626;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.2s;letter-spacing:.3px;box-sizing:border-box" onmouseover="this.style.background='#b91c1c';this.style.borderColor='#991b1b';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#dc2626';this.style.borderColor='#b91c1c';this.style.transform=''"></button>
     </div>
 
   </div>
@@ -9722,6 +9722,18 @@ function sendMainPaintDrawing(){
   var ck=document.getElementById('ctxItemKick'); if(ck) ck.innerHTML=ICO.kick(14)+' Kickar';
   var cmu=document.getElementById('ctxItemMute'); if(cmu) cmu.innerHTML=ICO.mute(14)+' Mutar';
   var csh=document.getElementById('ctxItemShadow'); if(csh) csh.innerHTML=ICO.shadowban(14)+' Shadowban';
+  // ── Offcanvas Configurações ──────────────────────────────────
+  var ocT=document.getElementById('ocTitleIcon'); if(ocT) ocT.innerHTML=ICO.settings(16,'#fff')+' Configurações';
+  var ocC=document.getElementById('ocCloseBtn'); if(ocC) ocC.innerHTML=ICO.close(16,'#fff');
+  var ocL=document.getElementById('ocSectLema'); if(ocL) ocL.innerHTML=ICO.edit(14)+' Lema';
+  var ocP=document.getElementById('ocIconPerfil'); if(ocP) ocP.innerHTML=ICO.user(20,'#374d6e');
+  var ocCr=document.getElementById('ocIconCores'); if(ocCr) ocCr.innerHTML=ICO.emoji(20,'#374d6e');
+  var ocPv=document.getElementById('ocIconPvManage'); if(ocPv) ocPv.innerHTML=ICO.unlock(20,'#374d6e');
+  var ocBl=document.getElementById('ocIconBlocked'); if(ocBl) ocBl.innerHTML=ICO.block(20,'#374d6e');
+  var ocCo=document.getElementById('ocIconContact'); if(ocCo) ocCo.innerHTML=ICO.announce(20,'#374d6e');
+  var ocPr=document.getElementById('ocIconPremium'); if(ocPr) ocPr.innerHTML=ICO.crown(20,'#f59e0b');
+  var ocD=document.getElementById('ocSectDanger'); if(ocD) ocD.innerHTML=ICO.warning(13,'#f87171')+' Zona de Perigo';
+  var ocDel=document.getElementById('ocBtnDelete'); if(ocDel) ocDel.innerHTML=ICO.trash(15,'#fff')+' Excluir minha conta';
 })();
 </script>
 
