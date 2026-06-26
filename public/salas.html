@@ -114,12 +114,9 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
 .st-vw-foot{flex-shrink:0;padding:10px 16px 18px;display:flex;justify-content:center;z-index:3}
 .st-vw-del{background:rgba(239,68,68,.85);border:none;color:#fff;font-size:12px;font-weight:700;padding:9px 22px;border-radius:22px;cursor:pointer;font-family:'Syne',sans-serif}
 .st-empty-hint{color:var(--text3);font-size:12px;padding:8px 0}
-
-
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
-<script src="icons.js"></script>
 </head>
 <body>
 <header>
@@ -187,7 +184,7 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
   <div class="feat-card" onclick="abrirSalasPrivadas()" style="border-color:#7c3aed"
     onmouseover="this.style.borderColor='#6d28d9';this.style.background='#f5f3ff'"
     onmouseout="this.style.borderColor='#7c3aed';this.style.background='#fff'">
-    <div class="feat-icon" style="background:linear-gradient(135deg,#7c3aed,#2563eb);display:flex;align-items:center;justify-content:center"><span class="_ico-inline" data-ico="lock" data-sz="20" data-col="#fff"></span></div>
+    <div class="feat-icon" style="background:linear-gradient(135deg,#7c3aed,#2563eb)">🔒</div>
     <div class="feat-body">
       <div class="feat-name">Salas Privadas <span style="font-size:8px;padding:2px 7px;border-radius:20px;font-weight:700;background:#451a03;color:#fde68a;margin-left:6px">PREMIUM</span></div>
       <div class="feat-sub">Salas exclusivas criadas pela comunidade premium</div>
@@ -219,10 +216,10 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
   </div>
   <div class="st-bg-row" id="stBgRow"></div>
   <div class="st-ed-tools">
-    <button class="st-tool active" id="stToolText" onclick="stSetMode('text')"><span class="_ico-inline" data-ico="textTool" data-sz="13"></span> Texto</button>
-    <button class="st-tool" id="stToolImg" onclick="stPickMedia('image')"><span class="_ico-inline" data-ico="photo" data-sz="13"></span> Imagem</button>
-    <button class="st-tool" id="stToolVid" onclick="stPickMedia('video')"><span class="_ico-inline" data-ico="video" data-sz="13"></span> Vídeo</button>
-    <button class="st-publish" id="stPublishBtn" onclick="stPublish()" title="Publicar"><span class="_ico-inline" data-ico="send" data-sz="13"></span></button>
+    <button class="st-tool active" id="stToolText" onclick="stSetMode('text')">✏️ Texto</button>
+    <button class="st-tool" id="stToolImg" onclick="stPickMedia('image')">🖼️ Imagem</button>
+    <button class="st-tool" id="stToolVid" onclick="stPickMedia('video')">🎬 Vídeo</button>
+    <button class="st-publish" id="stPublishBtn" onclick="stPublish()" title="Publicar">➤</button>
   </div>
   <input type="file" id="stFileImg" accept="image/*" style="display:none">
   <input type="file" id="stFileVid" accept="video/*" style="display:none">
@@ -237,7 +234,7 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
       <div class="st-vw-nick" id="stVwNick">Nick</div>
       <div class="st-vw-time" id="stVwTime">agora</div>
     </div>
-    <button onclick="stCloseViewer()" title="Fechar"><span class="_ico-inline" data-ico="close"></span></button>
+    <button onclick="stCloseViewer()" title="Fechar">✕</button>
   </div>
   <div class="st-vw-stage" id="stVwStage">
     <div class="st-vw-nav left" onclick="stViewerPrev()"></div>
@@ -250,7 +247,7 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
 <!-- ESPIAR MODAL -->
 <div id="espiarModal" style="display:none;position:fixed;inset:0;z-index:500;background:#00000088;align-items:center;justify-content:center">
   <div class="modal" style="max-width:380px">
-    <div class="modal-title"><span class="_ico-inline" data-ico="eye" data-sz="14"></span> Espiar Salas</div>
+    <div class="modal-title">👁 Espiar Salas</div>
     <p style="font-size:11px;color:var(--text3);margin-bottom:12px">Selecione uma sala para entrar em modo invisível.</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="espiarModalGrid"></div>
     <button onclick="fecharEspiarModal()" class="btn-cancel" style="width:100%;margin-top:12px">Fechar</button>
@@ -260,7 +257,7 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
 <!-- SPY OVERLAY -->
 <div class="spy-overlay" id="spyOverlay" style="display:none">
   <div style="display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;background:#0f0e1a;border-bottom:2px solid #ef4444;padding:8px 14px;font-family:'Syne',sans-serif;flex-shrink:0">
-    <span style="font-size:13px;color:#fca5a5;display:inline-flex"><span class="_ico-inline" data-ico="eye" data-sz="13" data-col="#fca5a5"></span></span>
+    <span style="font-size:13px;color:#fca5a5">👁</span>
     <div style="text-align:center">
       <div style="font-size:9px;font-weight:700;color:#ef4444;letter-spacing:.8px;text-transform:uppercase;margin-bottom:1px">MODO ESPIÃO</div>
       <div style="font-size:13px;font-weight:800;color:#fff" id="spyRoomName">Sala</div>
@@ -268,9 +265,9 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
     <button onclick="fecharSpy()" style="background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;font-family:'Syne',sans-serif">✕ Sair</button>
   </div>
   <div style="flex:1;overflow-y:auto;padding:12px;background:#f0f6fc;display:flex;flex-direction:column;gap:10px" id="spyMsgs">
-    <div style="text-align:center;font-size:11px;color:#6a8aaa;padding:5px 12px;background:#1a1735;border-radius:20px;margin:0 auto"><span class="_ico-inline" data-ico="eye" data-sz="11" data-col="currentColor"></span> Modo espião — invisível</div>
+    <div style="text-align:center;font-size:11px;color:#6a8aaa;padding:5px 12px;background:#1a1735;border-radius:20px;margin:0 auto">👁 Modo espião — invisível</div>
   </div>
-  <div style="padding:7px 14px;background:#8aafd4;border-top:1px solid #2a3244;text-align:center;font-size:10px;color:#1a1735;font-weight:700;flex-shrink:0"><span class="_ico-inline" data-ico="lock" data-sz="11" data-col="currentColor"></span> Somente leitura</div>
+  <div style="padding:7px 14px;background:#8aafd4;border-top:1px solid #2a3244;text-align:center;font-size:10px;color:#1a1735;font-weight:700;flex-shrink:0">🔒 Somente leitura</div>
 </div>
 
 <!-- MODAL UPGRADE -->
@@ -809,7 +806,7 @@ function toast(msg,type='ok'){
     // rodapé: apagar se for meu
     var foot=document.getElementById('stVwFoot');
     if((s.nick||'').toLowerCase()===ME_NICK.toLowerCase() || ['admin','supervisor','mod'].includes(ME_ROLE)){
-      foot.innerHTML='<button class="st-vw-del" onclick="stDeleteCurrent()"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Apagar</button>';
+      foot.innerHTML='<button class="st-vw-del" onclick="stDeleteCurrent()">🗑 Apagar</button>';
     } else foot.innerHTML='';
 
     if(s.media_type==='video' && s.media_url){
@@ -920,60 +917,6 @@ function toast(msg,type='ok'){
       if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
     }
   }).catch(function(){});
-})();
-</script>
-
-
-<script>
-/* ── Icon Library Auto-Init ── */
-(function(){
-  if(typeof ICO==='undefined') return;
-  // _ico-ctx: context menu / status icons (16px)
-  document.querySelectorAll('._ico-ctx[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](16);
-  });
-  // _ico-pt: paint toolbar icons (14px)
-  document.querySelectorAll('._ico-pt[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](14,col);
-  });
-  // _ico-plus: plus menu icons (18px, purple)
-  document.querySelectorAll('._ico-plus[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](18,'#7c3aed');
-  });
-  // _ico-inline: general inline icons
-  document.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var sz=parseInt(el.getAttribute('data-sz')||'16');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](sz,col);
-  });
-
-  // Named display icons
-  var annIco=document.getElementById('_icoAnn');
-  if(annIco && ICO.announce) annIco.innerHTML=ICO.announce(16,'currentColor');
-  var spyIco=document.getElementById('_icoSpy');
-  if(spyIco && ICO.eye) spyIco.innerHTML=ICO.eye(14,'currentColor');
-  var rpIco=document.getElementById('_icoRadioPlay');
-  if(rpIco && ICO.play) rpIco.innerHTML=ICO.play(12,'currentColor');
-  // Named IDs
-  var idMap={
-    '_ico_menu':    function(){return ICO.settings(18,'#fff');},
-    '_ico_shield_mod': function(){return ICO.shield(18,'#fff');}
-  };
-  Object.keys(idMap).forEach(function(id){
-    var el=document.getElementById(id);
-    if(el) el.innerHTML=idMap[id]();
-  });
-  // DJ topbar button
-  var djBtn=document.getElementById('djTopBtn');
-  if(djBtn && ICO.dj) djBtn.innerHTML=ICO.dj(16,'#fff');
-  // Float radio btn
-  var radioBtn=document.getElementById('floatRadioBtn');
-  if(radioBtn && radioBtn.innerHTML.indexOf('📻')>-1) radioBtn.innerHTML=radioBtn.innerHTML.replace('📻', ICO.radio(16,'currentColor'));
 })();
 </script>
 </body>
