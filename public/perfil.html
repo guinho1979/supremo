@@ -282,28 +282,27 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
-<script src="icons.js"></script>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="page-header">
   <button class="back-btn" onclick="location.href='chat.html'">‹</button>
-  <span class="page-title"><span class="_ico-inline" data-ico="user" data-sz="18"></span> Meu Perfil</span>
+  <span class="page-title">👤 Meu Perfil</span>
 </div>
 
 <!-- AVATAR HERO -->
 <div class="av-section">
   <div class="cover" id="coverBanner"></div>
-  <button class="cover-edit" onclick="document.getElementById('coverCard').scrollIntoView({behavior:'smooth',block:'center'})"><span class="_ico-inline" data-ico="photo" data-sz="14"></span> Capa</button>
+  <button class="cover-edit" onclick="document.getElementById('coverCard').scrollIntoView({behavior:'smooth',block:'center'})">🖼 Capa</button>
   <div class="av-ring" id="avRing">
     <span id="avDisplay">😊</span>
   </div>
   <div class="av-nick" id="avNick">–</div>
   <div class="av-badge b-user" id="avBadge">USER</div>
   <div class="av-btns">
-    <button class="av-btn" onclick="openAvatarModal()"><span class="_ico-inline" data-ico="photo" data-sz="14"></span> Escolher imagem</button>
-    <button class="av-btn" id="nickEmojiBtn" onclick="openNickEmojiPicker()"><span class="_ico-inline" data-ico="emoji" data-sz="14"></span> Emoji do nick</button>
+    <button class="av-btn" onclick="openAvatarModal()">🖼 Escolher imagem</button>
+    <button class="av-btn" id="nickEmojiBtn" onclick="openNickEmojiPicker()">😀 Emoji do nick</button>
   </div>
   <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)"/>
   <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="handleCoverUpload(this)"/>
@@ -313,7 +312,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
   <!-- NICK -->
   <div class="card">
-    <div class="card-header"><span class="icon"><span class="_ico-inline" data-ico="edit" data-sz="14"></span></span> Nick</div>
+    <div class="card-header"><span class="icon">✏</span> Nick</div>
     <div class="card-body">
       <div class="field-wrap">
         <div class="field-label">Seu nick no chat</div>
@@ -351,7 +350,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
   <!-- CAPA -->
   <div class="card" id="coverCard">
-    <div class="card-header"><span class="icon"><span class="_ico-inline" data-ico="photo" data-sz="14"></span></span> Capa do perfil</div>
+    <div class="card-header"><span class="icon">🖼</span> Capa do perfil</div>
     <div class="card-body">
       <div class="field-label">Escolha um fundo ou envie uma imagem</div>
       <div class="sw-row" id="coverSwatches"></div>
@@ -416,7 +415,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 
   <!-- SALVAR PERFIL -->
-  <button class="save-btn blue" onclick="saveProfile()"><span class="_ico-inline" data-ico="save" data-sz="14"></span> Salvar perfil</button>
+  <button class="save-btn blue" onclick="saveProfile()">💾 Salvar perfil</button>
 
   <!-- ═══════════════════════════════════════
        ÁUDIO DO PERFIL — só upload
@@ -435,26 +434,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="ap-upload-sub" id="apTrackSize">Apenas MP3 — máx. 7 MB</div>
       </div>
       <input type="file" id="apFileInput" accept="audio/mp3,audio/mpeg,.mp3" style="display:none" onchange="apLoadFile(this)"/>
-      <button class="ap-remove" id="apRemove" onclick="apRemoveAudio()"><span class="_ico-inline" data-ico="trash" data-sz="14"></span> Remover áudio</button>
+      <button class="ap-remove" id="apRemove" onclick="apRemoveAudio()">🗑 Remover áudio do perfil</button>
     </div>
   </div>
 
   <!-- TROCAR SENHA -->
   <div class="card">
-    <div class="card-header"><span class="icon"><span class="_ico-inline" data-ico="key" data-sz="14"></span></span> Alterar Senha</div>
+    <div class="card-header"><span class="icon">🔑</span> Alterar Senha</div>
     <div class="card-body">
       <div class="field-wrap">
         <div class="field-label">Senha atual</div>
         <div class="pw-input-wrap">
           <input class="tc-input" id="pwAtual" type="password" placeholder="Senha atual..." style="padding-right:40px" autocomplete="current-password"/>
-          <button class="pw-toggle" onclick="togglePw('pwAtual',this)" tabindex="-1"><span class="_ico-inline" data-ico="eye" data-sz="14"></span></button>
+          <button class="pw-toggle" onclick="togglePw('pwAtual',this)" tabindex="-1">👁</button>
         </div>
       </div>
       <div class="field-wrap">
         <div class="field-label">Nova senha</div>
         <div class="pw-input-wrap">
           <input class="tc-input" id="pwNova" type="password" placeholder="Nova senha..." style="padding-right:40px" autocomplete="new-password" oninput="checkPwStrength()"/>
-          <button class="pw-toggle" onclick="togglePw('pwNova',this)" tabindex="-1"><span class="_ico-inline" data-ico="eye" data-sz="14"></span></button>
+          <button class="pw-toggle" onclick="togglePw('pwNova',this)" tabindex="-1">👁</button>
         </div>
         <div id="pwStrWrap" style="display:none;margin-top:4px">
           <div class="pw-bar"><div class="pw-fill" id="pwFill"></div></div>
@@ -465,10 +464,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
         <div class="field-label">Confirmar nova senha</div>
         <div class="pw-input-wrap">
           <input class="tc-input" id="pwConf" type="password" placeholder="Confirmar nova senha..." style="padding-right:40px" autocomplete="new-password"/>
-          <button class="pw-toggle" onclick="togglePw('pwConf',this)" tabindex="-1"><span class="_ico-inline" data-ico="eye" data-sz="14"></span></button>
+          <button class="pw-toggle" onclick="togglePw('pwConf',this)" tabindex="-1">👁</button>
         </div>
       </div>
-      <button class="save-btn blue" onclick="changePassword()" style="margin-top:4px"><span class="_ico-inline" data-ico="key" data-sz="14"></span> Alterar Senha</button>
+      <button class="save-btn blue" onclick="changePassword()" style="margin-top:4px">🔑 Alterar Senha</button>
     </div>
   </div>
 
@@ -479,12 +478,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div class="overlay" id="avOverlay">
   <div class="modal">
     <div class="modal-title">
-      <span class="_ico-inline" data-ico="photo" data-sz="13"></span> Alterar avatar
-      <button class="modal-close" onclick="closeAvatarModal()"><span class="_ico-inline" data-ico="close"></span></button>
+      🖼 Alterar avatar
+      <button class="modal-close" onclick="closeAvatarModal()">✕</button>
     </div>
     <div class="av-tabs">
-      <button class="av-tab active" onclick="switchAvTab('Avatar',this)"><span class="_ico-inline" data-ico="user" data-sz="13"></span> Avatares</button>
-      <button class="av-tab" onclick="switchAvTab('Photo',this)"><span class="_ico-inline" data-ico="photo" data-sz="13"></span> Minha foto</button>
+      <button class="av-tab active" onclick="switchAvTab('Avatar',this)">🧑 Avatares</button>
+      <button class="av-tab" onclick="switchAvTab('Photo',this)">📷 Minha foto</button>
     </div>
     <div class="av-panel active" id="avPanelAvatar">
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:4px" id="avatarImgGrid"></div>
@@ -492,14 +491,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <div class="av-panel" id="avPanelPhoto">
       <div class="photo-drop" onclick="document.getElementById('photoInput').click()">
-        <div id="photoPreview" style="font-size:36px;margin-bottom:8px;display:flex;justify-content:center"><span class="_ico-inline" data-ico="photo" data-sz="36"></span></div>
+        <div id="photoPreview" style="font-size:36px;margin-bottom:8px">📷</div>
         <div style="font-size:12px;color:#8aafd4;font-weight:700">Clique para selecionar uma foto</div>
         <div style="font-size:10px;color:#4a6080;margin-top:4px">JPG, PNG ou GIF</div>
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button class="mbtn cancel" onclick="closeAvatarModal()" style="flex:1">Cancelar</button>
-      <button class="mbtn confirm" onclick="applyAvatar()" style="flex:1"><span class="_ico-inline" data-ico="check" data-sz="13"></span> Aplicar</button>
+      <button class="mbtn confirm" onclick="applyAvatar()" style="flex:1">✅ Aplicar</button>
     </div>
   </div>
 </div>
@@ -893,7 +892,7 @@ function showToast(msg,type='i'){
     <div class="ne-handle"></div>
     <div class="ne-title">😀 Escolha o emoji do seu nick</div>
     <div class="ne-current" id="neCurrent"></div>
-    <button class="ne-clear" onclick="clearNickEmoji()"><span class="_ico-inline" data-ico="close" data-sz="13"></span> Remover emoji</button>
+    <button class="ne-clear" onclick="clearNickEmoji()">✖ Remover emoji</button>
     <div class="ne-cats" id="neCats"></div>
     <div class="ne-grid" id="neGrid"></div>
   </div>
@@ -1036,59 +1035,6 @@ function showToast(msg,type='i'){
       if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
     }
   }).catch(function(){});
-})();
-</script>
-
-<script>
-/* ── Icon Library Auto-Init ── */
-(function(){
-  if(typeof ICO==='undefined') return;
-  // _ico-ctx: context menu / status icons (16px)
-  document.querySelectorAll('._ico-ctx[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](16);
-  });
-  // _ico-pt: paint toolbar icons (14px)
-  document.querySelectorAll('._ico-pt[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](14,col);
-  });
-  // _ico-plus: plus menu icons (18px, purple)
-  document.querySelectorAll('._ico-plus[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](18,'#7c3aed');
-  });
-  // _ico-inline: general inline icons
-  document.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var sz=parseInt(el.getAttribute('data-sz')||'16');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](sz,col);
-  });
-
-  // Named display icons
-  var annIco=document.getElementById('_icoAnn');
-  if(annIco && ICO.announce) annIco.innerHTML=ICO.announce(16,'currentColor');
-  var spyIco=document.getElementById('_icoSpy');
-  if(spyIco && ICO.eye) spyIco.innerHTML=ICO.eye(14,'currentColor');
-  var rpIco=document.getElementById('_icoRadioPlay');
-  if(rpIco && ICO.play) rpIco.innerHTML=ICO.play(12,'currentColor');
-  // Named IDs
-  var idMap={
-    '_ico_menu':    function(){return ICO.settings(18,'#fff');},
-    '_ico_shield_mod': function(){return ICO.shield(18,'#fff');}
-  };
-  Object.keys(idMap).forEach(function(id){
-    var el=document.getElementById(id);
-    if(el) el.innerHTML=idMap[id]();
-  });
-  // DJ topbar button
-  var djBtn=document.getElementById('djTopBtn');
-  if(djBtn && ICO.dj) djBtn.innerHTML=ICO.dj(16,'#fff');
-  // Float radio btn
-  var radioBtn=document.getElementById('floatRadioBtn');
-  if(radioBtn && radioBtn.innerHTML.indexOf('📻')>-1) radioBtn.innerHTML=radioBtn.innerHTML.replace('📻', ICO.radio(16,'currentColor'));
 })();
 </script>
 </body>

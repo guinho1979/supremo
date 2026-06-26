@@ -73,7 +73,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100dvh;dis
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
-<script src="icons.js"></script>
 </head>
 <body>
 <div class="bg-glow"></div>
@@ -176,9 +175,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100dvh;dis
     <div class="last-grid" id="lastGrid"></div>
   </div>
   <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--text3)">
-    <a href="terms.html" target="_blank" style="color:var(--text3);text-decoration:none"><span class="_ico-inline" data-ico="info" data-sz="13"></span> Termos de Uso</a>
+    <a href="terms.html" target="_blank" style="color:var(--text3);text-decoration:none">📄 Termos de Uso</a>
     &nbsp;·&nbsp;
-    <a href="privacy.html" target="_blank" style="color:var(--text3);text-decoration:none"><span class="_ico-inline" data-ico="lock" data-sz="13"></span> Privacidade</a>
+    <a href="privacy.html" target="_blank" style="color:var(--text3);text-decoration:none">🔒 Privacidade</a>
   </div>
 </div>
 
@@ -458,51 +457,6 @@ async function doFaceIdLogin(){
       if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
     }
   }).catch(function(){});
-})();
-</script>
-
-<script>
-/* ── Icon Library Auto-Init ── */
-(function(){
-  if(typeof ICO==='undefined') return;
-  // _ico-ctx: context menu / status icons (16px)
-  document.querySelectorAll('._ico-ctx[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](16);
-  });
-  // _ico-pt: paint toolbar icons (14px)
-  document.querySelectorAll('._ico-pt[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](14,col);
-  });
-  // _ico-plus: plus menu icons (18px, purple)
-  document.querySelectorAll('._ico-plus[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](18,'#7c3aed');
-  });
-  // _ico-inline: general inline icons
-  document.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var sz=parseInt(el.getAttribute('data-sz')||'16');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](sz,col);
-  });
-  // Named IDs
-  var idMap={
-    '_ico_menu':    function(){return ICO.settings(18,'#fff');},
-    '_ico_shield_mod': function(){return ICO.shield(18,'#fff');}
-  };
-  Object.keys(idMap).forEach(function(id){
-    var el=document.getElementById(id);
-    if(el) el.innerHTML=idMap[id]();
-  });
-  // DJ topbar button
-  var djBtn=document.getElementById('djTopBtn');
-  if(djBtn && ICO.dj) djBtn.innerHTML=ICO.dj(16,'#fff');
-  // Float radio btn
-  var radioBtn=document.getElementById('floatRadioBtn');
-  if(radioBtn && radioBtn.innerHTML.indexOf('📻')>-1) radioBtn.innerHTML=radioBtn.innerHTML.replace('📻', ICO.radio(16,'currentColor'));
 })();
 </script>
 </body>

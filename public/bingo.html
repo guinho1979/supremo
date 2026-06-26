@@ -243,7 +243,6 @@ main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
-<script src="icons.js"></script>
 </head>
 <body>
 <canvas id="confetti"></canvas>
@@ -253,10 +252,10 @@ main{flex:1;display:flex;flex-direction:column;overflow:hidden}
   <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:40px;object-fit:contain">
   <span style="font-size:11px;color:#fff;font-weight:700">🎱 Bingo</span>
   <div class="header-actions">
-    <button class="hbtn" id="btnNumsAll" onclick="openNumsModal()"><span class="_ico-inline" data-ico="stats" data-sz="14"></span> Sorteados</button>
-    <button class="hbtn" id="btnAdmin" onclick="openAdminLogin()" style="display:none"><span class="_ico-inline" data-ico="key" data-sz="14"></span> Admin</button>
-    <button class="hbtn op-on" id="btnOpPanel" onclick="openAdminPanel()" style="display:none;display:flex;align-items:center;justify-content:center"><span class="_ico-inline" data-ico="settings" data-sz="14"></span></button>
-    <button class="hbtn sair" onclick="window.location.href='salas.html'"><span class="_ico-inline" data-ico="leave" data-sz="14"></span> Sair</button>
+    <button class="hbtn" id="btnNumsAll" onclick="openNumsModal()">🔢 Sorteados</button>
+    <button class="hbtn" id="btnAdmin" onclick="openAdminLogin()" style="display:none">🔑 Admin</button>
+    <button class="hbtn op-on" id="btnOpPanel" onclick="openAdminPanel()" style="display:none">⚙</button>
+    <button class="hbtn sair" onclick="window.location.href='salas.html'">⏻ Sair</button>
   </div>
 </header>
 
@@ -279,9 +278,9 @@ main{flex:1;display:flex;flex-direction:column;overflow:hidden}
         <option value="3000" selected>3s</option>
         <option value="1500">1.5s</option>
       </select>
-      <button class="obtn obtn-start" id="btnStart" onclick="startBingo()"><span class="_ico-inline" data-ico="play" data-sz="14"></span> Iniciar</button>
-      <button class="obtn obtn-draw" id="btnDraw" onclick="drawNumber()" disabled><span class="_ico-inline" data-ico="game" data-sz="14"></span> Sortear</button>
-      <button class="obtn obtn-reset" onclick="resetBingo()" style="display:flex;align-items:center;justify-content:center"><span class="_ico-inline" data-ico="undo" data-sz="14"></span></button>
+      <button class="obtn obtn-start" id="btnStart" onclick="startBingo()">▶ Iniciar</button>
+      <button class="obtn obtn-draw" id="btnDraw" onclick="drawNumber()" disabled>🎱 Sortear</button>
+      <button class="obtn obtn-reset" onclick="resetBingo()">↺</button>
       <span class="status-txt" id="statusTxt">Pronto</span>
     </div>
 
@@ -294,7 +293,7 @@ main{flex:1;display:flex;flex-direction:column;overflow:hidden}
     <div class="prog-row">
       <div class="prog-bar-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
       <span class="prog-lbl" id="progLbl">0/20</span>
-      <button class="bingo-btn" id="bingoBtn" onclick="declareBingo()"><span class="_ico-inline" data-ico="trophy" data-sz="14"></span> BINGO!</button>
+      <button class="bingo-btn" id="bingoBtn" onclick="declareBingo()">🎉 BINGO!</button>
     </div>
 
   </div>
@@ -306,7 +305,7 @@ main{flex:1;display:flex;flex-direction:column;overflow:hidden}
     <div class="chat-input-row">
       <input class="chat-input" id="chatInput" placeholder="Digite uma mensagem..." maxlength="200"
         onkeydown="if(event.key==='Enter')sendMsg()"/>
-      <button class="chat-send" onclick="sendMsg()"><span class="_ico-inline" data-ico="send" data-sz="13"></span></button>
+      <button class="chat-send" onclick="sendMsg()">➤</button>
     </div>
   </div>
 </main>
@@ -366,7 +365,7 @@ main{flex:1;display:flex;flex-direction:column;overflow:hidden}
       background:linear-gradient(135deg,var(--gold),var(--purple));
       -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">BINGO!</h3>
     <p id="winnerText" style="margin-bottom:16px">Parabéns!</p>
-    <button class="mbtn mbtn-ok" onclick="closeOverlay('winnerModal')"><span class="_ico-inline" data-ico="check" data-sz="14"></span> Fechar</button>
+    <button class="mbtn mbtn-ok" onclick="closeOverlay('winnerModal')">🎊 Fechar</button>
   </div>
 </div>
 
@@ -781,59 +780,6 @@ function showToast(msg){
       if(lg && lg.querySelector && !lg.querySelector('img') && lg.children.length===0){ lg.innerHTML='<img src="'+url+'" alt="logo" style="height:30px;max-width:160px;object-fit:contain;vertical-align:middle">'; }
     }
   }).catch(function(){});
-})();
-</script>
-
-<script>
-/* ── Icon Library Auto-Init ── */
-(function(){
-  if(typeof ICO==='undefined') return;
-  // _ico-ctx: context menu / status icons (16px)
-  document.querySelectorAll('._ico-ctx[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](16);
-  });
-  // _ico-pt: paint toolbar icons (14px)
-  document.querySelectorAll('._ico-pt[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](14,col);
-  });
-  // _ico-plus: plus menu icons (18px, purple)
-  document.querySelectorAll('._ico-plus[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](18,'#7c3aed');
-  });
-  // _ico-inline: general inline icons
-  document.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var sz=parseInt(el.getAttribute('data-sz')||'16');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](sz,col);
-  });
-
-  // Named display icons
-  var annIco=document.getElementById('_icoAnn');
-  if(annIco && ICO.announce) annIco.innerHTML=ICO.announce(16,'currentColor');
-  var spyIco=document.getElementById('_icoSpy');
-  if(spyIco && ICO.eye) spyIco.innerHTML=ICO.eye(14,'currentColor');
-  var rpIco=document.getElementById('_icoRadioPlay');
-  if(rpIco && ICO.play) rpIco.innerHTML=ICO.play(12,'currentColor');
-  // Named IDs
-  var idMap={
-    '_ico_menu':    function(){return ICO.settings(18,'#fff');},
-    '_ico_shield_mod': function(){return ICO.shield(18,'#fff');}
-  };
-  Object.keys(idMap).forEach(function(id){
-    var el=document.getElementById(id);
-    if(el) el.innerHTML=idMap[id]();
-  });
-  // DJ topbar button
-  var djBtn=document.getElementById('djTopBtn');
-  if(djBtn && ICO.dj) djBtn.innerHTML=ICO.dj(16,'#fff');
-  // Float radio btn
-  var radioBtn=document.getElementById('floatRadioBtn');
-  if(radioBtn && radioBtn.innerHTML.indexOf('📻')>-1) radioBtn.innerHTML=radioBtn.innerHTML.replace('📻', ICO.radio(16,'currentColor'));
 })();
 </script>
 </body>

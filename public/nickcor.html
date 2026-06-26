@@ -217,14 +217,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   background:#0d2a5e;color:#bfdbfe;
 }
 </style>
-<script src="icons.js"></script>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="page-header">
   <button class="back-btn" onclick="location.href='chat.html'" title="Voltar">‹</button>
-  <span class="page-title"><span class="_ico-inline" data-ico="brush" data-sz="18"></span> Cor do Nick</span>
+  <span class="page-title">🎨 Cor do Nick</span>
   <div class="header-preview" id="headerPreview">Seu Nick</div>
 </div>
 
@@ -232,7 +231,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
   <!-- PREVIEW -->
   <div class="card">
-    <div class="card-header"><span class="icon" style="display:inline-flex"><span class="_ico-inline" data-ico="eye" data-sz="14" data-col="currentColor"></span></span> Pré-visualização</div>
+    <div class="card-header"><span class="icon">👁</span> Pré-visualização</div>
     <div class="card-body">
       <div class="preview-box">
         <div class="preview-label">Como ficará no chat</div>
@@ -277,7 +276,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
   <!-- COR SÓLIDA DO NICK -->
   <div class="card">
-    <div class="card-header"><span class="icon" style="display:inline-flex"><span class="_ico-inline" data-ico="brush" data-sz="14" data-col="currentColor"></span></span> Cor sólida do nick</div>
+    <div class="card-header"><span class="icon">🎨</span> Cor sólida do nick</div>
     <div class="card-body">
       <div class="grad-pickers">
         <div class="grad-picker-col">
@@ -329,7 +328,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 
   <!-- SALVAR -->
-  <button class="save-btn" onclick="saveColors()"><span class="_ico-inline" data-ico="save" data-sz="14"></span> Salvar configurações</button>
+  <button class="save-btn" onclick="saveColors()">💾 Salvar configurações</button>
 
 </div>
 
@@ -490,7 +489,7 @@ function openColorModal(target){
     }
     if(isBlocked){
       s.title='Escolha uma cor diferente da outra';
-      s.innerHTML='<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px">'+(typeof ICO!='undefined'?ICO.lock(14,'#888'):'🔒')+'</span>';
+      s.innerHTML='<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px">🚫</span>';
     }
     if(!isBlocked){
       s.onmouseover=()=>s.style.transform='scale(1.15)';
@@ -632,59 +631,6 @@ function showToast(msg){
   t.textContent=msg; t.style.opacity='1';
   clearTimeout(t._x); t._x=setTimeout(()=>t.style.opacity='0',2500);
 }
-</script>
-
-<script>
-/* ── Icon Library Auto-Init ── */
-(function(){
-  if(typeof ICO==='undefined') return;
-  // _ico-ctx: context menu / status icons (16px)
-  document.querySelectorAll('._ico-ctx[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](16);
-  });
-  // _ico-pt: paint toolbar icons (14px)
-  document.querySelectorAll('._ico-pt[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](14,col);
-  });
-  // _ico-plus: plus menu icons (18px, purple)
-  document.querySelectorAll('._ico-plus[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](18,'#7c3aed');
-  });
-  // _ico-inline: general inline icons
-  document.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var sz=parseInt(el.getAttribute('data-sz')||'16');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](sz,col);
-  });
-
-  // Named display icons
-  var annIco=document.getElementById('_icoAnn');
-  if(annIco && ICO.announce) annIco.innerHTML=ICO.announce(16,'currentColor');
-  var spyIco=document.getElementById('_icoSpy');
-  if(spyIco && ICO.eye) spyIco.innerHTML=ICO.eye(14,'currentColor');
-  var rpIco=document.getElementById('_icoRadioPlay');
-  if(rpIco && ICO.play) rpIco.innerHTML=ICO.play(12,'currentColor');
-  // Named IDs
-  var idMap={
-    '_ico_menu':    function(){return ICO.settings(18,'#fff');},
-    '_ico_shield_mod': function(){return ICO.shield(18,'#fff');}
-  };
-  Object.keys(idMap).forEach(function(id){
-    var el=document.getElementById(id);
-    if(el) el.innerHTML=idMap[id]();
-  });
-  // DJ topbar button
-  var djBtn=document.getElementById('djTopBtn');
-  if(djBtn && ICO.dj) djBtn.innerHTML=ICO.dj(16,'#fff');
-  // Float radio btn
-  var radioBtn=document.getElementById('floatRadioBtn');
-  if(radioBtn && radioBtn.innerHTML.indexOf('📻')>-1) radioBtn.innerHTML=radioBtn.innerHTML.replace('📻', ICO.radio(16,'currentColor'));
-})();
 </script>
 </body>
 </html>
