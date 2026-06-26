@@ -549,38 +549,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .quiz-timer{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#f59e0b;text-align:center;margin-top:8px}
 .quiz-result{text-align:center;padding:8px;font-size:12px;font-weight:700;color:#e2e0f0;margin-top:6px}
 .quiz-score{font-size:10px;color:#93b4d8;margin-top:4px}
-
-/* ══════════ CONVITES DE SALA PRIVADA (📨 room-name-bar) ══════════ */
-.inv-ov{display:none;position:fixed;inset:0;z-index:700;background:#00000099;align-items:center;justify-content:center;padding:16px}
-.inv-ov.show{display:flex}
-.inv-modal{background:#0f1f3d;border:1px solid #1e3a5f;border-radius:16px;padding:0;max-width:380px;width:100%;max-height:80dvh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.inv-modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #1e3a5f;background:linear-gradient(135deg,#0f1f3d,#1d4ed8);border-radius:16px 16px 0 0}
-.inv-modal-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff;display:flex;align-items:center;gap:8px}
-.inv-modal-close{background:rgba(255,255,255,.12);border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center}
-.inv-modal-close:hover{background:rgba(255,255,255,.2)}
-.inv-list{padding:10px 14px 16px;display:flex;flex-direction:column;gap:10px}
-.inv-item{display:flex;align-items:center;gap:12px;background:#111827;border:1px solid #1e3a5f;border-radius:12px;padding:12px;transition:border-color .15s}
-.inv-item-icon{width:42px;height:42px;border-radius:11px;background:#1a2235;border:1px solid #1e3a5f;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
-.inv-item-body{flex:1;min-width:0}
-.inv-item-room{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.inv-item-from{font-size:11px;color:#8aafd4;margin-top:2px}
-.inv-item-actions{display:flex;gap:6px;margin-top:8px}
-.inv-item-actions button{flex:1;padding:7px;border-radius:8px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;display:flex;align-items:center;justify-content:center;gap:4px}
-.inv-btn-accept{background:#10b981;color:#fff}
-.inv-btn-accept:hover{background:#059669}
-.inv-btn-decline{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)!important}
-.inv-btn-decline:hover{background:rgba(239,68,68,.25)}
-.inv-empty{padding:30px 18px;text-align:center;color:#4a6080;font-size:12px}
-#invBell{position:relative;background:#ffffff;border:1px solid #000000;color:#8aafd4;font-size:11px;font-weight:700;height:24px;padding:0 9px;border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;gap:4px;transition:.15s;font-family:'DM Sans',sans-serif;white-space:nowrap}
-#invBell:hover{background:#242830;border-color:#3a5068;color:#c4b5fd}
-#invBell.has-pending{border-color:#ef4444;color:#ef4444;background:#fff0f0}
-#invBell .inv-dot{display:none;position:absolute;top:-4px;right:-4px;width:10px;height:10px;border-radius:50%;background:#ef4444;border:2px solid #0f1f3d}
-#invBell.has-pending .inv-dot{display:block;animation:invBlink 1s ease-in-out infinite}
-@keyframes invBlink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
-<script src="icons.js"></script>
 </head>
 <body>
 
@@ -591,7 +562,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
 <!-- ANNOUNCEMENT BAR -->
 <div class="ann-bar purple" id="annBar">
-  <span class="ann-icon" id="_icoAnn"></span>
+  <span class="ann-icon">📢</span>
   <div class="ann-scroll-wrap">
     <div class="ann-scroll-track" id="annText">Bem-vindos ao Chat Supremo! 🎉</div>
   </div>
@@ -620,20 +591,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div class="oc-section-block">
       <div class="oc-sect" style="font-size:16px">Status</div>
       <div class="status-selector">
-        <button class="sts-btn active-status" data-s="online" onclick="setStatus('online',this)" style="color:#10b981"><span class="_ico-ctx" data-ico="online"></span> Online</button>
-        <button class="sts-btn" data-s="away"   onclick="setStatus('away',this)" style="color:#f59e0b"><span class="_ico-ctx" data-ico="away"></span> Ausente</button>
-        <button class="sts-btn" data-s="busy"   onclick="setStatus('busy',this)" style="color:#ef4444"><span class="_ico-ctx" data-ico="offline"></span> Ocupado</button>
+        <button class="sts-btn active-status" data-s="online" onclick="setStatus('online',this)" style="color:#10b981">🟢 Online</button>
+        <button class="sts-btn" data-s="away"   onclick="setStatus('away',this)" style="color:#f59e0b">🟡 Ausente</button>
+        <button class="sts-btn" data-s="busy"   onclick="setStatus('busy',this)" style="color:#ef4444">🔴 Ocupado</button>
       </div>
     </div>
 
     <!-- Navegação: Perfil + Cores -->
     <div class="oc-section-block">
       <a href="perfil.html" class="toggle-row" style="text-decoration:none;cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span class="_ico-inline" data-ico="user" data-sz="20"></span> Editar Perfil</span>
+        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">👤</span> Editar Perfil</span>
         <span style="color:#374d6e">›</span>
       </a>
       <a href="nickcor.html" class="toggle-row" style="text-decoration:none;cursor:pointer">
-        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span class="_ico-inline" data-ico="draw" data-sz="20"></span> Editar Cores</span>
+        <span class="toggle-label" style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="font-size:20px">🎨</span> Editar Cores</span>
         <span style="color:#374d6e">›</span>
       </a>
     </div>
@@ -695,7 +666,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <!-- PV WHITELIST MODAL -->
 <div class="overlay" id="pvToggleOverlay" onclick="if(event.target===this)closePVToggle()">
   <div class="modal" style="width:340px;max-width:95vw">
-    <div class="modal-title"><span class="_ico-inline" data-ico="lock" data-sz="14"></span> Configurar Privadas</div>
+    <div class="modal-title">🔒 Configurar Privadas</div>
     <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:12px;border-bottom:1px solid #3d35a0">
       <div>
         <div style="font-size:12px;font-weight:700;color:var(--text)">Receber mensagens privadas</div>
@@ -716,7 +687,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <!-- BLOCKED USERS MODAL -->
 <div class="overlay" id="blockedUsersOverlay" onclick="if(event.target===this)closeBlockedModal()">
   <div class="modal" style="width:360px;max-width:95vw">
-    <div class="modal-title"><span class="_ico-inline" data-ico="block" data-sz="14"></span> Usuários Bloqueados</div>
+    <div class="modal-title">🚫 Usuários Bloqueados</div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:14px">Usuários que você bloqueou. Desbloqueie para voltar a ver as mensagens deles.</div>
     <div id="blockedUsersList" style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;margin-bottom:14px"></div>
     <div id="blockedUsersEmpty" style="display:none;text-align:center;padding:24px 0;font-size:12px;color:var(--text3);font-family:'Syne',sans-serif">✅ Nenhum usuário bloqueado</div>
@@ -728,12 +699,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
 <!-- SPY MODE BAR -->
 <div class="spy-bar" id="spyBar">
-  <span class="spy-icon" id="_icoSpy"></span>
+  <span class="spy-icon">👁</span>
   <span class="spy-label">MODO ESPIÃO — <strong id="spyRoomLabel">Sala</strong> &nbsp;·&nbsp; Você está invisível</span>
-  <button class="spy-exit" onclick="exitSpyMode()"><span class="_ico-inline" data-ico="close" data-sz="12"></span> Sair</button>
+  <button class="spy-exit" onclick="exitSpyMode()">✕ Sair</button>
 </div>
 <div class="topbar">
-  <button class="btn-menu" onclick="toggleLeft()"><span style="display:inline-flex;align-items:center;pointer-events:none" id="_ico_menu"></span></button>
+  <button class="btn-menu" onclick="toggleLeft()">⚙️</button>
   <!-- Room icon + name — centered -->
   <div style="position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;pointer-events:none">
     <span id="topRoomIcon" style="font-size:16px;flex-shrink:0">💬</span>
@@ -742,7 +713,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
   <button class="dj-btn" onclick="openDJ()" title="Pedido ao DJ" style="display:none" id="djTopBtn">♪</button>
   <!-- Radio button inside topbar -->
   <button id="floatRadioBtn" onclick="toggleFloatRadio()" title="Rádio">
-    <span class="radio-play-icon" id="_icoRadioPlay"></span>
+    <span class="radio-play-icon">▶</span>
     <div class="radio-bars">
       <span></span><span></span><span></span><span></span><span></span>
     </div>
@@ -753,7 +724,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <div class="room-name-bar">
   <!-- Center row: YouTube + GIF + Online + Painel + Sair -->
   <div class="rnb-center">
-    <button id="invBell" onclick="abrirConvitesModal()" title="Convites de sala privada"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Convites<span class="inv-dot"></span></button>
     <button class="rnb-media-btn" onclick="openDJ()" id="djRequestBtn" style="position:relative;display:flex;align-items:center;gap:4px">
       🎧<span id="djOnlineName" style="font-size:10px;font-weight:700;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
       <span id="djQueueBadge" style="display:none;position:absolute;top:-5px;right:-5px;background:#ef4444;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:20px;font-family:'Syne',sans-serif;min-width:16px;text-align:center">0</span>
@@ -767,7 +737,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h16v11H11l-3 3V14H2V3z"/></svg>
       <span id="pvNotifBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #fff;z-index:10"></span>
     </button>
-    <button class="mod-btn" id="modPanelBtn" onclick="abrirPainel()" title="Painel Admin" style="font-size:16px;padding:0 8px"><span style="display:inline-flex;align-items:center;pointer-events:none" id="_ico_shield_mod"></span></button>
+    <button class="mod-btn" id="modPanelBtn" onclick="abrirPainel()" title="Painel Admin" style="font-size:16px;padding:0 8px">🛡️</button>
     <button class="leave-txt-btn" onclick="leaveRoom()">Sair</button>
   </div>
 </div>
@@ -821,15 +791,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div style="width:10px;height:10px;border-radius:50%;background:#ef4444;animation:blink 1s infinite;flex-shrink:0"></div>
     <span style="font-size:12px;font-weight:700;color:#c0392b">Gravando...</span>
     <span id="micTimer" style="font-size:12px;font-weight:700;color:#c0392b;margin-left:2px">0:00</span>
-    <button onclick="stopMicRecording()" style="margin-left:auto;background:#ef4444;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer"><span class="_ico-inline" data-ico="close" data-sz="12"></span> Parar</button>
+    <button onclick="stopMicRecording()" style="margin-left:auto;background:#ef4444;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">⏹ Parar</button>
     <button onclick="cancelMicRecording()" style="background:#fee2e2;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕</button>
   </div>
   <!-- MIC PREVIEW BAR (listen before sending) -->
   <div id="micPreviewBar" style="display:none;align-items:center;gap:8px;background:#f4f0ff;border:1.5px solid #ddd6fe;padding:6px 10px;border-radius:10px;margin-bottom:6px">
-    <button id="micPreviewPlayBtn" onclick="toggleMicPreviewPlayback()" style="width:26px;height:26px;border-radius:50%;background:#7c3aed;border:none;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">▶</button>
+    <button id="micPreviewPlayBtn" onclick="toggleMicPreviewPlayback()" style="width:26px;height:26px;border-radius:50%;background:#7c3aed;border:none;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">▶</button>
     <span id="micPreviewTime" style="font-size:11px;font-weight:600;color:#7c3aed;min-width:32px">0:00</span>
-    <button onclick="cancelMicRecording()" style="margin-left:auto;background:#fff;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer"><span class="_ico-inline" data-ico="close" data-sz="11"></span> Cancelar</button>
-    <button onclick="sendMicPreview()" style="background:#7c3aed;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer"><span class="_ico-inline" data-ico="send" data-sz="12"></span> Enviar</button>
+    <button onclick="cancelMicRecording()" style="margin-left:auto;background:#fff;border:1px solid #ef4444;color:#c0392b;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">✕ Cancelar</button>
+    <button onclick="sendMicPreview()" style="background:#7c3aed;border:none;color:#fff;padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">➤ Enviar</button>
   </div>
   <!-- HIDDEN INPUTS (fileInput moved to body level for reliable .click()) -->
   <!-- INPUT ROW WITH + BUTTON -->
@@ -838,38 +808,38 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div style="display:flex;align-items:center;gap:6px;justify-content:space-around;flex-wrap:wrap">
       <!-- Arquivo -->
       <label for="fileInput" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'" onclick="closePlusMenu()">
-        <span class='_ico-plus' data-ico='attach'></span>
+        <span style="font-size:15px">📎</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Arquivo</span>
       </label>
       <!-- Gravar -->
       <button id="btnMicPlus" onclick="toggleMicRecording();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='mic'></span>
+        <span style="font-size:15px">🎙️</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Gravar</span>
       </button>
       <!-- GIF -->
       <button onclick="openGifModal();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='gif'></span>
+        <span style="font-size:15px">🎞️</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">GIF</span>
       </button>
       <!-- Emoji -->
       <button onclick="openEmojiPicker();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='emoji'></span>
+        <span style="font-size:15px">😀</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Emoji</span>
       </button>
       <!-- Reações -->
       <button id="btnEmojiAnimPlus" onclick="toggleEmojiAnimPicker();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='reaction'></span>
+        <span style="font-size:15px">❤️</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Reação</span>
       </button>
       <!-- Paint -->
       <button onclick="openMainPaintModal();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-        <span class='_ico-plus' data-ico='draw'></span>
+        <span style="font-size:15px">🎨</span>
         <span style="font-size:8px;color:#7c3aed;font-weight:600">Desenho</span>
       </button>
       <!-- Convidar Privado -->
       <div id="btnConvidarPrivadoPlus" style="display:none">
         <button onclick="abrirConvidarPrivadoDoChat();closePlusMenu()" style="display:flex;flex-direction:column;align-items:center;gap:1px;background:#f4f0ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:5px 8px;cursor:pointer;min-width:48px;transition:.15s" onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f4f0ff'">
-          <span class='_ico-plus' data-ico='invite'></span>
+          <span style="font-size:15px">📨</span>
           <span style="font-size:8px;color:#7c3aed;font-weight:600">Convidar</span>
         </button>
       </div>
@@ -901,17 +871,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 
 <!-- CONTEXT MENU -->
 <div class="ctx-menu" id="ctxMenu">
-  <div class="ctx-item" onclick="ctxPerfil()"><span class="_ico-ctx" data-ico="user"></span> Ver perfil</div>
-  <div class="ctx-item" onclick="ctxReply()"><span class="_ico-ctx" data-ico="reply"></span> Responder</div>
-  <div class="ctx-item" onclick="ctxPrivate()"><span class="_ico-ctx" data-ico="lock"></span> Mensagem privada</div>
+  <div class="ctx-item" onclick="ctxPerfil()">👤 Ver perfil</div>
+  <div class="ctx-item" onclick="ctxReply()">↩ Responder (mensagem aberta)</div>
+  <div class="ctx-item" onclick="ctxPrivate()">🔒 Mensagem privada</div>
   <hr class="ctx-sep"/>
-  <div class="ctx-item" onclick="ctxReportar()" style="color:#f59e0b"><span class="_ico-ctx" data-ico="report"></span> Reportar mensagem</div>
-  <div class="ctx-item danger" onclick="ctxBlock()"><span class="_ico-ctx" data-ico="block"></span> Bloquear</div>
+  <div class="ctx-item" onclick="ctxReportar()" style="color:#f59e0b">🚩 Reportar mensagem</div>
+  <div class="ctx-item danger" onclick="ctxBlock()">🚫 Bloquear</div>
   <hr class="ctx-sep admin-only"/>
-  <div class="ctx-item admin-only" onclick="ctxBan()"><span class="_ico-ctx" data-ico="ban"></span> Banir</div>
-  <div class="ctx-item admin-only" onclick="ctxKick()"><span class="_ico-ctx" data-ico="kick"></span> Kickar</div>
-  <div class="ctx-item admin-only" onclick="ctxMute()"><span class="_ico-ctx" data-ico="mute"></span> Mutar</div>
-  <div class="ctx-item admin-only" onclick="ctxShadow()"><span class="_ico-ctx" data-ico="shadowban"></span> Shadowban</div>
+  <div class="ctx-item admin-only" onclick="ctxBan()">🔨 Banir</div>
+  <div class="ctx-item admin-only" onclick="ctxKick()">👢 Kickar</div>
+  <div class="ctx-item admin-only" onclick="ctxMute()">🔇 Mutar</div>
+  <div class="ctx-item admin-only" onclick="ctxShadow()">👻 Shadowban</div>
 </div>
 
 <!-- EMOJI ANIMADO PICKER -->
@@ -994,7 +964,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <!-- AVATAR PICKER -->
 <div class="overlay" id="avatarOverlay" onclick="if(event.target===this)closeAvatarModal()">
   <div class="modal av-modal">
-    <div class="modal-title"><span class="_ico-inline" data-ico="draw" data-sz="14"></span> Escolher Avatar</div>
+    <div class="modal-title">🎨 Escolher Avatar</div>
     <div class="av-preview-ring" id="avPreviewRing">😊</div>
     <div class="av-tabs" style="display:none">
       <button class="av-tab active" onclick="switchAvTab('Emoji',this)">Emoji</button>
@@ -1006,7 +976,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div class="av-panel" id="avPanelPhoto" style="display:none">
       <div class="photo-drop" onclick="document.getElementById('photoFileInput').click()">
         <img id="photoPreviewImg" class="photo-preview-img" src="" style="display:none"/>
-        <div id="photoDropHint"><div style="font-size:28px;margin-bottom:5px"><span class="_ico-inline" data-ico="photo" data-sz="28"></span></div><div style="font-size:12px;font-weight:700;color:#60a5fa">Clique para enviar foto</div><div style="font-size:10px;color:#3a5070;margin-top:3px">JPG, PNG — máx. 2MB</div></div>
+        <div id="photoDropHint"><div style="font-size:28px;margin-bottom:5px">📷</div><div style="font-size:12px;font-weight:700;color:#60a5fa">Clique para enviar foto</div><div style="font-size:10px;color:#3a5070;margin-top:3px">JPG, PNG — máx. 2MB</div></div>
       </div>
       <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)"/>
     </div>
@@ -1067,7 +1037,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 <div class="overlay" id="profileOverlay" onclick="if(event.target===this)closeProfile()">
   <div class="modal" style="position:relative">
     <button class="prof-close-x" onclick="closeProfile()">✕</button>
-    <div class="modal-title" id="profTitle"><span class="_ico-inline" data-ico="user" data-sz="14" data-col="currentColor"></span> Perfil</div>
+    <div class="modal-title" id="profTitle">👤 Perfil</div>
     <div id="profBody"></div>
     <div id="profAudioPlayer" style="display:none;padding:0 22px">
       <!-- Modern mini audio player injected by JS -->
@@ -1078,7 +1048,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div id="profAdminActions" style="display:none;margin-top:10px;padding-bottom:18px">
       <div style="font-size:9px;color:#7a90b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Moderação</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="mbtn danger" style="flex:none;padding:6px 10px" onclick="adminAct('ban')"><span class="_ico-inline" data-ico="ban" data-sz="13" data-col="currentColor"></span> Ban</button>
+        <button class="mbtn danger" style="flex:none;padding:6px 10px" onclick="adminAct('ban')">🔨 Ban</button>
         <button class="mbtn" style="flex:none;padding:6px 10px;background:#451a03;color:#fde68a" onclick="adminAct('kick')">👢 Kick</button>
         <button class="mbtn" style="flex:none;padding:6px 10px;background:#1e3a5f;color:#93c5fd" onclick="adminAct('mute')">🔇 Mutar</button>
         <button class="mbtn" style="flex:none;padding:6px 10px;background:#152040;color:#8aafd4" onclick="adminAct('shadow')">👻 Shadow</button>
@@ -2117,24 +2087,11 @@ function toggleNoConvites(el){
   el.classList.toggle('on');
   const aceita = el.classList.contains('on');
   LS.set('tc_no_convites', aceita ? '0' : '1');
-  try{
-    if(window.API && API.updateProfile) API.updateProfile({accept_invites: aceita}).catch(function(){});
-  }catch(e){}
 }
-// Init convites toggle (busca preferência real do servidor; localStorage é só fallback)
+// Init convites toggle
 (function(){
   const t = document.getElementById('toggleConvites');
-  if(!t) return;
-  if(LS.get('tc_no_convites','0')==='0') t.classList.add('on');
-  try{
-    if(window.API && API.me){
-      API.me().then(function(d){
-        var u=d&&d.user; if(!u || u.accept_invites===undefined) return;
-        t.classList.toggle('on', !!u.accept_invites);
-        LS.set('tc_no_convites', u.accept_invites ? '0' : '1');
-      }).catch(function(){});
-    }
-  }catch(e){}
+  if(t && LS.get('tc_no_convites','0')==='0') t.classList.add('on');
 })();
 
 function salvarRadio(){
@@ -3577,7 +3534,7 @@ const REACTIONS = window._REACTIONS || (window._REACTIONS = [
     <div class="msg-text" style="color:${msg.msgColor||'#0a1628'}">${renderedText}</div>
     <div class="react-bar" style="margin-top:4px;min-height:0"></div>
     <div class="msg-footer"><span class="msg-time">${msg.ts?_fmtTs(msg.ts):nowTime()}</span>
-    <div class="msg-actions"><button class="act-btn" onclick="setReply('${msg.nick}')"><span class='_ico-inline' data-ico='reply' data-sz='12'></span> Reply</button>${!msg.isMine?`<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir"><span class='_ico-inline' data-ico='like' data-sz='12'></span> Curtir</button><div class="react-picker">${REACTIONS.map(r=>`<button class="react-emoji-btn" onclick="doReact(event,this,'${r.e}','${r.l}')" title="${r.l}">${r.e}<span class="re-label">${r.l}</span></button>`).join('')}</div></div>`:`<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu"><span class='_ico-inline' data-ico='users' data-sz='12'></span> Ver curtidas</button>`}</div></div>
+    <div class="msg-actions"><button class="act-btn" onclick="setReply('${msg.nick}')">↩ Reply</button>${!msg.isMine?`<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">${REACTIONS.map(r=>`<button class="react-emoji-btn" onclick="doReact(event,this,'${r.e}','${r.l}')" title="${r.l}">${r.e}<span class="re-label">${r.l}</span></button>`).join('')}</div></div>`:`<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>`}</div></div>
     ${(msg.isMine||(canDeleteMsg()&&!window._isStaffMsg(msg.role,msg.nick)))&&!msg.monitoredPV?`<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>`:''}
   </div></div>`;
   area.appendChild(d);
@@ -4180,7 +4137,7 @@ function doReact(e, emojiBtn, emoji, label){
     // Remove my reaction
     data.reacts = data.reacts.filter(r=>!(r.nick===ME.nick));
     data.myReact = null;
-    if(trigger){ trigger.classList.remove('has-reaction'); trigger.innerHTML=(typeof ICO!='undefined'?'<span class="_ico-inline" style="display:inline-flex">'+ICO.like(12)+'</span> Curtir':'👍 Curtir'); }
+    if(trigger){ trigger.classList.remove('has-reaction'); trigger.innerHTML='👍 Curtir'; }
   } else {
     // Remove previous if any
     data.reacts = data.reacts.filter(r=>r.nick!==ME.nick);
@@ -5786,7 +5743,7 @@ tr:hover td{background:var(--surface2)}
   <div style="display:flex;align-items:center;gap:8px;background:#0f0e1a;border-bottom:2px solid #ef4444;padding:5px 14px;font-size:11px;font-weight:700;color:#fca5a5;font-family:'Syne',sans-serif;flex-shrink:0">
     <span style="animation:blink 1.2s infinite;font-size:13px">👁</span>
     <span style="flex:1">MODO ESPIÃO — <strong id="spyModalRoomName">Sala</strong> · Você está invisível</span>
-    <button onclick="fecharEspiar()" style="background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;font-family:'Syne',sans-serif"><span class="_ico-inline" data-ico="close" data-sz="12"></span> Sair</button>
+    <button onclick="fecharEspiar()" style="background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;cursor:pointer;font-family:'Syne',sans-serif">✕ Sair</button>
   </div>
 
   <!-- Topbar identical to chat -->
@@ -5848,7 +5805,7 @@ tr:hover td{background:var(--surface2)}
 <!-- REPORT MODAL -->
 <div class="overlay" id="reportOverlay" onclick="if(event.target===this)closeReport()">
   <div class="modal" style="width:340px;max-width:95vw">
-    <div class="modal-title" style="color:#f59e0b"><span class="_ico-ctx" data-ico="report"></span> Reportar mensagem</div>
+    <div class="modal-title" style="color:#f59e0b">🚩 Reportar mensagem</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Reportando mensagem de <strong id="reportTargetNick" style="color:#fca5a5"></strong></div>
     <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Mensagem:</div>
     <div id="reportMsgPreview" style="background:#0f0e1a;border:1px solid #3d35a0;border-radius:8px;padding:8px 12px;font-size:12px;color:#e2e0f0;margin-bottom:12px;max-height:60px;overflow-y:auto"></div>
@@ -6439,8 +6396,47 @@ if(typeof doSend === 'function'){
   };
 }
 
-// ── CONVITES DE SALA PRIVADA ──────────────────────────────────
-// Removido: o recebimento de convites agora acontece pelo ícone 📨 em salas.html (tempo real via WebSocket).
+// ── CONVITES DE SALA PRIVADA (polling localStorage) ──────────
+let _chatConvitePendente = null;
+
+function verificarConvitesChatPrivado(){
+  const key = 'tc_convite_' + ME.nick;
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return;
+    const c = JSON.parse(raw);
+    if(Date.now() - c.ts > 5*60*1000){ localStorage.removeItem(key); return; }
+    if(_chatConvitePendente && _chatConvitePendente.ts === c.ts) return; // já mostrando
+    _chatConvitePendente = c;
+    document.getElementById('chatConviteRemetente').textContent = c.de + ' ' + (c.deAv||'');
+    document.getElementById('chatConviteIcon').textContent = c.salaIcon||'🔒';
+    document.getElementById('chatConviteNome').textContent = c.salaNome;
+    document.getElementById('chatConviteDesc').textContent = c.salaDesc||'Sala privada exclusiva';
+    document.getElementById('convitePrivadoOverlay').style.display='flex';
+  }catch(e){}
+}
+
+function aceitarConviteChat(){
+  if(!_chatConvitePendente) return;
+  try{ localStorage.removeItem('tc_convite_'+ME.nick); }catch(e){}
+  try{ localStorage.setItem('tc_convite_aceito_'+_chatConvitePendente.salaPrivId,'1'); }catch(e){}
+  LS.set('tc_room', _chatConvitePendente.salaPrivId);
+  LS.set('tc_room_name', _chatConvitePendente.salaNome);
+  _chatConvitePendente = null;
+  document.getElementById('convitePrivadoOverlay').style.display='none';
+  window.location.href='salas-privadas.html';
+}
+
+function rejeitarConviteChat(){
+  if(!_chatConvitePendente) return;
+  try{ localStorage.removeItem('tc_convite_'+ME.nick); }catch(e){}
+  _chatConvitePendente = null;
+  document.getElementById('convitePrivadoOverlay').style.display='none';
+  showToast('Convite recusado.');
+}
+
+// Polling a cada 5s
+if(ME.role !== 'guest') setInterval(verificarConvitesChatPrivado, 5000);
 
 // ── SALA PRIVADA: detectar e mostrar botão de convidar ──────────
 (function initPrivateRoomBtn(){
@@ -6491,13 +6487,36 @@ function abrirConvidarPrivadoDoChat(){
 
 </script>
 
+
+<!-- ═══════════ MODAL CONVITE SALA PRIVADA ═══════════ -->
+<div class="overlay" id="convitePrivadoOverlay" style="display:none;align-items:center;justify-content:center">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:36px;margin-bottom:10px">📨</div>
+    <div class="modal-title" style="justify-content:center;display:flex;margin-bottom:6px">Convite de Sala Privada</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:6px">
+      <strong id="chatConviteRemetente"></strong> te convidou para a sala:
+    </div>
+    <div style="background:#f5f3ff;border:1.5px solid #7c3aed33;border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <span id="chatConviteIcon" style="font-size:26px">🔒</span>
+      <div style="text-align:left">
+        <div id="chatConviteNome" style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text)"></div>
+        <div id="chatConviteDesc" style="font-size:11px;color:var(--text2)"></div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="mbtn cancel" onclick="rejeitarConviteChat()">✕ Rejeitar</button>
+      <button class="mbtn confirm" onclick="aceitarConviteChat()">✓ Aceitar</button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="fileInput" accept="image/*,video/*,audio/*" style="opacity:0;position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;pointer-events:none" onchange="handleFileUpload(this)"/>
 
 <!-- ── PAGE DOWN BUTTON ── -->
 <button id="btnPageDown"
   onclick="const m=document.getElementById('msgArea');if(m){m.scrollTo({top:m.scrollHeight,behavior:'smooth'});}"
   style="position:fixed;right:16px;bottom:80px;z-index:200;width:38px;height:38px;border-radius:50%;background:#2563eb;border:none;color:#fff;font-size:18px;cursor:pointer;box-shadow:0 3px 14px rgba(37,99,235,.45);display:flex;align-items:center;justify-content:center;transition:opacity .2s;opacity:0;pointer-events:none"
-  title="Ir para o final"><span class="_ico-inline" data-ico="scrollDown"></span></button>
+  title="Ir para o final">↓</button>
 <script>
 (function(){
   const area = document.getElementById('msgArea');
@@ -7799,8 +7818,8 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
   var _wq = String(winNick).replace(/'/g,"\\'");
   var _RB = window._REACTIONS||[{e:'👍',l:'Curtir'},{e:'❤️',l:'Amei'},{e:'😂',l:'Haha'},{e:'😮',l:'Uau'},{e:'😢',l:'Triste'},{e:'😡',l:'Grr'}];
   footer.innerHTML = '<span class="msg-time">'+_tm+'</span>'+
-    '<div class="msg-actions"><button class="act-btn" onclick="pvReplyFromBtn(this,\''+_wq+'\',\''+_nq+'\')"><span class='_ico-inline' data-ico='reply' data-sz='12'></span> Reply</button>'+
-    (!isMine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir"><span class='_ico-inline' data-ico='like' data-sz='12'></span> Curtir</button><div class="react-picker">'+_RB.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'')+
+    '<div class="msg-actions"><button class="act-btn" onclick="pvReplyFromBtn(this,\''+_wq+'\',\''+_nq+'\')">↩ Reply</button>'+
+    (!isMine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">'+_RB.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'')+
     '</div>';
   bubble.appendChild(footer);
 
@@ -8002,7 +8021,7 @@ window.msgMod=function(action){
 document.addEventListener('click',function(e){ var m=document.getElementById('msgModMenu'); if(m && m.style.display!=='none' && !m.contains(e.target) && !(e.target.classList&&e.target.classList.contains('msg-shield-btn'))) m.style.display='none'; });
 window._STAFF_ROLES=['mod','supervisor','admin'];
 window._isStaffMsg=function(role,nick){ var r=role||(typeof roomRoles!=='undefined'&&roomRoles[nick])||''; return window._STAFF_ROLES.indexOf(r)>-1; };
-window._shieldBtn=function(nick,role){ if(!window._isStaffMod()||nick===ME.nick) return ''; if(window._isStaffMsg(role,nick)) return ''; return '<button class="msg-shield-btn" onclick="openMsgMod(event,\''+String(nick).replace(/'/g,"\\'")+'\')" title="Moderar"><span style="display:inline-flex;align-items:center;pointer-events:none" id="_ico_shield_mod"></span></button>'; };
+window._shieldBtn=function(nick,role){ if(!window._isStaffMod()||nick===ME.nick) return ''; if(window._isStaffMsg(role,nick)) return ''; return '<button class="msg-shield-btn" onclick="openMsgMod(event,\''+String(nick).replace(/'/g,"\\'")+'\')" title="Moderar">🛡️</button>'; };
 function ouMenuProfile() {
   if (!ouMenuTarget) return;
   openProfile(ouMenuTarget);
@@ -8826,8 +8845,8 @@ function processSmileKeywords(text){
     var nq=String(d.nick).replace(/'/g,"\\'");
     var REACT=window._REACTIONS||[{e:'👍',l:'Curtir'},{e:'❤️',l:'Amei'},{e:'😂',l:'Haha'},{e:'😮',l:'Uau'},{e:'😢',l:'Triste'},{e:'😡',l:'Grr'}];
     var _footer='<div class="msg-footer"><span class="msg-time">'+((typeof nowTime==='function')?nowTime():'')+'</span>'+
-      '<div class="msg-actions"><button class="act-btn" onclick="setReply(\''+nq+'\')"><span class='_ico-inline' data-ico='reply' data-sz='12'></span> Reply</button>'+
-      (!mine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir"><span class='_ico-inline' data-ico='like' data-sz='12'></span> Curtir</button><div class="react-picker">'+REACT.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu"><span class='_ico-inline' data-ico='users' data-sz='12'></span> Ver curtidas</button>')+
+      '<div class="msg-actions"><button class="act-btn" onclick="setReply(\''+nq+'\')">↩ Reply</button>'+
+      (!mine?('<div class="react-wrap"><button class="react-trigger" onclick="toggleReactPicker(event,this)" title="Reagir">👍 Curtir</button><div class="react-picker">'+REACT.map(function(r){return '<button class="react-emoji-btn" onclick="doReact(event,this,\''+r.e+'\',\''+r.l+'\')" title="'+r.l+'">'+r.e+'<span class="re-label">'+r.l+'</span></button>';}).join('')+'</div></div>'):'<button class="act-btn" style="background:#e7f0fd;color:#1877f2;border:1px solid #c0d8f8" onclick="openLikesModal(this)" title="Ver quem curtiu">👥 Ver curtidas</button>')+
       ''+'</div></div>';
     var _delX=((mine||(typeof canDeleteMsg==='function'&&canDeleteMsg()&&!window._isStaffMsg(d.role,d.nick))))?'<button class="del-x-btn" onclick="deleteMsg(this)" title="Apagar mensagem">✕</button>':'';
     div.innerHTML='<div class="msg-av" style="background:#1e1635;border-color:'+(ci.color||'#60a5fa')+'">'+avHtml+'</div><div class="msg-content"><div class="msg-bubble">'
@@ -9473,59 +9492,6 @@ setTimeout(buildSpyRoomList, 1800);
   try{ var _s=window.sendMsg; window.sendMsg=function(){ return; }; }catch(e){}
 })();
 </script>
-
-<script>
-/* ── Icon Library Auto-Init ── */
-(function(){
-  if(typeof ICO==='undefined') return;
-  // _ico-ctx: context menu / status icons (16px)
-  document.querySelectorAll('._ico-ctx[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](16);
-  });
-  // _ico-pt: paint toolbar icons (14px)
-  document.querySelectorAll('._ico-pt[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](14,col);
-  });
-  // _ico-plus: plus menu icons (18px, purple)
-  document.querySelectorAll('._ico-plus[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    if(ICO[fn]) el.innerHTML=ICO[fn](18,'#7c3aed');
-  });
-  // _ico-inline: general inline icons
-  document.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
-    var fn=el.getAttribute('data-ico');
-    var sz=parseInt(el.getAttribute('data-sz')||'16');
-    var col=el.getAttribute('data-col')||'currentColor';
-    if(ICO[fn]) el.innerHTML=ICO[fn](sz,col);
-  });
-
-  // Named display icons
-  var annIco=document.getElementById('_icoAnn');
-  if(annIco && ICO.announce) annIco.innerHTML=ICO.announce(16,'currentColor');
-  var spyIco=document.getElementById('_icoSpy');
-  if(spyIco && ICO.eye) spyIco.innerHTML=ICO.eye(14,'currentColor');
-  var rpIco=document.getElementById('_icoRadioPlay');
-  if(rpIco && ICO.play) rpIco.innerHTML=ICO.play(12,'currentColor');
-  // Named IDs
-  var idMap={
-    '_ico_menu':    function(){return ICO.settings(18,'#fff');},
-    '_ico_shield_mod': function(){return ICO.shield(18,'#fff');}
-  };
-  Object.keys(idMap).forEach(function(id){
-    var el=document.getElementById(id);
-    if(el) el.innerHTML=idMap[id]();
-  });
-  // DJ topbar button
-  var djBtn=document.getElementById('djTopBtn');
-  if(djBtn && ICO.dj) djBtn.innerHTML=ICO.dj(16,'#fff');
-  // Float radio btn
-  var radioBtn=document.getElementById('floatRadioBtn');
-  if(radioBtn && radioBtn.innerHTML.indexOf('📻')>-1) radioBtn.innerHTML=radioBtn.innerHTML.replace('📻', ICO.radio(16,'currentColor'));
-})();
-</script>
 </body>
 <!-- ── MAIN CHAT PAINT MODAL ──────────────────────────────────────────────── -->
 <div id="mainPaintOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeMainPaintModal()">
@@ -9537,13 +9503,13 @@ setTimeout(buildSpyRoomList, 1800);
     </div>
     <div style="display:flex;align-items:center;gap:5px;padding:8px 10px;background:#f8faff;border-bottom:1px solid #e0e8f8;flex-wrap:wrap;flex-shrink:0">
       <div style="display:flex;gap:3px;background:#e8f0ff;border-radius:8px;padding:3px">
-        <button id="mptBrush"  onclick="setMPaintTool('brush')"  title="Pincel"     style="width:30px;height:30px;border-radius:6px;border:none;background:#3a6fa8;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class='_ico-pt' data-ico='brush'></span></button>
-        <button id="mptEraser" onclick="setMPaintTool('eraser')" title="Borracha"   style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class='_ico-pt' data-ico='eraser'></span></button>
-        <button id="mptLine"   onclick="setMPaintTool('line')"   title="Linha"      style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class='_ico-pt' data-ico='line'></span></button>
-        <button id="mptRect"   onclick="setMPaintTool('rect')"   title="Retângulo"  style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class='_ico-pt' data-ico='rect'></span></button>
-        <button id="mptCircle" onclick="setMPaintTool('circle')" title="Círculo"    style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class='_ico-pt' data-ico='circle'></span></button>
-        <button id="mptFill"   onclick="setMPaintTool('fill')"   title="Balde"      style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class='_ico-pt' data-ico='bucket'></span></button>
-        <button id="mptText"   onclick="setMPaintTool('text')"   title="Texto"      style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;cursor:pointer;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center"><span class='_ico-pt' data-ico='textTool'></span></button>
+        <button id="mptBrush"  onclick="setMPaintTool('brush')"  title="Pincel"     style="width:30px;height:30px;border-radius:6px;border:none;background:#3a6fa8;color:#fff;font-size:14px;cursor:pointer">✏️</button>
+        <button id="mptEraser" onclick="setMPaintTool('eraser')" title="Borracha"   style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer">🧹</button>
+        <button id="mptLine"   onclick="setMPaintTool('line')"   title="Linha"      style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer">╱</button>
+        <button id="mptRect"   onclick="setMPaintTool('rect')"   title="Retângulo"  style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer">▭</button>
+        <button id="mptCircle" onclick="setMPaintTool('circle')" title="Círculo"    style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer">◯</button>
+        <button id="mptFill"   onclick="setMPaintTool('fill')"   title="Balde"      style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;font-size:14px;cursor:pointer">🪣</button>
+        <button id="mptText"   onclick="setMPaintTool('text')"   title="Texto"      style="width:30px;height:30px;border-radius:6px;border:none;background:transparent;color:#3a6fa8;cursor:pointer;font-weight:800;font-size:12px">T</button>
       </div>
       <input type="range" id="mptSize" min="1" max="40" value="5" style="width:60px;accent-color:#3a6fa8" oninput="document.getElementById('mptSizeLabel').textContent=this.value;_mptSize=+this.value"/>
       <span id="mptSizeLabel" style="font-size:10px;color:#3a6fa8;font-weight:700;min-width:18px">5</span>
@@ -9559,8 +9525,8 @@ setTimeout(buildSpyRoomList, 1800);
         <div onclick="pickMPtColor('#000000')" style="width:22px;height:22px;border-radius:5px;background:#000;cursor:pointer;border:1.5px solid #fff"></div>
       </div>
       <div style="display:flex;gap:4px;margin-left:auto">
-        <button onclick="undoMPaint()" title="Desfazer" style="width:28px;height:28px;border-radius:7px;border:1px solid #b8d0e8;background:#f0f4ff;color:#3a6fa8;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class='_ico-pt' data-ico='undo'></span></button>
-        <button onclick="clearMPaint()" title="Limpar"   style="width:28px;height:28px;border-radius:7px;border:1px solid #fca5a5;background:#fff5f5;color:#ef4444;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center"><span class='_ico-pt' data-ico='trash' data-col='#ef4444'></span></button>
+        <button onclick="undoMPaint()" title="Desfazer" style="width:28px;height:28px;border-radius:7px;border:1px solid #b8d0e8;background:#f0f4ff;color:#3a6fa8;font-size:13px;cursor:pointer">↩</button>
+        <button onclick="clearMPaint()" title="Limpar"   style="width:28px;height:28px;border-radius:7px;border:1px solid #fca5a5;background:#fff5f5;color:#ef4444;font-size:13px;cursor:pointer">🗑</button>
       </div>
     </div>
     <div style="position:relative;background:#fff;cursor:crosshair;overflow:hidden">
@@ -9645,137 +9611,5 @@ function sendMainPaintDrawing(){
     <button onclick="closeUserNotInRoomModal()" style="padding:8px 28px;border-radius:8px;background:#0f1f3d;border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:.15s" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#0f1f3d'">OK</button>
   </div>
 </div>
-
-<!-- ═══════════ MODAL CONVITES DE SALA PRIVADA ═══════════ -->
-<div class="inv-ov" id="convitesOverlay" onclick="if(event.target===this)fecharConvitesModal()">
-  <div class="inv-modal">
-    <div class="inv-modal-head">
-      <span class="inv-modal-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Convites de sala privada
-      </span>
-      <button class="inv-modal-close" onclick="fecharConvitesModal()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="inv-list" id="convitesList">
-      <div class="inv-empty">Carregando...</div>
-    </div>
-  </div>
-</div>
-
-<script>
-/* ══════════ CONVITES DE SALA PRIVADA — chat.html ══════════ */
-(function(){
-  if(typeof API==='undefined') return;
-
-  function setBellPending(has){
-    var bell=document.getElementById('invBell');
-    if(bell) bell.classList.toggle('has-pending',!!has);
-  }
-
-  function nickEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
-
-  function initIcons(container){
-    if(typeof ICO==='undefined') return;
-    container.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
-      var fn=el.getAttribute('data-ico'), sz=parseInt(el.getAttribute('data-sz')||'12');
-      if(ICO[fn]) el.innerHTML=ICO[fn](sz);
-    });
-  }
-
-  function renderConvites(invites){
-    var list=document.getElementById('convitesList'); if(!list) return;
-    if(!invites||!invites.length){
-      list.innerHTML='<div class="inv-empty">Nenhum convite pendente.</div>';
-      setBellPending(false);
-      return;
-    }
-    setBellPending(true);
-    list.innerHTML=invites.map(function(inv){
-      return '<div class="inv-item" id="invItem_'+inv.id+'">'+
-        '<div class="inv-item-icon">'+nickEsc(inv.icon||'\uD83D\uDD12')+'</div>'+
-        '<div class="inv-item-body">'+
-          '<div class="inv-item-room">'+nickEsc(inv.name)+'</div>'+
-          '<div class="inv-item-from">Convite de <strong style="color:#e2e8f0">'+nickEsc(inv.from_nick)+'</strong></div>'+
-          '<div class="inv-item-actions">'+
-            '<button class="inv-btn-decline" onclick="recusarConvite('+inv.id+')"><span class="_ico-inline" data-ico="close" data-sz="11"></span> Rejeitar</button>'+
-            '<button class="inv-btn-accept" onclick="aceitarConvite('+inv.id+')"><span class="_ico-inline" data-ico="check" data-sz="11"></span> Aceitar</button>'+
-          '</div>'+
-        '</div>'+
-      '</div>';
-    }).join('');
-    initIcons(list);
-  }
-
-  function carregarConvites(){
-    if(!window.API||!API.privateRooms) return;
-    API.privateRooms.invites().then(function(d){ renderConvites(d.invites||[]); }).catch(function(){});
-  }
-
-  window.abrirConvitesModal=function(){
-    document.getElementById('convitesOverlay').classList.add('show');
-    carregarConvites();
-  };
-  window.fecharConvitesModal=function(){
-    document.getElementById('convitesOverlay').classList.remove('show');
-  };
-
-  window.aceitarConvite=function(id){
-    var itemEl=document.getElementById('invItem_'+id);
-    if(itemEl){
-      itemEl.style.opacity='.5';
-      itemEl.style.pointerEvents='none';
-      var actEl=itemEl.querySelector('.inv-item-actions');
-      if(actEl) actEl.innerHTML='<span style="font-size:11px;color:#10b981;font-weight:700">Entrando…</span>';
-    }
-    API.privateRooms.accept(id).then(function(d){
-      if(itemEl) itemEl.remove();
-      setBellPending(false);
-      fecharConvitesModal();
-      if(d.room&&d.room.slug){
-        try{
-          LS.set('tc_room',d.room.slug);
-          LS.set('tc_room_name',d.room.name||'Sala Privada');
-          if(d.room.id) LS.set('tc_room_dbid',String(d.room.id));
-        }catch(e){}
-        window.location.href='chatprivado.html?room='+encodeURIComponent(d.room.slug);
-      } else { carregarConvites(); }
-    }).catch(function(e){
-      if(itemEl){ itemEl.style.opacity=''; itemEl.style.pointerEvents=''; }
-      if(itemEl){
-        var actEl=itemEl.querySelector('.inv-item-actions');
-        if(actEl) actEl.innerHTML='<span style="font-size:11px;color:#ef4444;font-weight:700">'+(e&&e.message?e.message:'Erro ao aceitar')+'</span>';
-      }
-    });
-  };
-
-  window.recusarConvite=function(id){
-    var itemEl=document.getElementById('invItem_'+id);
-    if(itemEl){ itemEl.style.opacity='.4'; itemEl.style.pointerEvents='none'; }
-    API.privateRooms.decline(id).then(function(){
-      if(itemEl) itemEl.remove();
-      carregarConvites();
-    }).catch(function(){
-      if(itemEl){ itemEl.style.opacity=''; itemEl.style.pointerEvents=''; }
-    });
-  };
-
-  function setupSocketListeners(){
-    if(!window.tcSocket) return;
-    tcSocket.on('private_invite_received',function(){
-      setBellPending(true);
-      if(document.getElementById('convitesOverlay').classList.contains('show')) carregarConvites();
-    });
-  }
-
-  if(window.tcSocket){ setupSocketListeners(); }
-  else { document.addEventListener('tcSocketReady',setupSocketListeners); }
-
-  carregarConvites();
-  setInterval(carregarConvites,30000);
-})();
-</script>
-
 
 </html>
