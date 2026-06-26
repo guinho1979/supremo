@@ -9670,6 +9670,18 @@ setTimeout(buildSpyRoomList, 1800);
   try{ var _s=window.sendMsg; window.sendMsg=function(){ return; }; }catch(e){}
 })();
 </script>
+<script>
+/* ===== MARCADOR TEMPORÁRIO DE VERSÃO — pode remover depois de confirmar ===== */
+(function(){
+  try{
+    var m=document.createElement('div');
+    m.textContent='✅ chat.html ATUALIZADO — convites v2';
+    m.style.cssText='position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#16a34a;color:#fff;font:700 12px/1.5 sans-serif;text-align:center;padding:6px;box-shadow:0 2px 8px rgba(0,0,0,.3)';
+    document.addEventListener('DOMContentLoaded',function(){ try{ document.body.appendChild(m); setTimeout(function(){try{m.remove();}catch(e){}},6000); }catch(e){} });
+    console.log('[CONVITES] chat.html versão v2 carregada com sucesso');
+  }catch(e){}
+})();
+</script>
 </body>
 <!-- ── MAIN CHAT PAINT MODAL ──────────────────────────────────────────────── -->
 <div id="mainPaintOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:center;justify-content:center;backdrop-filter:blur(4px)" onclick="if(event.target===this)closeMainPaintModal()">
