@@ -4180,7 +4180,7 @@ function doReact(e, emojiBtn, emoji, label){
     // Remove my reaction
     data.reacts = data.reacts.filter(r=>!(r.nick===ME.nick));
     data.myReact = null;
-    if(trigger){ trigger.classList.remove('has-reaction'); trigger.innerHTML=''; }
+    if(trigger){ trigger.classList.remove('has-reaction'); trigger.innerHTML=(typeof ICO!='undefined'?'<span class="_ico-inline" style="display:inline-flex">'+ICO.like(12)+'</span> Curtir':'👍 Curtir'); }
   } else {
     // Remove previous if any
     data.reacts = data.reacts.filter(r=>r.nick!==ME.nick);
