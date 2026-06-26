@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Chat Supremo — Biblioteca de Ícones</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="icons.js"></script>
+<style>
+:root {
+  --bg:       #0b1320;
+  --surface:  #111827;
+  --surface2: #1a2235;
+  --border:   #1e3a5f;
+  --blue:     #1d4ed8;
+  --blue2:    #3b82f6;
+  --blue3:    #93c5fd;
+  --text:     #e2e8f0;
+  --text2:    #8aafd4;
+  --text3:    #4a6080;
+  --green:    #10b981;
+  --yellow:   #f59e0b;
+  --red:      #ef4444;
+  --purple:   #7c3aed;
+  --radius:   12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #060d1f 0%, #0f1f3d 50%, #1a1060 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 32px 24px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(29,78,216,.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.header-logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--blue2);
+  margin-bottom: 10px;
+}
+.header-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(22px, 5vw, 34px);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.5px;
+  margin-bottom: 8px;
+}
+.header-sub {
+  font-size: 13px;
+  color: var(--text2);
+  max-width: 480px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+}
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(29,78,216,.18);
+  border: 1px solid rgba(59,130,246,.3);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue3);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── USAGE BAR ── */
+.usage-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+}
+.usage-bar h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+.code-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.code-block {
+  background: #060d1f;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #a5f3fc;
+}
+.code-block span { color: #86efac; }
+.code-block em { color: #fde68a; font-style: normal; }
+.code-block strong { color: #c4b5fd; font-style: normal; font-weight: 400; }
+
+/* ── STANDARDS ── */
+.standards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  padding: 16px 24px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.std-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.std-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text3);
+  margin-bottom: 4px;
+}
+.std-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--blue3);
+  font-weight: 600;
+}
+
+/* ── CONTENT ── */
+.content { padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+/* ── SECTION ── */
+.section { margin-bottom: 36px; }
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.section-tag {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--blue);
+  background: rgba(29,78,216,.15);
+  border: 1px solid rgba(29,78,216,.3);
+  border-radius: 4px;
+  padding: 2px 8px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+.section-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── ICON GRID ── */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.icon-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .15s;
+  position: relative;
+  overflow: hidden;
+}
+.icon-card:hover {
+  border-color: var(--blue2);
+  background: var(--surface2);
+  transform: translateY(-2px);
+}
+.icon-card:hover .icon-preview { color: var(--blue2); }
+.icon-card.copied { border-color: var(--green); }
+.icon-card.copied .copy-flash {
+  opacity: 1;
+  pointer-events: none;
+}
+
+.copy-flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(16,185,129,.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green);
+  opacity: 0;
+  transition: opacity .2s;
+  border-radius: var(--radius);
+}
+
+.icon-preview {
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+  transition: color .15s;
+  flex-shrink: 0;
+}
+.icon-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--blue3);
+  text-align: center;
+  line-height: 1.3;
+}
+.icon-desc {
+  font-size: 9px;
+  color: var(--text3);
+  text-align: center;
+  line-height: 1.4;
+}
+.icon-files {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 2px;
+}
+.file-tag {
+  font-size: 7.5px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.file-tag.chat    { background: rgba(59,130,246,.15); color: #93c5fd; }
+.file-tag.admin   { background: rgba(239,68,68,.15);  color: #fca5a5; }
+.file-tag.salas   { background: rgba(16,185,129,.15); color: #6ee7b7; }
+.file-tag.perfil  { background: rgba(245,158,11,.15); color: #fde68a; }
+.file-tag.outros  { background: rgba(124,58,237,.15); color: #c4b5fd; }
+
+/* ── SIZE PREVIEW ── */
+.size-preview-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 28px;
+}
+.size-preview-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 16px;
+}
+.size-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.size-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.size-item label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+}
+
+/* ── COLOR PREVIEW ── */
+.color-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.color-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.color-item label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text3);
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: #1a2235;
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 20px;
+  transition: transform .25s ease;
+  z-index: 9999;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .icon-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .content { padding: 16px; }
+  .standards { padding: 12px 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">Chat Supremo</div>
+  <div class="header-title">Biblioteca de Ícones SVG</div>
+  <div class="header-sub">Todos os ícones da interface em um só lugar. Clique em qualquer ícone para copiar o código de uso.</div>
+  <div class="header-badge">
+    <span id="totalCount">—</span> ícones &nbsp;·&nbsp; icons.js &nbsp;·&nbsp; v1.0
+  </div>
+</div>
+
+<!-- PADRÕES -->
+<div class="standards">
+  <div class="std-item">
+    <div class="std-label">Tamanho padrão</div>
+    <div class="std-value">20 × 20 px</div>
+  </div>
+  <div class="std-item">
+    <div class="std-label">ViewBox</div>
+    <div class="std-value">0 0 24 24</div>
+  </div>
+  <div class="std-item">
+    <div class="std-label">Stroke Width</div>
+    <div class="std-value">1.8</div>
+  </div>
+  <div class="std-item">
+    <div class="std-label">Stroke Linecap</div>
+    <div class="std-value">round</div>
+  </div>
+  <div class="std-item">
+    <div class="std-label">Cor padrão</div>
+    <div class="std-value">currentColor</div>
+  </div>
+  <div class="std-item">
+    <div class="std-label">Estilo</div>
+    <div class="std-value">outline</div>
+  </div>
+</div>
+
+<!-- COMO USAR -->
+<div class="usage-bar">
+  <h3>Como usar</h3>
+  <div class="code-row">
+    <div class="code-block">
+      <span>&lt;script</span> <em>src=</em><strong>"icons.js"</strong><span>&gt;&lt;/script&gt;</span>
+    </div>
+    <div class="code-block">
+      <em>ICO</em>.<strong>send</strong>()
+      <span style="color:#475569">&nbsp;→&nbsp;</span>
+      <span style="color:#94a3b8">SVG 20×20 currentColor</span>
+    </div>
+    <div class="code-block">
+      <em>ICO</em>.<strong>send</strong>(<em>24</em>)
+      <span style="color:#475569">&nbsp;→&nbsp;</span>
+      <span style="color:#94a3b8">SVG 24×24</span>
+    </div>
+    <div class="code-block">
+      <em>ICO</em>.<strong>send</strong>(<em>20</em>, <strong>'#fff'</strong>)
+      <span style="color:#475569">&nbsp;→&nbsp;</span>
+      <span style="color:#94a3b8">SVG com cor fixa</span>
+    </div>
+    <div class="code-block">
+      btn.innerHTML = <em>ICO</em>.<strong>mic</strong>() + <strong>' Gravar'</strong>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- TAMANHOS -->
+  <div class="size-preview-section">
+    <div class="size-preview-title">Escala de tamanhos</div>
+    <div class="size-row" id="sizeRow"></div>
+    <div class="size-preview-title" style="margin-top:20px">Paleta de cores (currentColor)</div>
+    <div class="color-row" id="colorRow"></div>
+  </div>
+
+  <!-- ICON SECTIONS -->
+  <div id="sections"></div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Código copiado!</div>
+
+<script>
+/* ─── Dados das seções ─── */
+var SECTIONS = [
+  {
+    tag: 'AÇÕES',
+    title: 'Navegação & Ações gerais',
+    icons: [
+      { fn: 'send',       name: 'send',       desc: 'Enviar mensagem',     files: ['chat','chatprivado','recados'] },
+      { fn: 'menu',       name: 'menu',       desc: 'Menu / Configurações', files: ['chat','chatprivado'] },
+      { fn: 'close',      name: 'close',      desc: 'Fechar / Cancelar',   files: ['todos'] },
+      { fn: 'back',       name: 'back',       desc: 'Voltar',              files: ['outros'] },
+      { fn: 'search',     name: 'search',     desc: 'Buscar / Pesquisar',  files: ['admin','chat'] },
+      { fn: 'scrollDown', name: 'scrollDown', desc: 'Ir para o final',     files: ['chat','chatprivado'] },
+      { fn: 'more',       name: 'more',       desc: 'Mais opções (vertical)', files: ['chat','chatprivado'] },
+      { fn: 'moreH',      name: 'moreH',      desc: 'Mais opções (horizontal)', files: ['chat'] },
+      { fn: 'publish',    name: 'publish',    desc: 'Publicar / Postar',   files: ['salas','recados'] },
+      { fn: 'save',       name: 'save',       desc: 'Salvar',              files: ['admin','chat','perfil'] },
+      { fn: 'edit',       name: 'edit',       desc: 'Editar',              files: ['admin','chat','perfil','recados'] },
+      { fn: 'copy',       name: 'copy',       desc: 'Copiar',              files: ['admin','chat','perfil'] },
+      { fn: 'trash',      name: 'trash',      desc: 'Excluir / Limpar',    files: ['chat','admin','recados'] },
+      { fn: 'undo',       name: 'undo',       desc: 'Desfazer',            files: ['chat','chatprivado'] },
+      { fn: 'reply',      name: 'reply',      desc: 'Responder mensagem',  files: ['chat','chatprivado'] },
+      { fn: 'like',       name: 'like',       desc: 'Curtir / Like',       files: ['chat','chatprivado','recados'] },
+      { fn: 'report',     name: 'report',     desc: 'Reportar',            files: ['chat','chatprivado'] },
+      { fn: 'add',        name: 'add',        desc: 'Adicionar',           files: ['admin','outros'] },
+      { fn: 'check',      name: 'check',      desc: 'Confirmado / Check',  files: ['todos'] },
+      { fn: 'share',      name: 'share',      desc: 'Compartilhar',        files: ['perfil','outros'] },
+    ]
+  },
+  {
+    tag: 'USUÁRIOS',
+    title: 'Usuário & Social',
+    icons: [
+      { fn: 'user',      name: 'user',      desc: 'Perfil de usuário',   files: ['chat','chatprivado','perfil','recados'] },
+      { fn: 'users',     name: 'users',     desc: 'Usuários online',     files: ['chat','chatprivado','salas-privadas'] },
+      { fn: 'eye',       name: 'eye',       desc: 'Ver / Espiar',        files: ['admin','chat','perfil','salas'] },
+      { fn: 'eyeOff',    name: 'eyeOff',    desc: 'Ocultar',             files: ['outros'] },
+      { fn: 'block',     name: 'block',     desc: 'Bloquear usuário',    files: ['chat','admin'] },
+      { fn: 'ban',       name: 'ban',       desc: 'Banir',               files: ['admin','chat'] },
+      { fn: 'kick',      name: 'kick',      desc: 'Kickar',              files: ['admin','chat'] },
+      { fn: 'mute',      name: 'mute',      desc: 'Mutar',               files: ['admin','chat'] },
+      { fn: 'shadowban', name: 'shadowban', desc: 'Shadowban',           files: ['admin','chat'] },
+      { fn: 'invite',    name: 'invite',    desc: 'Convidar para sala',  files: ['chat','salas','salas-privadas'] },
+      { fn: 'lock',      name: 'lock',      desc: 'Sala privada',        files: ['chat','salas','login'] },
+      { fn: 'unlock',    name: 'unlock',    desc: 'Sala aberta',         files: ['admin','chat'] },
+      { fn: 'star',      name: 'star',      desc: 'VIP / Destaque',      files: ['chat','chatprivado','salas'] },
+      { fn: 'crown',     name: 'crown',     desc: 'Premium / Coroa',     files: ['chat','chatprivado'] },
+      { fn: 'key',       name: 'key',       desc: 'Acesso / Chave',      files: ['admin','chat','salas-privadas'] },
+    ]
+  },
+  {
+    tag: 'MÍDIA',
+    title: 'Mídia & Conteúdo',
+    icons: [
+      { fn: 'attach',   name: 'attach',   desc: 'Anexar arquivo',      files: ['chat','chatprivado','salas-privadas','recados'] },
+      { fn: 'photo',    name: 'photo',    desc: 'Enviar foto',         files: ['chat','chatprivado','salas-privadas','perfil'] },
+      { fn: 'gif',      name: 'gif',      desc: 'GIF',                 files: ['chat','salas-privadas'] },
+      { fn: 'emoji',    name: 'emoji',    desc: 'Emoji / Sorriso',     files: ['chat','chatprivado','salas-privadas'] },
+      { fn: 'reaction', name: 'reaction', desc: 'Reação animada',      files: ['chat','chatprivado'] },
+      { fn: 'draw',     name: 'draw',     desc: 'Desenho / Paint',     files: ['chat','chatprivado','recados'] },
+      { fn: 'mic',      name: 'mic',      desc: 'Gravar áudio',        files: ['chat','chatprivado','salas-privadas'] },
+      { fn: 'video',    name: 'video',    desc: 'Vídeo',               files: ['chat','salas','outros'] },
+      { fn: 'youtube',  name: 'youtube',  desc: 'YouTube',             files: ['chat','recados'] },
+      { fn: 'play',     name: 'play',     desc: 'Play (áudio/vídeo)',  files: ['chat','chatprivado','recados'] },
+      { fn: 'pause',    name: 'pause',    desc: 'Pausar',              files: ['chat','chatprivado'] },
+      { fn: 'radio',    name: 'radio',    desc: 'Rádio',               files: ['chat','chatprivado'] },
+      { fn: 'volume',   name: 'volume',   desc: 'Som ligado',          files: ['chat','chatprivado'] },
+      { fn: 'volumeOff',name: 'volumeOff',desc: 'Mudo',                files: ['admin','chat'] },
+    ]
+  },
+  {
+    tag: 'ADMIN',
+    title: 'Moderação & Admin',
+    icons: [
+      { fn: 'shield',     name: 'shield',     desc: 'Admin / Escudo',    files: ['chat','admin','salas'] },
+      { fn: 'dj',         name: 'dj',         desc: 'DJ / Pedido música', files: ['chat','chatprivado'] },
+      { fn: 'djPanel',    name: 'djPanel',    desc: 'Painel DJ',          files: ['chat'] },
+      { fn: 'announce',   name: 'announce',   desc: 'Anúncio / Megafone', files: ['admin','chat'] },
+      { fn: 'bellPv',     name: 'bellPv',     desc: 'Notif. mensagens PV',files: ['chat','chatprivado'] },
+      { fn: 'broadcast',  name: 'broadcast',  desc: 'Transmissão ao vivo',files: ['admin','chat'] },
+      { fn: 'settings',   name: 'settings',   desc: 'Configurações',      files: ['chat','admin'] },
+      { fn: 'stats',      name: 'stats',      desc: 'Estatísticas',       files: ['admin'] },
+      { fn: 'history',    name: 'history',    desc: 'Histórico / Log',    files: ['admin'] },
+      { fn: 'clock',      name: 'clock',      desc: 'Relógio / Tempo',    files: ['admin','chat'] },
+      { fn: 'warning',    name: 'warning',    desc: 'Aviso / Alerta',     files: ['admin','outros'] },
+      { fn: 'info',       name: 'info',       desc: 'Informação',         files: ['todos'] },
+      { fn: 'trophy',     name: 'trophy',     desc: 'Troféu / Conquista', files: ['admin','outros'] },
+      { fn: 'game',       name: 'game',       desc: 'Jogo / Bingo',       files: ['outros'] },
+    ]
+  },
+  {
+    tag: 'PAINT',
+    title: 'Ferramentas de Desenho',
+    icons: [
+      { fn: 'brush',    name: 'brush',    desc: 'Pincel',              files: ['chat','chatprivado'] },
+      { fn: 'eraser',   name: 'eraser',   desc: 'Borracha',            files: ['chat','chatprivado'] },
+      { fn: 'bucket',   name: 'bucket',   desc: 'Balde de tinta',      files: ['chat','chatprivado'] },
+      { fn: 'line',     name: 'line',     desc: 'Linha',               files: ['chat','chatprivado'] },
+      { fn: 'rect',     name: 'rect',     desc: 'Retângulo',           files: ['chat','chatprivado'] },
+      { fn: 'circle',   name: 'circle',   desc: 'Círculo',             files: ['chat','chatprivado'] },
+      { fn: 'textTool', name: 'textTool', desc: 'Texto (ferramenta)',  files: ['chat','chatprivado'] },
+    ]
+  },
+  {
+    tag: 'STATUS',
+    title: 'Status & Videochamada',
+    icons: [
+      { fn: 'online',    name: 'online',    desc: 'Online',             files: ['chat','salas','ulogin'] },
+      { fn: 'away',      name: 'away',      desc: 'Ausente',            files: ['chat','salas-privadas'] },
+      { fn: 'offline',   name: 'offline',   desc: 'Offline',            files: ['chat','salas-privadas'] },
+      { fn: 'leave',     name: 'leave',     desc: 'Sair da sala',       files: ['chat','chatprivado','salas-privadas'] },
+      { fn: 'camera',    name: 'camera',    desc: 'Câmera ligada',      files: ['outros'] },
+      { fn: 'cameraOff', name: 'cameraOff', desc: 'Câmera desligada',   files: ['outros'] },
+      { fn: 'endCall',   name: 'endCall',   desc: 'Encerrar chamada',   files: ['outros'] },
+      { fn: 'mute',      name: 'mute',      desc: 'Mic off (chamada)',  files: ['outros'] },
+    ]
+  },
+];
+
+/* ── File tag class ── */
+function fileClass(f) {
+  if (f === 'chat' || f === 'chatprivado') return 'chat';
+  if (f === 'admin') return 'admin';
+  if (f.startsWith('salas')) return 'salas';
+  if (f === 'perfil') return 'perfil';
+  return 'outros';
+}
+
+/* ── Copy to clipboard ── */
+function copyCode(fn, card) {
+  var code = 'ICO.' + fn + '()';
+  navigator.clipboard.writeText(code).catch(function(){
+    var ta = document.createElement('textarea');
+    ta.value = code; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    ta.remove();
+  });
+  card.classList.add('copied');
+  setTimeout(function(){ card.classList.remove('copied'); }, 1200);
+  var t = document.getElementById('toast');
+  t.textContent = code + ' copiado!';
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2000);
+}
+
+/* ── Build sections ── */
+var sectionsEl = document.getElementById('sections');
+var totalIcons = 0;
+
+SECTIONS.forEach(function(sec) {
+  totalIcons += sec.icons.length;
+
+  var section = document.createElement('div');
+  section.className = 'section';
+
+  var head = document.createElement('div');
+  head.className = 'section-head';
+  head.innerHTML =
+    '<span class="section-tag">' + sec.tag + '</span>' +
+    '<span class="section-title">' + sec.title + '</span>' +
+    '<span class="section-count">' + sec.icons.length + ' ícones</span>';
+  section.appendChild(head);
+
+  var grid = document.createElement('div');
+  grid.className = 'icon-grid';
+
+  sec.icons.forEach(function(ico) {
+    if (!ICO[ico.fn]) return;
+    var card = document.createElement('div');
+    card.className = 'icon-card';
+    card.title = 'Clique para copiar: ICO.' + ico.fn + '()';
+
+    var svgHtml = ICO[ico.fn](24);
+
+    var fileTags = (ico.files || []).map(function(f) {
+      return '<span class="file-tag ' + fileClass(f) + '">' + f + '</span>';
+    }).join('');
+
+    card.innerHTML =
+      '<div class="copy-flash">✓ Copiado!</div>' +
+      '<div class="icon-preview">' + svgHtml + '</div>' +
+      '<div class="icon-name">ICO.' + ico.name + '()</div>' +
+      '<div class="icon-desc">' + ico.desc + '</div>' +
+      '<div class="icon-files">' + fileTags + '</div>';
+
+    card.addEventListener('click', function() { copyCode(ico.fn, card); });
+    grid.appendChild(card);
+  });
+
+  section.appendChild(grid);
+  sectionsEl.appendChild(section);
+});
+
+document.getElementById('totalCount').textContent = totalIcons;
+
+/* ── Size preview ── */
+var sizeRow = document.getElementById('sizeRow');
+[12, 14, 16, 18, 20, 24, 28, 32].forEach(function(sz) {
+  var item = document.createElement('div');
+  item.className = 'size-item';
+  item.innerHTML =
+    '<div style="color:var(--text)">' + ICO.send(sz) + '</div>' +
+    '<label>' + sz + 'px</label>';
+  sizeRow.appendChild(item);
+});
+
+/* ── Color preview ── */
+var colorRow = document.getElementById('colorRow');
+var colors = [
+  { label: 'currentColor', hex: '#e2e8f0' },
+  { label: '#1d4ed8 blue',  hex: '#1d4ed8' },
+  { label: '#3b82f6',       hex: '#3b82f6' },
+  { label: '#10b981 green', hex: '#10b981' },
+  { label: '#ef4444 red',   hex: '#ef4444' },
+  { label: '#f59e0b amber', hex: '#f59e0b' },
+  { label: '#7c3aed purple',hex: '#7c3aed' },
+  { label: '#fff white',    hex: '#ffffff' },
+];
+colors.forEach(function(c) {
+  var item = document.createElement('div');
+  item.className = 'color-item';
+  item.innerHTML =
+    '<div>' + ICO.shield(24, c.hex) + '</div>' +
+    '<label style="color:' + c.hex + '">' + c.label + '</label>';
+  colorRow.appendChild(item);
+});
+</script>
+</body>
+</html>

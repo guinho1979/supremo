@@ -213,22 +213,23 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
+<script src="icons.js"></script>
 </head>
 <body>
 <header>
   <img src="chat-supremo-logo.png" alt="Chat Supremo" style="height:42px;object-fit:contain">
   <span class="admin-badge">PAINEL ADMIN</span>
-  <button class="back-btn" onclick="window.location.href='salas.html'">← Sair</button>
+  <button class="back-btn" onclick="window.location.href='salas.html'"><span class="_ico-inline" data-ico="back"></span> Sair</button>
 </header>
 
 <div class="layout">
   <div class="sidebar">
     <div class="nav-item active" data-roles="admin,supervisor" onclick="show('dashboard',this)"><span class="nav-icon">📊</span><span>Dashboard</span></div>
-    <div class="nav-item" data-roles="admin,supervisor,mod" onclick="show('logins',this)"><span class="nav-icon">🔑</span><span>Login</span></div>
+    <div class="nav-item" data-roles="admin,supervisor,mod" onclick="show('logins',this)"><span class="nav-icon" style="display:inline-flex"><span class="_ico-inline" data-ico="key" data-sz="16"></span></span><span>Login</span></div>
     <div class="nav-item" data-roles="admin" onclick="show('gerenciar-usuarios',this)"><span class="nav-icon">🛠</span><span>Gerenciar</span></div>
     <div class="nav-item" data-roles="admin,supervisor" onclick="show('salas',this)"><span class="nav-icon">💬</span><span>Salas</span></div>
-    <div class="nav-item" data-roles="admin,supervisor,mod,premium" onclick="show('espiar',this)"><span class="nav-icon">👁</span><span>Espiar</span></div>
-    <div class="nav-item" data-roles="admin,supervisor" onclick="show('anuncio',this)"><span class="nav-icon">📢</span><span>Anúncio</span></div>
+    <div class="nav-item" data-roles="admin,supervisor,mod,premium" onclick="show('espiar',this)"><span class="nav-icon" style="display:inline-flex"><span class="_ico-inline" data-ico="eye" data-sz="16"></span></span><span>Espiar</span></div>
+    <div class="nav-item" data-roles="admin,supervisor" onclick="show('anuncio',this)"><span class="nav-icon" style="display:inline-flex"><span class="_ico-inline" data-ico="announce" data-sz="16"></span></span><span>Anúncio</span></div>
     <div class="nav-item" data-roles="admin,supervisor" onclick="show('acesso',this)"><span class="nav-icon">🚪</span><span>Controle</span></div>
     <div class="nav-item" data-roles="admin,supervisor" onclick="show('seguranca',this)"><span class="nav-icon">🛡</span><span>Segurança</span></div>
     <div class="nav-item" data-roles="admin,supervisor,mod" onclick="show('moderacao',this)"><span class="nav-icon">⚡</span><span>Moderação</span></div>
@@ -238,7 +239,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
     <div class="nav-item" data-roles="admin,supervisor" onclick="show('quiz',this)"><span class="nav-icon">🧠</span><span>Quiz</span></div>
     <div class="nav-item" data-roles="admin,supervisor,mod" onclick="show('logs',this)"><span class="nav-icon">📋</span><span>Logs</span></div>
     <div class="nav-item" data-roles="admin,supervisor" onclick="show('smiles',this)"><span class="nav-icon">😁</span><span>Smiles</span></div>
-    <div class="nav-item" data-roles="admin" onclick="show('arquivos',this)"><span class="nav-icon">🖼</span><span>Arquivos</span></div>
+    <div class="nav-item" data-roles="admin" onclick="show('arquivos',this)"><span class="nav-icon" style="display:inline-flex"><span class="_ico-inline" data-ico="photo" data-sz="16"></span></span><span>Arquivos</span></div>
   </div>
 
   <div class="content">
@@ -257,7 +258,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
         <div class="stat"><div class="stat-num" id="stContacts" style="color:#fbbf24">—</div><div class="stat-lbl">Contatos</div></div>
       </div>
       <div class="section" id="secLogoChat">
-        <div class="section-title">🖼 Logo do Chat</div>
+        <div class="section-title"><span class="_ico-inline" data-ico="photo" data-sz="14"></span> Logo do Chat</div>
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
           <div id="logoPreview" style="width:80px;height:80px;background:var(--surface2);border:2px dashed var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--purple2);overflow:hidden;flex-shrink:0">Chat Supremo</div>
           <div style="flex:1">
@@ -267,7 +268,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
                 📁 Escolher imagem
                 <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadLogo(this)"/>
               </label>
-              <button class="btn-secondary" onclick="removeLogo()">✕ Remover logo</button>
+              <button class="btn-secondary" onclick="removeLogo()"><span class="_ico-inline" data-ico="close" data-sz="13"></span> Remover</button>
             </div>
           </div>
         </div>
@@ -277,7 +278,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 
     <!-- ══ LOGIN — HISTÓRICO DE ACESSOS ══ -->
     <div class="page" id="page-logins">
-      <div class="page-title">🔑 Histórico de Logins</div>
+      <div class="page-title"><span class="_ico-inline" data-ico="key" data-sz="16"></span> Histórico de Logins</div>
 
       <!-- Mini stats -->
       <div class="login-stats-row">
@@ -296,7 +297,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
       </div>
 
       <div class="section">
-        <div class="section-title">🔑 Acessos das últimas 24h</div>
+        <div class="section-title"><span class="_ico-inline" data-ico="key" data-sz="14"></span> Acessos das últimas 24h</div>
 
         <!-- Filtros -->
         <div class="login-filters">
@@ -307,7 +308,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
           <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
             <input id="loginSearch" placeholder="🔍 Buscar nick..." oninput="renderLoginTable()"
               style="background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 10px;color:var(--text);font-size:11px;outline:none;width:140px"/>
-            <button onclick="loginClearData()" class="btn-danger" style="padding:5px 10px;font-size:10px;white-space:nowrap">🗑 Limpar</button>
+            <button onclick="loginClearData()" class="btn-danger" style="padding:5px 10px;font-size:10px;white-space:nowrap"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Limpar</button>
           </div>
         </div>
 
@@ -349,7 +350,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
       </div>
       <div id="guCard" style="display:none">
         <div class="section">
-          <div class="section-title" id="guCardTitle">👤 Usuário</div>
+          <div class="section-title" id="guCardTitle"><span class="_ico-inline" data-ico="user" data-sz="14"></span> Usuário</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px" id="guGrid"></div>
           <div style="margin-bottom:14px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px" id="guTrocarCargoBox">
             <div style="font-size:11px;font-weight:700;color:#a78bfa;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">🎖 Trocar Cargo</div>
@@ -364,9 +365,9 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
             </div>
           </div>
           <div style="padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px">
-            <div style="font-size:11px;font-weight:700;color:var(--purple2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">🗑 Excluir Cadastro</div>
+            <div style="font-size:11px;font-weight:700;color:var(--purple2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Excluir Cadastro</div>
             <p style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5">Esta ação remove permanentemente o cadastro do usuário.</p>
-            <button class="abtn abtn-ban" style="width:100%;padding:10px;font-size:12px" onclick="guExcluirCadastro()">🗑 Confirmar Exclusão</button>
+            <button class="abtn abtn-ban" style="width:100%;padding:10px;font-size:12px" onclick="guExcluirCadastro()"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Confirmar Exclusão</button>
           </div>
         </div>
       </div>
@@ -395,9 +396,9 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
         <table>
           <thead><tr><th>Sala</th><th>Ações</th></tr></thead>
           <tbody id="salasTableBody">
-            <tr><td>💬 Geral</td><td><div class="act-wrap"><button class="abtn abtn-ban" onclick="confirmarExcluirSala(this,'Geral')">🗑 Excluir</button></div></td></tr>
-            <tr><td>🎮 Games</td><td><div class="act-wrap"><button class="abtn abtn-ban" onclick="confirmarExcluirSala(this,'Games')">🗑 Excluir</button></div></td></tr>
-            <tr><td>🎵 Música</td><td><div class="act-wrap"><button class="abtn abtn-ban" onclick="confirmarExcluirSala(this,'Música')">🗑 Excluir</button></div></td></tr>
+            <tr><td>💬 Geral</td><td><div class="act-wrap"><button class="abtn abtn-ban" onclick="confirmarExcluirSala(this,'Geral')"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Excluir</button></div></td></tr>
+            <tr><td>🎮 Games</td><td><div class="act-wrap"><button class="abtn abtn-ban" onclick="confirmarExcluirSala(this,'Games')"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Excluir</button></div></td></tr>
+            <tr><td>🎵 Música</td><td><div class="act-wrap"><button class="abtn abtn-ban" onclick="confirmarExcluirSala(this,'Música')"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Excluir</button></div></td></tr>
           </tbody>
         </table>
       </div>
@@ -423,7 +424,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 
         <!-- Excluir mensagens da sala -->
         <div style="padding-top:12px;border-top:1px solid var(--border)">
-          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:5px">🗑 Excluir mensagens de uma sala</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:5px"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Excluir mensagens de uma sala</div>
           <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">Selecione a sala e apague todas as mensagens armazenadas localmente.</p>
           <div style="display:flex;gap:8px;align-items:center">
             <select id="excluirMsgSalaSelect" style="flex:1;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-weight:600;font-family:'Syne',sans-serif;outline:none">
@@ -439,7 +440,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 
       <!-- ══ SALAS PRIVADAS CRIADAS ══ -->
       <div class="section" style="margin-top:14px">
-        <div class="section-title">🔒 Salas Privadas Criadas</div>
+        <div class="section-title"><span class="_ico-inline" data-ico="lock" data-sz="14"></span> Salas Privadas Criadas</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
           <div style="font-size:12px;color:var(--text3)">Salas criadas pelos usuários. Admin e supervisor podem excluir.</div>
           <button onclick="carregarSalasPrivadasAdmin()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--purple2);font-size:11px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap">🔄 Atualizar</button>
@@ -453,7 +454,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 
     <!-- ══ OVERLAY ESPIÃO PV ══ -->
     <div class="page" id="page-espiar">
-      <div class="page-title">👁 Espiar Salas</div>
+      <div class="page-title"><span class="_ico-inline" data-ico="eye" data-sz="16"></span> Espiar Salas</div>
 
       <!-- SALAS PÚBLICAS -->
       <div class="section">
@@ -466,13 +467,13 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 
       <!-- SALAS PRIVADAS — só admin e supervisor -->
       <div class="section" id="espiarSalasPrivadasSection" style="display:none">
-        <div class="section-title">🔒 Salas Privadas</div>
+        <div class="section-title"><span class="_ico-inline" data-ico="lock" data-sz="14"></span> Salas Privadas</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div style="font-size:12px;font-weight:700;color:var(--text2)">🔒 <span id="spPrivCount">0</span> sala(s)</div>
+          <div style="font-size:12px;font-weight:700;color:var(--text2)"><span class="_ico-inline" data-ico="lock" data-sz="12" data-col="currentColor"></span> <span id="spPrivCount">0</span> sala(s)</div>
           <button onclick="spPrivRecarregar()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--purple2);font-size:11px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif">🔄 Atualizar</button>
         </div>
         <div id="spPrivGrid" style="display:flex;flex-direction:column;gap:10px">
-          <div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)"><div style="font-size:32px;margin-bottom:10px">🔒</div>Nenhuma sala privada criada ainda.</div>
+          <div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)"><div style="font-size:32px;margin-bottom:10px"><span class="_ico-inline" data-ico="lock" data-sz="32" data-col="currentColor"></span></div>Nenhuma sala privada criada ainda.</div>
         </div>
       </div>
 
@@ -531,7 +532,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
         </div>
         <!-- Lista -->
         <div id="pvModalList" style="overflow-y:auto;padding:0 12px 24px;display:flex;flex-direction:column;gap:8px;flex:1">
-          <div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)">🔒 Nenhuma conversa ativa nas últimas 24h.</div>
+          <div style="text-align:center;padding:32px;font-size:12px;color:var(--text3)"><span class="_ico-inline" data-ico="lock" data-sz="12" data-col="currentColor"></span> Nenhuma conversa ativa nas últimas 24h.</div>
         </div>
       </div>
     </div>
@@ -574,7 +575,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 
     <!-- ══ ANÚNCIO ══ -->
     <div class="page" id="page-anuncio">
-      <div class="page-title">📢 Anúncio nas Salas</div>
+      <div class="page-title"><span class="_ico-inline" data-ico="announce" data-sz="16"></span> Anúncio nas Salas</div>
       <div class="section">
         <div class="section-title">Criar anúncio</div>
         <div class="field" style="margin-bottom:10px"><label>Mensagem</label>
@@ -583,8 +584,8 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
           <select id="annColor"><option value="purple">🟣 Roxo</option><option value="green">🟢 Verde</option><option value="amber">🟡 Âmbar</option><option value="red">🔴 Vermelho</option></select></div>
         <div class="ann-preview purple" id="annPreview"><span>📢</span><span id="annPreviewText">Pré-visualização...</span></div>
         <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="btn-primary" onclick="publishAnnouncement()">📢 Publicar</button>
-          <button class="btn-danger" onclick="clearAnnouncement()">✕ Remover</button>
+          <button class="btn-primary" onclick="publishAnnouncement()"><span class="_ico-inline" data-ico="announce" data-sz="13"></span> Publicar</button>
+          <button class="btn-danger" onclick="clearAnnouncement()"><span class="_ico-inline" data-ico="close" data-sz="13"></span> Remover</button>
         </div>
       </div>
     </div>
@@ -626,8 +627,8 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
             ℹ️ A verificação usa o modelo <strong style="color:var(--text2)">NSFWJS</strong> rodando diretamente no navegador do usuário — sem enviar imagens para servidores externos. O modelo analisa a probabilidade de conteúdo adulto (<em>Porn + Sexy + Hentai</em>); se a soma ultrapassar o limiar definido aqui, a imagem é bloqueada automaticamente.
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-            <button class="btn-primary" onclick="nsfwSave()">💾 Salvar</button>
-            <button class="btn-secondary" onclick="nsfwReset()">↩ Padrão (50%)</button>
+            <button class="btn-primary" onclick="nsfwSave()"><span class="_ico-inline" data-ico="save" data-sz="13"></span> Salvar</button>
+            <button class="btn-secondary" onclick="nsfwReset()"><span class="_ico-inline" data-ico="undo" data-sz="13"></span> Padrão (50%)</button>
           </div>
         </div>
       </div>
@@ -691,8 +692,8 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-          <button class="btn-primary" onclick="salvarConfigAusencia()">💾 Salvar</button>
-          <button class="btn-secondary" onclick="resetConfigAusencia()">↩ Padrão</button>
+          <button class="btn-primary" onclick="salvarConfigAusencia()"><span class="_ico-inline" data-ico="save" data-sz="13"></span> Salvar</button>
+          <button class="btn-secondary" onclick="resetConfigAusencia()"><span class="_ico-inline" data-ico="undo" data-sz="13"></span> Padrão</button>
         </div>
       </div>
 
@@ -756,8 +757,8 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 
         <!-- Botões -->
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-          <button class="btn-primary" onclick="salvarConfigMensagens(true)">💾 Salvar</button>
-          <button class="btn-secondary" onclick="resetConfigMensagens()">↩ Padrão</button>
+          <button class="btn-primary" onclick="salvarConfigMensagens(true)"><span class="_ico-inline" data-ico="save" data-sz="13"></span> Salvar</button>
+          <button class="btn-secondary" onclick="resetConfigMensagens()"><span class="_ico-inline" data-ico="undo" data-sz="13"></span> Padrão</button>
         </div>
       </div>
     </div>
@@ -787,7 +788,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
         <div style="display:flex;flex-wrap:wrap;gap:5px" id="spamWordList"></div>
         <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:10px;color:#4a4570" id="spamWordCount">0 palavras bloqueadas</span>
-          <button onclick="saveSpamWords()" style="padding:5px 14px;border-radius:7px;border:none;background:#2563eb;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">💾 Salvar</button>
+          <button onclick="saveSpamWords()" style="padding:5px 14px;border-radius:7px;border:none;background:#2563eb;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif"><span class="_ico-inline" data-ico="save" data-sz="13"></span> Salvar</button>
         </div>
       </div>
     </div>
@@ -889,7 +890,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
           <div class="field"><label>Endereço do stream (URL)</label><input id="radioUrl3" placeholder="https://stream.exemplo.com:8000/live" style="font-family:monospace"/></div>
         </div>
 
-        <button class="btn-primary" onclick="salvarRadioAdmin()">💾 Salvar rádios</button>
+        <button class="btn-primary" onclick="salvarRadioAdmin()"><span class="_ico-inline" data-ico="save" data-sz="13"></span> Salvar rádios</button>
         <div id="radioTestResult" style="margin-top:10px;font-size:11px;display:none"></div>
       </div>
     </div>
@@ -917,7 +918,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
     <div class="page" id="page-logs">
       <div class="page-title">📋 Logs do Sistema</div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <button id="btnLimparLogs" onclick="limparLogs()" class="btn-danger" style="font-size:11px;padding:5px 12px;margin-left:auto">🗑 Limpar logs</button>
+        <button id="btnLimparLogs" onclick="limparLogs()" class="btn-danger" style="font-size:11px;padding:5px 12px;margin-left:auto"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Limpar logs</button>
       </div>
       <div id="logsList">
         <div class="log-entry"><div class="log-time">21:09</div><div class="log-text"><strong>KarenAdmin</strong> mutou <strong>Troll99</strong> — 24h</div></div>
@@ -1060,7 +1061,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
     <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Excluir a sala <strong id="excluirSalaNome" style="color:#fca5a5"></strong>?</div>
     <div class="modal-btns">
       <button class="mbtn cancel" onclick="closeExcluirSala()">Cancelar</button>
-      <button class="mbtn" style="background:#7f1d1d;color:#fca5a5" onclick="confirmarExcluirSalaFinal()">🗑 Excluir</button>
+      <button class="mbtn" style="background:#7f1d1d;color:#fca5a5" onclick="confirmarExcluirSalaFinal()"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Excluir</button>
     </div>
   </div>
 </div>
@@ -1309,7 +1310,7 @@ function carregarSalasPrivadasAdmin(){
     var podeExcluir=['admin','supervisor'].indexOf(role)>-1;
     grid.innerHTML=list.map(function(s){
       var nome=String(s.name||'').replace(/['"\\]/g,''); var icon=s.icon||'🔒'; var cor=s.color||'#7c3aed'; var owner=String(s.owner_nick||'').replace(/['"\\]/g,'');
-      var btn=podeExcluir?'<button onclick="excluirSalaPrivadaAdmin('+s.id+',\''+nome+'\')" style="background:#ef4444;border:none;color:#fff;font-size:11px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:\'Syne\',sans-serif;white-space:nowrap">🗑 Excluir</button>':'';
+      var btn=podeExcluir?'<button onclick="excluirSalaPrivadaAdmin('+s.id+',\''+nome+'\')" style="background:#ef4444;border:none;color:#fff;font-size:11px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;font-family:\'Syne\',sans-serif;white-space:nowrap"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Excluir</button>':'';
       return '<div style="display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid '+cor+'55;border-radius:12px;padding:12px 14px"><div style="font-size:22px">'+icon+'</div><div style="flex:1;min-width:0"><div style="font-family:\'Syne\',sans-serif;font-size:13px;font-weight:800">'+nome+'</div><div style="font-size:10px;color:var(--text3)">por '+owner+'</div></div>'+btn+'</div>';
     }).join('');
   }).catch(function(){ grid.innerHTML='<div style="text-align:center;padding:24px;font-size:12px;color:var(--text3)">Erro ao carregar.</div>'; });
@@ -3236,7 +3237,7 @@ window.show = function(id, el){
       if(!rooms.length){ tb.innerHTML='<tr><td colspan="2" style="opacity:.6">Nenhuma sala.</td></tr>'; return; }
       tb.innerHTML=rooms.map(function(r){
         return '<tr><td>'+esc(r.icon||'💬')+' '+esc(r.name)+' <span style="opacity:.5;font-size:11px">('+esc(r.slug)+')</span></td>'
-          +'<td><div class="act-wrap"><button class="abtn abtn-ban" onclick="tcDeleteRoom(\''+esc(r.slug)+'\',\''+esc(r.name)+'\')">🗑 Excluir</button></div></td></tr>';
+          +'<td><div class="act-wrap"><button class="abtn abtn-ban" onclick="tcDeleteRoom(\''+esc(r.slug)+'\',\''+esc(r.name)+'\')"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Excluir</button></div></td></tr>';
       }).join('');
     }).catch(function(){});
   };
@@ -3474,7 +3475,7 @@ window.show = function(id, el){
         if(m.kind==='c'){
           var tp=(m.type||'contato').toUpperCase();
           head='<strong>'+E(m.nick||'?')+'</strong> <span class="badge b-vip">'+E(tp)+'</span>';
-          action='<button class="abtn abtn-del" onclick="tcDelContato('+m.id+',this)">🗑 Excluir</button>';
+          action='<button class="abtn abtn-del" onclick="tcDelContato('+m.id+',this)"><span class="_ico-inline" data-ico="trash" data-sz="13"></span> Excluir</button>';
         } else {
           head='<strong>'+E(m.nick||'?')+'</strong> <span class="badge b-admin" style="background:#7f1d1d;color:#fca5a5">DENÚNCIA</span> <span style="font-size:10px;opacity:.6">por '+E(m.by||'?')+'</span>';
           action='<button class="abtn abtn-spy" onclick="tcResolveReport('+m.id+',this)">✓ Resolver</button>';
@@ -3794,6 +3795,59 @@ function renumberEnqOpts(){
   var btn=document.getElementById('enqAddBtn');
   if(btn) btn.style.display = (document.querySelectorAll('.enq-opt').length>=8) ? 'none' : '';
 }
+</script>
+
+<script>
+/* ── Icon Library Auto-Init ── */
+(function(){
+  if(typeof ICO==='undefined') return;
+  // _ico-ctx: context menu / status icons (16px)
+  document.querySelectorAll('._ico-ctx[data-ico]').forEach(function(el){
+    var fn=el.getAttribute('data-ico');
+    if(ICO[fn]) el.innerHTML=ICO[fn](16);
+  });
+  // _ico-pt: paint toolbar icons (14px)
+  document.querySelectorAll('._ico-pt[data-ico]').forEach(function(el){
+    var fn=el.getAttribute('data-ico');
+    var col=el.getAttribute('data-col')||'currentColor';
+    if(ICO[fn]) el.innerHTML=ICO[fn](14,col);
+  });
+  // _ico-plus: plus menu icons (18px, purple)
+  document.querySelectorAll('._ico-plus[data-ico]').forEach(function(el){
+    var fn=el.getAttribute('data-ico');
+    if(ICO[fn]) el.innerHTML=ICO[fn](18,'#7c3aed');
+  });
+  // _ico-inline: general inline icons
+  document.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
+    var fn=el.getAttribute('data-ico');
+    var sz=parseInt(el.getAttribute('data-sz')||'16');
+    var col=el.getAttribute('data-col')||'currentColor';
+    if(ICO[fn]) el.innerHTML=ICO[fn](sz,col);
+  });
+
+  // Named display icons
+  var annIco=document.getElementById('_icoAnn');
+  if(annIco && ICO.announce) annIco.innerHTML=ICO.announce(16,'currentColor');
+  var spyIco=document.getElementById('_icoSpy');
+  if(spyIco && ICO.eye) spyIco.innerHTML=ICO.eye(14,'currentColor');
+  var rpIco=document.getElementById('_icoRadioPlay');
+  if(rpIco && ICO.play) rpIco.innerHTML=ICO.play(12,'currentColor');
+  // Named IDs
+  var idMap={
+    '_ico_menu':    function(){return ICO.settings(18,'#fff');},
+    '_ico_shield_mod': function(){return ICO.shield(18,'#fff');}
+  };
+  Object.keys(idMap).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.innerHTML=idMap[id]();
+  });
+  // DJ topbar button
+  var djBtn=document.getElementById('djTopBtn');
+  if(djBtn && ICO.dj) djBtn.innerHTML=ICO.dj(16,'#fff');
+  // Float radio btn
+  var radioBtn=document.getElementById('floatRadioBtn');
+  if(radioBtn && radioBtn.innerHTML.indexOf('📻')>-1) radioBtn.innerHTML=radioBtn.innerHTML.replace('📻', ICO.radio(16,'currentColor'));
+})();
 </script>
 </body>
 </html>

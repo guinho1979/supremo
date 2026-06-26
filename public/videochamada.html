@@ -90,7 +90,8 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:20px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:.3s;pointer-events:none;background:#0d2a5e;color:#bfdbfe}
 .toast.show{opacity:1}
 .toast.err{background:#7f1d1d;color:#fca5a5}
-</style></head><body>
+</style><script src="icons.js"></script>
+</head><body>
 
 <header>
   <div style="display:flex;align-items:center;justify-content:center">
@@ -112,7 +113,7 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
   <div class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;vertical-align:-4px;margin-right:5px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg>Sala de Vídeo</div>
   <p class="page-sub">Chamada de vídeo ao vivo com até 4 pessoas</p>
   <div class="card">
-    <h2>🎬 Iniciar uma chamada</h2>
+    <h2><span class="_ico-inline" data-ico="camera" data-sz="20"></span> Iniciar uma chamada</h2>
     <div class="sub">Crie uma chamada e os usuários online recebem um convite para entrar.</div>
     <div class="field-label">Nome da chamada (opcional)</div>
     <input class="tc-input" id="callTitle" placeholder="Ex.: Bate-papo da galera" maxlength="40">
@@ -122,11 +123,11 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
       <button data-m="3">3</button>
       <button data-m="4" class="sel">4</button>
     </div>
-    <button class="btn-main" id="startBtn">📞 Iniciar chamada</button>
+    <button class="btn-main" id="startBtn"><span class="_ico-inline" data-ico="camera" data-sz="16"></span> Iniciar chamada</button>
   </div>
 
   <div class="card">
-    <h2>🔴 Chamadas ativas</h2>
+    <h2><span class="_ico-inline" data-ico="broadcast" data-sz="20" data-col="#ef4444"></span> Chamadas ativas</h2>
     <div class="sub">Toque em entrar para participar (vagas limitadas).</div>
     <div id="activeCalls"><div class="empty-calls">Nenhuma chamada ativa no momento.</div></div>
   </div>
@@ -140,9 +141,9 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
   </div>
   <div class="grid g1" id="grid"></div>
   <div class="cv-controls">
-    <button class="cv-btn" id="btnMic" title="Microfone">🎤</button>
-    <button class="cv-btn" id="btnCam" title="Câmera">📷</button>
-    <button class="cv-btn hang" id="btnHang" title="Encerrar">📵</button>
+    <button class="cv-btn" id="btnMic" title="Microfone"><span class='_ico-inline' data-ico='mic' data-sz='20'></span></button>
+    <button class="cv-btn" id="btnCam" title="Câmera"><span class='_ico-inline' data-ico='camera' data-sz='20'></span></button>
+    <button class="cv-btn hang" id="btnHang" title="Encerrar"><span class='_ico-inline' data-ico='endCall' data-sz='20'></span></button>
   </div>
 </div>
 
@@ -154,7 +155,7 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
     <div class="r-s" id="ringSub">iniciou uma chamada</div>
   </div>
   <button class="r-acc" id="ringAcc">Entrar</button>
-  <button class="r-dec" id="ringDec">✕</button>
+  <button class="r-dec" id="ringDec"><span class="_ico-inline" data-ico="close"></span></button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -177,7 +178,7 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
   function toast(m,err){ var t=document.getElementById('toast'); t.textContent=m; t.className='toast show'+(err?' err':''); clearTimeout(t._x); t._x=setTimeout(function(){t.className='toast';},2600); }
   function blockPage(title,sub){
     var lob=document.getElementById('lobby');
-    if(lob) lob.innerHTML='<div class="card" style="text-align:center;padding:36px 18px"><div style="font-size:42px;margin-bottom:10px">🔒</div><div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:18px;margin-bottom:8px">'+title+'</div><div style="font-size:13px;color:var(--text3);line-height:1.5">'+sub+'</div><a href="salas.html" style="display:inline-block;margin-top:18px;background:#2563eb;color:#fff;text-decoration:none;padding:11px 22px;border-radius:12px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:13px">Voltar às salas</a></div>';
+    if(lob) lob.innerHTML='<div class="card" style="text-align:center;padding:36px 18px"><div style="font-size:42px;margin-bottom:10px;display:flex;justify-content:center">'+(typeof ICO!='undefined'?ICO.lock(42):'🔒')+'</div><div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:18px;margin-bottom:8px">'+title+'</div><div style="font-size:13px;color:var(--text3);line-height:1.5">'+sub+'</div><a href="salas.html" style="display:inline-block;margin-top:18px;background:#2563eb;color:#fff;text-decoration:none;padding:11px 22px;border-radius:12px;font-family:\'Syne\',sans-serif;font-weight:800;font-size:13px">Voltar às salas</a></div>';
   }
 
   /* ───────── ICE (STUN grátis + TURN opcional via config) ───────── */
@@ -388,12 +389,12 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
   document.getElementById('btnMic').onclick=function(){
     if(!localStream) return; micOn=!micOn;
     localStream.getAudioTracks().forEach(function(t){ t.enabled=micOn; });
-    this.classList.toggle('off',!micOn); this.textContent=micOn?'🎤':'🔇';
+    this.classList.toggle('off',!micOn); this.innerHTML=micOn?ICO.mic(20,'currentColor'):ICO.mute(20,'currentColor');
   };
   document.getElementById('btnCam').onclick=function(){
     if(!localStream) return; camOn=!camOn;
     localStream.getVideoTracks().forEach(function(t){ t.enabled=camOn; });
-    this.classList.toggle('off',!camOn); this.textContent=camOn?'📷':'🚫';
+    this.classList.toggle('off',!camOn); this.innerHTML=camOn?ICO.camera(20,'currentColor'):ICO.cameraOff(20,'currentColor');
     var av=document.querySelector('#tile_'+cssId(ME.nick)+' .tile-av'); if(av) av.style.display=camOn?'none':'flex';
   };
   document.getElementById('btnHang').onclick=function(){ hangup(); };
@@ -407,14 +408,67 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
     document.getElementById('callView').classList.remove('open');
     document.getElementById('lobby').style.display='';
     isInCall=false; roomId=null; micOn=camOn=true;
-    document.getElementById('btnMic').className='cv-btn'; document.getElementById('btnMic').textContent='🎤';
-    document.getElementById('btnCam').className='cv-btn'; document.getElementById('btnCam').textContent='📷';
+    document.getElementById('btnMic').className='cv-btn'; document.getElementById('btnMic').innerHTML=ICO.mic(20,'currentColor');
+    document.getElementById('btnCam').className='cv-btn'; document.getElementById('btnCam').innerHTML=ICO.camera(20,'currentColor');
     wsSend({event:'vc_list_req'});
   }
 
   // sair limpo ao fechar a aba
   window.addEventListener('pagehide', function(){ if(roomId) wsSend({event:'vc_leave', data:{ id:roomId }}); });
   window.addEventListener('beforeunload', function(){ if(roomId) wsSend({event:'vc_leave', data:{ id:roomId }}); });
+})();
+</script>
+
+<script>
+/* ── Icon Library Auto-Init ── */
+(function(){
+  if(typeof ICO==='undefined') return;
+  // _ico-ctx: context menu / status icons (16px)
+  document.querySelectorAll('._ico-ctx[data-ico]').forEach(function(el){
+    var fn=el.getAttribute('data-ico');
+    if(ICO[fn]) el.innerHTML=ICO[fn](16);
+  });
+  // _ico-pt: paint toolbar icons (14px)
+  document.querySelectorAll('._ico-pt[data-ico]').forEach(function(el){
+    var fn=el.getAttribute('data-ico');
+    var col=el.getAttribute('data-col')||'currentColor';
+    if(ICO[fn]) el.innerHTML=ICO[fn](14,col);
+  });
+  // _ico-plus: plus menu icons (18px, purple)
+  document.querySelectorAll('._ico-plus[data-ico]').forEach(function(el){
+    var fn=el.getAttribute('data-ico');
+    if(ICO[fn]) el.innerHTML=ICO[fn](18,'#7c3aed');
+  });
+  // _ico-inline: general inline icons
+  document.querySelectorAll('._ico-inline[data-ico]').forEach(function(el){
+    var fn=el.getAttribute('data-ico');
+    var sz=parseInt(el.getAttribute('data-sz')||'16');
+    var col=el.getAttribute('data-col')||'currentColor';
+    if(ICO[fn]) el.innerHTML=ICO[fn](sz,col);
+  });
+
+  // Named display icons
+  var annIco=document.getElementById('_icoAnn');
+  if(annIco && ICO.announce) annIco.innerHTML=ICO.announce(16,'currentColor');
+  var spyIco=document.getElementById('_icoSpy');
+  if(spyIco && ICO.eye) spyIco.innerHTML=ICO.eye(14,'currentColor');
+  var rpIco=document.getElementById('_icoRadioPlay');
+  if(rpIco && ICO.play) rpIco.innerHTML=ICO.play(12,'currentColor');
+  // Named IDs
+  var idMap={
+    '_ico_menu':    function(){return ICO.settings(18,'#fff');},
+    '_ico_shield_mod': function(){return ICO.shield(18,'#fff');}
+  };
+  Object.keys(idMap).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.innerHTML=idMap[id]();
+  });
+  // DJ topbar button
+  var djBtn=document.getElementById('djTopBtn');
+  if(djBtn && ICO.dj) djBtn.innerHTML=ICO.dj(16,'#fff');
+  // Float radio btn
+  var radioBtn=document.getElementById('floatRadioBtn');
+  if(radioBtn && radioBtn.innerHTML.indexOf('📻')>-1) radioBtn.innerHTML=radioBtn.innerHTML.replace('📻', ICO.radio(16,'currentColor'));
 })();
 </script>
 </body></html>
