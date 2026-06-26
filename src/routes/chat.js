@@ -541,6 +541,19 @@ router.post('/users/:nick/fan', authMiddleware, async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: 'Erro.' }); }
 });
 
+// ─── GET /api/users/:nick/fans — lista de fãs do usuário ─────
+router.get('/users/:nick/fans', authMiddleware, async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT u.nick, u.role, u.avatar, u.photo_url
+         FROM user_fans uf JOIN users u ON u.id = uf.fan_id
+        WHERE LOWER(uf.target_nick) = LOWER($1)
+        ORDER BY u.nick ASC`, [req.params.nick]
+    );
+    res.json({ fans: rows });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Erro.' }); }
+});
+
 // ─── POST /api/reports — usuário denuncia outro ─────────────
 router.post('/reports', authMiddleware, async (req, res) => {
   const target = (req.body.target_nick || '').trim();
