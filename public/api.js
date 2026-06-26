@@ -109,6 +109,7 @@ var API = {
   },
   getUserProfile:function (nick)  { return API.get('/users/' + encodeURIComponent(nick)); },
   toggleFan:     function (nick)  { return API.post('/users/' + encodeURIComponent(nick) + '/fan'); },
+  fansList:      function (nick)  { return API.get('/users/' + encodeURIComponent(nick) + '/fans'); },
   getRecentOnline:function ()     { return API.get('/users/recent'); },
   report:        function (nick, reason) { return API.post('/reports', { target_nick: nick, reason: reason || '' }); },
   getBlocks:     function ()      { return API.get('/blocks'); },

@@ -992,21 +992,55 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div class="modal-btns">
       <button class="mbtn cancel" onclick="closeProfile()">Fechar</button>
     </div>
-    <div id="profAdminActions" style="display:none;margin-top:10px;padding-bottom:18px">
-      <div style="font-size:9px;color:#7a90b0;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px">Moderação</div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="mbtn danger" style="flex:none;padding:6px 10px" onclick="adminAct('ban')">🔨 Ban</button>
-        <button class="mbtn" style="flex:none;padding:6px 10px;background:#451a03;color:#fde68a" onclick="adminAct('kick')">👢 Kick</button>
-        <button class="mbtn" style="flex:none;padding:6px 10px;background:#1e3a5f;color:#93c5fd" onclick="adminAct('mute')">🔇 Mutar</button>
-        <button class="mbtn" style="flex:none;padding:6px 10px;background:#152040;color:#8aafd4" onclick="adminAct('shadow')">👻 Shadow</button>
-      </div>
-    </div>
     <!-- Excluir cadastro — só aparece no próprio perfil -->
     <div id="profExcluirDiv" style="display:none">
       <button class="mbtn danger" style="width:100%;font-size:11px" onclick="abrirModalExcluirCadastroChat()">🗑 Excluir meu cadastro</button>
     </div>
   </div>
 </div>
+
+<!-- MODAL LISTA DE FÃS -->
+<div class="overlay" id="fansListOverlay" onclick="if(event.target===this)fecharFans()">
+  <div class="modal" style="max-width:340px;background:#ffffff;color:#0f1f3d">
+    <div class="modal-title" style="display:flex;align-items:center;justify-content:space-between;color:#0f1f3d">
+      <span>❤️ Fãs de <span id="fansListNick"></span></span>
+      <button onclick="fecharFans()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#718096;line-height:1">✕</button>
+    </div>
+    <div id="fansListArea" style="display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto"></div>
+    <div class="modal-btns" style="margin-top:12px">
+      <button class="mbtn cancel" style="background:#f3f6fc;color:#374d6e;border:1px solid #e2e8f0" onclick="fecharFans()">Fechar</button>
+    </div>
+  </div>
+</div>
+<script>
+function verFas(nick){
+  var ov=document.getElementById('fansListOverlay'); if(!ov) return;
+  var nk=document.getElementById('fansListNick'); if(nk) nk.textContent=nick;
+  var area=document.getElementById('fansListArea');
+  if(area) area.innerHTML='<div style="text-align:center;padding:18px;font-size:12px;color:#718096">Carregando…</div>';
+  ov.classList.add('show');
+  if(!(window.API&&API.fansList)){ if(area) area.innerHTML='<div style="text-align:center;padding:18px;font-size:12px;color:#ef4444">Recurso indisponível.</div>'; return; }
+  API.fansList(nick).then(function(d){
+    var fans=(d&&d.fans)||[];
+    if(!area) return;
+    if(!fans.length){ area.innerHTML='<div style="text-align:center;padding:18px;font-size:12px;color:#718096">Nenhum fã ainda.</div>'; return; }
+    area.innerHTML=fans.map(function(f){
+      var av=f.avatar||'\u{1F464}';
+      var photo=f.photo_url||f.photo||((String(av).indexOf('http')===0||String(av).indexOf('data:')===0)?av:'');
+      var avHtml=photo
+        ? '<img src="'+photo+'" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid #dde3ef">'
+        : '<span style="width:36px;height:36px;border-radius:50%;background:#eef2fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #dde3ef"><svg width="20" height="20" viewBox="0 0 24 24" fill="#8aafd4"><path d="M12 12.2c2.6 0 4.7-2.1 4.7-4.7S14.6 2.8 12 2.8 7.3 4.9 7.3 7.5 9.4 12.2 12 12.2zm0 2.3c-3.1 0-9.4 1.6-9.4 4.7v2.3h18.8V19.2c0-3.1-6.3-4.7-9.4-4.7z"/></svg></span>';
+      var safe=String(f.nick).replace(/'/g,"&#39;");
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#f3f6fc;border:1px solid #e2e8f0;cursor:pointer" onclick="fecharFans();openProfile(\''+safe+'\')">'
+        +avHtml
+        +'<div style="flex:1;min-width:0"><div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:13px;color:#0f1f3d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+f.nick+'</div>'
+        +(f.role?'<div style="font-size:9px;text-transform:uppercase;color:#8aafd4;font-weight:700">'+f.role+'</div>':'')
+        +'</div></div>';
+    }).join('');
+  }).catch(function(){ if(area) area.innerHTML='<div style="text-align:center;padding:18px;font-size:12px;color:#ef4444">Erro ao carregar fãs.</div>'; });
+}
+function fecharFans(){ var ov=document.getElementById('fansListOverlay'); if(ov) ov.classList.remove('show'); }
+</script>
 
 <!-- MODAL EXCLUIR CADASTRO (chat) -->
 <div class="overlay" id="excluirCadastroChatOverlay" onclick="if(event.target===this)this.classList.remove('show')">
@@ -3435,7 +3469,7 @@ function openProfile(nick){
   const fd=getFanCount(nick);
   const isOwnProfile=nick===ME.nick;
   const fanBtnHtml=isOwnProfile
-    ?`<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px"><button class="prof-fan-btn" style="border-color:#cbd5e1;color:#374d6e">👥 Ver fãs</button><span class="prof-fan-count">❤️ <b id="profFanCount">${fd.count}</b></span></div>`
+    ?`<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px"><button class="prof-fan-btn" style="border-color:#cbd5e1;color:#374d6e" onclick="verFas('${nick}')">👥 Ver fãs</button><span class="prof-fan-count">❤️ <b id="profFanCount">${fd.count}</b></span></div>`
     :`<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px"><button id="profFanBtn" class="prof-fan-btn${fd.isFan?' is-fan':''}" onclick="toggleFan('${nick}')">${fd.isFan?_PROF_HEART+' Sou fã':_PROF_HEART+' Ser fã'}</button><span class="prof-fan-count">❤️ <b id="profFanCount">${fd.count}</b></span></div>`;
   document.getElementById('profBody').innerHTML=`
     <div class="prof-cover" style="background:${coverBg}"></div>
@@ -3452,7 +3486,7 @@ function openProfile(nick){
       ${chipsHtml}
     </div>`;
   const adminDiv=document.getElementById('profAdminActions');
-  adminDiv.style.display=(canMonitor()&&nick!==ME.nick)?'block':'none';
+  if(adminDiv) adminDiv.style.display=(canMonitor()&&nick!==ME.nick)?'block':'none';
   // Mostrar botão excluir cadastro apenas no próprio perfil
   const excluirDiv=document.getElementById('profExcluirDiv');
   if(excluirDiv) excluirDiv.style.display=isOwnProfile?'block':'none';
