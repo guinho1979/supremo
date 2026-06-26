@@ -737,6 +737,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
       <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h16v11H11l-3 3V14H2V3z"/></svg>
       <span id="pvNotifBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #fff;z-index:10"></span>
     </button>
+    <button id="btnConvitesPend" class="rnb-media-btn" onclick="abrirPainelConvites()" title="Convites de sala privada" style="display:none;position:relative;align-items:center;gap:4px">
+      📨
+      <span id="convitesBadge" style="display:none;position:absolute;top:-5px;right:-5px;background:#ef4444;color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:20px;font-family:'Syne',sans-serif;min-width:16px;text-align:center">0</span>
+    </button>
     <button class="mod-btn" id="modPanelBtn" onclick="abrirPainel()" title="Painel Admin" style="font-size:16px;padding:0 8px">🛡️</button>
     <button class="leave-txt-btn" onclick="leaveRoom()">Sair</button>
   </div>
@@ -6416,7 +6420,63 @@ function verificarConvitesChatPrivado(){
   }catch(e){}
 }
 
+// ── CONVITE DE SALA PRIVADA VIA API (abre o modal aqui no chat) ──
+let _chatConviteAPI = null;
+
+function abrirModalConviteAPI(inv){
+  _chatConviteAPI = {
+    inviteId: inv.id,
+    slug:     inv.slug,
+    salaNome: inv.name,
+    salaIcon: inv.icon || '🔒',
+    salaDesc: inv.description || 'Sala privada exclusiva',
+    roomId:   inv.room_id,
+    de:       inv.from_nick || 'Alguém'
+  };
+  var rem = document.getElementById('chatConviteRemetente');
+  var ic  = document.getElementById('chatConviteIcon');
+  var nm  = document.getElementById('chatConviteNome');
+  var ds  = document.getElementById('chatConviteDesc');
+  if(rem) rem.textContent = _chatConviteAPI.de + ' 👤';
+  if(ic)  ic.textContent  = _chatConviteAPI.salaIcon;
+  if(nm)  nm.textContent  = _chatConviteAPI.salaNome;
+  if(ds)  ds.textContent  = _chatConviteAPI.salaDesc;
+  var ov = document.getElementById('convitePrivadoOverlay');
+  if(ov){ ov.style.display = 'flex'; ov.classList.add('show'); }
+}
+
+async function aceitarConviteAPI(){
+  if(!_chatConviteAPI) return;
+  var inv = _chatConviteAPI;
+  try{
+    var d    = await API.privateRooms.accept(inv.inviteId);
+    var slug = (d && d.room && d.room.slug) || inv.slug;
+    var name = (d && d.room && d.room.name) || inv.salaNome;
+    LS.set('tc_room', slug);
+    LS.set('tc_room_name', name);
+    if(inv.roomId) LS.set('tc_room_dbid', String(inv.roomId));
+    if(inv.de)     LS.set('tc_room_owner', inv.de);
+    _chatConviteAPI = null;
+    var ov = document.getElementById('convitePrivadoOverlay');
+    if(ov){ ov.classList.remove('show'); ov.style.display = 'none'; }
+    window.location.href = 'chatprivado.html';
+  }catch(e){
+    if(typeof showToast==='function') showToast((e&&e.message)||'Erro ao aceitar convite.','error');
+  }
+}
+
+async function rejeitarConviteAPI(){
+  if(!_chatConviteAPI) return;
+  var inv = _chatConviteAPI;
+  try{ await API.privateRooms.decline(inv.inviteId); }catch(e){}
+  _chatConviteAPI = null;
+  var ov = document.getElementById('convitePrivadoOverlay');
+  if(ov){ ov.classList.remove('show'); ov.style.display = 'none'; }
+  if(typeof showToast==='function') showToast('Convite recusado.');
+}
+
 function aceitarConviteChat(){
+  if(_chatConviteAPI){ aceitarConviteAPI(); return; }   // fluxo real (API)
   if(!_chatConvitePendente) return;
   try{ localStorage.removeItem('tc_convite_'+ME.nick); }catch(e){}
   try{ localStorage.setItem('tc_convite_aceito_'+_chatConvitePendente.salaPrivId,'1'); }catch(e){}
@@ -6428,6 +6488,7 @@ function aceitarConviteChat(){
 }
 
 function rejeitarConviteChat(){
+  if(_chatConviteAPI){ rejeitarConviteAPI(); return; }   // fluxo real (API)
   if(!_chatConvitePendente) return;
   try{ localStorage.removeItem('tc_convite_'+ME.nick); }catch(e){}
   _chatConvitePendente = null;
@@ -6506,6 +6567,17 @@ function abrirConvidarPrivadoDoChat(){
     <div class="modal-btns">
       <button class="mbtn cancel" onclick="rejeitarConviteChat()">✕ Rejeitar</button>
       <button class="mbtn confirm" onclick="aceitarConviteChat()">✓ Aceitar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PAINEL DE CONVITES PENDENTES (header) ═══════════ -->
+<div class="overlay" id="convitesPainelOverlay" style="display:none;align-items:center;justify-content:center" onclick="if(event.target===this) fecharPainelConvites()">
+  <div class="modal" style="text-align:left">
+    <div class="modal-title" style="justify-content:center;display:flex"><span style="margin-right:6px">📨</span> Convites de Sala Privada</div>
+    <div id="convitesListArea" style="display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto"></div>
+    <div class="modal-btns" style="margin-top:14px">
+      <button class="mbtn cancel" onclick="fecharPainelConvites()">Fechar</button>
     </div>
   </div>
 </div>
@@ -9332,7 +9404,11 @@ function processSmileKeywords(text){
     var el = document.createElement('div');
     el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:99999;background:#ffffff;color:#0f1f3d;border:1.5px solid #7c3aed;border-radius:14px;padding:12px 16px;box-shadow:0 8px 32px rgba(0,0,0,.18);font-family:DM Sans,sans-serif;max-width:92%;display:flex;align-items:center;gap:12px;cursor:pointer';
     el.innerHTML = '<span style="font-size:22px">📨</span><div style="flex:1;font-size:13px;line-height:1.35;color:#374d6e"><b style="color:#0f1f3d">'+((inv.from_nick||'Alguém'))+'</b> te convidou para a sala privada <b style="color:#0f1f3d">'+((inv.name||''))+'</b>.<br><span style="color:#7c3aed;font-weight:700">Toque para ver e aceitar →</span></div>';
-    el.onclick = function(){ try{ location.href='salas-privadas.html'; }catch(e){} };
+    el.onclick = function(){
+      try{ el.remove(); }catch(e){}
+      try{ abrirModalConviteAPI(inv); }
+      catch(e){ try{ location.href='salas-privadas.html'; }catch(_){} }
+    };
     document.body.appendChild(el);
     setTimeout(function(){ try{ el.remove(); }catch(e){} }, 20000);
   }
@@ -9351,6 +9427,108 @@ function processSmileKeywords(text){
   setTimeout(checkInvites, 3000);
   setInterval(checkInvites, 10000);
 })();
+</script>
+<script>
+/* Painel de convites pendentes no header — badge + lista com aceitar/rejeitar */
+var _convitesCache = [];
+
+function _renderBadgeConvites(n){
+  var btn = document.getElementById('btnConvitesPend');
+  var bdg = document.getElementById('convitesBadge');
+  if(!btn) return;
+  if(n > 0){
+    btn.style.display = 'inline-flex';
+    if(bdg){ bdg.textContent = n > 9 ? '9+' : String(n); bdg.style.display = 'block'; }
+  } else {
+    btn.style.display = 'none';
+    if(bdg) bdg.style.display = 'none';
+  }
+}
+
+function atualizarConvitesPend(){
+  if(typeof API==='undefined' || !API.privateRooms || !API.privateRooms.invites) return;
+  try{ if(localStorage.getItem('tc_no_convites')==='1'){ _renderBadgeConvites(0); return; } }catch(e){}
+  API.privateRooms.invites().then(function(d){
+    _convitesCache = (d && d.invites) || [];
+    _renderBadgeConvites(_convitesCache.length);
+    var ov = document.getElementById('convitesPainelOverlay');
+    if(ov && ov.classList.contains('show')) _renderListaConvites();
+  }).catch(function(){});
+}
+
+function _renderListaConvites(){
+  var area = document.getElementById('convitesListArea');
+  if(!area) return;
+  if(!_convitesCache.length){
+    area.innerHTML = '<div style="text-align:center;color:#718096;font-size:12px;padding:18px">Nenhum convite pendente.</div>';
+    return;
+  }
+  area.innerHTML = _convitesCache.map(function(inv){
+    var nome = (inv.name || 'Sala');
+    var icon = (inv.icon || '🔒');
+    var de   = (inv.from_nick || 'Alguém');
+    var desc = (inv.description || 'Sala privada exclusiva');
+    return '<div style="background:#f5f3ff;border:1.5px solid #7c3aed33;border-radius:12px;padding:12px">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
+      + '<span style="font-size:26px">'+icon+'</span>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:#1a202c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nome+'</div>'
+      + '<div style="font-size:11px;color:#718096"><b>'+de+'</b> · '+desc+'</div>'
+      + '</div></div>'
+      + '<div style="display:flex;gap:8px">'
+      + '<button class="mbtn cancel" onclick="rejeitarConvitePainel('+inv.id+')">✕ Rejeitar</button>'
+      + '<button class="mbtn confirm" onclick="aceitarConvitePainel('+inv.id+')">✓ Aceitar</button>'
+      + '</div></div>';
+  }).join('');
+}
+
+function abrirPainelConvites(){
+  var ov = document.getElementById('convitesPainelOverlay');
+  if(!ov) return;
+  _renderListaConvites();
+  ov.style.display = 'flex';
+  ov.classList.add('show');
+  atualizarConvitesPend();
+}
+
+function fecharPainelConvites(){
+  var ov = document.getElementById('convitesPainelOverlay');
+  if(!ov) return;
+  ov.classList.remove('show');
+  ov.style.display = 'none';
+}
+
+function _convitePorId(id){
+  for(var i=0;i<_convitesCache.length;i++){ if(String(_convitesCache[i].id)===String(id)) return _convitesCache[i]; }
+  return null;
+}
+
+async function aceitarConvitePainel(id){
+  var inv = _convitePorId(id);
+  try{
+    var d    = await API.privateRooms.accept(id);
+    var slug = (d && d.room && d.room.slug) || (inv && inv.slug);
+    var name = (d && d.room && d.room.name) || (inv && inv.name);
+    if(slug){ LS.set('tc_room', slug); LS.set('tc_room_name', name || slug); }
+    if(inv && inv.room_id)   LS.set('tc_room_dbid', String(inv.room_id));
+    if(inv && inv.from_nick) LS.set('tc_room_owner', inv.from_nick);
+    window.location.href = 'chatprivado.html';
+  }catch(e){
+    if(typeof showToast==='function') showToast((e&&e.message)||'Erro ao aceitar convite.','error');
+  }
+}
+
+async function rejeitarConvitePainel(id){
+  try{ await API.privateRooms.decline(id); }catch(e){}
+  _convitesCache = _convitesCache.filter(function(inv){ return String(inv.id)!==String(id); });
+  _renderListaConvites();
+  _renderBadgeConvites(_convitesCache.length);
+  if(typeof showToast==='function') showToast('Convite recusado.');
+  if(!_convitesCache.length) fecharPainelConvites();
+}
+
+setTimeout(atualizarConvitesPend, 2500);
+setInterval(atualizarConvitesPend, 10000);
 </script>
 <script>
 /* Cores de nick (servidor) — aplica na lista de online e nas mensagens, para todos */
