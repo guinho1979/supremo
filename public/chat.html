@@ -6573,11 +6573,11 @@ function abrirConvidarPrivadoDoChat(){
 
 <!-- ═══════════ PAINEL DE CONVITES PENDENTES (header) ═══════════ -->
 <div class="overlay" id="convitesPainelOverlay" style="display:none;align-items:center;justify-content:center" onclick="if(event.target===this) fecharPainelConvites()">
-  <div class="modal" style="text-align:left">
-    <div class="modal-title" style="justify-content:center;display:flex"><span style="margin-right:6px">📨</span> Convites de Sala Privada</div>
+  <div class="modal" style="text-align:left;background:#000000;color:#ffffff;border:1px solid #2a2a2a">
+    <div class="modal-title" style="justify-content:center;display:flex;color:#ffffff"><span style="margin-right:6px">📨</span> Convites de Sala Privada</div>
     <div id="convitesListArea" style="display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto"></div>
     <div class="modal-btns" style="margin-top:14px">
-      <button class="mbtn cancel" onclick="fecharPainelConvites()">Fechar</button>
+      <button class="mbtn cancel" style="background:#1f1f1f;color:#ffffff;border:1px solid #333333" onclick="fecharPainelConvites()">Fechar</button>
     </div>
   </div>
 </div>
@@ -9459,7 +9459,7 @@ function _renderListaConvites(){
   var area = document.getElementById('convitesListArea');
   if(!area) return;
   if(!_convitesCache.length){
-    area.innerHTML = '<div style="text-align:center;color:#718096;font-size:12px;padding:18px">Nenhum convite pendente.</div>';
+    area.innerHTML = '<div style="text-align:center;color:#aaaaaa;font-size:12px;padding:18px">Nenhum convite pendente.</div>';
     return;
   }
   area.innerHTML = _convitesCache.map(function(inv){
@@ -9467,16 +9467,16 @@ function _renderListaConvites(){
     var icon = (inv.icon || '🔒');
     var de   = (inv.from_nick || 'Alguém');
     var desc = (inv.description || 'Sala privada exclusiva');
-    return '<div style="background:#f5f3ff;border:1.5px solid #7c3aed33;border-radius:12px;padding:12px">'
+    return '<div style="background:#161616;border:1.5px solid #333333;border-radius:12px;padding:12px">'
       + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
       + '<span style="font-size:26px">'+icon+'</span>'
       + '<div style="flex:1;min-width:0">'
-      + '<div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:#1a202c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nome+'</div>'
-      + '<div style="font-size:11px;color:#718096"><b>'+de+'</b> · '+desc+'</div>'
+      + '<div style="font-family:Syne,sans-serif;font-size:14px;font-weight:800;color:#ffffff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nome+'</div>'
+      + '<div style="font-size:11px;color:#aaaaaa"><b style="color:#ffffff">'+de+'</b> · '+desc+'</div>'
       + '</div></div>'
       + '<div style="display:flex;gap:8px">'
-      + '<button class="mbtn cancel" onclick="rejeitarConvitePainel('+inv.id+')">✕ Rejeitar</button>'
-      + '<button class="mbtn confirm" onclick="aceitarConvitePainel('+inv.id+')">✓ Aceitar</button>'
+      + '<button class="mbtn cancel" style="background:#dc2626;color:#ffffff;border:none" onclick="rejeitarConvitePainel('+inv.id+')">✕ Rejeitar</button>'
+      + '<button class="mbtn confirm" style="background:#16a34a;color:#ffffff;border:none" onclick="aceitarConvitePainel('+inv.id+')">✓ Aceitar</button>'
       + '</div></div>';
   }).join('');
 }
