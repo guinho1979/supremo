@@ -392,7 +392,7 @@ function setupWebSocket(server) {
 
       // ── PRIVATE MESSAGE ────────────────────────────────────
       if (msg.event === 'private') {
-        const { to_nick, content, msg_type = 'text', media_url = '' } = msg.data || {};
+        const { to_nick, content, msg_type = 'text', media_url = '', quoted_nick = null, quoted_text = null } = msg.data || {};
         if (!to_nick || (!content && !media_url)) return;
 
         // Encontrar destinatário conectado
@@ -407,15 +407,15 @@ function setupWebSocket(server) {
 
           if (target) {
             await db.query(`
-              INSERT INTO private_messages (from_user_id, to_user_id, from_nick, to_nick, content, msg_type, media_url)
-              VALUES ($1, $2, $3, $4, $5, $6, $7)
-            `, [client.userId, target.id, client.nick, to_nick, content || '', msg_type, media_url]).catch(() => {});
+              INSERT INTO private_messages (from_user_id, to_user_id, from_nick, to_nick, content, msg_type, media_url, quoted_nick, quoted_text)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            `, [client.userId, target.id, client.nick, to_nick, content || '', msg_type, media_url, quoted_nick, quoted_text]).catch(() => {});
           }
         }
 
         const pmPayload = {
           event: 'private',
-          data: { from_nick: client.nick, role: client.role, content: content || '', msg_type, media_url, created_at: new Date().toISOString() }
+          data: { from_nick: client.nick, role: client.role, content: content || '', msg_type, media_url, quoted_nick, quoted_text, created_at: new Date().toISOString() }
         };
 
         if (targetSocket?.ws.readyState === WebSocket.OPEN) {
