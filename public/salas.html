@@ -92,6 +92,30 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
 .st-tool.active{background:#2563eb;border-color:#2563eb}
 .st-publish{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);border:none;color:#fff;font-size:22px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(37,99,235,.45)}
 .st-publish:disabled{opacity:.4;cursor:default}
+.st-vid-choice-ov{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center}
+.st-vid-choice{background:#171428;border-radius:18px 18px 0 0;width:100%;max-width:480px;padding:10px 16px 26px;font-family:'Syne',sans-serif}
+.st-vid-choice .svc-handle{width:38px;height:4px;background:rgba(255,255,255,.25);border-radius:3px;margin:6px auto 14px}
+.st-vid-choice .svc-title{color:#fff;font-weight:800;font-size:14px;margin-bottom:12px;text-align:center}
+.svc-opt{display:flex;align-items:center;gap:12px;width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#fff;border-radius:14px;padding:13px 14px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:'Syne',sans-serif;text-align:left}
+.svc-opt:hover{background:rgba(255,255,255,.13)}
+.svc-opt .svc-ico{font-size:20px;width:30px;text-align:center;flex-shrink:0}
+.svc-opt .svc-sub{display:block;font-size:10px;font-weight:500;color:rgba(255,255,255,.55);margin-top:2px}
+.svc-cancel{width:100%;background:transparent;border:none;color:rgba(255,255,255,.6);padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+.st-link-ov{display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.6);align-items:center;justify-content:center}
+.st-link-box{background:#171428;border-radius:18px;width:92%;max-width:380px;padding:20px;font-family:'Syne',sans-serif}
+.st-link-box .slb-title{color:#fff;font-weight:800;font-size:14px;margin-bottom:6px}
+.st-link-box .slb-sub{color:rgba(255,255,255,.55);font-size:11px;margin-bottom:14px;line-height:1.5}
+.st-link-box input{width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:11px 12px;font-size:13px;outline:none;font-family:'DM Sans',sans-serif;margin-bottom:6px}
+.st-link-box input::placeholder{color:rgba(255,255,255,.4)}
+.st-link-box .slb-err{color:#fca5a5;font-size:10.5px;min-height:14px;margin-bottom:8px}
+.st-link-box .slb-btns{display:flex;gap:8px;margin-top:6px}
+.st-link-box .slb-btns button{flex:1;border-radius:10px;padding:11px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Syne',sans-serif}
+.st-link-box .slb-cancel{background:rgba(255,255,255,.1);color:#fff}
+.st-link-box .slb-ok{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff}
+.st-canvas .st-embed-prev{width:100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center;background:#000}
+.st-canvas .st-embed-prev iframe{width:100%;height:100%;border:none}
+.st-canvas .st-embed-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:800;padding:5px 10px;border-radius:20px;letter-spacing:.3px;display:flex;align-items:center;gap:5px}
+.st-vw-content .st-embed-prev{width:100%;height:100%}
 
 /* Viewer (stories) */
 .st-viewer{display:none;position:fixed;inset:0;z-index:850;background:#000;flex-direction:column}
@@ -219,11 +243,42 @@ main{padding:20px 16px;max-width:700px;margin:0 auto;width:100%;flex:1}
   <div class="st-ed-tools">
     <button class="st-tool active" id="stToolText" onclick="stSetMode('text')">✏️ Texto</button>
     <button class="st-tool" id="stToolImg" onclick="stPickMedia('image')">🖼️ Imagem</button>
-    <button class="st-tool" id="stToolVid" onclick="stPickMedia('video')">🎬 Vídeo</button>
+    <button class="st-tool" id="stToolVid" onclick="stOpenVidChoice()">🎬 Vídeo</button>
     <button class="st-publish" id="stPublishBtn" onclick="stPublish()" title="Publicar">➤</button>
   </div>
   <input type="file" id="stFileImg" accept="image/*" style="display:none">
   <input type="file" id="stFileVid" accept="video/*" style="display:none">
+</div>
+
+<!-- ESCOLHA: arquivo do dispositivo ou link do YouTube/TikTok -->
+<div class="st-vid-choice-ov" id="stVidChoiceOv" onclick="if(event.target===this)stCloseVidChoice()">
+  <div class="st-vid-choice">
+    <div class="svc-handle"></div>
+    <div class="svc-title">🎬 Adicionar vídeo ao status</div>
+    <button class="svc-opt" onclick="stCloseVidChoice();document.getElementById('stFileVid').click()">
+      <span class="svc-ico">📁</span>
+      <span><span>Enviar do dispositivo</span><span class="svc-sub">Vídeo gravado ou salvo no seu celular/PC</span></span>
+    </button>
+    <button class="svc-opt" onclick="stCloseVidChoice();stOpenLinkModal()">
+      <span class="svc-ico">🔗</span>
+      <span><span>Link do YouTube ou TikTok</span><span class="svc-sub">Cole o endereço do vídeo para tocar no status</span></span>
+    </button>
+    <button class="svc-cancel" onclick="stCloseVidChoice()">Cancelar</button>
+  </div>
+</div>
+
+<!-- INPUT DE LINK (YouTube/TikTok) -->
+<div class="st-link-ov" id="stLinkOv" onclick="if(event.target===this)stCloseLinkModal()">
+  <div class="st-link-box">
+    <div class="slb-title">🔗 Link do vídeo</div>
+    <div class="slb-sub">Cole o endereço de um vídeo do YouTube ou TikTok. Ele será exibido tocando no seu status.</div>
+    <input type="text" id="stLinkInput" placeholder="https://www.youtube.com/watch?v=... ou https://www.tiktok.com/@user/video/...">
+    <div class="slb-err" id="stLinkErr"></div>
+    <div class="slb-btns">
+      <button class="slb-cancel" onclick="stCloseLinkModal()">Cancelar</button>
+      <button class="slb-ok" onclick="stConfirmLink()">Adicionar</button>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════ STATUS — VISUALIZADOR (stories) ══════════ -->
@@ -765,6 +820,54 @@ function toast(msg,type='ok'){
     else document.getElementById('stFileVid').click();
   };
 
+  // ── Vídeo: escolher origem (arquivo local ou link YouTube/TikTok) ──────
+  window.stOpenVidChoice=function(){
+    document.getElementById('stVidChoiceOv').style.display='flex';
+  };
+  window.stCloseVidChoice=function(){
+    document.getElementById('stVidChoiceOv').style.display='none';
+  };
+
+  // ── Parse de link do YouTube / TikTok ───────────────────────
+  function parseVideoLink(url){
+    url=(url||'').trim();
+    if(!url) return null;
+    if(!/^https?:\/\//i.test(url)) url='https://'+url;
+    var yt=url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+    if(yt){
+      return { provider:'youtube', original:url, embedUrl:'https://www.youtube.com/embed/'+yt[1]+'?autoplay=1&rel=0&playsinline=1' };
+    }
+    var tk=url.match(/tiktok\.com\/[^\s]*\/video\/(\d+)/i);
+    if(tk){
+      return { provider:'tiktok', original:url, embedUrl:'https://www.tiktok.com/embed/v2/'+tk[1] };
+    }
+    return null;
+  }
+  window._stParseVideoLink=parseVideoLink; // exposto para reuso no viewer
+
+  window.stOpenLinkModal=function(){
+    var inp=document.getElementById('stLinkInput'); if(inp) inp.value='';
+    var err=document.getElementById('stLinkErr'); if(err) err.textContent='';
+    document.getElementById('stLinkOv').style.display='flex';
+    setTimeout(function(){ if(inp) inp.focus(); },80);
+  };
+  window.stCloseLinkModal=function(){
+    document.getElementById('stLinkOv').style.display='none';
+  };
+  window.stConfirmLink=function(){
+    var inp=document.getElementById('stLinkInput');
+    var err=document.getElementById('stLinkErr');
+    var parsed=parseVideoLink(inp?inp.value:'');
+    if(!parsed){
+      if(err) err.textContent='Link inválido. Use um link de vídeo do YouTube ou TikTok (ex: tiktok.com/@user/video/123...).';
+      return;
+    }
+    _media={ url:parsed.original, type:'embed', provider:parsed.provider, embedUrl:parsed.embedUrl };
+    stCloseLinkModal();
+    showMediaPreview();
+    setMode('video');
+  };
+
   function handleFile(file, type){
     if(!file) return;
     var maxMB = type==='image' ? 5 : 9;
@@ -793,9 +896,15 @@ function toast(msg,type='ok'){
     clearMediaPreview();
     var t=document.getElementById('stText'); if(t) t.style.display='none';
     var el;
-    if(_media.type==='image'){ el=document.createElement('img'); el.src=_media.url; }
-    else { el=document.createElement('video'); el.src=_media.url; el.controls=true; el.playsInline=true; }
-    el.className='st-media-prev';
+    if(_media.type==='image'){ el=document.createElement('img'); el.className='st-media-prev'; el.src=_media.url; }
+    else if(_media.type==='embed'){
+      el=document.createElement('div'); el.className='st-media-prev st-embed-prev';
+      var badge=document.createElement('div'); badge.className='st-embed-badge';
+      badge.textContent=(_media.provider==='youtube'?'▶ YouTube':'🎵 TikTok');
+      var ifr=document.createElement('iframe'); ifr.src=_media.embedUrl; ifr.allow='autoplay; encrypted-media; fullscreen'; ifr.allowFullscreen=true;
+      el.appendChild(ifr); el.appendChild(badge);
+    }
+    else { el=document.createElement('video'); el.className='st-media-prev'; el.src=_media.url; el.controls=true; el.playsInline=true; }
     var rm=document.createElement('button'); rm.className='st-remove-media'; rm.textContent='✕';
     rm.onclick=window.stRemoveMedia;
     c.appendChild(el); c.appendChild(rm);
@@ -806,10 +915,12 @@ function toast(msg,type='ok'){
     var text=(t&&t.value||'').trim();
     if(_mode==='text' && !text){ toast('Escreva algo no status','err'); return; }
     if((_mode==='image'||_mode==='video') && !_media){ toast('Selecione uma mídia','err'); return; }
+    var isEmbed=_media&&_media.type==='embed';
     var payload={
       content:text,
       media_url:_media?_media.url:null,
-      media_type:_media?_media.type:null,
+      media_type:isEmbed?('embed_'+_media.provider):(_media?_media.type:null),
+      media_embed_url:isEmbed?_media.embedUrl:null,
       bg:_mode==='text'?_bg:null,
       photo_url:myPhoto()||null
     };
@@ -901,6 +1012,23 @@ function toast(msg,type='ok'){
       v.onloadedmetadata=function(){ runProgressVideo(v, i); };
       v.onended=function(){ next(); };
       try{ v.play(); }catch(e){}
+    } else if((s.media_type==='embed_youtube'||s.media_type==='embed_tiktok') ){
+      stage.style.background='#000';
+      var provider = s.media_type==='embed_youtube' ? 'youtube' : 'tiktok';
+      var embedUrl = s.media_embed_url || (function(){ var p=parseVideoLink(s.media_url); return p?p.embedUrl:null; })();
+      var wrap=document.createElement('div'); wrap.className='st-embed-prev';
+      if(embedUrl){
+        var ifr=document.createElement('iframe'); ifr.src=embedUrl; ifr.allow='autoplay; encrypted-media; fullscreen'; ifr.allowFullscreen=true;
+        wrap.appendChild(ifr);
+      } else {
+        wrap.innerHTML='<div style="color:#fff;font-size:13px;padding:30px;text-align:center">Não foi possível carregar este vídeo.</div>';
+      }
+      var badge=document.createElement('div'); badge.className='st-embed-badge'; badge.textContent=(provider==='youtube'?'▶ YouTube':'🎵 TikTok');
+      wrap.appendChild(badge);
+      content.appendChild(wrap);
+      if(s.content){ var c3=document.createElement('div'); c3.className='st-vw-text'; c3.style.cssText='position:absolute;bottom:24px;left:0;right:0;font-size:18px'; c3.textContent=s.content; content.appendChild(c3); }
+      // sem como medir duração real do embed externo: usa tempo fixo
+      runProgress(15000, i);
     } else if(s.media_type==='image' && s.media_url){
       stage.style.background='#000';
       var im=document.createElement('img'); im.src=s.media_url;
