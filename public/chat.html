@@ -1375,8 +1375,7 @@ function buildColorSwatches(){
   }catch(e){}
   // Start Supra bot
   botIniciar();
-  // Guest: block media buttons
-  if(isGuest()){['btnFile'].forEach(id=>{const b=document.getElementById(id);if(b)b.classList.add('guest-blocked');});}  // Room name bar
+  // Guest: media buttons liberados (áudio, vídeo, imagem e gravação de microfone)
   // Detect spy mode (via URL param ou localStorage)
   const urlParams=new URLSearchParams(window.location.search);
   // Novo modo espião = ?spy=<sala> (iframe já cuida da renderização). Não dispara o overlay antigo.
@@ -3713,12 +3712,10 @@ function renderAv(av){return av&&(av.indexOf('http')===0||av.indexOf('data:')===
 // ─── MEDIA UPLOAD / MESSAGES ─────────────────────────────────────────────────
 let mediaAccept={image:'image/*',audio:'audio/*',video:'video/*',gif:'image/gif'};
 function triggerMedia(type){
-  if(isGuest()&&['image','video'].includes(type)){showToast('Visitantes podem enviar áudio, gif e desenho','error');return;}
   const inp=document.getElementById('fileInput');
   inp.accept=mediaAccept[type]||'*/*';inp.dataset.type=type;inp.click();
 }
 function triggerFile(){
-  if(isGuest()){showToast('Visitantes não podem enviar arquivos','error');return;}
   const inp = document.getElementById('fileInput');
   inp.value = '';
   inp.click();
@@ -4019,15 +4016,17 @@ function _sendMedia(type,src,name){
   const area=document.getElementById('msgArea');
   const avHtml=renderAv(ME.photo||ME.av);
   const {icon,label,onclick}=getMediaConfig(type,src,name);
+  const _isInlineImg = ['image','gif','draw','desenho','drawing'].indexOf(type)>-1;
+  const _badgeHtml = type==='yt'?'<span class="yt-badge">YT</span>':type==='tiktok'?'<span class="yt-badge" style="background:#ff0050">TK</span>':type==='instagram'?'<span class="yt-badge" style="background:linear-gradient(45deg,#f09433,#dc2743,#bc1888)">IG</span>':'';
+  const _mediaHtml = _isInlineImg
+    ? '<img data-img-chip="1" src="'+src+'" alt="'+(type==='gif'?'GIF':(['draw','desenho','drawing'].indexOf(type)>-1?'Desenho':'Imagem'))+'" loading="lazy" style="width:100px;height:100px;object-fit:cover;border-radius:10px;display:block;margin-top:4px;cursor:pointer;background:#fff;border:1px solid #e2e8f0" onclick="'+onclick.replace(/"/g,'&quot;')+'">'
+    : '<div class="media-msg" onclick="'+onclick+'"><span class="media-icon">'+icon+'</span><div class="media-info"><div class="media-name">'+name+_badgeHtml+'</div><div class="media-meta">'+label+'</div></div></div>';
   const d=document.createElement('div');
   d.className='msg-group';d.dataset.user=ME.nick;d.dataset.mine='1';
   d.innerHTML=`<div class="msg-av" style="background:#064e3b;color:#6ee7b7;border-color:#10b981">${avHtml}</div>
   <div class="msg-content"><div class="msg-bubble">
     <div class="msg-head">${(typeof _nickEmojiHtml==='function'?_nickEmojiHtml(ME.nick):'')}<span class="msg-nick" style="color:${state.nickColor}">${ME.nick}</span>${getBadgeHtml(ME.role)}</div>
-    <div class="media-msg" onclick="${onclick}">
-      <span class="media-icon">${icon}</span>
-      <div class="media-info"><div class="media-name">${name}${type==='yt'?'<span class="yt-badge">YT</span>':type==='tiktok'?'<span class="yt-badge" style="background:#ff0050">TK</span>':type==='instagram'?'<span class="yt-badge" style="background:linear-gradient(45deg,#f09433,#dc2743,#bc1888)">IG</span>':''}</div><div class="media-meta">${label}</div></div>
-    </div>
+    ${_mediaHtml}
     <div class="msg-footer"><span class="msg-time">${nowTime()}</span></div>
     <button class="del-x-btn" onclick="this.closest('.msg-group').remove()" title="Apagar mensagem">✕</button>
   </div></div>`;
@@ -4048,6 +4047,7 @@ function getMediaConfig(type,src,name){
   if(type==='tiktok')return{icon:ICO_TK,label:'',onclick:`openTikTokModal('${src}','${name}')` };
   if(type==='instagram')return{icon:ICO_IG,label:'',onclick:`openInstagramModal('${src}','${name}')` };
   if(type==='gif')return{icon:ICO_IMAGE,label:'',onclick:`openImageModal('${src}','${name}')` };
+  if(type==='draw'||type==='desenho'||type==='drawing')return{icon:ICO_IMAGE,label:'',onclick:`openImageModal('${src}','${name}')` };
   return{icon:ICO_AUDIO,label:'',onclick:''};
 }
 
@@ -8934,7 +8934,9 @@ function processSmileKeywords(text){
     var _imgName=name||(type==='gif'?'GIF':'Imagem');
     if(type==='gif'){
       mediaBlock='<img data-img-chip="1" src="'+src+'" alt="GIF" loading="lazy" style="width:100px;height:100px;object-fit:cover;border-radius:10px;display:block;margin-top:4px;cursor:pointer;background:#0c1322">';
-    } else if(type==='image'||type==='draw'||type==='desenho'||type==='drawing'){
+    } else if(type==='draw'||type==='desenho'||type==='drawing'){
+      mediaBlock='<img data-img-chip="1" src="'+src+'" alt="Desenho" loading="lazy" style="width:100px;height:100px;object-fit:cover;border-radius:10px;display:block;margin-top:4px;cursor:pointer;background:#fff;border:1px solid #e2e8f0">';
+    } else if(type==='image'){
       mediaBlock='<div class="media-msg" data-img-chip="1" style="cursor:pointer"><span class="media-icon">'+(cfg&&cfg.icon||'🖼️')+'</span><div class="media-info"><div class="media-name">'+_imgName+'</div><div class="media-meta">Toque para ver a imagem</div></div></div>';
     } else if(type==='video'){
       mediaBlock='<video src="'+src+'" controls preload="metadata" style="max-width:260px;max-height:280px;border-radius:12px;display:block;margin-top:4px;background:#000"></video>';
