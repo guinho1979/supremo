@@ -6640,10 +6640,10 @@ function abrirConvidarPrivadoDoChat(){
 // pvHistory[nick] = [ {from, text, isMine, ts}, ... ]
 var pvHistory = {};
 
-function pvHistoryPush(nick, from, text, isMine, mediaUrl, mediaType, audioBlobUrl) {
+function pvHistoryPush(nick, from, text, isMine, mediaUrl, mediaType, audioBlobUrl, quoted) {
   if (!pvHistory[nick]) pvHistory[nick] = [];
   pvHistory[nick].push({ from: from, text: text, isMine: isMine, ts: Date.now(),
-    mediaUrl: mediaUrl || null, mediaType: mediaType || null, audioBlobUrl: audioBlobUrl || null });
+    mediaUrl: mediaUrl || null, mediaType: mediaType || null, audioBlobUrl: audioBlobUrl || null, quoted: quoted || null });
   // ── Salvar no monitor de PV do admin ──────────────────────────
   try {
     var monActive = localStorage.getItem('tc_pv_monitor_active') === '1';
@@ -7445,7 +7445,7 @@ function openPrivateWindow(nick) {
 
   // Replay full history first, then clear inbox queue marker
   var hist = pvHistory[nick] || [];
-  hist.forEach(function(m){ addPrivateMsgToWindow(nick, m.from, m.text, m.isMine, m.mediaUrl, m.mediaType, m.audioBlobUrl); });
+  hist.forEach(function(m){ addPrivateMsgToWindow(nick, m.from, m.text, m.isMine, m.mediaUrl, m.mediaType, m.audioBlobUrl, m.quoted); });
   // Clear the inbox queue (already in history)
   if (window._pvInbox && window._pvInbox[nick]) delete window._pvInbox[nick];
   // Update badge since unread cleared
@@ -7951,38 +7951,38 @@ function openPvMediaModal(url, type) {
 }
 
 // Called when receiving a PV from another user
-function receivePrivateMessage(fromNick, text) {
+function receivePrivateMessage(fromNick, text, quoted) {
   var u = USERS_DATA[fromNick] || {};
   // Always push to history
-  pvHistoryPush(fromNick, fromNick, text, false);
+  pvHistoryPush(fromNick, fromNick, text, false, null, null, null, quoted);
   renderPvNotifBadge();
   if (pvWindows[fromNick]) {
     // Window is open — deliver directly and clear any pending notification
     clearPvNotification(fromNick);
-    addPrivateMsgToWindow(fromNick, fromNick, text, false);
+    addPrivateMsgToWindow(fromNick, fromNick, text, false, null, null, null, quoted);
   } else {
     // Window closed — store in inbox queue and notify
     if (!window._pvInbox) window._pvInbox = {};
     if (!window._pvInbox[fromNick]) window._pvInbox[fromNick] = [];
-    window._pvInbox[fromNick].push({ from: fromNick, text: text, isMine: false });
+    window._pvInbox[fromNick].push({ from: fromNick, text: text, isMine: false, quoted: quoted || null });
     showPvNotification(fromNick, text, u.av);
   }
 }
 
-function receivePrivateMedia(fromNick, text, mediaType, mediaUrl){
+function receivePrivateMedia(fromNick, text, mediaType, mediaUrl, quoted){
   var u = USERS_DATA[fromNick] || {};
   var isAudio = (mediaType==='audio');
   var mUrl = isAudio ? null : mediaUrl;
   var aUrl = isAudio ? mediaUrl : null;
-  pvHistoryPush(fromNick, fromNick, text||'', false, mUrl, mediaType, aUrl);
+  pvHistoryPush(fromNick, fromNick, text||'', false, mUrl, mediaType, aUrl, quoted);
   renderPvNotifBadge();
   if (pvWindows[fromNick]) {
     clearPvNotification(fromNick);
-    addPrivateMsgToWindow(fromNick, fromNick, text||'', false, mUrl, mediaType, aUrl);
+    addPrivateMsgToWindow(fromNick, fromNick, text||'', false, mUrl, mediaType, aUrl, quoted);
   } else {
     if (!window._pvInbox) window._pvInbox = {};
     if (!window._pvInbox[fromNick]) window._pvInbox[fromNick] = [];
-    window._pvInbox[fromNick].push({ from: fromNick, text: text||'', isMine: false, mediaUrl: mUrl, mediaType: mediaType, audioBlobUrl: aUrl });
+    window._pvInbox[fromNick].push({ from: fromNick, text: text||'', isMine: false, mediaUrl: mUrl, mediaType: mediaType, audioBlobUrl: aUrl, quoted: quoted || null });
     var label = mediaType==='image' ? '📷 Imagem' : (mediaType==='video' ? '🎬 Vídeo' : (mediaType==='audio' ? '🎵 Áudio' : (text||'Mídia')));
     showPvNotification(fromNick, label, u.av);
   }
@@ -9111,11 +9111,12 @@ function processSmileKeywords(text){
   tcSocket.on('private', function(d){
     if(!d || !d.from_nick) return;
     try{
+      var _quoted = (d.quoted_nick || d.quoted_text) ? { from: d.quoted_nick || '', text: d.quoted_text || '' } : null;
       if(d.msg_type && d.msg_type.indexOf('media:')===0){
         var mt=d.msg_type.slice(6); var mediaType=(mt==='gif')?'image':mt;
-        if(typeof receivePrivateMedia==='function') receivePrivateMedia(d.from_nick, d.content||'', mediaType, d.media_url||'');
+        if(typeof receivePrivateMedia==='function') receivePrivateMedia(d.from_nick, d.content||'', mediaType, d.media_url||'', _quoted);
       } else if(typeof receivePrivateMessage==='function'){
-        receivePrivateMessage(d.from_nick, d.content||'');
+        receivePrivateMessage(d.from_nick, d.content||'', _quoted);
       }
     }catch(e){}
   });
