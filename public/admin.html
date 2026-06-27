@@ -213,6 +213,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet"/>
 </head>
 <body>
 <header>
@@ -646,7 +647,7 @@ th{font-size:12px}td{font-size:13px}.badge{font-size:10px}.abtn{font-size:11px}
           <div class="toggle" id="bingoToggle" onclick="toggleBingo(this)"></div>
         </div>
         <div class="toggle-row">
-          <div class="toggle-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg>Liberar Sala de Vídeo<small>Permite chamadas de vídeo (até 4 pessoas)</small></div>
+          <div class="toggle-info"><i class="icon ion-ios-videocam" style="font-size:16px;vertical-align:-3px;margin-right:4px"></i>Liberar Sala de Vídeo<small>Permite chamadas de vídeo (até 4 pessoas)</small></div>
           <div class="toggle" id="videoToggle" onclick="toggleVideo(this)"></div>
         </div>
       </div>
@@ -2017,9 +2018,9 @@ function pvRenderConvCards(msgs, convKeys) {
 
 // ── Media icon helpers (admin spy) ──────────────────────────────────────────
 var _SPYICO = {
-  image: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><circle cx="8.5" cy="9.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>',
-  video: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="3"/><polygon points="22,8 16,12 22,16"/></svg>',
-  audio: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 18,12 10,16" fill="#34d399" stroke="none"/></svg>',
+  image: '<i class="icon ion-image" style="font-size:22px;color:#60a5fa"></i>',
+  video: '<i class="icon ion-ios-videocam" style="font-size:22px;color:#a78bfa"></i>',
+  audio: '<i class="icon ion-ios-volume-high" style="font-size:22px;color:#34d399"></i>',
   yt:    '<svg width="22" height="22" viewBox="0 0 24 24"><path fill="#ef4444" d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.2 5 12 5 12 5s-4.2 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.3.9C6.8 19 12 19 12 19s4.2 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6C22 9.6 21.8 8 21.8 8z"/><polygon fill="white" points="10,8.5 10,15.5 16,12"/></svg>',
   tiktok:'<svg width="22" height="22" viewBox="0 0 24 24" fill="#ff0050"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z"/></svg>',
   instagram:'<svg width="22" height="22" viewBox="0 0 24 24"><defs><linearGradient id="spig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="5" fill="url(#spig)"/><rect x="6" y="6" width="12" height="12" rx="3" fill="none" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="none" stroke="white" stroke-width="1.5"/><circle cx="17" cy="7" r="1" fill="white"/></svg>'

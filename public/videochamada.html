@@ -90,7 +90,8 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:20px;font-size:12px;font-weight:700;z-index:999;opacity:0;transition:.3s;pointer-events:none;background:#0d2a5e;color:#bfdbfe}
 .toast.show{opacity:1}
 .toast.err{background:#7f1d1d;color:#fca5a5}
-</style></head><body>
+</style><link href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet"/>
+</head><body>
 
 <header>
   <div style="display:flex;align-items:center;justify-content:center">
@@ -109,7 +110,7 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
 </header>
 
 <main id="lobby">
-  <div class="page-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;vertical-align:-4px;margin-right:5px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg>Sala de Vídeo</div>
+  <div class="page-title"><i class="icon ion-ios-videocam" style="font-size:22px;vertical-align:-4px;margin-right:5px"></i>Sala de Vídeo</div>
   <p class="page-sub">Chamada de vídeo ao vivo com até 4 pessoas</p>
   <div class="card">
     <h2>🎬 Iniciar uma chamada</h2>
@@ -148,7 +149,7 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
 
 <!-- Notificação de chamada -->
 <div class="ring" id="ring">
-  <div class="r-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg></div>
+  <div class="r-ico"><i class="icon ion-ios-videocam" style="font-size:22px;color:#fff"></i></div>
   <div class="r-meta">
     <div class="r-t" id="ringTitle">Chamada de vídeo</div>
     <div class="r-s" id="ringSub">iniciou uma chamada</div>
@@ -259,7 +260,7 @@ main{flex:1;max-width:760px;width:100%;margin:0 auto;padding:18px 16px 40px}
     if(!rooms.length){ box.innerHTML='<div class="empty-calls">Nenhuma chamada ativa no momento.</div>'; return; }
     box.innerHTML=rooms.map(function(r){
       var full=r.count>=r.max;
-      return '<div class="call-item"><div class="call-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg></div>'+
+      return '<div class="call-item"><div class="call-ico"><i class="icon ion-ios-videocam" style="font-size:22px;color:#fff"></i></div>'+
         '<div class="call-meta"><div class="call-title">'+esc(r.title)+'</div>'+
         '<div class="call-sub">por '+esc(r.host)+' · '+r.count+'/'+r.max+' na chamada</div></div>'+
         '<button class="call-join" '+(full?'disabled':'')+' onclick="vcJoin(\''+esc(r.id)+'\')">'+(full?'Cheia':'Entrar')+'</button></div>';
