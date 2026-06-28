@@ -32,7 +32,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Chat Supremo</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet"/>
 <style>
 :root{
   --bg:#ffffff;--surface:#13151c;--surface2:#1a1d24;--surface3:#242830;
@@ -735,7 +734,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     </button>
     <div class="rnb-sep"></div>
     <button id="pvNotifBtn" class="rnb-media-btn" onclick="togglePvNotifPanel()" title="Mensagens privadas" style="display:flex;align-items:center;gap:4px;position:relative">
-      <i class="icon ion-chatbubble" style="font-size:14px"></i>
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h16v11H11l-3 3V14H2V3z"/></svg>
       <span id="pvNotifBadge" style="display:none;position:absolute;top:-3px;right:-3px;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #fff;z-index:10"></span>
     </button>
     <button id="btnConvitesPend" class="rnb-media-btn" onclick="abrirPainelConvites()" title="Convites de sala privada" style="display:inline-flex;position:relative;align-items:center;gap:4px">
@@ -775,7 +774,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div class="ap-time" id="apTime" style="font-size:10px;color:#8aafd4;margin-top:2px">0:00 / 0:00</div>
   </div>
   <div class="ap-controls">
-    <button class="ap-btn" id="apPlayBtn" onclick="toggleAudioPlayer()"><i class="icon ion-ios-pause" style="color:#8aafd4"></i></button>
+    <button class="ap-btn" id="apPlayBtn" onclick="toggleAudioPlayer()"><svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
     <button class="ap-close" onclick="closeAudioPlayer()">✕</button>
   </div>
 </div>
@@ -867,7 +866,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <button id="btnConvidarPrivado" style="display:none" onclick="abrirConvidarPrivadoDoChat()"></button>
     <input class="msg-input" id="msgInput" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter')sendMsg()"/>
     <button class="send-btn" id="sendBtn" onclick="sendMsg()">
-      <i class="icon ion-android-send" style="font-size:20px;color:#1d4ed8"></i>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="#1d4ed8"/>
+      </svg>
     </button>
   </div>
 </div>
@@ -1085,7 +1086,7 @@ function verFas(nick){
       var photo=f.photo_url||f.photo||((String(av).indexOf('http')===0||String(av).indexOf('data:')===0)?av:'');
       var avHtml=photo
         ? '<img src="'+photo+'" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid #dde3ef">'
-        : '<span style="width:36px;height:36px;border-radius:50%;background:#eef2fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #dde3ef"><i class="icon ion-person" style="font-size:20px;color:#8aafd4"></i></span>';
+        : '<span style="width:36px;height:36px;border-radius:50%;background:#eef2fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #dde3ef"><svg width="20" height="20" viewBox="0 0 24 24" fill="#8aafd4"><path d="M12 12.2c2.6 0 4.7-2.1 4.7-4.7S14.6 2.8 12 2.8 7.3 4.9 7.3 7.5 9.4 12.2 12 12.2zm0 2.3c-3.1 0-9.4 1.6-9.4 4.7v2.3h18.8V19.2c0-3.1-6.3-4.7-9.4-4.7z"/></svg></span>';
       var safe=String(f.nick).replace(/'/g,"&#39;");
       return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#f3f6fc;border:1px solid #e2e8f0;cursor:pointer" onclick="fecharFans();openProfile(\''+safe+'\')">'
         +avHtml
@@ -2922,7 +2923,7 @@ function syncTopRoomName(){
     a.src = src;
     document.getElementById('apName').textContent = name || src;
     document.getElementById('audioPlayer').classList.add('show');
-    document.getElementById('apPlayBtn').innerHTML = '<i class="icon ion-ios-pause" style="color:#8aafd4"></i>';
+    document.getElementById('apPlayBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
     document.getElementById('apFill').style.width = '0%';
     document.getElementById('apTime').textContent = '0:00 / 0:00';
     state.audioPlaying = true;
@@ -2930,7 +2931,7 @@ function syncTopRoomName(){
     a.ontimeupdate = updateBar;
     a.onended = () => {
       state.audioPlaying = false;
-      document.getElementById('apPlayBtn').innerHTML = '<i class="icon ion-ios-play" style="color:#8aafd4"></i>';
+      document.getElementById('apPlayBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>';
       document.getElementById('apFill').style.width = '100%';
     };
     a.onerror = () => {
@@ -2951,11 +2952,11 @@ function syncTopRoomName(){
     if(state.audioPlaying){
       a.pause();
       state.audioPlaying = false;
-      document.getElementById('apPlayBtn').innerHTML = '<i class="icon ion-ios-play" style="color:#8aafd4"></i>';
+      document.getElementById('apPlayBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>';
     } else {
       a.play().catch(()=>{});
       state.audioPlaying = true;
-      document.getElementById('apPlayBtn').innerHTML = '<i class="icon ion-ios-pause" style="color:#8aafd4"></i>';
+      document.getElementById('apPlayBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
     }
   };
 
@@ -4033,9 +4034,9 @@ function _sendMedia(type,src,name){
   area.appendChild(d);area.scrollTop=area.scrollHeight;
 }
 function getMediaConfig(type,src,name){
-  var ICO_IMAGE='<i class="icon ion-image" style="font-size:28px;color:#60a5fa"></i>';
-  var ICO_VIDEO='<i class="icon ion-ios-videocam" style="font-size:28px;color:#a78bfa"></i>';
-  var ICO_AUDIO='<i class="icon ion-ios-volume-high" style="font-size:28px;color:#34d399"></i>';
+  var ICO_IMAGE='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><circle cx="8.5" cy="9.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>';
+  var ICO_VIDEO='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="3"/><polygon points="22,8 16,12 22,16"/></svg>';
+  var ICO_AUDIO='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 18,12 10,16" fill="#34d399" stroke="none"/></svg>';
   var ICO_GIF='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><polyline points="21,15 16,10 5,21"/><circle cx="8.5" cy="9.5" r="1.5"/><text x="7" y="14" fill="#f59e0b" font-size="5" font-weight="bold" stroke="none">GIF</text></svg>';
   var ICO_YT='<svg width="28" height="28" viewBox="0 0 24 24" fill="#ef4444"><path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.2 5 12 5 12 5s-4.2 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.3.9C6.8 19 12 19 12 19s4.2 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6C22 9.6 21.8 8 21.8 8z"/><polygon points="10,8.5 10,15.5 16,12" fill="white"/></svg>';
   var ICO_TK='<svg width="28" height="28" viewBox="0 0 24 24" fill="#ff0050"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z"/></svg>';
@@ -4081,15 +4082,10 @@ function setReplyWithQuote(btn, nick){
   const bubble = btn.closest('.msg-bubble');
   const msgTextEl = bubble ? bubble.querySelector('.msg-text') : null;
   const rawText = msgTextEl ? msgTextEl.innerText.trim() : '';
-  // Get current quote depth (max 3 levels = depth 0,1,2)
+  // Get current quote depth (sem limite de quantas vezes pode responder em sequência)
   const existingQuote = bubble ? bubble.querySelector('.msg-quote-block') : null;
   const parentDepth = existingQuote ? parseInt(existingQuote.dataset.depth||'0') : -1;
   const newDepth = parentDepth + 1;
-  if(newDepth > 2){
-    // Already at max depth — just mention without quote
-    setReply(nick);
-    return;
-  }
   setReplyFull(nick, rawText, newDepth);
 }
 
@@ -4420,7 +4416,7 @@ function toggleFan(nick){
 }
 
 /* Coração (SVG) que herda a cor do botão — branco quando "Sou fã" */
-var _PROF_HEART='<i class="icon ion-heart" style="font-size:14px;vertical-align:-1px;margin-right:3px"></i>';
+var _PROF_HEART='<svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;vertical-align:-2px;margin-right:3px"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>';
 /* Logos oficiais das redes */
 var _PROF_SOC={
   ig:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07c-1.28.06-2.15.26-2.91.56-.79.31-1.46.72-2.13 1.38C1.34 2.68.93 3.35.63 4.14c-.3.76-.5 1.63-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91.31.79.72 1.46 1.38 2.13.67.66 1.34 1.07 2.13 1.38.76.3 1.63.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.38.66-.67 1.07-1.34 1.38-2.13.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.38-2.13C21.32 1.34 20.65.93 19.86.63c-.76-.3-1.63-.5-2.91-.56C15.67.01 15.26 0 12 0m0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84M12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4m6.41-10.85a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44"/></svg>',
@@ -4541,8 +4537,8 @@ function buildProfileAudioPlayer(nick){
 
   const playBtn=document.createElement('button');
   playBtn.style.cssText='width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s;padding:0';
-  const svgPlay='<i class="icon ion-ios-play" style="color:#8aafd4"></i>';
-  const svgPause='<i class="icon ion-ios-pause" style="color:#8aafd4"></i>';
+  const svgPlay='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>';
+  const svgPause='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
   playBtn.innerHTML=svgPlay;
 
   const info=document.createElement('div');
@@ -7373,7 +7369,7 @@ function openPrivateWindow(nick) {
 
   var sendBtn = document.createElement('button');
   sendBtn.style.cssText = 'width:32px;height:32px;background:#ffffff;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;transition:opacity .2s,max-width .2s,transform .2s;opacity:0;pointer-events:none;transform:scale(0.7);max-width:0;overflow:hidden;margin-left:0;';
-  sendBtn.innerHTML = '<i class="icon ion-android-send" style="font-size:17px;color:#1d4ed8"></i>';
+  sendBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="#1d4ed8"/></svg>';
   sendBtn.addEventListener('mouseover', function(){ sendBtn.style.background='#0f1f3d'; sendBtn.querySelector('svg path') && sendBtn.querySelectorAll('svg path').forEach(p=>p.setAttribute('stroke','white')); sendBtn.style.transform='scale(1.1)'; });
   sendBtn.addEventListener('mouseout',  function(){ sendBtn.style.background='#ffffff'; sendBtn.querySelectorAll('svg path').forEach(p=>p.setAttribute('stroke','#1d4ed8')); sendBtn.style.transform='scale(1)'; });
   inp.addEventListener('input', function(){
@@ -7759,9 +7755,9 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
   var avColor = uData.color || '#374d6e';
 
   // ── Render usando as mesmas classes do chat principal ──────────────────────
-  var _PV_ICO_IMAGE = '<i class="icon ion-image" style="font-size:28px;color:#60a5fa"></i>';
-  var _PV_ICO_VIDEO = '<i class="icon ion-ios-videocam" style="font-size:28px;color:#a78bfa"></i>';
-  var _PV_ICO_AUDIO = '<i class="icon ion-ios-volume-high" style="font-size:28px;color:#34d399"></i>';
+  var _PV_ICO_IMAGE = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><circle cx="8.5" cy="9.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>';
+  var _PV_ICO_VIDEO = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="3"/><polygon points="22,8 16,12 22,16"/></svg>';
+  var _PV_ICO_AUDIO = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 18,12 10,16" fill="#34d399" stroke="none"/></svg>';
   var _PV_ICO_YT    = '<svg width="28" height="28" viewBox="0 0 24 24"><path fill="#ef4444" d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.2 5 12 5 12 5s-4.2 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.3.9C6.8 19 12 19 12 19s4.2 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6C22 9.6 21.8 8 21.8 8z"/><polygon fill="white" points="10,8.5 10,15.5 16,12"/></svg>';
   var _PV_ICO_TK    = '<svg width="28" height="28" viewBox="0 0 24 24" fill="#ff0050"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z"/></svg>';
   var _PV_ICO_IG    = '<svg width="28" height="28" viewBox="0 0 24 24"><defs><linearGradient id="pvig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#f09433"/><stop offset="50%" stop-color="#dc2743"/><stop offset="100%" stop-color="#bc1888"/></linearGradient></defs><rect x="2" y="2" width="20" height="20" rx="5" fill="url(#pvig)"/><rect x="6" y="6" width="12" height="12" rx="3" fill="none" stroke="white" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="none" stroke="white" stroke-width="1.5"/><circle cx="17" cy="7" r="1" fill="white"/></svg>';
@@ -7838,7 +7834,7 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
     _audEl.preload = 'metadata';
     var _pvPlayBtn = document.createElement('button');
     _pvPlayBtn.style.cssText = 'width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s;padding:0';
-    _pvPlayBtn.innerHTML = '<i class="icon ion-ios-play" style="color:#8aafd4"></i>';
+    _pvPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>';
     var _pvAudInfo = document.createElement('div');
     _pvAudInfo.style.cssText = 'flex:1;min-width:0';
     var _pvAudName = document.createElement('div');
@@ -7859,8 +7855,8 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
     _pvAudWrap.appendChild(_pvAudInfo);
     _pvPlayBtn.addEventListener('click', function(e){
       e.stopPropagation();
-      if (_audEl.paused) { _audEl.play().catch(function(){}); _pvPlayBtn.innerHTML = '<i class="icon ion-ios-pause" style="color:#8aafd4"></i>'; }
-      else { _audEl.pause(); _pvPlayBtn.innerHTML = '<i class="icon ion-ios-play" style="color:#8aafd4"></i>'; }
+      if (_audEl.paused) { _audEl.play().catch(function(){}); _pvPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>'; }
+      else { _audEl.pause(); _pvPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>'; }
     });
     _audEl.addEventListener('timeupdate', function(){
       if (!_audEl.duration) return;
@@ -7870,7 +7866,7 @@ function addPrivateMsgToWindow(targetNick, fromNick, text, isMine, mediaUrl, med
       var dm = Math.floor(_audEl.duration / 60), ds = String(Math.floor(_audEl.duration % 60)).padStart(2,'0');
       _pvTime.textContent = m + ':' + s + ' / ' + dm + ':' + ds;
     });
-    _audEl.addEventListener('ended', function(){ _pvPlayBtn.innerHTML = '<i class="icon ion-ios-play" style="color:#8aafd4"></i>'; _pvFill.style.width = '100%'; });
+    _audEl.addEventListener('ended', function(){ _pvPlayBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>'; _pvFill.style.width = '100%'; });
     _audEl.addEventListener('loadedmetadata', function(){
       if (!_audEl.duration || !isFinite(_audEl.duration)) return;
       var dm = Math.floor(_audEl.duration / 60), ds = String(Math.floor(_audEl.duration % 60)).padStart(2,'0');
@@ -8514,7 +8510,7 @@ function ctxPrivate() {
         <div class="frp-st-name">Chat Supremo FM</div>
         <div class="frp-st-genre">Pop • Hits • Ao vivo</div>
       </div>
-      <button class="frp-st-play" id="frpPlay0" onclick="event.stopPropagation();selectFloatStation(0)"><i class="icon ion-ios-play" style="color:#8aafd4"></i></button>
+      <button class="frp-st-play" id="frpPlay0" onclick="event.stopPropagation();selectFloatStation(0)"><svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg></button>
     </div>
     <!-- Rádio 2 -->
     <div class="frp-station" id="frpSt1" onclick="selectFloatStation(1)">
@@ -8523,7 +8519,7 @@ function ctxPrivate() {
         <div class="frp-st-name">Rock Supremo</div>
         <div class="frp-st-genre">Rock • Metal • Clássicos</div>
       </div>
-      <button class="frp-st-play" id="frpPlay1" onclick="event.stopPropagation();selectFloatStation(1)"><i class="icon ion-ios-play" style="color:#8aafd4"></i></button>
+      <button class="frp-st-play" id="frpPlay1" onclick="event.stopPropagation();selectFloatStation(1)"><svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg></button>
     </div>
     <!-- Rádio 3 -->
     <div class="frp-station" id="frpSt2" onclick="selectFloatStation(2)">
@@ -8532,7 +8528,7 @@ function ctxPrivate() {
         <div class="frp-st-name">Lounge Chill</div>
         <div class="frp-st-genre">Lo-fi • Jazz • Relaxante</div>
       </div>
-      <button class="frp-st-play" id="frpPlay2" onclick="event.stopPropagation();selectFloatStation(2)"><i class="icon ion-ios-play" style="color:#8aafd4"></i></button>
+      <button class="frp-st-play" id="frpPlay2" onclick="event.stopPropagation();selectFloatStation(2)"><svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg></button>
     </div>
   </div>
 
@@ -8610,10 +8606,10 @@ function ctxPrivate() {
       const pb = document.getElementById('frpPlay' + i);
       if (!pb) return;
       if (playing && i === frpCurrentIdx) {
-        pb.innerHTML = '<i class="icon ion-ios-pause" style="color:#8aafd4"></i>';
+        pb.innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
         pb.classList.remove('playing');
       } else {
-        pb.innerHTML = '<i class="icon ion-ios-play" style="color:#8aafd4"></i>';
+        pb.innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>';
         pb.classList.remove('playing');
       }
     });
@@ -9051,7 +9047,7 @@ function processSmileKeywords(text){
       var ex=document.getElementById('vcRingBanner'); if(ex) ex.remove();
       var b=document.createElement('div'); b.id='vcRingBanner';
       b.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:90px;z-index:99999;background:#0f1f3d;color:#fff;border:1px solid #2a3f63;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 12px 36px rgba(0,0,0,.45);width:calc(100% - 28px);max-width:400px';
-      b.innerHTML='<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="icon ion-ios-videocam" style="font-size:20px;color:#fff"></i></div>'+
+      b.innerHTML='<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px"><circle cx="12" cy="10" r="6.5"/><circle cx="12" cy="10" r="2.2"/><path d="M12 16.5V21"/><path d="M6 21h12"/></svg></div>'+
         '<div style="flex:1;min-width:0"><div style="font-family:\'Syne\',sans-serif;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+((d.host||'Alguém'))+' iniciou uma chamada</div><div style="font-size:11px;color:#9fb4d6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+((d.title||'Chamada de vídeo'))+' · até '+((d.max||4))+'</div></div>'+
         '<button id="vcRingGo" style="background:#10b981;color:#fff;border:none;border-radius:14px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:\'Syne\',sans-serif">Entrar</button>'+
         '<button id="vcRingX" style="background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:14px;padding:8px 10px;font-size:12px;cursor:pointer">✕</button>';
