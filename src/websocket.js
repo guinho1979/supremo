@@ -399,19 +399,18 @@ function setupWebSocket(server) {
         let targetSocket = null;
         clients.forEach((c, id) => { if (c.nick === to_nick) targetSocket = c; });
 
-        // Salvar no banco
-        if (client.userId) {
-          const { rows: [target] } = await db.query(
-            'SELECT id FROM users WHERE nick = $1', [to_nick]
-          ).catch(() => ({ rows: [] }));
+        // Salvar no banco (sempre — mesmo quando remetente ou destinatário
+        // são visitantes; from_nick/to_nick não dependem de cadastro)
+        let targetUserId = null;
+        try {
+          const { rows: [target] } = await db.query('SELECT id FROM users WHERE nick = $1', [to_nick]);
+          if (target) targetUserId = target.id;
+        } catch (e) {}
 
-          if (target) {
-            await db.query(`
-              INSERT INTO private_messages (from_user_id, to_user_id, from_nick, to_nick, content, msg_type, media_url, quoted_nick, quoted_text)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            `, [client.userId, target.id, client.nick, to_nick, content || '', msg_type, media_url, quoted_nick, quoted_text]).catch(() => {});
-          }
-        }
+        await db.query(`
+          INSERT INTO private_messages (from_user_id, to_user_id, from_nick, to_nick, content, msg_type, media_url, quoted_nick, quoted_text)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        `, [client.userId || null, targetUserId, client.nick, to_nick, content || '', msg_type, media_url, quoted_nick, quoted_text]).catch((e) => { console.error('Erro ao salvar PV:', e.message); });
 
         const pmPayload = {
           event: 'private',
