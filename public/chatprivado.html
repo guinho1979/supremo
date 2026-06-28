@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 
-  <script>try{document.cookie="tc_last_page=chatprivado.html; path=/; max-age="+(7*24*60*60)+"; SameSite=Lax";}catch(e){}try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp)window.__SPY__=_sp;}catch(e){}</script>
+  <script>try{document.cookie="tc_last_page=chatprivado.html; path=/; max-age="+(7*24*60*60)+"; SameSite=Lax";}catch(e){}try{var _sp=new URLSearchParams(location.search).get('spy');if(_sp){window.__SPY__=_sp;document.documentElement.classList.add('spy-mode');}}catch(e){}</script>
 <script>
 (function(){
   try{ if(!localStorage.getItem('tc_token')) window.location.replace('login.html'); }catch(e){}
@@ -40,6 +40,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 .spy-bar .spy-label{flex:1}
 .spy-bar .spy-exit{background:#7f1d1d;border:1px solid #ef4444;color:#fca5a5;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;cursor:pointer;font-family:'Syne',sans-serif}
 .spy-mode .toolbar{display:none!important}
+.spy-mode .topbar{display:none!important}
 @keyframes plusMenuIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .spy-mode .input-row{display:none!important}
 .topbar{display:flex;align-items:center;gap:7px;padding:7px 12px;background:linear-gradient(135deg,#0f1f3d,#1d4ed8);border-bottom:none;flex-shrink:0;z-index:5;position:relative}
@@ -495,7 +496,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
 </style>
 <script>(function(){var l=location,w=l.protocol==='https:'?'wss:':'ws:';window.TC_API_URL=window.TC_API_URL||l.protocol+'//'+l.host+'/api';window.TC_WS_URL=window.TC_WS_URL||w+'//'+l.host+'/ws';})();</script>
 <script src="api.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet"/>
 </head>
 <body>
 
@@ -803,7 +803,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <div class="ap-time" id="apTime" style="font-size:10px;color:#8aafd4;margin-top:2px">0:00 / 0:00</div>
   </div>
   <div class="ap-controls">
-    <button class="ap-btn" id="apPlayBtn" onclick="toggleAudioPlayer()"><i class="icon ion-ios-pause" style="color:#8aafd4"></i></button>
+    <button class="ap-btn" id="apPlayBtn" onclick="toggleAudioPlayer()"><svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg></button>
     <button class="ap-close" onclick="closeAudioPlayer()">✕</button>
   </div>
 </div>
@@ -896,7 +896,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);hei
     <button id="btnConvidarPrivado" style="display:none" onclick="abrirConvidarPrivadoDoChat()"></button>
     <input class="msg-input" id="msgInput" placeholder="Digite uma mensagem..." onkeydown="if(event.key==='Enter')sendMsg()"/>
     <button class="send-btn" id="sendBtn" onclick="sendMsg()">
-      <i class="icon ion-android-send" style="font-size:20px;color:#1d4ed8"></i>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="#1d4ed8"/>
+      </svg>
     </button>
   </div>
 </div>
@@ -1028,7 +1030,7 @@ function verFas(nick){
       var photo=f.photo_url||f.photo||((String(av).indexOf('http')===0||String(av).indexOf('data:')===0)?av:'');
       var avHtml=photo
         ? '<img src="'+photo+'" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid #dde3ef">'
-        : '<span style="width:36px;height:36px;border-radius:50%;background:#eef2fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #dde3ef"><i class="icon ion-person" style="font-size:20px;color:#8aafd4"></i></span>';
+        : '<span style="width:36px;height:36px;border-radius:50%;background:#eef2fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #dde3ef"><svg width="20" height="20" viewBox="0 0 24 24" fill="#8aafd4"><path d="M12 12.2c2.6 0 4.7-2.1 4.7-4.7S14.6 2.8 12 2.8 7.3 4.9 7.3 7.5 9.4 12.2 12 12.2zm0 2.3c-3.1 0-9.4 1.6-9.4 4.7v2.3h18.8V19.2c0-3.1-6.3-4.7-9.4-4.7z"/></svg></span>';
       var safe=String(f.nick).replace(/'/g,"&#39;");
       return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#f3f6fc;border:1px solid #e2e8f0;cursor:pointer" onclick="fecharFans();openProfile(\''+safe+'\')">'
         +avHtml
@@ -2607,7 +2609,7 @@ function openAudioPlayer(src,name){
   a.src = src;
   document.getElementById('apName').textContent = name || src;
   document.getElementById('audioPlayer').classList.add('show');
-  document.getElementById('apPlayBtn').innerHTML = '<i class="icon ion-ios-pause" style="color:#8aafd4"></i>';
+  document.getElementById('apPlayBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
   document.getElementById('apFill').style.width = '0%';
   if(document.getElementById('apTime')) document.getElementById('apTime').textContent = '0:00 / 0:00';
   state.audioPlaying = true;
@@ -2622,7 +2624,7 @@ function openAudioPlayer(src,name){
   a.ontimeupdate = updateBar;
   a.onended = function(){
     state.audioPlaying = false;
-    document.getElementById('apPlayBtn').innerHTML = '<i class="icon ion-ios-play" style="color:#8aafd4"></i>';
+    document.getElementById('apPlayBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>';
     document.getElementById('apFill').style.width = '100%';
   };
   a.onerror = function(){
@@ -2634,8 +2636,8 @@ function openAudioPlayer(src,name){
 function toggleAudioPlayer(){
   var a = document.getElementById('apAudioEl');
   if(!a || !a.src) return;
-  if(state.audioPlaying){ a.pause(); state.audioPlaying=false; document.getElementById('apPlayBtn').innerHTML='<i class="icon ion-ios-play" style="color:#8aafd4"></i>'; }
-  else { a.play().catch(function(){}); state.audioPlaying=true; document.getElementById('apPlayBtn').innerHTML='<i class="icon ion-ios-pause" style="color:#8aafd4"></i>'; }
+  if(state.audioPlaying){ a.pause(); state.audioPlaying=false; document.getElementById('apPlayBtn').innerHTML='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>'; }
+  else { a.play().catch(function(){}); state.audioPlaying=true; document.getElementById('apPlayBtn').innerHTML='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>'; }
 }
 function closeAudioPlayer(){
   var a = document.getElementById('apAudioEl');
@@ -3095,9 +3097,9 @@ function _sendMediaPV(type,src,name){
   area.appendChild(d);area.scrollTop=area.scrollHeight;
 }
 function getMediaConfig(type,src,name){
-  var ICO_IMAGE='<i class="icon ion-image" style="font-size:28px;color:#60a5fa"></i>';
-  var ICO_VIDEO='<i class="icon ion-ios-videocam" style="font-size:28px;color:#a78bfa"></i>';
-  var ICO_AUDIO='<i class="icon ion-ios-volume-high" style="font-size:28px;color:#34d399"></i>';
+  var ICO_IMAGE='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><circle cx="8.5" cy="9.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>';
+  var ICO_VIDEO='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="3"/><polygon points="22,8 16,12 22,16"/></svg>';
+  var ICO_AUDIO='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10,8 18,12 10,16" fill="#34d399" stroke="none"/></svg>';
   var ICO_GIF='<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><polyline points="21,15 16,10 5,21"/><circle cx="8.5" cy="9.5" r="1.5"/><text x="7" y="14" fill="#f59e0b" font-size="5" font-weight="bold" stroke="none">GIF</text></svg>';
   var ICO_YT='<svg width="28" height="28" viewBox="0 0 24 24" fill="#ef4444"><path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.2 5 12 5 12 5s-4.2 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.6c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.8 2.3.9C6.8 19 12 19 12 19s4.2 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.6C22 9.6 21.8 8 21.8 8z"/><polygon points="10,8.5 10,15.5 16,12" fill="white"/></svg>';
   var ICO_TK='<svg width="28" height="28" viewBox="0 0 24 24" fill="#ff0050"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.79a4.85 4.85 0 01-1.01-.1z"/></svg>';
@@ -3323,7 +3325,7 @@ function toggleFan(nick){
 }
 
 /* Coração (SVG) que herda a cor do botão — branco quando "Sou fã" */
-var _PROF_HEART='<i class="icon ion-heart" style="font-size:14px;vertical-align:-1px;margin-right:3px"></i>';
+var _PROF_HEART='<svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;vertical-align:-2px;margin-right:3px"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54z"/></svg>';
 /* Logos oficiais das redes */
 var _PROF_SOC={
   ig:'<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07c-1.28.06-2.15.26-2.91.56-.79.31-1.46.72-2.13 1.38C1.34 2.68.93 3.35.63 4.14c-.3.76-.5 1.63-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91.31.79.72 1.46 1.38 2.13.67.66 1.34 1.07 2.13 1.38.76.3 1.63.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.38.66-.67 1.07-1.34 1.38-2.13.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.38-2.13C21.32 1.34 20.65.93 19.86.63c-.76-.3-1.63-.5-2.91-.56C15.67.01 15.26 0 12 0m0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84M12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4m6.41-10.85a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44"/></svg>',
@@ -3370,8 +3372,8 @@ function buildProfileAudioPlayer(nick){
 
   const playBtn=document.createElement('button');
   playBtn.style.cssText='width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s;padding:0';
-  const svgPlay='<i class="icon ion-ios-play" style="color:#8aafd4"></i>';
-  const svgPause='<i class="icon ion-ios-pause" style="color:#8aafd4"></i>';
+  const svgPlay='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>';
+  const svgPause='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';
   playBtn.innerHTML=svgPlay;
 
   const info=document.createElement('div');
@@ -5495,7 +5497,7 @@ function cpVerUsuarios(salaId, salaNome){
       var photo = u.photo_url || u.photo || ((String(av).indexOf('http')===0||String(av).indexOf('data:')===0) ? av : '');
       var avHtml = photo
         ? '<img src="'+photo+'" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1px solid #dde3ef">'
-        : '<span style="width:36px;height:36px;border-radius:50%;background:#eef2fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #dde3ef"><i class="icon ion-person" style="font-size:20px;color:#8aafd4"></i></span>';
+        : '<span style="width:36px;height:36px;border-radius:50%;background:#eef2fb;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid #dde3ef"><svg width="20" height="20" viewBox="0 0 24 24" fill="#8aafd4"><path d="M12 12.2c2.6 0 4.7-2.1 4.7-4.7S14.6 2.8 12 2.8 7.3 4.9 7.3 7.5 9.4 12.2 12 12.2zm0 2.3c-3.1 0-9.4 1.6-9.4 4.7v2.3h18.8V19.2c0-3.1-6.3-4.7-9.4-4.7z"/></svg></span>';
       return '<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:#ffffff;border:1px solid #dde3ef">'
         +avHtml
         +'<div style="flex:1;min-width:0"><div style="font-family:\'Syne\',sans-serif;font-size:12px;font-weight:800;color:#1a2340;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+u.nick+'</div>'
@@ -5768,17 +5770,17 @@ function abrirConvidarPrivadoDoChat(){
     <div class="frp-station" id="frpSt0" onclick="selectFloatStation(0)">
       <div class="frp-st-icon" style="background:linear-gradient(135deg,#1d4ed8,#0f1f3d)">🎵</div>
       <div class="frp-st-info"><div class="frp-st-name">Chat Supremo FM</div><div class="frp-st-genre">Pop • Hits • Ao vivo</div></div>
-      <button class="frp-st-play" id="frpPlay0" onclick="event.stopPropagation();selectFloatStation(0)"><i class="icon ion-ios-play" style="color:#8aafd4"></i></button>
+      <button class="frp-st-play" id="frpPlay0" onclick="event.stopPropagation();selectFloatStation(0)"><svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg></button>
     </div>
     <div class="frp-station" id="frpSt1" onclick="selectFloatStation(1)">
       <div class="frp-st-icon" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">🎸</div>
       <div class="frp-st-info"><div class="frp-st-name">Rock Supremo</div><div class="frp-st-genre">Rock • Metal • Clássicos</div></div>
-      <button class="frp-st-play" id="frpPlay1" onclick="event.stopPropagation();selectFloatStation(1)"><i class="icon ion-ios-play" style="color:#8aafd4"></i></button>
+      <button class="frp-st-play" id="frpPlay1" onclick="event.stopPropagation();selectFloatStation(1)"><svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg></button>
     </div>
     <div class="frp-station" id="frpSt2" onclick="selectFloatStation(2)">
       <div class="frp-st-icon" style="background:linear-gradient(135deg,#059669,#064e3b)">🎷</div>
       <div class="frp-st-info"><div class="frp-st-name">Lounge Chill</div><div class="frp-st-genre">Lo-fi • Jazz • Relaxante</div></div>
-      <button class="frp-st-play" id="frpPlay2" onclick="event.stopPropagation();selectFloatStation(2)"><i class="icon ion-ios-play" style="color:#8aafd4"></i></button>
+      <button class="frp-st-play" id="frpPlay2" onclick="event.stopPropagation();selectFloatStation(2)"><svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg></button>
     </div>
   </div>
   <div class="frp-vol-row">
@@ -5798,7 +5800,7 @@ function abrirConvidarPrivadoDoChat(){
   let frpAudio=null,frpPlaying=false,frpMuted=false,frpVol=80,frpCurrentIdx=-1,frpPanelOpen=false;
   function getAudio(){if(!frpAudio){frpAudio=new Audio();frpAudio.volume=frpVol/100;frpAudio.onerror=function(){showFrpError();};}return frpAudio;}
   function showFrpError(){const sub=document.getElementById('frpSubtitle');if(sub)sub.textContent='⚠ Erro ao conectar — tente outra rádio';setFrpPlayingState(false);}
-  function setFrpPlayingState(playing){frpPlaying=playing;const btn=document.getElementById('floatRadioBtn');const disc=document.getElementById('frpDisc');if(playing){btn.classList.add('playing');disc&&disc.classList.add('spinning');}else{btn.classList.remove('playing');disc&&disc.classList.remove('spinning');}STATIONS.forEach(function(_,i){const pb=document.getElementById('frpPlay'+i);if(!pb)return;if(playing&&i===frpCurrentIdx){pb.innerHTML='<i class="icon ion-ios-pause" style="color:#8aafd4"></i>';pb.classList.remove('playing');}else{pb.innerHTML='<i class="icon ion-ios-play" style="color:#8aafd4"></i>';pb.classList.remove('playing');}});}
+  function setFrpPlayingState(playing){frpPlaying=playing;const btn=document.getElementById('floatRadioBtn');const disc=document.getElementById('frpDisc');if(playing){btn.classList.add('playing');disc&&disc.classList.add('spinning');}else{btn.classList.remove('playing');disc&&disc.classList.remove('spinning');}STATIONS.forEach(function(_,i){const pb=document.getElementById('frpPlay'+i);if(!pb)return;if(playing&&i===frpCurrentIdx){pb.innerHTML='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>';pb.classList.remove('playing');}else{pb.innerHTML='<svg viewBox="0 0 24 24" fill="#8aafd4" xmlns="http://www.w3.org/2000/svg"><polygon points="6,4 20,12 6,20"/></svg>';pb.classList.remove('playing');}});}
   window.selectFloatStation=function(idx){const a=getAudio();if(idx===frpCurrentIdx){if(frpPlaying){a.pause();setFrpPlayingState(false);document.getElementById('frpSubtitle').textContent='Pausado';}else{a.play().catch(function(){});setFrpPlayingState(true);document.getElementById('frpSubtitle').textContent='▶ Tocando ao vivo';}return;}frpCurrentIdx=idx;const st=STATIONS[idx];document.getElementById('frpTitle').textContent=st.name;document.getElementById('frpSubtitle').textContent='Conectando...';STATIONS.forEach(function(_,i){const card=document.getElementById('frpSt'+i);if(card)card.classList.toggle('active',i===idx);});a.pause();a.src=st.url;a.load();a.play().then(function(){setFrpPlayingState(true);document.getElementById('frpSubtitle').textContent='▶ Tocando ao vivo';}).catch(function(){showFrpError();});};
   window.toggleFloatRadio=function(){frpPanelOpen=!frpPanelOpen;const panel=document.getElementById('floatRadioPanel');panel.style.display=frpPanelOpen?'block':'none';if(frpPanelOpen){setTimeout(function(){document.addEventListener('click',frpOutsideClick);},50);}else{document.removeEventListener('click',frpOutsideClick);}};
   function frpOutsideClick(e){const panel=document.getElementById('floatRadioPanel');const btn=document.getElementById('floatRadioBtn');if(!panel.contains(e.target)&&!btn.contains(e.target)){panel.style.display='none';frpPanelOpen=false;document.removeEventListener('click',frpOutsideClick);}}
