@@ -68,20 +68,43 @@ var API = {
   isGuest: function () { return LS.get('tc_type') === 'guest'; },
   currentUser: function () { try { return JSON.parse(LS.get('tc_user', '{}')); } catch (e) { return {}; } },
 
+  // ── Detecta o dispositivo real via User-Agent Client Hints ──
+  // (Chrome 110+ "congela" o navigator.userAgent / header User-Agent
+  //  como "Android 10; K" por privacidade — o modelo/versão real só
+  //  fica disponível via getHighEntropyValues, então capturamos aqui
+  //  e mandamos pro servidor junto do login)
+  getDeviceLabel: async function () {
+    try {
+      if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+        var hi = await navigator.userAgentData.getHighEntropyValues(['model', 'platformVersion', 'platform']);
+        var plat = hi.platform || '';
+        var model = (hi.model || '').trim();
+        var pv = hi.platformVersion || '';
+        if (plat === 'Android') {
+          return 'Android ' + (pv || '?') + (model ? (' · ' + model) : '');
+        }
+        if (plat) return plat + (pv ? (' ' + pv) : '') + (model ? (' · ' + model) : '');
+      }
+    } catch (e) {}
+    return null; // sem Client Hints (iOS/Firefox) — backend usa o User-Agent normal
+  },
   // ── Auth ──────────────────────────────────────────────
   login: async function (nick, password) {
-    var d = await API.post('/auth/login', { nick: nick, password: password });
+    var device_label = await API.getDeviceLabel();
+    var d = await API.post('/auth/login', { nick: nick, password: password, device_label: device_label });
     if (d.banned) throw new Error('Esta conta está banida.');
     API.saveSession(d.token, d.user, 'registered');
     return d;
   },
   register: async function (nick, password, birthday) {
-    var d = await API.post('/auth/register', { nick: nick, password: password, birthday: birthday || null });
+    var device_label = await API.getDeviceLabel();
+    var d = await API.post('/auth/register', { nick: nick, password: password, birthday: birthday || null, device_label: device_label });
     API.saveSession(d.token, d.user, 'registered');
     return d;
   },
   guest: async function (nick) {
-    var d = await API.post('/auth/guest', { nick: nick });
+    var device_label = await API.getDeviceLabel();
+    var d = await API.post('/auth/guest', { nick: nick, device_label: device_label });
     API.saveSession(d.token, d.user, 'guest');
     // Visitante: foto = ícone de usuário (👤) e nick na cor preta
     try {
