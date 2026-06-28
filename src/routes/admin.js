@@ -19,7 +19,7 @@ router.get('/users', async (req, res) => {
     const search = req.query.q || '';
     const { rows } = await db.query(`
       SELECT id, nick, role, avatar, is_banned, ban_reason, ban_expires,
-             created_at, last_seen, status, last_ip, last_user_agent,
+             created_at, last_seen, status, last_ip, last_user_agent, last_device_label,
              (SELECT COUNT(*) FROM messages m WHERE m.nick = users.nick) AS msg_count
       FROM users
       WHERE ($1 = '' OR nick ILIKE '%' || $1 || '%')
@@ -516,7 +516,7 @@ router.delete('/rooms/:slug', requireRole('admin'), async (req, res) => {
 router.get('/logins', async (req, res) => {
   try {
     const { rows } = await db.query(`
-      SELECT nick, kind, ip, user_agent, created_at
+      SELECT nick, kind, ip, user_agent, device_label, created_at
       FROM login_logs
       WHERE created_at > NOW() - INTERVAL '24 hours'
       ORDER BY created_at DESC LIMIT 500

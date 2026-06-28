@@ -41,8 +41,9 @@ async function isVpnBlocked(ip) {
 async function logLogin(req, nick, kind) {
   try {
     const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
-    await db.query('INSERT INTO login_logs (nick, kind, ip, user_agent) VALUES ($1,$2,$3,$4)',
-      [nick, kind, ip, req.headers['user-agent'] || '']);
+    const deviceLabel = (req.body && req.body.device_label) ? String(req.body.device_label).slice(0, 120) : null;
+    await db.query('INSERT INTO login_logs (nick, kind, ip, user_agent, device_label) VALUES ($1,$2,$3,$4,$5)',
+      [nick, kind, ip, req.headers['user-agent'] || '', deviceLabel]);
   } catch (e) { /* não bloqueia login */ }
 }
 const SALT_ROUNDS = 12;
@@ -97,12 +98,13 @@ router.post('/register', async (req, res) => {
 
     // Criar usuário
     const { rows: [user] } = await db.query(
-      `INSERT INTO users (nick, password_hash, birthday, last_ip, last_user_agent, last_seen)
-       VALUES ($1, $2, $3, $4, $5, NOW())
+      `INSERT INTO users (nick, password_hash, birthday, last_ip, last_user_agent, last_device_label, last_seen)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW())
        RETURNING id, nick, role, avatar`,
       [nick, hash, birthday || null,
        (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '',
-       req.headers['user-agent'] || '']
+       req.headers['user-agent'] || '',
+       (req.body && req.body.device_label) ? String(req.body.device_label).slice(0, 120) : null]
     );
 
     // Gerar JWT
@@ -197,8 +199,9 @@ router.post('/login', async (req, res) => {
 
     // Atualizar last_seen + IP/dispositivo
     await db.query(
-      'UPDATE users SET last_seen = NOW(), last_ip = $2, last_user_agent = $3 WHERE id = $1',
-      [user.id, (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '', req.headers['user-agent'] || '']
+      'UPDATE users SET last_seen = NOW(), last_ip = $2, last_user_agent = $3, last_device_label = $4 WHERE id = $1',
+      [user.id, (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '', req.headers['user-agent'] || '',
+       (req.body && req.body.device_label) ? String(req.body.device_label).slice(0, 120) : null]
     );
 
     // JWT
